@@ -124,9 +124,13 @@ export class EpigraphyFormComponent implements OnInit {
           }
         )
         
-        this.spanPopovers.toArray()[position_popover-1].open()
+        this.message = '';
+        
+        this.spanPopovers.toArray()[position_popover-1].open();
+        
         let popover_id = this.spanPopovers.toArray()[position_popover-1]._ngbPopoverWindowId;
         this.selectedPopover.tokenId = (position_popover -1).toString();
+        this.annotatorService.triggerSearch(null);
         this.selectedPopover.htmlNodeName = popover_id;
         let multiwordSpan = Array.from(document.querySelectorAll("[class*=multiword-span-]"));
         let spansArray = [];
@@ -216,7 +220,7 @@ export class EpigraphyFormComponent implements OnInit {
           let i = 0;
           Array.from(parentMarkElement.childNodes).forEach(
             element => {
-              console.log(element)
+//              console.log(element)
               let textMarkElement = element.textContent;
               let prev, next;
               if (element['classList'] != undefined) {

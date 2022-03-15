@@ -181,7 +181,7 @@ export class SearchFormComponent implements OnInit {
         }
       ];
       parameters["id"] = tokenData.node;
-    }else if(textSelection == ''){
+    }else if(textSelection == '' && !Array.isArray(selectionSpan)){
       console.log(222)
       parameters["value"] = formValue;
       parameters["layer"] = "attestation";
@@ -205,7 +205,7 @@ export class SearchFormComponent implements OnInit {
         }
       ];
       parameters["id"] = tokenData.node;
-    }else if(textSelection != '' && selectionSpan.length > 1){ //MULTIWORD
+    }else if(Array.isArray(selectionSpan)){ //MULTIWORD
       console.log(333)
       parameters["value"] = formValue;
       parameters["layer"] = "attestation";
