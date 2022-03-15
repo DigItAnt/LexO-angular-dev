@@ -12,8 +12,6 @@ import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-
 import { SearchFormComponent } from './search-form/search-form.component';
 declare var $: JQueryStatic;
 
-
-
 @Component({
   selector: 'app-epigraphy-form',
   templateUrl: './epigraphy-form.component.html',
@@ -35,10 +33,7 @@ export class EpigraphyFormComponent implements OnInit {
     tokenId: ''
   };
 
-  spanSelection = {
-    start : 0,
-    end : 0
-  }
+  spanSelection;
 
   data: object;
   sel_t: object;
@@ -49,6 +44,9 @@ export class EpigraphyFormComponent implements OnInit {
   @ViewChild('search_form') searchForm : SearchFormComponent;
 
   //@ViewChild('span_modal') spanPopover: ElementRef;
+
+
+  
   epigraphyForm = new FormGroup({
     tokens: new FormArray([this.createToken()]),
   })
@@ -57,6 +55,112 @@ export class EpigraphyFormComponent implements OnInit {
   multiWordMode = false;
   annotationArray = [];
   token_annotationArray = [];
+
+  @HostListener('document:mouseup', ['$event'])
+  onMouseUp(event): void {
+    setTimeout(() => {
+      let evtPath = Array.from(event.path);
+      let isMultiwordRequest = false;
+      evtPath.some((element: HTMLElement) => {
+        if (element.classList != undefined) {
+          if (element.classList.contains('multiword-button')) {
+            isMultiwordRequest = true;
+            return true;
+          } else {
+            isMultiwordRequest
+            return false;
+          }
+        } else {
+          return false;
+        }
+      })
+
+      
+      let event_el;
+
+      if (isMultiwordRequest) {
+        let multiWordArray = Array.from(document.getElementsByClassName('multiword'));
+        multiWordArray.forEach(element => {
+          let children = Array.from(element.children);
+          children.forEach(subchild => {
+            if (subchild.classList.contains('multiword-button')) {
+              event_el = element.children
+              subchild.remove();
+            }
+          })
+        });
+        document.querySelectorAll('.multiword').forEach(element => {
+          this.renderer.removeClass(element, 'multiword');
+          this.renderer.addClass(element, 'multiword-span-' + 1);
+          
+          let prev = element.previousElementSibling;
+          let next = element.nextElementSibling;
+
+          if (prev != undefined) {
+            if (prev.classList != undefined) {
+              let classNames = prev.className;
+              let matchTest = /(^|\s)(multiword-span-\d)(\s|$)/.test(classNames)
+              if (matchTest) {
+                this.renderer.addClass(element, 'border-left-0')
+              }
+            }
+          } else if (next != undefined) {
+            if (next.classList != undefined) {
+              let classNames = next.className;
+              let matchTest = /(^|\s)(multiword-span-\d)(\s|$)/.test(classNames)
+              if (matchTest) {
+                this.renderer.addClass(element, 'border-right-0')
+              }
+            }
+          }
+        })
+
+        let position_popover;
+      
+        Array.from(event_el).forEach(
+          (element : HTMLElement)=>{
+            position_popover = element.getAttribute('position');
+            return;
+          }
+        )
+        
+        this.spanPopovers.toArray()[position_popover-1].open()
+        let popover_id = this.spanPopovers.toArray()[position_popover-1]._ngbPopoverWindowId;
+        this.selectedPopover.tokenId = (position_popover -1).toString();
+        this.selectedPopover.htmlNodeName = popover_id;
+        let multiwordSpan = Array.from(document.querySelectorAll("[class*=multiword-span-]"));
+        let spansArray = [];
+        multiwordSpan.forEach(element => {
+          let children = Array.from(element.children);
+          children.forEach(
+            span=>{
+              let position = parseInt(span.getAttribute('position'));
+              let object = {
+                start : this.object[position-1].begin,
+                end : this.object[position-1].end
+              }
+              
+              spansArray.push(object)
+            }
+          )
+        })
+
+        console.log(spansArray);
+        this.spanSelection = spansArray;
+        
+        
+      } else {
+        if (!this.multiWordMode) {
+
+          //console.log(document.querySelectorAll('.token'))
+          document.querySelectorAll('.multiword').forEach(element => {
+            this.renderer.removeClass(element, 'multiword')
+            this.renderer.removeClass(element, 'border-right-0');
+          });
+        }
+      }
+    }, 10);
+  }
 
   @HostListener('document:mousedown', ['$event'])
   onGlobalClick(event): void {
@@ -85,14 +189,17 @@ export class EpigraphyFormComponent implements OnInit {
     setTimeout(() => {
       /* console.log(event.path) */
       let evtPath = Array.from(event.path)
+      //console.log(this.selectedPopover.htmlNodeName)
       let htmlNode = document.getElementById(this.selectedPopover.htmlNodeName)
+      console.log
       let tokenId = this.selectedPopover.tokenId;
       if (evtPath.includes(htmlNode)) {
 
       } else {
         if(this.object != null){
           this.object.forEach(element => {
-            if (element.id != tokenId) {
+            //console.log(element.position != tokenId)
+            if (element.position != tokenId) {
   
               element.editing = false;
   
@@ -156,83 +263,6 @@ export class EpigraphyFormComponent implements OnInit {
 
       }
     }, 17);
-
-
-
-    let evtPath = Array.from(event.path);
-    let isMultiwordRequest = false;
-    evtPath.some((element: HTMLElement) => {
-      if (element.classList != undefined) {
-        if (element.classList.contains('multiword-button')) {
-          isMultiwordRequest = true;
-          return true;
-        } else {
-          isMultiwordRequest
-          return false;
-        }
-      } else {
-        return false;
-      }
-    })
-
-    let event_el;
-
-
-    if (isMultiwordRequest) {
-      let multiWordArray = Array.from(document.getElementsByClassName('multiword'));
-      multiWordArray.forEach(element => {
-        let children = Array.from(element.children);
-        children.forEach(subchild => {
-          if (subchild.classList.contains('multiword-button')) {
-            subchild.remove();
-          }
-        })
-      });
-      document.querySelectorAll('.multiword').forEach(element => {
-        this.renderer.removeClass(element, 'multiword');
-        this.renderer.addClass(element, 'multiword-span-' + 1);
-        
-        let prev = element.previousElementSibling;
-        let next = element.nextElementSibling;
-
-        if (prev != undefined) {
-          if (prev.classList != undefined) {
-            let classNames = prev.className;
-            let matchTest = /(^|\s)(multiword-span-\d)(\s|$)/.test(classNames)
-            if (matchTest) {
-              this.renderer.addClass(element, 'border-left-0')
-            }
-          }
-        } else if (next != undefined) {
-          if (next.classList != undefined) {
-            let classNames = next.className;
-            let matchTest = /(^|\s)(multiword-span-\d)(\s|$)/.test(classNames)
-            if (matchTest) {
-              this.renderer.addClass(element, 'border-right-0')
-            }
-          }
-        }
-      })
-      
-
-    } else {
-      if (!this.multiWordMode) {
-
-        //console.log(document.querySelectorAll('.token'))
-        document.querySelectorAll('.multiword').forEach(element => {
-          this.renderer.removeClass(element, 'multiword')
-          this.renderer.removeClass(element, 'border-right-0');
-        });
-      }
-    }
-
-
-
-
-
-
-
-
 
   }
 
@@ -344,8 +374,7 @@ export class EpigraphyFormComponent implements OnInit {
         if (this.object != changes.epiData.currentValue) {
           this.tokenArray = this.epigraphyForm.get('tokens') as FormArray;
           this.tokenArray.clear();
-          this.spanSelection.start = 0;
-          this.spanSelection.end = 0;
+          this.spanSelection = null;
           /* 
   
           this.denotesArray = this.coreForm.get('denotes') as FormArray;
@@ -419,6 +448,7 @@ export class EpigraphyFormComponent implements OnInit {
       let matchTest = /(^|\s)(multiword-span-\d)(\s|$)/.test(classNames)
       if (matchTest) {
         //TODO: highlight su div che contiene multiword
+        console.log("muli")
       } else {
         this.object[i]['selected'] = true;
         
@@ -447,7 +477,7 @@ export class EpigraphyFormComponent implements OnInit {
 
     }, 10);
     let popoverHtml = popover._elementRef.nativeElement;
-    console.log(popoverHtml.querySelectorAll('.annotation'))
+    //console.log(popoverHtml.querySelectorAll('.annotation'))
     if (popoverHtml.querySelectorAll('.annotation').length > 0) {
 
     } else {
@@ -621,11 +651,18 @@ export class EpigraphyFormComponent implements OnInit {
         let start_token = this.object[i].begin;
         let end_token = this.object[i].end;
 
-        annotation.spans.forEach(element => {
-          if(element.start >= start_token && element.end <= end_token){
-            this.token_annotationArray.push(annotation);
-          }
-        });
+        console.log(annotation.spans)
+
+        if(annotation.spans.length == 1){
+          annotation.spans.forEach(element => {
+            if(element.start >= start_token && element.end <= end_token){
+              this.token_annotationArray.push(annotation);
+            }
+          });
+        }else{
+
+        }
+        
 
         if(this.token_annotationArray.length > 0){
           this.lexicalService.triggerAttestationPanel(true)
@@ -726,8 +763,9 @@ export class EpigraphyFormComponent implements OnInit {
               this.renderer.appendChild(popoverHtml, r_text);
             }
             //console.log(popoverHtml.childNodes)
-            this.spanSelection.start = this.object[i].begin + anchorOffset;
-            this.spanSelection.end = this.object[i].begin + focusOffset -1;
+            this.spanSelection = {}
+            this.spanSelection['start'] = this.object[i].begin + anchorOffset;
+            this.spanSelection['end'] = this.object[i].begin + focusOffset -1;
             this.annotatorService.triggerSearch(this.message);
           }else if(selection.anchorNode.textContent.trim().length == innerText.length && this.message == innerText){
             this.message = '';
@@ -738,8 +776,9 @@ export class EpigraphyFormComponent implements OnInit {
         
         else if(this.message == ''){
           this.annotatorService.triggerSearch(innerText);
-          this.spanSelection.start = 0;
-          this.spanSelection.end = 0;
+          this.spanSelection = {}
+          this.spanSelection['start'] = 0;
+          this.spanSelection['end'] = 0;
         }
         /* else if (this.message != '' ) { //&& areThereAnnotations
           let anchorOffset = selection.anchorOffset;
@@ -971,7 +1010,7 @@ export class EpigraphyFormComponent implements OnInit {
           console.log(element)
           text += element.textContent + ' ';
         })
-        this.annotatorService.triggerSearch(text);
+        //this.annotatorService.triggerSearch(text);
       }
     }, 10);
 

@@ -12,12 +12,13 @@
 </p>
 <form [formGroup]="epigraphyForm" *ngIf="object != null">
     <!-- [autoClose]="'outside'" -->
-c
+
     <div class="form-group row ml-2 mt-3 mr-2 panel">
 
         <div *ngFor="let token of object; let i = index" class="panel-body">
 
             <span #span_modal="ngbPopover"
+                [attr.position]="token.position"
                 [ngClass]="{'unselectable': !token.selected, 'selected' : token.selected, 'editing' : token.editing}"
                 class="token token-{{i}} p-2" style="display: block" container="body" [triggers]="manual"
                 [placement]="'bottom'" [popoverTitle]="token.value" [animation]="false" [autoClose]="'outside'"
@@ -42,7 +43,7 @@ c
                 <!-- formControlName="entity" name="entity"  -->
                 
                 <!-- ATTESTATION LIST -->
-                <div class="card">
+                <!-- <div class="card">
                     <div class="card-body" *ngIf="token_annotationArray.length > 0">
                         <div class="form-group row ml-2 mt-0 mb-0 mr-2 panel" *ngFor="let anno of token_annotationArray; let i = index">
                             <label for="inputPassword" class="col-sm-2 col-form-label p-0">Id: {{anno.id}}</label>
@@ -66,7 +67,7 @@ c
                             <label for="inputPassword" class="col-sm-6 col-form-label p-0 font-italic">No annotations</label>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- <div class="card">
                     <div class="card-body">

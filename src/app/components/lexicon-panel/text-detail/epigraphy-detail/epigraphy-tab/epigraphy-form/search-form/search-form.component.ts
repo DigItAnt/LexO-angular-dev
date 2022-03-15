@@ -155,7 +155,10 @@ export class SearchFormComponent implements OnInit {
     let selectionSpan = this.bind.spanSelection;
     let formValue = data.form;
 
-    if(textSelection != ''){
+    console.log(selectionSpan)
+    console.log(textSelection)
+    if(textSelection != '' && textSelection != undefined){
+      console.log(111)
       parameters["value"] = formValue;
       parameters["layer"] = "attestation";
       parameters["attributes"] = {
@@ -178,7 +181,8 @@ export class SearchFormComponent implements OnInit {
         }
       ];
       parameters["id"] = tokenData.node;
-    }else{
+    }else if(textSelection == ''){
+      console.log(222)
       parameters["value"] = formValue;
       parameters["layer"] = "attestation";
       parameters["attributes"] = {
@@ -201,8 +205,27 @@ export class SearchFormComponent implements OnInit {
         }
       ];
       parameters["id"] = tokenData.node;
+    }else if(textSelection != '' && selectionSpan.length > 1){ //MULTIWORD
+      console.log(333)
+      parameters["value"] = formValue;
+      parameters["layer"] = "attestation";
+      parameters["attributes"] = {
+        author : "",
+        creator : "prova",
+        note: "",
+        confidence : 1,
+        timestamp : new Date().getTime().toString(),
+        bibliography: [],
+        validity : "",
+        externalRef : "",
+        node_id : tokenData.id,
+        label : data.label,
+        form_id : data.formInstanceName
+      };
+      parameters["spans"] = selectionSpan
+      parameters["id"] = tokenData.node;
     }
-    console.log(idPopover, tokenData, data);
+    //console.log(idPopover, tokenData, data);
 
     console.log(parameters)
 
@@ -212,7 +235,7 @@ export class SearchFormComponent implements OnInit {
         this.bind.annotationArray.push(data);
         this.bind.populateLocalAnnotation(data)
         
-        /* this.lexicalService.sendToAttestationPanel(data); */
+       
       },
       error => {
         console.log(error);
