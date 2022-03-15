@@ -3,6 +3,7 @@ import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-
 import { ToastrService } from 'ngx-toastr';
 import { DocumentSystemService } from 'src/app/services/document-system/document-system.service';
 import { TreeNode } from '@circlon/angular-tree-component';
+import { ExpanderService } from 'src/app/services/expander/expander.service';
 
 @Component({
   selector: 'app-document-system-tree',
@@ -16,7 +17,7 @@ export class DocumentSystemTreeComponent implements OnInit {
   @ViewChild('lexTree') lexTree: any;
   @ViewChild('textTree') textTree: any;
 
-  constructor(private lexicalService: LexicalEntriesService, private toastr: ToastrService, private renderer: Renderer2, private documentService: DocumentSystemService) { }
+  constructor(private exp : ExpanderService, private lexicalService: LexicalEntriesService, private toastr: ToastrService, private renderer: Renderer2, private documentService: DocumentSystemService) { }
 
   ngOnInit(): void {
     this.lexicalService.refreshAfterEdit$.subscribe(
@@ -493,22 +494,18 @@ export class DocumentSystemTreeComponent implements OnInit {
     this.documentService.uploadFile(formData, element_id, 11).subscribe(
       data=>{
         console.log(data)
-        let id_new_node = 243;
-        let new_node = {
-          "children" : [],
-          "element-id" : id_new_node,
-          "id" : Math.floor(Math.random() * (99999 - 10) + 10),
-          "metadata" : {},
-          "path" : "",
-          "name" : "new-file_"+ Math.floor(Math.random() * (99999 - 10) + 10),
-          "type" : "file"
-        }
+        
         this.toastr.info('New file added', '', {
           timeOut: 5000,
         });
-        this.textTree.nodes.push(new_node);
-        this.textTree.updateTreeView();
-        this.textTree.treeText.treeModel.update();
+        setTimeout(() => {
+          this.textTree.nodes.push(data.node);
+          this.textTree.updateTreeView();
+          this.textTree.treeText.treeModel.update();
+          this.textTree.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
+          
+        }, 100);
+        
         
       },error=>{
         console.log(error);

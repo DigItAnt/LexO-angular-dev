@@ -37,156 +37,156 @@
 
 
             <!-- ################## POPOVER TEMPLATE ################# -->
-            
+            <ng-template #tokenPopover>
+                <!-- [dropdownPosition]="'top'" -->
+                <!-- formControlName="entity" name="entity"  -->
+                
+                <!-- ATTESTATION LIST -->
+                <div class="card">
+                    <div class="card-body" *ngIf="token_annotationArray.length > 0">
+                        <div class="form-group row ml-2 mt-0 mb-0 mr-2 panel" *ngFor="let anno of token_annotationArray; let i = index">
+                            <label for="inputPassword" class="col-sm-2 col-form-label p-0">Id: {{anno.id}}</label>
+                            <div class="input-group col-sm-10">
+                                <input type="text" class="form-control" id="inputPassword" disabled [value]="anno.value">
+                                <div class="input-group-append ml-2">
+                                    <button (click)="getForm(anno?.attributes.form_id)" class="btn btn-primary" type="button" title="Open form">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </button>
+                                </div>
+                                <div class="input-group-append ml-2">
+                                    <button (click)="deleteAnnotation(anno, i, token)" class="btn btn-danger" type="button" title="Delete annotation">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body" *ngIf="token_annotationArray.length == 0">
+                        <div class="form-group row ml-2 mt-0 mb-0 mr-2 panel">
+                            <label for="inputPassword" class="col-sm-6 col-form-label p-0 font-italic">No annotations</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div class="card">
+                    <div class="card-body">
+                        <div class="form-group row ml-2 mt-0 mb-0 mr-2 panel">
+                            <label for="inputPassword" class="col-sm-2 col-form-label p-0">XML ID:</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" id="inputPassword" disabled [value]="token.xmlid">
+                            </div>
+                        </div>
+                        <div class="form-group row ml-2 mt-0 mb-0 mr-2 panel">
+                            <label for="inputPassword" class="col-sm-2 col-form-label p-0">Source:</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" id="inputPassword" disabled [value]="token.source">
+                            </div>
+                        </div>
+                        <div class="form-group row ml-2 mt-0 mb-0 mr-2 panel">
+                            <label for="inputPassword" class="col-sm-2 col-form-label p-0">Imported:</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" id="inputPassword" disabled [value]="token.imported">
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+
+                <div class="card">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs nav-pills nav-fill" id="editDictTab" role="tablist" #navtabs
+                            [ngClass]="{'disabled': object === null}">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="form-tab" data-toggle="tab" href="#form_token" role="tab"
+                                    aria-controls="form_token" aria-selected="true">Form</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link disabled" id="sense-tab" data-toggle="tab" href="#sense_token" role="tab"
+                                    aria-controls="sense_token" aria-selected="true">Sense</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content" id="tab-content">
+                            <div class="tab-pane fade show active" id="form_token" role="tabpanel"
+                                aria-labelledby="form-tab">
+                                <p>Add a form:</p>
+                                
+                                    <app-search-form [bind]="bind" #search_form></app-search-form> <!-- *ngIf="!variable.switch" -->
+                                    <!-- [value]="cog.get('entity').value" -->
+                                    <!-- *ngIf="variable.switch || cog.get('type').value == 'external'" -->
+                                    <!-- <input name="entity" type="text" class="form-control" placeholder="Insert URI"
+                                        *ngIf="variable.switch" (keyup)="handleForm($event)"
+                                        (paste)="handleForm($event)"> -->
+
+                                    <!-- [hidden]="cog.get('type').value == 'external'" -->
+                                    <!-- <div class="input-group-append ml-3 form-check" style="align-items: center;">
+                                        <input class="form-check-input cognates-tooltip" type="checkbox"
+                                            (change)="variable.switch=!variable.switch" data-toggle="tooltip"
+                                            data-placement="bottom" data-trigger="hover"
+                                            title="Clicca per inserire un URI manualmente">
+                                    </div> -->
+                                    <!-- <div class="input-group-append ml-2">
+                                        <button class="btn btn-primary" type="button"><i
+                                                class="fa fa-external-link-alt"></i></button>
+                                    </div> -->
+                                    <!-- <div class="input-group-append ml-2">
+                                        <button (click)="clearAll()" class="btn btn-danger" type="button"><i
+                                                class="fa fa-trash-alt"></i></button>
+                                    </div> -->
+                            </div>
+
+                            <div class="tab-pane fade" id="sense_token" role="tabpanel" aria-labelledby="sense-tab">
+                                <p>Add a sense:</p>
+                                <div class="input-group col-xl-12" *ngIf="{switch : false}; let variable">
+                                    <ng-select #select_sense name="entity" [addTag]="createNewForm"
+                                        (keyup)="triggerSearch($event)" (change)="handleForm(select_sense)"
+                                        [items]="searchResults" bindValue="label" (focus)="deleteData()"
+                                        bindLabel="label" placeholder="Search form" appendTo=".token_modal"
+                                        *ngIf="!variable.switch ">
+                                        <!-- && cog.get('type').value != 'external' -->
+                                        <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                                            <div>
+                                                <span>{{item.label}} </span><span
+                                                    style="color: blue;">@{{item.language}}</span>
+                                            </div>
+
+                                        </ng-template>
+                                    </ng-select>
+                                    <!-- [value]="cog.get('entity').value" -->
+                                    <!-- *ngIf="variable.switch || cog.get('type').value == 'external'" -->
+                                    <input name="entity" type="text" class="form-control" placeholder="Insert URI"
+                                        *ngIf="variable.switch" (keyup)="handleCognates($event, i)">
+
+                                    <!-- [hidden]="cog.get('type').value == 'external'" -->
+                                    <div class="input-group-append ml-3 form-check" style="align-items: center;">
+                                        <input class="form-check-input cognates-tooltip" type="checkbox"
+                                            (change)="variable.switch=!variable.switch" data-toggle="tooltip"
+                                            data-placement="bottom" data-trigger="hover"
+                                            title="Clicca per inserire un URI manualmente">
+                                    </div>
+                                    <!-- <div class="input-group-append ml-2">
+                                        <button class="btn btn-primary" type="button"><i
+                                                class="fa fa-external-link-alt"></i></button>
+                                    </div> -->
+                                    <div class="input-group-append ml-2">
+                                        <button (click)="clearAll()" class="btn btn-danger" type="button">Clear</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </ng-template>
         </div>
 
 
     </div>
 
-    <ng-template #tokenPopover>
-        <!-- [dropdownPosition]="'top'" -->
-        <!-- formControlName="entity" name="entity"  -->
-        
-        <!-- ATTESTATION LIST -->
-        <div class="card">
-            <div class="card-body" *ngIf="token_annotationArray.length > 0">
-                <div class="form-group row ml-2 mt-0 mb-0 mr-2 panel" *ngFor="let anno of token_annotationArray; let i = index">
-                    <label for="inputPassword" class="col-sm-2 col-form-label p-0">Id: {{anno.id}}</label>
-                    <div class="input-group col-sm-10">
-                        <input type="text" class="form-control" id="inputPassword" disabled [value]="anno.value">
-                        <div class="input-group-append ml-2">
-                            <button (click)="getForm(anno?.attributes.form_id)" class="btn btn-primary" type="button" title="Open form">
-                                <i class="fas fa-external-link-alt"></i>
-                            </button>
-                        </div>
-                        <div class="input-group-append ml-2">
-                            <button (click)="deleteAnnotation(anno, i, token)" class="btn btn-danger" type="button" title="Delete annotation">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body" *ngIf="token_annotationArray.length == 0">
-                <div class="form-group row ml-2 mt-0 mb-0 mr-2 panel">
-                    <label for="inputPassword" class="col-sm-6 col-form-label p-0 font-italic">No annotations</label>
-                </div>
-            </div>
-        </div>
 
-        <div class="card">
-            <div class="card-body">
-                <div class="form-group row ml-2 mt-0 mb-0 mr-2 panel">
-                    <label for="inputPassword" class="col-sm-2 col-form-label p-0">XML ID:</label>
-                    <div class="col-sm-7">
-                        <input type="text" class="form-control" id="inputPassword" disabled [value]="token.xmlid">
-                    </div>
-                </div>
-                <div class="form-group row ml-2 mt-0 mb-0 mr-2 panel">
-                    <label for="inputPassword" class="col-sm-2 col-form-label p-0">Source:</label>
-                    <div class="col-sm-7">
-                        <input type="text" class="form-control" id="inputPassword" disabled [value]="token.source">
-                    </div>
-                </div>
-                <div class="form-group row ml-2 mt-0 mb-0 mr-2 panel">
-                    <label for="inputPassword" class="col-sm-2 col-form-label p-0">Imported:</label>
-                    <div class="col-sm-7">
-                        <input type="text" class="form-control" id="inputPassword" disabled [value]="token.imported">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">
-                <ul class="nav nav-tabs nav-pills nav-fill" id="editDictTab" role="tablist" #navtabs
-                    [ngClass]="{'disabled': object === null}">
-                    <li class="nav-item">
-                        <a class="nav-link active" id="form-tab" data-toggle="tab" href="#form_token" role="tab"
-                            aria-controls="form_token" aria-selected="true">Form</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link disabled" id="sense-tab" data-toggle="tab" href="#sense_token" role="tab"
-                            aria-controls="sense_token" aria-selected="true">Sense</a>
-                    </li>
-                </ul>
-            </div>
-            <div class="card-body">
-                <div class="tab-content" id="tab-content">
-                    <div class="tab-pane fade show active" id="form_token" role="tabpanel"
-                        aria-labelledby="form-tab">
-                        <p>Add a form:</p>
-                        
-                            <app-search-form [bind]="bind" #search_form></app-search-form> <!-- *ngIf="!variable.switch" -->
-                            <!-- [value]="cog.get('entity').value" -->
-                            <!-- *ngIf="variable.switch || cog.get('type').value == 'external'" -->
-                            <!-- <input name="entity" type="text" class="form-control" placeholder="Insert URI"
-                                *ngIf="variable.switch" (keyup)="handleForm($event)"
-                                (paste)="handleForm($event)"> -->
-
-                            <!-- [hidden]="cog.get('type').value == 'external'" -->
-                            <!-- <div class="input-group-append ml-3 form-check" style="align-items: center;">
-                                <input class="form-check-input cognates-tooltip" type="checkbox"
-                                    (change)="variable.switch=!variable.switch" data-toggle="tooltip"
-                                    data-placement="bottom" data-trigger="hover"
-                                    title="Clicca per inserire un URI manualmente">
-                            </div> -->
-                            <!-- <div class="input-group-append ml-2">
-                                <button class="btn btn-primary" type="button"><i
-                                        class="fa fa-external-link-alt"></i></button>
-                            </div> -->
-                            <!-- <div class="input-group-append ml-2">
-                                <button (click)="clearAll()" class="btn btn-danger" type="button"><i
-                                        class="fa fa-trash-alt"></i></button>
-                            </div> -->
-                    </div>
-
-                    <div class="tab-pane fade" id="sense_token" role="tabpanel" aria-labelledby="sense-tab">
-                        <p>Add a sense:</p>
-                        <div class="input-group col-xl-12" *ngIf="{switch : false}; let variable">
-                            <ng-select #select_sense name="entity" [addTag]="createNewForm"
-                                (keyup)="triggerSearch($event)" (change)="handleForm(select_sense)"
-                                [items]="searchResults" bindValue="label" (focus)="deleteData()"
-                                bindLabel="label" placeholder="Search form" appendTo=".token_modal"
-                                *ngIf="!variable.switch ">
-                                <!-- && cog.get('type').value != 'external' -->
-                                <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
-                                    <div>
-                                        <span>{{item.label}} </span><span
-                                            style="color: blue;">@{{item.language}}</span>
-                                    </div>
-
-                                </ng-template>
-                            </ng-select>
-                            <!-- [value]="cog.get('entity').value" -->
-                            <!-- *ngIf="variable.switch || cog.get('type').value == 'external'" -->
-                            <input name="entity" type="text" class="form-control" placeholder="Insert URI"
-                                *ngIf="variable.switch" (keyup)="handleCognates($event, i)">
-
-                            <!-- [hidden]="cog.get('type').value == 'external'" -->
-                            <div class="input-group-append ml-3 form-check" style="align-items: center;">
-                                <input class="form-check-input cognates-tooltip" type="checkbox"
-                                    (change)="variable.switch=!variable.switch" data-toggle="tooltip"
-                                    data-placement="bottom" data-trigger="hover"
-                                    title="Clicca per inserire un URI manualmente">
-                            </div>
-                            <!-- <div class="input-group-append ml-2">
-                                <button class="btn btn-primary" type="button"><i
-                                        class="fa fa-external-link-alt"></i></button>
-                            </div> -->
-                            <div class="input-group-append ml-2">
-                                <button (click)="clearAll()" class="btn btn-danger" type="button">Clear</button>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-    </ng-template>
 
 </form>

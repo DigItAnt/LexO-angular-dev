@@ -42,6 +42,8 @@ export class EpigraphyTabComponent implements OnInit {
           this.epigraphyData = null; 
         }
 
+        console.log(object)
+
         if(object!=null){
           this.object = object
 

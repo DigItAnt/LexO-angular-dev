@@ -9,6 +9,7 @@ import { debounceTime } from 'rxjs/operators';
 import { AnnotatorService } from 'src/app/services/annotator/annotator.service';
 import { DocumentSystemService } from 'src/app/services/document-system/document-system.service';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
+import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { v4 } from 'uuid';
 
 
@@ -142,7 +143,7 @@ export class TextTreeComponent implements OnInit {
 
   
   
-  constructor(private annotatorService : AnnotatorService, private expander : ExpanderService, private element: ElementRef, private documentService: DocumentSystemService, private renderer: Renderer2, private formBuilder: FormBuilder, private datePipe:DatePipe, private toastr: ToastrService) { }
+  constructor(private lexicalService: LexicalEntriesService, private annotatorService : AnnotatorService, private expander : ExpanderService, private element: ElementRef, private documentService: DocumentSystemService, private renderer: Renderer2, private formBuilder: FormBuilder, private datePipe:DatePipe, private toastr: ToastrService) { }
 
   ngOnInit(): void {
     this.loadTree();
@@ -370,7 +371,7 @@ export class TextTreeComponent implements OnInit {
         this.treeText.treeModel.getNodeBy(x => {
           if(x.data['element-id'] === element_id){
             x.expand()
-            let element_id_new_node = Math.floor(Math.random() * (9728157429307 - 1728157429307) + 1728157429307);
+            /* let element_id_new_node = Math.floor(Math.random() * (9728157429307 - 1728157429307) + 1728157429307);
             let id_new_node = Math.floor(Math.random() * (9728157429307 - 1728157429307) + 1728157429307);
             let new_node = {
               "children" : [],
@@ -381,16 +382,16 @@ export class TextTreeComponent implements OnInit {
               "name" : "new-file_"+ Math.floor(Math.random() * (99999 - 10) + 10),
               "type" : "file",
               "rename_mode" : false
-            }
+            } */
             this.toastr.info('New file added', '', {
               timeOut: 5000,
             });
             console.log(x)
-            x.data.children.push(new_node)
+            x.data.children.push(data.node)
             setTimeout(() => {
               this.updateTreeView();
               this.treeText.treeModel.update();
-              this.treeText.treeModel.getNodeById(id_new_node).setActiveAndVisible();
+              this.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
             }, 100);
             
           }
@@ -494,6 +495,10 @@ export class TextTreeComponent implements OnInit {
             timeOut: 5000,
           });
           this.nodes = data['documentSystem'];
+          this.lexicalService.sendToAttestationPanel(null);
+          this.documentService.sendToEpigraphyTab(null)
+          this.expander.expandCollapseEpigraphy(false);
+          this.expander.openCollapseEpigraphy(false)
           /* expandedNodes.forEach( (node: TreeNode) => {
           
             setTimeout(() => {

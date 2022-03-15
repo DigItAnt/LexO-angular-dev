@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ContentChild, ElementRef, HostListener, Input, OnInit, QueryList, Renderer2, SimpleChanges, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, ApplicationRef, Component, ComponentFactoryResolver, ComponentRef, ContentChild, ElementRef, HostListener, Injector, Input, OnInit, QueryList, Renderer2, SimpleChanges, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
 import { FormGroup, FormControl, Validators, FormArray, FormBuilder } from '@angular/forms';
 import { NgbPopover, NgbPopoverConfig } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent } from '@ng-select/ng-select';
@@ -52,6 +52,7 @@ export class EpigraphyFormComponent implements OnInit {
   epigraphyForm = new FormGroup({
     tokens: new FormArray([this.createToken()]),
   })
+
 
   multiWordMode = false;
   annotationArray = [];
@@ -174,6 +175,9 @@ export class EpigraphyFormComponent implements OnInit {
       }
     })
 
+    let event_el;
+
+
     if (isMultiwordRequest) {
       let multiWordArray = Array.from(document.getElementsByClassName('multiword'));
       multiWordArray.forEach(element => {
@@ -187,7 +191,7 @@ export class EpigraphyFormComponent implements OnInit {
       document.querySelectorAll('.multiword').forEach(element => {
         this.renderer.removeClass(element, 'multiword');
         this.renderer.addClass(element, 'multiword-span-' + 1);
-
+        
         let prev = element.previousElementSibling;
         let next = element.nextElementSibling;
 
@@ -209,8 +213,7 @@ export class EpigraphyFormComponent implements OnInit {
           }
         }
       })
-
-      console.log(this.spanPopovers)
+      
 
     } else {
       if (!this.multiWordMode) {
@@ -298,7 +301,7 @@ export class EpigraphyFormComponent implements OnInit {
     }
   }
 
-  constructor(private annotatorService: AnnotatorService, private expander: ExpanderService, private renderer: Renderer2, private documentService: DocumentSystemService, private formBuilder: FormBuilder, private toastr: ToastrService, private lexicalService: LexicalEntriesService, private config: NgbPopoverConfig) { }
+  constructor(private resolver: ComponentFactoryResolver, private injector: Injector, private appRef: ApplicationRef, private annotatorService: AnnotatorService, private expander: ExpanderService, private renderer: Renderer2, private documentService: DocumentSystemService, private formBuilder: FormBuilder, private toastr: ToastrService, private lexicalService: LexicalEntriesService, private config: NgbPopoverConfig) { }
 
 
   ngOnInit(): void {
@@ -358,7 +361,8 @@ export class EpigraphyFormComponent implements OnInit {
   
           this.staticMorpho = [] */
         }
-  
+        
+        
         this.object = changes.epiData.currentValue['tokens'];
         let element_id = changes.epiData.currentValue['element_id']
         /* console.log(this.object) */
@@ -378,6 +382,8 @@ export class EpigraphyFormComponent implements OnInit {
             }
           )
         }
+      }else{
+        this.object = null;
       }
       
 

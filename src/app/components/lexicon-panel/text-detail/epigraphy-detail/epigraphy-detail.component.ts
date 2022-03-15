@@ -52,7 +52,28 @@ export class EpigraphyDetailComponent implements OnInit {
           }, 200);
           
         }else{
-          this.object = null
+          this.object = null;
+          setTimeout(() => {
+            var navTabLinks = this.navtabs.nativeElement.querySelectorAll('a')
+            this.object = object;
+            /* console.log(this.object) */
+            navTabLinks.forEach(element => {
+              /* //console.log(element) */
+              if(element.text == 'Epigraphy'){
+                element.classList.remove('active')
+              }
+            });
+
+            var navContent = this.navcontent.nativeElement.querySelectorAll('.tab-pane');
+            
+            navContent.forEach(element => {
+              
+              if(element.id == 'epigraphy'){
+                element.classList.remove('active')
+                element.classList.remove('show')
+              }
+            });
+          }, 200);
         }
       }
     );
