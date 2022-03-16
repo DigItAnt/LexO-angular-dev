@@ -62,8 +62,9 @@ export class EpigraphyFormComponent implements OnInit {
       let evtPath = Array.from(event.path);
       let isMultiwordRequest = false;
       evtPath.some((element: HTMLElement) => {
+        //console.log(element)
         if (element.classList != undefined) {
-          if (element.classList.contains('multiword-button')) {
+          if (element.classList.contains('ok-button')) {
             isMultiwordRequest = true;
             return true;
           } else {
@@ -612,6 +613,9 @@ export class EpigraphyFormComponent implements OnInit {
     this.renderer.setStyle(okButton, 'top', '-1.5rem');
     this.renderer.setStyle(okIcon, 'font-size', '10px');
     this.renderer.setStyle(okIcon, 'width', '10px');
+
+    this.renderer.addClass(okButton, 'ok-button');
+    this.renderer.addClass(leaveButton, 'no-button')
 
     this.renderer.setStyle(leaveButton, 'position', 'absolute');
     this.renderer.setStyle(leaveButton, 'top', '-1.5rem');

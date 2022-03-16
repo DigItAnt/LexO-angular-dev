@@ -11,8 +11,8 @@
         <div class="card-body">
             <div *ngIf="formData != null">
                 <div class="card mb-3 p-1" *ngFor="let item of formData; let i = index">
-                    <a class="attestationCollapse" data-toggle="collapse" [attr.data-target]="'#collapse-'+i"
-                        aria-expanded="true" [attr.aria-controls]="'#collapse-'+i"><span class="text-id pointer"><b
+                    <a class="attestationCollapse" data-toggle="collapse" [attr.data-target]="'#attestation_collapse-'+i"
+                        aria-expanded="true" [attr.aria-controls]="'#attestation_collapse-'+i"><span class="text-id pointer"><b
                                 class="badge badge-primary">ID:{{item?.id}} - {{item?.attributes.label}}</b></span></a>
                     <!-- <span *ngIf="bibliographyData != undefined" class="icons-container"> -->
                     <!-- {{bibliographyData[i]['url'] | json}} -->
@@ -23,7 +23,7 @@
     
                     <a (click)="cancelAttestation(i, item?.id)" class="pointer"><span class="trash-icon"><i class="fa fa-trash"></i></span></a>
     
-                    <div [id]="'collapse-'+i" class="collapse" data-parent="#accordion">
+                    <div [id]="'attestation_collapse-'+i" class="collapse" data-parent="#accordion">
                         <div class="card-body">
                             <div class="form-group row ml-2 mr-2 mb-0">
                                 <label for="inputLabel" class="col-lg-4 pl-0 pr-0 col-form-label">URI:</label>
