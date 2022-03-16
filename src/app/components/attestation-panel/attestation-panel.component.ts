@@ -2,6 +2,7 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { AnnotatorService } from 'src/app/services/annotator/annotator.service';
+import { ExpanderService } from 'src/app/services/expander/expander.service';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 
 @Component({
@@ -13,7 +14,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
 
   @Input() attestationData: any;
   private update_anno_subject: Subject<any> = new Subject();
-  constructor(private annotatorService : AnnotatorService, private lexicalService : LexicalEntriesService) { }
+  constructor(private expander: ExpanderService, private annotatorService : AnnotatorService, private lexicalService : LexicalEntriesService) { }
 
   formData = [];
   ngOnInit(): void {
@@ -59,7 +60,13 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
       }
     );
     if(this.formData.length == 0){
-      this.lexicalService.triggerAttestationPanel(false)
+      this.lexicalService.triggerAttestationPanel(false);
+      this.lexicalService.sendToCoreTab(null);
+      this.expander.openCollapseEdit(false);
+      this.expander.expandCollapseEdit(false);
+
+      this.expander.openCollapseEpigraphy(true);
+      this.expander.expandCollapseEpigraphy(true);
     }
   }
 
@@ -86,6 +93,36 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
       )
 
     } 
+  }
+
+  getForm(formId){
+    
+    this.lexicalService.getFormData(formId, 'core').subscribe(
+      data=>{
+        console.log(data);
+        this.lexicalService.sendToCoreTab(data)
+        this.lexicalService.sendToEtymologyTab(null);
+        this.lexicalService.sendToRightTab(data);
+        this.lexicalService.updateLexCard({lastUpdate : data['lastUpdate'], creationDate : data['creationDate']});
+        
+        if(this.expander.isEpigraphyTabOpen() && !this.expander.isEditTabOpen()){
+          if(this.expander.isEpigraphyTabExpanded() && !this.expander.isEditTabExpanded()){
+            this.expander.openCollapseEdit(true);
+            this.expander.expandCollapseEpigraphy(false)
+          }
+        }
+        
+        var text_detail = document.querySelectorAll('#text-dettaglio');
+        text_detail.forEach(element => {
+          if(!element.classList.contains('show')){
+            element.classList.add('show')
+          }
+        })
+      },
+      error=>{
+        console.log(error)
+      }
+    )
   }
 
 }
