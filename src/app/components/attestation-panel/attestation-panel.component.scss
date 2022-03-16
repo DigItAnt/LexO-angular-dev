@@ -34,7 +34,7 @@ a {
 
 
 .row {
-    align-items: center;
+    align-items: baseline;
 }
 
 .btn{
@@ -44,14 +44,19 @@ a {
     border-radius: .25rem !important;
 }
 
-.form-control {
-    font-size: 11px;
-    height: 22px;
+[id^="attestation_collapse-"] {
+    .form-control {
+        font-size: 11px;
+        height: 22px;
+    }
+
+    textarea.form-control{
+        height: auto !important;
+    }
 }
 
-textarea.form-control{
-    height: auto;
-}
+
+
 
 
 
@@ -118,18 +123,18 @@ textarea.form-control{
 }
 
 
-.row {
-    align-items: center;
-}
-
 .btn{
     height: 38px;
     border-radius: .25rem !important;
 }
 
-.form-control {
-    font-size: 12px;
+#addBibliographyAttestation {
+    .form-control {
+        font-size: 12px;
+        height: unset;
+    }
 }
+
 
 .btn {
     font-size: 12px;
@@ -187,6 +192,7 @@ textarea.form-control{
     color: #212529;
     padding: 5px 5px;
     font-size: 14px;
+    z-index: 1;
 }
 
 .trash-icon {
@@ -195,9 +201,10 @@ textarea.form-control{
     top: -14px;
     background: white;
     text-align: center;
-    color: #212529;
+    color: #dc3545!important;
     padding: 5px 5px;
     font-size: 14px;
+    z-index: 1;
 }
 
 .text-id {
@@ -209,6 +216,7 @@ textarea.form-control{
     color: $gray-900;
     padding: 5px 10px;
     font-size: 12px;
+    z-index: 1;
 }
 
 .badge {
@@ -221,4 +229,50 @@ textarea.form-control{
 
 .resizeNgSelect {
     width: 15%;
+}
+
+.biblio_modal {
+
+    table {
+        font-size: 12px;
+
+        th, td {
+            padding: 0.55rem;
+        }
+    }
+
+    tbody {
+        display: block;
+        height: calc(100vh - 29rem);
+        overflow: auto;
+
+        i{
+            width: 16px !important;
+        }
+    }
+    thead, tbody tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;/* even columns width , fix width of table too*/
+    }
+
+    .selected {
+        background-color: #5b9bd582;
+    }
+
+    .table-body {
+        position: relative;
+    }
+
+    table.table-hover tbody tr:hover {
+        background-color: #5b9bd582; 
+    }
+
+    .disable_click_fire{
+        pointer-events: none;
+    }
+
+    .no-results{
+        height: calc(100vh - 25rem);
+    }
 }

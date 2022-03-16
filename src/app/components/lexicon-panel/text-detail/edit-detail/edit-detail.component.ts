@@ -46,14 +46,14 @@ export class EditDetailComponent implements OnInit {
               if(element.id == 'core'){
                 element.classList.add('active')
                 element.classList.add('show')
-                console.log("picchio");
-                console.log(element)
+                /* console.log("picchio");
+                console.log(element) */
               }else{
                 
                 element.classList.remove('active')
                 element.classList.remove('show')
-                console.log("picchio21")
-                console.log(element)
+                /* console.log("picchio21")
+                console.log(element) */
               }
             });
 

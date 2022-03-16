@@ -408,6 +408,11 @@ export class EpigraphyFormComponent implements OnInit {
           this.annotatorService.getAnnotation(element_id).subscribe(
             data=>{
               console.log(data);
+              data.forEach(element => {
+                if(element.attributes.bibliography == undefined){
+                  element.attributes['bibliography'] = [];
+                }
+              });
               this.annotationArray = data;
               this.lexicalService.triggerAttestationPanel(true);
               this.lexicalService.sendToAttestationPanel(data);
@@ -1044,7 +1049,7 @@ export class EpigraphyFormComponent implements OnInit {
     this.annotationArray.splice(index, 1);
   }
 
-  getForm(formId){
+  /* getForm(formId){
     
     this.lexicalService.getFormData(formId, 'core').subscribe(
       data=>{
@@ -1072,7 +1077,7 @@ export class EpigraphyFormComponent implements OnInit {
         console.log(error)
       }
     )
-  }
+  } */
 
 }
 

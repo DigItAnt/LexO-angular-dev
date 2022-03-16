@@ -39,12 +39,14 @@ export class BibliographyPanelComponent implements OnInit {
       incomingBiblio => {
         if(incomingBiblio != null){
           
+          let id = incomingBiblio.id != undefined ? incomingBiblio.id : '';
           let title = incomingBiblio.title != undefined ? incomingBiblio.title : '';
           let author = incomingBiblio.author != undefined ? incomingBiblio.author : '';
           let date = incomingBiblio.date != undefined ? incomingBiblio.date : '';
           let note = incomingBiblio.note != undefined ? incomingBiblio.note : '';
-          let textualReference = incomingBiblio.textualReference != undefined ? incomingBiblio.textualReference : '';          this.bibliographyData.push(incomingBiblio)
-          this.addBibliographyElement(title, author, date, note, textualReference);
+          let textualReference = incomingBiblio.textualReference != undefined ? incomingBiblio.textualReference : '';          
+          this.bibliographyData.push(incomingBiblio)
+          this.addBibliographyElement(id, title, author, date, note, textualReference);
           this.memoryNote.push(note)
           this.memoryTextualRef.push(textualReference)
           this.countElement++;
