@@ -81,19 +81,22 @@ export class BibliographyPanelComponent implements OnInit {
         this.lexicalService.getBibliographyData(lexId).subscribe(
           data=>{
             console.log(data);
-            let count = 0;
-            data.forEach(element => {
-              this.bibliographyData.push(element);
-
-              this.addBibliographyElement(element.id, element.title, element.author, element.date, element.note, element.textualReference)
-              this.memoryNote[count] = element.note;
-              this.memoryTextualRef[count] = element.textualReference
-              count++;
-              this.countElement++;
-            });
+            if(data!= []){
+              let count = 0;
+              data.forEach(element => {
+                this.bibliographyData.push(element);
+  
+                this.addBibliographyElement(element.id, element.title, element.author, element.date, element.note, element.textualReference)
+                this.memoryNote[count] = element.note;
+                this.memoryTextualRef[count] = element.textualReference
+                count++;
+                this.countElement++;
+              });
+              
+              this.bibliographyData['parentNodeLabel']= this.object['lexicalEntry'];
+              this.bibliographyData['lexicalEntryInstanceName']= this.object['lexicalEntryInstanceName'];
+            }
             
-            this.bibliographyData['parentNodeLabel']= this.object['lexicalEntry'];
-            this.bibliographyData['lexicalEntryInstanceName']= this.object['lexicalEntryInstanceName'];
             
 
           }, error=>{

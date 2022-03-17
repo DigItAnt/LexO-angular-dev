@@ -214,25 +214,21 @@ export class TextTreeComponent implements OnInit {
           console.log(error)
         }
       );
-      
-      
-      
-      /* this.lexicalService.getLexEntryData(idLexicalEntry).subscribe(
-        data => {
-          
-          console.log(data);
-          this.selectedNodeId = $event.node.data.lexicalEntryInstanceName;
-          this.lexicalService.sendToCoreTab(data);
-          this.lexicalService.sendToRightTab(data);
-          this.lexicalService.sendToEtymologyTab(null);
-          //this.lexicalService.updateLexCard({lastUpdate : data['lastUpdate'], creationDate : data['creationDate']});
 
-          
+      this.annotatorService.getText(this.selectedNodeId).subscribe(
+        data=>{
+          console.log(data)
         },
-        error => {
-
+        error=>{
+          if(error.status == 200){
+            if(error.error.text != ""){
+              this.documentService.sendTextToEpigraphyTab(error.error.text);
+            }  
+          }
+          console.log(error)
         }
-      ) */
+      )
+    
     }
   }
 

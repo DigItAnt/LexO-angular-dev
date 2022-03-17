@@ -25,37 +25,40 @@ export class EditDetailComponent implements OnInit {
           if(object['lexicalEntryInstanceName'] != undefined ||
              object['formInstanceName'] != undefined ||
              object['senseInstanceName'] != undefined){
-            var navTabLinks = this.navtabs.nativeElement.querySelectorAll('a')
-            this.object = object;
-            navTabLinks.forEach(element => {
-              /* //console.log(element) */
-              if(element.text == 'Core'){
-                element.classList.add('active')
-              }else{
-                element.classList.remove('active')
-                //console.log(element.id)
-              }
-            });
-
-            
-
-            var navContent = this.navcontent.nativeElement.querySelectorAll('.tab-pane');
-            
-            navContent.forEach(element => {
-              
-              if(element.id == 'core'){
-                element.classList.add('active')
-                element.classList.add('show')
-                /* console.log("picchio");
-                console.log(element) */
-              }else{
+               setTimeout(() => {
+                var navTabLinks = this.navtabs.nativeElement.querySelectorAll('a')
+                this.object = object;
+                navTabLinks.forEach(element => {
+                  /* //console.log(element) */
+                  if(element.text == 'Core'){
+                    element.classList.add('active')
+                  }else{
+                    element.classList.remove('active')
+                    //console.log(element.id)
+                  }
+                });
+    
                 
-                element.classList.remove('active')
-                element.classList.remove('show')
-                /* console.log("picchio21")
-                console.log(element) */
-              }
-            });
+    
+                var navContent = this.navcontent.nativeElement.querySelectorAll('.tab-pane');
+                
+                navContent.forEach(element => {
+                  
+                  if(element.id == 'core'){
+                    element.classList.add('active')
+                    element.classList.add('show')
+                    /* console.log("picchio");
+                    console.log(element) */
+                  }else{
+                    
+                    element.classList.remove('active')
+                    element.classList.remove('show')
+                    /* console.log("picchio21")
+                    console.log(element) */
+                  }
+                });
+               }, 100);
+            
 
           }else {
             this.object = null;

@@ -52,19 +52,22 @@ export class LexiconPageComponent implements OnInit {
               }
             });
           }else{
-            let a_link = this.accordion.nativeElement.querySelectorAll('a[data-target="#noteCollapse"]');
-            a_link.forEach(element => {
-              element.classList.add('collapsed')
-              
-            })
+            setTimeout(() => {
+              let a_link = this.accordion.nativeElement.querySelectorAll('a[data-target="#noteCollapse"]');
+              a_link.forEach(element => {
+                element.classList.add('collapsed')
+                
+              })
 
-            let collapse_container = this.accordion.nativeElement.querySelectorAll('div[aria-labelledby="noteHeading"]');
-            collapse_container.forEach(element => {
-              console.log(element)
-              if(element.classList.contains("show")){
-                element.classList.remove('show')
-              }
-            })
+              let collapse_container = this.accordion.nativeElement.querySelectorAll('div[aria-labelledby="noteHeading"]');
+              collapse_container.forEach(element => {
+                console.log(element)
+                if(element.classList.contains("show")){
+                  element.classList.remove('show')
+                }
+              })
+            }, 100);
+            
           }
         }
       }
@@ -101,19 +104,22 @@ export class LexiconPageComponent implements OnInit {
               }
             }); */
           }else{
-            let a_link = this.accordion.nativeElement.querySelectorAll('a[data-target="#attestationCollapse"]');
-            a_link.forEach(element => {
-              element.classList.add('collapsed')
-              
-            })
+            setTimeout(() => {
+              let a_link = this.accordion.nativeElement.querySelectorAll('a[data-target="#attestationCollapse"]');
+              a_link.forEach(element => {
+                element.classList.add('collapsed')
+                
+              })
 
-            let collapse_container = this.accordion.nativeElement.querySelectorAll('div[aria-labelledby="attestationHeading"]');
-            collapse_container.forEach(element => {
-              console.log(element)
-              if(element.classList.contains("show")){
-                element.classList.remove('show')
-              }
-            })
+              let collapse_container = this.accordion.nativeElement.querySelectorAll('div[aria-labelledby="attestationHeading"]');
+              collapse_container.forEach(element => {
+                console.log(element)
+                if(element.classList.contains("show")){
+                  element.classList.remove('show')
+                }
+              })
+            }, 100);
+            
           }
         }
       }

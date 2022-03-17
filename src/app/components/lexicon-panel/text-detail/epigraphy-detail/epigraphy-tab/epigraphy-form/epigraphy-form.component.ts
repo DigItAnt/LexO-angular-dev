@@ -22,7 +22,7 @@ export class EpigraphyFormComponent implements OnInit {
   @Input() epiData: any;
   object: any;
   tokenArray: FormArray;
-
+  textEpigraphy = '';
 
   private bind_subject: Subject<any> = new Subject();
   searchResults = [];
@@ -348,6 +348,18 @@ export class EpigraphyFormComponent implements OnInit {
       tokens: this.formBuilder.array([this.createToken()])
     })
 
+    this.documentService.epigraphyTextData$.subscribe(
+      data=>{
+        if(data != null){
+          this.textEpigraphy = data;
+        }else{
+          this.textEpigraphy = '';
+        }
+      },error=>{
+        console.log(error)
+      }
+    )
+
 
 
     this.bind_subject.pipe(debounceTime(100)).subscribe(
@@ -412,6 +424,29 @@ export class EpigraphyFormComponent implements OnInit {
                 if(element.attributes.bibliography == undefined){
                   element.attributes['bibliography'] = [];
                 }
+                
+                if(!Array.isArray(element.attributes.bibliography)){
+                  let tmp_arr = [];
+                  tmp_arr.push(element.attributes['bibliography']);
+                  element.attributes['bibliography'] = tmp_arr;
+                }
+                
+                
+                if(Array.isArray(element.attributes['bibliography'])){
+                  Array.from(element.attributes['bibliography']).forEach(element => { 
+                    
+                    if(element['note'] == undefined){
+                      console.log("cusa")
+                      element['note'] = "";
+                    } 
+                    
+                    if(element['textualRef']== undefined){
+                      element['textualRef'] = "";
+                    } 
+                  });
+                }
+
+
               });
               this.annotationArray = data;
               this.lexicalService.triggerAttestationPanel(true);

@@ -10,13 +10,19 @@ export class DocumentSystemService {
   private baseUrl_document = "https://lari2.ilc.cnr.it/belexo/"
 
   private _epigraphyData: BehaviorSubject<object> = new BehaviorSubject(null);
+  private _epigraphyTextData: BehaviorSubject<string> = new BehaviorSubject(null);
   epigraphyData$ = this._epigraphyData.asObservable();
+  epigraphyTextData$ = this._epigraphyTextData.asObservable();
 
   constructor(private http: HttpClient) { }
 
   sendToEpigraphyTab(object: object) {
     this._epigraphyData.next(object)
   } 
+
+  sendTextToEpigraphyTab(string : string){
+    this._epigraphyTextData.next(string);
+  }
 
   //GET /api/getDocumentSystem  ---> return document system
   getDocumentSystem(): Observable<any> {

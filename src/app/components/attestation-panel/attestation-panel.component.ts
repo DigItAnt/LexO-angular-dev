@@ -20,6 +20,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
   @ViewChild('table_body') tableBody: ElementRef;
   bibliography = [];
   private update_anno_subject: Subject<any> = new Subject();
+  private update_biblio_anno_subject: Subject<any> = new Subject();
   start = 0;
   sortField = 'title';
   direction = 'asc';
@@ -27,6 +28,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
   queryTitle = '';
   queryMode = 'titleCreatorYear';
   selectedItem;
+  selectedAnnotation;
   constructor(private toastr: ToastrService, private biblioService : BibliographyService, private expander: ExpanderService, private annotatorService : AnnotatorService, private lexicalService : LexicalEntriesService) { }
   
   
@@ -37,6 +39,14 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
       data => {
         if(data != null){
           this.updateAnnotation(data)
+        }
+      }
+    )
+
+    this.update_biblio_anno_subject.pipe(debounceTime(100)).subscribe(
+      data => {
+        if(data != null){
+          this.updateBiblioAnnotation(data)
         }
       }
     )
@@ -68,6 +78,8 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
 
         if(changes.attestationData.currentValue != this.formData){
           this.formData = [];
+          this.selectedItem = null;
+          this.selectedAnnotation = null;
         }
         this.formData = changes.attestationData.currentValue;
 
@@ -105,6 +117,10 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
     this.update_anno_subject.next({event : evt, newValue : newValue, propKey: propKey, annotation : annotation})
   }
 
+  debounceKeyup(value, annotation, index, field){
+    this.update_biblio_anno_subject.next({v: value, a: annotation, i: index, f: field})
+  }
+
   updateAnnotation(data){
     if(data !=null){
       let id_annotation = data?.annotation?.id;
@@ -124,6 +140,32 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
       )
 
     } 
+  }
+
+  updateBiblioAnnotation(data){
+    if(data != null){
+      console.log(data);
+
+      let id_annotation = data?.a.id;
+      let newValue = data?.v;
+      let index = data?.i;
+      let field = data?.f;
+
+      this.formData.forEach(
+        element=>{
+          if(element.id == id_annotation){
+            element.attributes.bibliography[index][field] = newValue;
+          }
+        }
+      )
+      let annotation = data?.a;
+      console.log(annotation)
+      this.annotatorService.updateAnnotation(annotation).subscribe(
+        data=>{console.log(data)},
+        error=>{console.log(error)}
+      )
+      
+    }
   }
 
   getForm(formId){
@@ -156,7 +198,8 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
     )
   }
 
-  showBiblioModal(){
+  showBiblioModal(item){
+    this.selectedAnnotation = item;
     this.modal.show();
   }
 
@@ -249,12 +292,12 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
     
   }
 
-  addBibliographyItem(item?, anno?){
+  addBibliographyItem(item?){
     //@ts-ignore
-    $("#biblioModal").modal("show");
+    $("#biblioModalAnnotation").modal("show");
     $('.modal-backdrop').appendTo('.ui-modal');
     //@ts-ignore
-    $('#biblioModal').modal({backdrop: 'static', keyboard: false})  
+    $('#biblioModalAnnotation').modal({backdrop: 'static', keyboard: false})  
     
     $('.modal-backdrop').css('height', 'inherit');
     $('body').removeClass("modal-open")
@@ -298,7 +341,40 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
         seeAlsoLink: seeAlsoLink
       }
 
-      console.log(item, anno)
+      console.log(item, this.selectedAnnotation);
+      this.modal.hide();
+
+     let anno_id = this.selectedAnnotation.id;
+
+      this.formData.forEach(
+        attestation => {
+          if(attestation.id == anno_id){
+            console.log(attestation)
+            attestation?.attributes?.bibliography.push(item?.data)
+          }
+        }
+      );
+
+      this.annotatorService.updateAnnotation(this.selectedAnnotation).subscribe(
+        data=>{
+          console.log(data);
+          //@ts-ignore
+          $('#biblioModalAnnotation').modal('hide');
+          $('.modal-backdrop').remove();
+
+          this.modal.hide();
+
+        },error=>{
+          console.log(error);
+          //@ts-ignore
+          $('#biblioModalAnnotation').modal('hide');
+          $('.modal-backdrop').remove();
+
+          this.modal.hide();
+
+        }
+      )
+      /* this.annotatorService.updateAnnotation() */
       /*       
       this.lexicalService.addBibliographyData(instance, parameters).subscribe(
         data=>{
@@ -342,6 +418,69 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
       ) */
     }
     
+  }
+
+  sortBibliography(evt?, val?){
+    
+    
+    if(this.memorySort.field == val){
+      if(this.direction == 'asc'){
+        this.direction = 'desc'
+        this.memorySort.direction = 'desc';
+      }else{
+        this.direction = 'asc';
+        this.memorySort.direction = 'asc';
+      }
+    }else{
+      this.sortField = val;
+      this.direction = 'asc';
+      this.memorySort = {field : this.sortField, direction : this.direction};
+    }
+
+    //@ts-ignore
+    $("#biblioModalAnnotation").modal("show");
+    $('.modal-backdrop').appendTo('.table-body');
+    //@ts-ignore
+    $('#biblioModalAnnotation').modal({backdrop: 'static', keyboard: false})  
+    $('.modal-backdrop').appendTo('.table-body');
+    $('body').removeClass("modal-open")
+    $('body').css("padding-right", "");
+    this.start = 0;
+    this.tableBody.nativeElement.scrollTop = 0;
+
+    this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).subscribe(
+      data=>{
+        console.log(data)
+        this.bibliography = [];
+        //@ts-ignore
+        $('#biblioModalAnnotation').modal('hide');
+        $('.modal-backdrop').remove();
+        data.forEach(element => {
+          this.bibliography.push(element)
+        });
+      },error=>{
+        console.log(error)
+      }
+    )
+    
+  }
+
+  removeItem(item, j) {
+    console.log(item, j)
+    
+    this.formData.forEach(
+      annotation=>{
+        if(item?.id == annotation.id){
+          annotation.attributes.bibliography.splice(j, 1)
+        }
+      }
+    )
+
+    this.annotatorService.updateAnnotation(item).subscribe(
+      data=>{console.log(data)},
+      error=>{console.log(error)}
+    )
+    console.log(this.formData, item)
   }
 
 }
