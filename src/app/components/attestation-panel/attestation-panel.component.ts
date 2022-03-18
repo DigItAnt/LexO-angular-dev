@@ -82,7 +82,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
           this.selectedAnnotation = null;
         }
         this.formData = changes.attestationData.currentValue;
-
+        console.log(this.formData)
         if(this.formData.length == 0){
           this.lexicalService.triggerAttestationPanel(false)
         }
@@ -331,6 +331,9 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
       let date = item.data.date != undefined ? item.data.date : '';
       let url = item.data.url != undefined ? item.data.url : ''
       let seeAlsoLink = '';
+
+      item.data['note'] = "";;
+      item.data['textualRef'] = "";
 
       let parameters = {
         id : id,

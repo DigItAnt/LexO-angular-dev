@@ -1,10 +1,11 @@
-import { AfterViewInit, ApplicationRef, Component, ComponentFactoryResolver, ComponentRef, ContentChild, ElementRef, HostListener, Injector, Input, OnInit, QueryList, Renderer2, SimpleChanges, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, ApplicationRef, Component, ComponentFactoryResolver, ComponentRef, ContentChild, ElementRef, HostListener, Injector, Input, OnDestroy, OnInit, QueryList, Renderer2, SimpleChanges, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
 import { FormGroup, FormControl, Validators, FormArray, FormBuilder } from '@angular/forms';
+import { NavigationEnd, Router } from '@angular/router';
 import { NgbPopover, NgbPopoverConfig } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent } from '@ng-select/ng-select';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, filter } from 'rxjs/operators';
 import { AnnotatorService } from 'src/app/services/annotator/annotator.service';
 import { DocumentSystemService } from 'src/app/services/document-system/document-system.service';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
@@ -17,7 +18,7 @@ declare var $: JQueryStatic;
   templateUrl: './epigraphy-form.component.html',
   styleUrls: ['./epigraphy-form.component.scss']
 })
-export class EpigraphyFormComponent implements OnInit {
+export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
   @Input() epiData: any;
   object: any;
@@ -336,7 +337,20 @@ export class EpigraphyFormComponent implements OnInit {
     }
   }
 
-  constructor(private resolver: ComponentFactoryResolver, private injector: Injector, private appRef: ApplicationRef, private annotatorService: AnnotatorService, private expander: ExpanderService, private renderer: Renderer2, private documentService: DocumentSystemService, private formBuilder: FormBuilder, private toastr: ToastrService, private lexicalService: LexicalEntriesService, private config: NgbPopoverConfig) { }
+  constructor(private router : Router, private annotatorService: AnnotatorService, private expander: ExpanderService, private renderer: Renderer2, private documentService: DocumentSystemService, private formBuilder: FormBuilder, private toastr: ToastrService, private lexicalService: LexicalEntriesService, private config: NgbPopoverConfig) { 
+    this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe((val) => {
+      setTimeout(() => {
+        this.lexicalService.sendToCoreTab(null);
+        this.documentService.sendToEpigraphyTab(null)
+        this.documentService.sendTextToEpigraphyTab(null);
+        this.expander.openCollapseEdit(false);
+        this.expander.openCollapseEpigraphy(false);
+        this.expander.expandCollapseEpigraphy(false);
+        this.expander.expandCollapseEdit(false)
+      }, 1000);
+      
+    })
+  }
 
 
   ngOnInit(): void {
@@ -699,7 +713,7 @@ export class EpigraphyFormComponent implements OnInit {
         let start_token = this.object[i].begin;
         let end_token = this.object[i].end;
 
-        console.log(annotation.spans)
+        //console.log(annotation.spans)
 
         if(annotation.spans.length == 1){
           annotation.spans.forEach(element => {
@@ -710,17 +724,17 @@ export class EpigraphyFormComponent implements OnInit {
         }else{
 
         }
-        
-
-        if(this.token_annotationArray.length > 0){
-          this.lexicalService.triggerAttestationPanel(true)
-          this.lexicalService.sendToAttestationPanel(this.token_annotationArray);
-        }else{
-          this.lexicalService.triggerAttestationPanel(false)
-          this.lexicalService.sendToAttestationPanel(null);
-        }
       }
     )
+
+    if(this.token_annotationArray.length > 0){
+      console.log("AJO")
+      this.lexicalService.triggerAttestationPanel(true)
+      this.lexicalService.sendToAttestationPanel(this.token_annotationArray);
+    }else{
+      this.lexicalService.triggerAttestationPanel(false)
+      this.lexicalService.sendToAttestationPanel(null);
+    }
 
     //console.log(evt)
     setTimeout(() => {
@@ -1084,35 +1098,11 @@ export class EpigraphyFormComponent implements OnInit {
     this.annotationArray.splice(index, 1);
   }
 
-  /* getForm(formId){
-    
-    this.lexicalService.getFormData(formId, 'core').subscribe(
-      data=>{
-        console.log(data);
-        this.lexicalService.sendToCoreTab(data)
-        this.lexicalService.sendToEtymologyTab(null);
-        this.lexicalService.sendToRightTab(data);
-        this.lexicalService.updateLexCard({lastUpdate : data['lastUpdate'], creationDate : data['creationDate']});
-        
-        if(this.expander.isEpigraphyTabOpen() && !this.expander.isEditTabOpen()){
-          if(this.expander.isEpigraphyTabExpanded() && !this.expander.isEditTabExpanded()){
-            this.expander.openCollapseEdit(true);
-            this.expander.expandCollapseEpigraphy(false)
-          }
-        }
-        
-        var text_detail = document.querySelectorAll('#text-dettaglio');
-        text_detail.forEach(element => {
-          if(!element.classList.contains('show')){
-            element.classList.add('show')
-          }
-        })
-      },
-      error=>{
-        console.log(error)
-      }
-    )
-  } */
+
+  showAllAnnotations(){
+    this.lexicalService.triggerAttestationPanel(true)
+    this.lexicalService.sendToAttestationPanel(this.annotationArray);
+  }
 
 }
 

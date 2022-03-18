@@ -76,6 +76,7 @@ export class LexiconPageComponent implements OnInit {
     this.lexicalService.triggerAttestationPanel$.subscribe(
       boolean => {
         if(boolean != undefined){
+          //console.log(boolean)
           if(boolean){
             let a_link = this.accordion.nativeElement.querySelectorAll('a[data-target="#attestationCollapse"]');
             let collapse_container = this.accordion.nativeElement.querySelectorAll('div[aria-labelledby="attestationHeading"]');
