@@ -827,7 +827,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
             //console.log(popoverHtml.childNodes)
             this.spanSelection = {}
             this.spanSelection['start'] = this.object[i].begin + anchorOffset;
-            this.spanSelection['end'] = this.object[i].begin + focusOffset -1;
+            this.spanSelection['end'] = this.object[i].begin + focusOffset;
             this.annotatorService.triggerSearch(this.message);
           }else if(selection.anchorNode.textContent.trim().length == innerText.length && this.message == innerText){
             this.message = '';

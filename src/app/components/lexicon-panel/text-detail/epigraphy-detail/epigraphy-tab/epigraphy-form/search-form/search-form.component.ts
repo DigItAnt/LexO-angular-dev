@@ -117,35 +117,7 @@ export class SearchFormComponent implements OnInit {
 
 
   onChangeForm(data) {
-    /* var index = data['i']; */
    
-    //this.cognatesArray = this.coreForm.get("cognate") as FormArray;
-    
-    /* if (this.memoryForms == undefined) {
-        const newValue = data['name']
-        parameters = {
-            type: "lexicalRel",
-            relation: "cognate",
-            value: newValue
-        }
-        
-
-
-    } else {
-        const oldValue = this.memoryForms[0]['lexicalEntity']
-        const newValue = data['name']
-        parameters = {
-            type: "lexicalRel",
-            relation: "cognate",
-            value: newValue,
-            currentValue: oldValue
-        }
-        this.memoryForms[0] = data;
-    } */
-
-    /* console.log(data) */
-    /* this.lexicalService.triggerAttestationPanel(true);
-    this.lexicalService.sendToAttestationPanel(data); */
 
    
     let parameters = {}
