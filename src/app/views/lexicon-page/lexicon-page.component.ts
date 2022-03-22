@@ -1,6 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { BibliographyService } from 'src/app/services/bibliography-service/bibliography.service';
+import { DocumentSystemService } from 'src/app/services/document-system/document-system.service';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 
 @Component({
@@ -13,12 +14,13 @@ export class LexiconPageComponent implements OnInit {
   object: any;
   @ViewChild('accordion') accordion: ElementRef; 
 
-  constructor(private lexicalService: LexicalEntriesService, private biblioService : BibliographyService) { }
+  constructor(private documentService : DocumentSystemService, private lexicalService: LexicalEntriesService, private biblioService : BibliographyService) { }
 
   notes = '';
   link = [];
   bibliography = [];
   attestation : any;
+  metadata : any;
   ngOnInit(): void {
 
     this.lexicalService.triggerNotePanel$.subscribe(
@@ -171,6 +173,69 @@ export class LexiconPageComponent implements OnInit {
           }
         }else{
           this.attestation = null;
+        }
+      }
+    );
+
+    this.documentService.metadataData$.subscribe(
+      data => {
+        console.log(data);
+        if(data != null){
+          this.metadata = data;
+        }else{
+          this.metadata = null;
+        }
+      }
+    )
+
+    this.documentService.triggerMetadataPanel$.subscribe(
+      boolean => {
+        if(boolean != null){
+          if(boolean){
+            let a_link = this.accordion.nativeElement.querySelectorAll('a[data-target="#metadataCollapse"]');
+            let collapse_container = this.accordion.nativeElement.querySelectorAll('div[aria-labelledby="metadataHeading"]');
+            let item_collapse = this.accordion.nativeElement.querySelectorAll('[id^="collapse-"');
+            a_link.forEach(element => {
+              if(element.classList.contains("collapsed")){
+                element.classList.remove('collapsed')
+              }else{
+                //element.classList.add('collapsed')
+              }
+            })
+
+            collapse_container.forEach(element => {
+              if(element.classList.contains("show")){
+                //element.classList.remove('collapsed')
+              }else{
+                element.classList.add('show')
+              }
+            })
+
+            item_collapse.forEach(element => {
+              if(element == item_collapse[item_collapse.length-1]){
+                element.classList.add('show')
+              }else{
+                element.classList.remove('show')
+              }
+            });
+          }else{
+            setTimeout(() => {
+              let a_link = this.accordion.nativeElement.querySelectorAll('a[data-target="#metadataCollapse"]');
+              a_link.forEach(element => {
+                element.classList.add('collapsed')
+                
+              })
+
+              let collapse_container = this.accordion.nativeElement.querySelectorAll('div[aria-labelledby="metadataHeading"]');
+              collapse_container.forEach(element => {
+                console.log(element)
+                if(element.classList.contains("show")){
+                  element.classList.remove('show')
+                }
+              })
+            }, 100);
+            
+          }
         }
       }
     )

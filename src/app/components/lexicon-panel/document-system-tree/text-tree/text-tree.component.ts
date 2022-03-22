@@ -210,11 +210,22 @@ export class TextTreeComponent implements OnInit {
               this.expander.expandCollapseEdit(false);
             }
           }
+
+          let metadata = $event.node.data.metadata;
+          metadata['path'] = $event.node.data.path;
+          metadata['element-id'] = $event.node.data['element-id'];
+          if(metadata != undefined){
+            this.documentService.sendToMetadataPanel(metadata);
+            this.documentService.triggerMetadataPanel(true)
+          }
         },
         error => {
           console.log(error)
         }
       );
+      
+      
+      
 
       this.annotatorService.getText(this.selectedNodeId).subscribe(
         data=>{

@@ -56,9 +56,6 @@ import { LanguageManagerComponent } from './components/lexicon-panel/document-sy
 import { EtymologyTabComponent } from './components/lexicon-panel/text-detail/edit-detail/etymology-tab/etymology-tab.component';
 import { EtymologyFormComponent } from './components/lexicon-panel/text-detail/edit-detail/etymology-tab/etymology-form/etymology-form.component';
 import { MetadataPanelComponent } from './components/metadata-panel/metadata-panel.component';
-import { FileTabComponent } from './components/metadata-panel/file-tab/file-tab.component';
-import { EpidocTabComponent } from './components/metadata-panel/epidoc-tab/epidoc-tab.component';
-import { TextTabComponent } from './components/metadata-panel/text-tab/text-tab.component';
 import { EpigraphyFormComponent } from './components/lexicon-panel/text-detail/epigraphy-detail/epigraphy-tab/epigraphy-form/epigraphy-form.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SearchFormComponent } from './components/lexicon-panel/text-detail/epigraphy-detail/epigraphy-tab/epigraphy-form/search-form/search-form.component';
@@ -107,9 +104,6 @@ import { SearchFormComponent } from './components/lexicon-panel/text-detail/epig
     EtymologyTabComponent,
     EtymologyFormComponent,
     MetadataPanelComponent,
-    FileTabComponent,
-    EpidocTabComponent,
-    TextTabComponent,
     EpigraphyFormComponent,
     SearchFormComponent
   ],

@@ -7,31 +7,125 @@
             </a>
         </h5>
     </div>
+    <!-- {{object | json}} -->
     <div id="metadataCollapse" class="collapse" aria-labelledby="metadataHeading">
-        <div class="card-body">
-            <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <div class="card-body" >
+            <ul class="nav nav-tabs" id="myTab" role="tablist" *ngIf="object != null">
                 <li class="nav-item">
                     <a class="nav-link active" id="file-tab" data-toggle="tab" href="#file" role="tab"
                         aria-controls="file" aria-selected="true">File</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="epidoc-tab" data-toggle="tab" href="#epidoc" role="tab"
-                        aria-controls="epidoc" aria-selected="false">Epidoc</a>
-                </li>
-                <li class="nav-item">
+                <li>
                     <a class="nav-link" id="text-tab" data-toggle="tab" href="#text" role="tab"
-                        aria-controls="text" aria-selected="false">Epigraphy Metadata</a>
+                        aria-controls="text" aria-selected="false">Epigraphy</a>
                 </li>
             </ul>
-            <div class="tab-content" id="myTabContent">
-                <div class="tab-pane fade show active" id="file" role="tabpanel" aria-labelledby="file-tab">
-                    <app-file-tab></app-file-tab>
-                </div>
-                <div class="tab-pane fade" id="epidoc" role="tabpanel" aria-labelledby="epidoc-tab">
-                    <app-epidoc-tab></app-epidoc-tab>
+            <div class="tab-content" id="myTabContent" *ngIf="object != null">
+                <div class="tab-pane fade show active" id="file" role="tabpanel" aria-labelledby="file-tab" >
+                    <div class="card file_body" >
+                        <span class="text-id">FILE</span>
+                        <!-- <a href="#a"><span class="edit-icon"><i class="fa fa-edit"></i></span></a>
+                        <a href="#b"><span class="trash-icon"><i class="fa fa-trash"></i></span></a> -->
+                        <div class="card-body">
+                            <!-- <div class="d-flex">
+                                <span class="badge badge-primary">Form</span>
+                            </div> -->
+                            <div class="d-flex">
+                                <div class="col-md-4 ">
+                                    <p class="card-text">Title:</p>
+                                </div>
+                                <div class="col-md-8 p-0">
+                                    <p class="card-text font-italic">{{object.fieldID}}</p>
+                                </div>
+                            </div>
+                           <!--  <div class="d-flex mt-3">
+                                <div class="col-md-6 ">
+                                    <p class="card-text">Author:</p>
+                                </div>
+                                <div class="col-md-6 p-0">
+                                    <p class="card-text">XXX</p>
+                                </div>
+                            </div> -->
+                            <!-- <div class="d-flex mt-3">
+                                <div class="col-md-6 ">
+                                    <p class="card-text">Creation date:</p>
+                                </div>
+                                <div class="col-md-6 p-0">
+                                    <p class="card-text">26/09/2021</p>
+                                </div>
+                            </div> -->
+                            <div class="d-flex mt-3">
+                                <div class="col-md-4 ">
+                                    <p class="card-text">ID:</p>
+                                </div>
+                                <div class="col-md-8 p-0">
+                                    <p class="card-text font-italic">{{object['element-id']}}</p>
+                                </div>
+                                <!-- <div class="col-md-6 p-0">
+                                    <p class="card-text citational-tooltip pointer" data-toggle="tooltip" data-placement="bottom" data-html="true" data-trigger="click" title="Forma citazionale completa <br> <a href='#'>Link</a>">&lt;forma_citazionale_1&gt;</p>
+                                </div> -->
+                            </div>
+                            <div class="d-flex mt-3">
+                                <div class="col-md-4 ">
+                                    <p class="card-text">Path:</p>
+                                </div>
+                                <div class="col-md-8 p-0">
+                                    <p class="card-text font-italic">{{object.path}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="tab-pane fade" id="text" role="tabpanel" aria-labelledby="text-tab">
-                    <app-text-tab></app-text-tab>
+                    <div class="card epi_body">
+                        <span class="text-id">EPIGRAPHY</span>
+                        <!-- <a href="#a"><span class="edit-icon"><i class="fa fa-edit"></i></span></a>
+                        <a href="#b"><span class="trash-icon"><i class="fa fa-trash"></i></span></a> -->
+                        <div class="card-body">
+                            <!-- <div class="d-flex">
+                                <span class="badge badge-primary">Form</span>
+                            </div> -->
+                            <div class="d-flex">
+                                <div class="col-md-12 ">
+                                    <p class="card-text"> <span class="font-italic">Trismegistos ID: </span>  <a target="_blank" [href]="'//'+object.trismegistos.trismegistosID_url"> {{object.trismegistos.trismegistosID}}</a></p>
+                                </div>
+                                <!-- <div class="col-md-6 pr-0">
+                                    <p class="card-text font-italic">{{object.trismegistos.trismegistosID}}</p>
+                                </div> -->
+                            </div>
+                            <div class="d-flex mt-3" *ngIf="object.traditionalIDs.length > 0">
+                                <div class="col-md-6 ">
+                                    <p class="card-text">Other IDs:</p>
+                                </div>
+                                <div class="col-md-6 pr-0">
+                                    <p class="card-text font-italic"></p>
+                                </div>
+                            </div>
+                            <div class="d-flex mt-3">
+                                <div class="col-md-12 ">
+                                    <ul>
+                                        <li *ngFor="let other_id of object.traditionalIDs">
+                                            <a [href]="'//'+other_id.traditionalID_URL">
+                                                {{other_id.traditionalID}}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                    <!-- <p class="card-text">Creation date:</p> -->
+                                </div>
+                            </div>
+                            <!-- <div class="d-flex mt-3">
+                                <div class="col-md-6 ">
+                                    <p class="card-text">Id no:</p>
+                                </div>
+                                <div class="col-md-6 pr-0">
+                                    <p class="card-text font-italic">Idf391</p>
+                                </div>
+                                <div class="col-md-6 pr-0">
+                                    <p class="card-text citational-tooltip pointer" data-toggle="tooltip" data-placement="bottom" data-html="true" data-trigger="click" title="Forma citazionale completa <br> <a href='#'>Link</a>">&lt;forma_citazionale_1&gt;</p>
+                                </div>
+                            </div> -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

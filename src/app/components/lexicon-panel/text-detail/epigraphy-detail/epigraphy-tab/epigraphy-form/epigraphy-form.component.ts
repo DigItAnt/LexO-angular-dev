@@ -480,7 +480,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
                   this.lexicalService.triggerAttestationPanel(false);
                   this.lexicalService.sendToAttestationPanel(null);
                 }
-
+                console.log(this.epidoc_annotation_array)
 
                 
               }else{

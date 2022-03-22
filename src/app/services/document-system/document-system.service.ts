@@ -11,8 +11,13 @@ export class DocumentSystemService {
 
   private _epigraphyData: BehaviorSubject<object> = new BehaviorSubject(null);
   private _epigraphyTextData: BehaviorSubject<string> = new BehaviorSubject(null);
+  private _metadataData : BehaviorSubject<object> = new BehaviorSubject(null);
+  private _triggerMetadataPanel : BehaviorSubject<boolean> = new BehaviorSubject(null);
+
   epigraphyData$ = this._epigraphyData.asObservable();
   epigraphyTextData$ = this._epigraphyTextData.asObservable();
+  metadataData$ = this._metadataData.asObservable();
+  triggerMetadataPanel$ = this._triggerMetadataPanel.asObservable();
 
   constructor(private http: HttpClient) { }
 
@@ -22,6 +27,14 @@ export class DocumentSystemService {
 
   sendTextToEpigraphyTab(string : string){
     this._epigraphyTextData.next(string);
+  }
+
+  sendToMetadataPanel(object : object){
+    this._metadataData.next(object);
+  }
+
+  triggerMetadataPanel(bool: boolean){
+    this._triggerMetadataPanel.next(bool);
   }
 
   //GET /api/getDocumentSystem  ---> return document system
