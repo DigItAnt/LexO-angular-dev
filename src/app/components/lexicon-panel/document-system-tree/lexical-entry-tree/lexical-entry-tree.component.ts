@@ -657,6 +657,19 @@ export class LexicalEntryTreeComponent implements OnInit {
           $('body').removeClass("modal-open")
           $('body').css("padding-right", "");
 
+          if(!this.expander.isEditTabOpen() && !this.expander.isEpigraphyTabOpen()){
+            if(!this.expander.isEditTabExpanded() && !this.expander.isEpigraphyTabExpanded()){
+              
+              this.expander.expandCollapseEdit(true);
+              this.expander.openCollapseEdit(true);
+            }
+          }else if(!this.expander.isEditTabOpen() && this.expander.isEpigraphyTabOpen()){
+            if(!this.expander.isEditTabExpanded() && this.expander.isEpigraphyTabExpanded()){
+              this.expander.expandCollapseEpigraphy(false);
+              this.expander.openCollapseEdit(true)
+            }
+          }
+
           if(data.note != undefined){
             if(data.note != ""){
               this.lexicalService.triggerNotePanel(true);
@@ -694,6 +707,19 @@ export class LexicalEntryTreeComponent implements OnInit {
           $('body').removeClass("modal-open")
           $('body').css("padding-right", "");
 
+          if(!this.expander.isEditTabOpen() && !this.expander.isEpigraphyTabOpen()){
+            if(!this.expander.isEditTabExpanded() && !this.expander.isEpigraphyTabExpanded()){
+              
+              this.expander.expandCollapseEdit(true);
+              this.expander.openCollapseEdit(true);
+            }
+          }else if(!this.expander.isEditTabOpen() && this.expander.isEpigraphyTabOpen()){
+            if(!this.expander.isEditTabExpanded() && this.expander.isEpigraphyTabExpanded()){
+              this.expander.expandCollapseEpigraphy(false);
+              this.expander.openCollapseEdit(true)
+            }
+          }
+
           if(data.note != undefined){
             if(data.note != ""){
               this.lexicalService.triggerNotePanel(true);
@@ -729,6 +755,19 @@ export class LexicalEntryTreeComponent implements OnInit {
           $('#etymologyTabModal').modal({backdrop: 'static', keyboard: false})  
           $('body').removeClass("modal-open")
           $('body').css("padding-right", "");
+
+          if(!this.expander.isEditTabOpen() && !this.expander.isEpigraphyTabOpen()){
+            if(!this.expander.isEditTabExpanded() && !this.expander.isEpigraphyTabExpanded()){
+              
+              this.expander.expandCollapseEdit(true);
+              this.expander.openCollapseEdit(true);
+            }
+          }else if(!this.expander.isEditTabOpen() && this.expander.isEpigraphyTabOpen()){
+            if(!this.expander.isEditTabExpanded() && this.expander.isEpigraphyTabExpanded()){
+              this.expander.expandCollapseEpigraphy(false);
+              this.expander.openCollapseEdit(true)
+            }
+          }
 
           if(data.note != undefined){
             if(data.note != ""){

@@ -24,23 +24,23 @@ export class AnnotatorService {
   }
 
   getTokens(id: number) : Observable<any> {
-    return this.http.get(this.baseUrl + 'token?nodeid='+id);
+    return this.http.get(this.baseUrl + 'token?requestUUID=test123&nodeid='+id);
   }
 
   getText(id: number) : Observable<any> {
-    return this.http.get(this.baseUrl + 'gettext?nodeid='+id);
+    return this.http.get(this.baseUrl + 'gettext?requestUUID=test123&nodeid='+id);
   }
 
   addAnnotation(parameters : object, id : number) : Observable<any>{
-    return this.http.post(this.baseUrl + 'annotation?nodeid='+id, parameters);
+    return this.http.post(this.baseUrl + 'annotation?requestUUID=test123&nodeid='+id, parameters);
   }
 
   getAnnotation(id : number) : Observable<any>{
-    return this.http.get(this.baseUrl + 'annotation?nodeid='+id);
+    return this.http.get(this.baseUrl + 'annotation?requestUUID=test123&nodeid='+id);
   }
 
   deleteAnnotation(id: number) : Observable<any> {
-    return this.http.delete(this.baseUrl + 'annotate?annotationID='+id);
+    return this.http.delete(this.baseUrl + 'annotate?requestUUID=test123&annotationID='+id);
   }
 
   updateAnnotation(annotation : object) : Observable<any>{

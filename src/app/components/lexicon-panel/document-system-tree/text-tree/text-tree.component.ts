@@ -190,8 +190,9 @@ export class TextTreeComponent implements OnInit {
       this.annotatorService.getTokens(this.selectedNodeId).subscribe(
         data => {
 
+          console.log(data)
           let element_id = this.selectedNodeId;
-          let tokens = data;
+          let tokens = data.tokens;
           this.documentService.sendToEpigraphyTab({
             tokens : tokens,
             element_id : element_id
@@ -217,7 +218,10 @@ export class TextTreeComponent implements OnInit {
 
       this.annotatorService.getText(this.selectedNodeId).subscribe(
         data=>{
-          console.log(data)
+          console.log(data);
+          if(data != undefined){
+            this.documentService.sendTextToEpigraphyTab(data.text);
+          }
         },
         error=>{
           if(error.status == 200){

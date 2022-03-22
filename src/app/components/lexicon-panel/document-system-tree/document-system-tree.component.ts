@@ -504,7 +504,7 @@ export class DocumentSystemTreeComponent implements OnInit {
           this.textTree.treeText.treeModel.update();
           this.textTree.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
           
-        }, 100);
+        }, 500);
         
         
       },error=>{
@@ -531,7 +531,7 @@ export class DocumentSystemTreeComponent implements OnInit {
       data=>{
         console.log(data)
         let id_new_node = 243;
-        let new_node = {
+        /* let new_node = {
           "children" : [],
           "element-id" : id_new_node,
           "id" : Math.floor(Math.random() * (99999 - 10) + 10),
@@ -539,13 +539,16 @@ export class DocumentSystemTreeComponent implements OnInit {
           "path" : "",
           "name" : "new-folder_"+ Math.floor(Math.random() * (99999 - 10) + 10),
           "type" : "directory"
+        } */
+        if(data.node != undefined){
+          this.toastr.info('New folder added', '', {
+            timeOut: 5000,
+          });
+          this.textTree.nodes.push(data.node);
+          this.textTree.updateTreeView();
+          this.textTree.treeText.treeModel.update();
         }
-        this.toastr.info('New folder added', '', {
-          timeOut: 5000,
-        });
-        this.textTree.nodes.push(new_node);
-        this.textTree.updateTreeView();
-        this.textTree.treeText.treeModel.update();
+        
       },error=>{
         console.log(error);
         this.toastr.error('Error when creating new folder', '', {

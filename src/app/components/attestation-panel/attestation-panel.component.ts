@@ -89,6 +89,10 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
         
       }, 10);
       
+    }else{
+      this.formData = [];
+      this.selectedItem = null;
+      this.selectedAnnotation = null;
     }
   }
 

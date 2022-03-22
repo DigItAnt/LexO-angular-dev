@@ -56,6 +56,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
   multiWordMode = false;
   annotationArray = [];
   token_annotationArray = [];
+  epidoc_annotation_array = [];
 
   @HostListener('document:mouseup', ['$event'])
   onMouseUp(event): void {
@@ -406,6 +407,9 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
           this.tokenArray = this.epigraphyForm.get('tokens') as FormArray;
           this.tokenArray.clear();
           this.spanSelection = null;
+          this.annotationArray = [];
+          this.epidoc_annotation_array = [];
+
           /* 
   
           this.denotesArray = this.coreForm.get('denotes') as FormArray;
@@ -433,38 +437,59 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
           
           this.annotatorService.getAnnotation(element_id).subscribe(
             data=>{
-              console.log(data);
-              data.forEach(element => {
-                if(element.attributes.bibliography == undefined){
-                  element.attributes['bibliography'] = [];
-                }
-                
-                if(!Array.isArray(element.attributes.bibliography)){
-                  let tmp_arr = [];
-                  tmp_arr.push(element.attributes['bibliography']);
-                  element.attributes['bibliography'] = tmp_arr;
-                }
-                
-                
-                if(Array.isArray(element.attributes['bibliography'])){
-                  Array.from(element.attributes['bibliography']).forEach(element => { 
+              //console.log(data);
+              if(data.annotations != undefined){
+                data.annotations.forEach(element => {
+                  //console.log(element)
+                  if(element.layer == 'attestation'){
+                    if(element.attributes.bibliography == undefined){
+                      element.attributes['bibliography'] = [];
+                    }
                     
-                    if(element['note'] == undefined){
-                      console.log("cusa")
-                      element['note'] = "";
-                    } 
+                    if(!Array.isArray(element.attributes.bibliography)){
+                      let tmp_arr = [];
+                      tmp_arr.push(element.attributes['bibliography']);
+                      element.attributes['bibliography'] = tmp_arr;
+                    }
                     
-                    if(element['textualRef']== undefined){
-                      element['textualRef'] = "";
-                    } 
-                  });
+                    
+                    if(Array.isArray(element.attributes['bibliography'])){
+                      Array.from(element.attributes['bibliography']).forEach(element => { 
+                        
+                        if(element['note'] == undefined){
+                          console.log("cusa")
+                          element['note'] = "";
+                        } 
+                        
+                        if(element['textualRef']== undefined){
+                          element['textualRef'] = "";
+                        } 
+                      });
+                    }
+                    this.annotationArray.push(element);
+                  }else if(element.layer == 'epidoc'){
+                    this.epidoc_annotation_array.push(element);
+                  }
+                });
+                //this.annotationArray = data.annotations;
+                if(this.annotationArray.length > 0){
+                  this.lexicalService.triggerAttestationPanel(true);
+                  this.lexicalService.sendToAttestationPanel(this.annotationArray);
+                }else{
+                  this.annotationArray = [];
+                  this.lexicalService.triggerAttestationPanel(false);
+                  this.lexicalService.sendToAttestationPanel(null);
                 }
 
 
-              });
-              this.annotationArray = data;
-              this.lexicalService.triggerAttestationPanel(true);
-              this.lexicalService.sendToAttestationPanel(data);
+                
+              }else{
+                this.annotationArray = [];
+                this.epidoc_annotation_array = [];
+                this.lexicalService.triggerAttestationPanel(null);
+                this.lexicalService.sendToAttestationPanel(null);
+              }
+              
             },error=>{
               console.log(error)
             }
@@ -684,9 +709,10 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
   populateLocalAnnotation(anno){
     this.token_annotationArray = [];
+    console.log(anno)
     this.annotationArray.forEach(
       annotation => {
-
+        console.log(annotation)
         let start_token = anno.spans[0].start;
         let end_token = anno.spans[0].end;
 
@@ -728,7 +754,6 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
     )
 
     if(this.token_annotationArray.length > 0){
-      console.log("AJO")
       this.lexicalService.triggerAttestationPanel(true)
       this.lexicalService.sendToAttestationPanel(this.token_annotationArray);
     }else{
