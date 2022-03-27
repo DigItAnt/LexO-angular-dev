@@ -709,7 +709,7 @@ export class CoreTabComponent implements OnInit {
     if(item != undefined){
 
       let id = item.data.key != undefined ? item.data.key : '';
-      let title = item.data.title != undefined ? item.data.title : '';
+      let title = item.data.title.replace("\"", '') != undefined ? item.data.title : '';
       let author;
       
       item.data.creators.forEach(element => {
