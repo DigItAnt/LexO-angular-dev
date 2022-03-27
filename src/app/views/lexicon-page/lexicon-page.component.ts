@@ -116,7 +116,7 @@ export class LexiconPageComponent implements OnInit {
 
               let collapse_container = this.accordion.nativeElement.querySelectorAll('div[aria-labelledby="attestationHeading"]');
               collapse_container.forEach(element => {
-                console.log(element)
+                //console.log(element)
                 if(element.classList.contains("show")){
                   element.classList.remove('show')
                 }
@@ -164,7 +164,7 @@ export class LexiconPageComponent implements OnInit {
 
     this.lexicalService.attestationPanelData$.subscribe(
       data => {
-        console.log(data)
+       // console.log(data)
         if(data != null){
           if(Array.isArray(data)){
             this.attestation = data;

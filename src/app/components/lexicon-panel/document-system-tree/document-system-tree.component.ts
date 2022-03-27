@@ -449,7 +449,7 @@ export class DocumentSystemTreeComponent implements OnInit {
         setTimeout(() => {
           let newLexEntryLabel = data['label'];
           let parameters = this.lexTree.getParameters();
-          parameters['text'] = newLexEntryLabel + "~0.5";
+          parameters['text'] = newLexEntryLabel /* + "~0.5"; */
           this.lexTree.lexicalEntriesFilter(parameters);
           this.lexTree.lexicalEntryTree.treeModel.update();
           this.lexTree.updateTreeView();
@@ -480,6 +480,7 @@ export class DocumentSystemTreeComponent implements OnInit {
 
   addNewFile(evt?){
     let element_id = 0;
+    console.log(evt.target.files)
     let file_name = evt.target.files[0].name;
     let parameters = {
       "requestUUID" : "string",

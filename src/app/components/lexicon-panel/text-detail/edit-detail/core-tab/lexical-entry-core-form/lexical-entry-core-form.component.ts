@@ -167,6 +167,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
     } */
 
     triggerCognates(evt) {
+        console.log(evt)
         if (evt.target != undefined) {
             
             this.subject.next(evt.target.value)
@@ -200,30 +201,28 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                 limit: 500
             }
             
-            if (data != "" ) { /* && data.length >= 3 */
-                this.lexicalService.getLexicalEntriesList(parameters).subscribe(
-                    data => {
-                        console.log(data)
+            /* && data.length >= 3 */
+            this.lexicalService.getLexicalEntriesList(parameters).subscribe(
+                data => {
+                    console.log(data)
 
-                        let filter_lang = data.list.filter(
-                            x => {
-                                return x.language != this.object.language;
-                            }
-                        )
-                        filter_lang.forEach(element => {
-                            element['label_lang'] = element.label+"@"+element.language
-                        });
-                        console.log(filter_lang)
-                        this.searchResults = data['list']
-                        this.filterLoading = false;
-                    }, error => {
-                        //console.log(error)
-                        this.filterLoading = false;
-                    }
-                )
-            } else {
-                this.filterLoading = false;
-            }
+                    let filter_lang = data.list.filter(
+                        x => {
+                            return x.language != this.object.language;
+                        }
+                    )
+                    filter_lang.forEach(element => {
+                        element['label_lang'] = element.label+"@"+element.language
+                    });
+                    console.log(filter_lang)
+                    this.searchResults = data['list']
+                    this.filterLoading = false;
+                }, error => {
+                    //console.log(error)
+                    this.filterLoading = false;
+                }
+            )
+            
         } else {
             this.filterLoading = false;
         }

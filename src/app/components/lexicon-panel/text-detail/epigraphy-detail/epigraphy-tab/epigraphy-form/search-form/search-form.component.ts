@@ -204,9 +204,16 @@ export class SearchFormComponent implements OnInit {
     this.annotatorService.addAnnotation(parameters, tokenData.node).subscribe(
       data=> {
         console.log(data);
-        this.bind.annotationArray.push(data);
-        this.bind.populateLocalAnnotation(data)
+        this.bind.annotationArray.push(data.annotation);
+        this.bind.populateLocalAnnotation(data.annotation)
         
+        this.bind.object.forEach(element => {
+          if(data.annotation.attributes.node_id == element.id){
+            let positionElement = element.position;
+            let elementHTML = document.getElementsByClassName('token-'+(positionElement-1))[0]
+            this.renderer.addClass(elementHTML, 'annotation');
+          }
+        });
        
       },
       error => {

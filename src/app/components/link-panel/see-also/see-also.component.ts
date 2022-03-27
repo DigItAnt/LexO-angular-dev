@@ -50,6 +50,7 @@ export class SeeAlsoComponent implements OnInit {
     /* //console.log(this.seeAlsoForm) */
     this.subject.pipe(debounceTime(1000)).subscribe(
       data => {
+        console.log(data)
         this.onSearchFilter(data)
       }
     )
@@ -272,6 +273,7 @@ export class SeeAlsoComponent implements OnInit {
   onSearchFilter(data) {
     this.filterLoading = true;
     this.searchResults = [];
+    console.log(this.object)
     if (this.object.lexicalEntryInstanceName != undefined) {
       let parameters = {
         text: data,
@@ -286,20 +288,18 @@ export class SeeAlsoComponent implements OnInit {
         limit: 500
       }
       //console.log(data.length)
-      if (data != "" && data.length >= 3) {
-        this.lexicalService.getLexicalEntriesList(parameters).subscribe(
-          data => {
-            //console.log(data)
-            this.searchResults = data['list']
-            this.filterLoading = false;
-          }, error => {
-            //console.log(error)
-            this.filterLoading = false;
-          }
-        )
-      } else {
-        this.filterLoading = false;
-      }
+      
+      this.lexicalService.getLexicalEntriesList(parameters).subscribe(
+        data => {
+          console.log(data)
+          this.searchResults = data['list']
+          this.filterLoading = false;
+        }, error => {
+          //console.log(error)
+          this.filterLoading = false;
+        }
+      )
+      
     } else if (this.object.formInstanceName != undefined) {
       let lexId = this.object.parentInstanceName;
       let parameters = {
