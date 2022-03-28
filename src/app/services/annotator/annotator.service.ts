@@ -19,8 +19,8 @@ export class AnnotatorService {
     this._triggerSearch.next(string)
   } 
 
-  deleteAnnotationRequest(id : number){
-    this._deleteAnnoRequest.next(id)
+  deleteAnnotationRequest(id : number, node_id : number){
+    this._deleteAnnoRequest.next({id, node_id})
   }
 
   getTokens(id: number) : Observable<any> {

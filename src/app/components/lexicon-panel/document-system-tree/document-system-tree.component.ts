@@ -500,8 +500,9 @@ export class DocumentSystemTreeComponent implements OnInit {
           timeOut: 5000,
         });
         setTimeout(() => {
-          this.textTree.nodes.push(data.node);
-          this.textTree.updateTreeView();
+          
+          this.textTree.treeText.treeModel.nodes.push(data.node);
+          //this.textTree.treeText.treeModel.updateTreeView();
           this.textTree.treeText.treeModel.update();
           this.textTree.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
           

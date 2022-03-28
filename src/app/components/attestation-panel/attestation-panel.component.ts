@@ -21,6 +21,8 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
   bibliography = [];
   private update_anno_subject: Subject<any> = new Subject();
   private update_biblio_anno_subject: Subject<any> = new Subject();
+  private searchSubject : Subject<any> = new Subject();
+
   start = 0;
   sortField = 'title';
   direction = 'asc';
@@ -67,6 +69,14 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
         console.log(error)
       }
     )
+
+    this.searchSubject.pipe(debounceTime(1000)).subscribe(
+      data => {
+        this.queryTitle  = data.query;
+        data.queryMode ? this.queryMode = 'everything' : this.queryMode = 'titleCreatorYear';
+        this.searchBibliography(this.queryTitle, this.queryMode);
+      }
+    )
   }
   
 
@@ -96,9 +106,9 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
     }
   }
 
-  cancelAttestation(index, id){
+  cancelAttestation(index, id, node_id){
     this.formData.splice(index,1);
-    this.annotatorService.deleteAnnotationRequest(id);
+    this.annotatorService.deleteAnnotationRequest(id, node_id);
     this.annotatorService.deleteAnnotation(id).subscribe(
       data=> {
         console.log(data)
@@ -490,4 +500,55 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
     console.log(this.formData, item)
   }
 
+  triggerSearch(evt, query, queryMode) {
+    if(evt.key != 'Control' && evt.key != 'Shift' && evt.key != 'Alt'){
+      this.searchSubject.next({query, queryMode})
+    }
+  }
+  
+  searchBibliography(query?:string, queryMode?:any){
+    this.start = 0;
+    this.selectedItem = null;
+    //@ts-ignore
+    $("#biblioModalAnnotation").modal("show");
+    $('.modal-backdrop').appendTo('.table-body');
+    //@ts-ignore
+    $('#biblioModalAnnotation').modal({backdrop: 'static', keyboard: false})  
+    $('body').removeClass("modal-open")
+    $('body').css("padding-right", "");
+    this.tableBody.nativeElement.scrollTop = 0;
+    if(this.queryTitle != ''){
+      this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).subscribe(
+        data => {
+          console.log(data);
+          this.bibliography = [];
+          data.forEach(element => {
+            this.bibliography.push(element)
+          });
+          //@ts-ignore
+          $('#biblioModalAnnotation').modal('hide');
+          $('.modal-backdrop').remove();
+        },
+        error => {
+          console.log(error)
+        }
+      )
+    }else{
+      this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).subscribe(
+        data => {
+          console.log(data);
+          this.bibliography = [];
+          data.forEach(element => {
+            this.bibliography.push(element)
+          });
+          //@ts-ignore
+          $('#biblioModalAnnotation').modal('hide');
+          $('.modal-backdrop').remove();
+        },
+        error => {
+          console.log(error)
+        }
+      )
+    }
+  }
 }

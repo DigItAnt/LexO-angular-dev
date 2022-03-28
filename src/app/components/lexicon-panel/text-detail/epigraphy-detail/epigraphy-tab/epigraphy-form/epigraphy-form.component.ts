@@ -388,9 +388,19 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
     this.annotatorService.deleteAnnoReq$.subscribe(
       data=> {
         if(data != null){
+          
+          this.object.forEach(element => {
+            if(element.id == data.node_id){
+              let position = element.position;
+
+              let elementHTML = document.getElementsByClassName('token-'+(position-1))[0]
+              this.renderer.removeClass(elementHTML, 'annotation');
+            }
+          });
+
           this.annotationArray = this.annotationArray.filter(
             element => {
-              return element.id != data
+              return element.id != data.id
             }
           )
           console.log(this.annotationArray)
@@ -438,7 +448,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
           
           this.annotatorService.getAnnotation(element_id).subscribe(
             data=>{
-              //console.log(data);
+              console.log(data);
               if(data.annotations != undefined){
                 data.annotations.forEach(element => {
                   //console.log(element)
@@ -487,9 +497,25 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
                         if(startElement >= startAnnotation && endElement <= endAnnotation){
                           let positionElement = element.position;
-
                           let elementHTML = document.getElementsByClassName('token-'+(positionElement-1))[0]
-                          this.renderer.addClass(elementHTML, 'annotation');
+                          var that = this;
+                          var timer = setInterval((val)=>{                
+                              
+                              try{
+                                  if(elementHTML != undefined){
+                                    console.log("tentativo")
+                                    that.renderer.addClass(elementHTML, 'annotation');
+                                    clearInterval(timer)
+                                  }
+                              }catch(e){
+                                  console.log(e)
+                              }
+                                  
+                                    
+                          }, 500)
+                          
+                          
+                          
                         }
                       }
                     });
