@@ -124,7 +124,7 @@
                                             <th scope="row">Other IDs:</th>
                                             <td>
                                                 <p class="m-0" *ngFor="let other_id of object.traditionalIDs">
-                                                    <a [href]="'//'+other_id.traditionalID_URL">
+                                                    <a target="_blank" [href]="other_id.traditionalID_URL">
                                                         {{other_id.traditionalID}}
                                                     </a>
                                                 </p>
@@ -133,7 +133,7 @@
                                         <tr>
                                             <th scope="row">Original Place:</th>
                                             <td>
-                                                <a *ngIf="object.originalPlace.ancientNameUrl != ''" target="_blank" [href]="'//'+object.originalPlace.ancientNameUrl"> {{object.originalPlace.ancientName}}</a> <span *ngIf="object.originalPlace.ancientNameUrl == ''">{{object.originalPlace.ancientName}}</span>
+                                                <a *ngIf="object.originalPlace.ancientNameUrl != ''" target="_blank" [href]="object.originalPlace.ancientNameUrl"> {{object.originalPlace.ancientName}}</a> <span *ngIf="object.originalPlace.ancientNameUrl == ''">{{object.originalPlace.ancientName}}</span>
                                             </td>
                                         </tr>
                                         <tr>

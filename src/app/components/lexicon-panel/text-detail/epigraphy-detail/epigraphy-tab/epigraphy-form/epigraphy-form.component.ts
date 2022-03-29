@@ -955,12 +955,12 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
     //console.log(anno)
     this.annotationArray.forEach(
       annotation => {
-        console.log(annotation)
+        //console.log(annotation)
         let start_token = anno.spans[0].start;
         let end_token = anno.spans[0].end;
 
         annotation.spans.forEach(element => {
-          if(element.start >= start_token && element.end <= end_token){
+          if(start_token >= element.start  && end_token <= element.end){
             this.token_annotationArray.push(annotation);
           }
         });

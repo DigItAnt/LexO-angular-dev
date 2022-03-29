@@ -119,11 +119,11 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
     if(this.formData.length == 0){
       this.lexicalService.triggerAttestationPanel(false);
       this.lexicalService.sendToCoreTab(null);
-      this.expander.openCollapseEdit(false);
+      /* this.expander.openCollapseEdit(false);
       this.expander.expandCollapseEdit(false);
 
       this.expander.openCollapseEpigraphy(true);
-      this.expander.expandCollapseEpigraphy(true);
+      this.expander.expandCollapseEpigraphy(true); */
     }
   }
 
