@@ -11,12 +11,18 @@
             <!--     <div>
     <span>{{item.label}} </span><span style="color: blue;">@{{item.language}}</span>
 </div> -->
-            <div class="card-body">
-                <h6 class="card-title" [ngOptionHighlight]="search">{{item.label}}</h6>
-                <p class="card-subtitle mb-2 text-muted">{{item.type}}</p>
+            <div class="card-body p-0">
+                <h6 class="card-title m-0" [ngOptionHighlight]="search">{{item.label}}</h6>
+                <!-- <p class="card-subtitle mb-2 text-muted">{{item.type}}</p> -->
+                <small *ngFor="let sub of item.morphology">
+                    <span *ngIf="sub.trait == 'case' || sub.trait == 'gender' || sub.trait == 'number'">
+                        {{sub.trait}} : {{sub.value}} <br>
+                    </span>
+                </small>
                 <small class="card-text">
                     <!-- <img height="15" width="15" [src]="item.avatar"/> -->
-                    LexicalEntry: {{item.lexicalEntryInstanceName}}
+                    <!-- LexicalEntry: {{item.lexicalEntryInstanceName}} -->
+                    
                 </small>
                 <!--  <div *ngIf="item.name === 'Pavilnys'">
         <a href="#" class="card-link">Card link</a>

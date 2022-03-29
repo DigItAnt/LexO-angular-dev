@@ -387,23 +387,43 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
     this.annotatorService.deleteAnnoReq$.subscribe(
       data=> {
+
+        let localArray = [];
         if(data != null){
           
-          this.object.forEach(element => {
-            if(element.id == data.node_id){
-              let position = element.position;
-
-              let elementHTML = document.getElementsByClassName('token-'+(position-1))[0]
-              this.renderer.removeClass(elementHTML, 'annotation');
-            }
-          });
 
           this.annotationArray = this.annotationArray.filter(
             element => {
               return element.id != data.id
             }
           )
-          console.log(this.annotationArray)
+          //console.log(this.annotationArray)
+
+          this.object.forEach(element => {
+            if(element.id == data.node_id){
+              /* let position = element.position;
+
+              let elementHTML = document.getElementsByClassName('token-'+(position-1))[0]
+              this.renderer.removeClass(elementHTML, 'annotation'); */
+
+              let start = element.begin;
+              let end = element.end;
+
+              this.annotationArray.forEach(element => {
+                if(start >= element.spans[0].start && end <= element.spans[0].end ){
+                  localArray.push(element);
+                }
+              })
+
+              console.log(localArray, localArray.length);
+
+              if(localArray.length == 0){
+                let position = element.position;
+                let elementHTML = document.getElementsByClassName('token-'+(position-1))[0]
+                this.renderer.removeClass(elementHTML, 'annotation');
+              }
+            }
+          });
         }
       }
     )
@@ -487,39 +507,52 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
                   this.lexicalService.triggerAttestationPanel(true);
                   this.lexicalService.sendToAttestationPanel(this.annotationArray);
 
-                  this.object.forEach(element => {
-                    let startElement = element.begin;
-                    let endElement = element.end;
-                    this.annotationArray.forEach(annotation => {
-                      if(annotation.spans.length == 1){
-                        let startAnnotation = annotation.spans[0].start;
-                        let endAnnotation = annotation.spans[0].end;
-
-                        if(startElement >= startAnnotation && endElement <= endAnnotation){
-                          let positionElement = element.position;
-                          let elementHTML = document.getElementsByClassName('token-'+(positionElement-1))[0]
-                          var that = this;
-                          var timer = setInterval((val)=>{                
-                              
-                              try{
-                                  if(elementHTML != undefined){
-                                    console.log("tentativo")
-                                    that.renderer.addClass(elementHTML, 'annotation');
-                                    clearInterval(timer)
-                                  }
-                              }catch(e){
-                                  console.log(e)
-                              }
-                                  
+                  var that2 = this;
+                  var timer_object = setInterval((val)=>{
+                    try {
+                      if(this.object != null){
+                        this.object.forEach(element => {
+                          let startElement = element.begin;
+                          let endElement = element.end;
+                          this.annotationArray.forEach(annotation => {
+                            if(annotation.spans.length == 1){
+                              let startAnnotation = annotation.spans[0].start;
+                              let endAnnotation = annotation.spans[0].end;
+      
+                              if(startElement >= startAnnotation && endElement <= endAnnotation){
+                                let positionElement = element.position;
+                                let elementHTML = document.getElementsByClassName('token-'+(positionElement-1))[0]
+                                var that = this;
+                                var timer = setInterval((val)=>{                
                                     
-                          }, 500)
+                                    try{
+                                        if(elementHTML != undefined){
+                                          that.renderer.addClass(elementHTML, 'annotation');
+                                          clearInterval(timer)
+                                        }
+                                    }catch(e){
+                                        console.log(e)
+                                    }
+                                        
+                                          
+                                }, 250)
+                                
+                                
+                                
+                              }
+                            }
+                          });
                           
-                          
-                          
-                        }
+                        });
+                        clearInterval(timer_object)
                       }
-                    });
-                  });
+                      
+                    } catch (error) {
+                      console.log(error)
+                    }
+                  }, 250)
+
+                 
 
                 }else{
                   this.annotationArray = [];
@@ -919,7 +952,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
   populateLocalAnnotation(anno){
     this.token_annotationArray = [];
-    console.log(anno)
+    //console.log(anno)
     this.annotationArray.forEach(
       annotation => {
         console.log(annotation)
@@ -1319,9 +1352,9 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
     this.annotatorService.deleteAnnotation(anno_id).subscribe(
       data=> {
         console.log(data);
-        let popover = document.getElementsByClassName('token-'+(token_position -1))[0]      
+        /* let popover = document.getElementsByClassName('token-'+(token_position -1))[0]      
         this.renderer.removeClass(popover, "annotation_entire");
-        this.renderer.removeClass(popover, "unselectable");
+        this.renderer.removeClass(popover, "unselectable"); */
 
         this.lexicalService.triggerAttestationPanel(false)
       },

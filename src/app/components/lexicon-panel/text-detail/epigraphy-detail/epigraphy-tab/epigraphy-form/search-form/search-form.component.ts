@@ -46,7 +46,8 @@ export class SearchFormComponent implements OnInit {
 
 
   triggerSearch(evt) {
-    if (evt.target != undefined) {
+    //console.log(evt)
+    if (evt.target != undefined && evt.key != 'Control') {
         
         this.search_subject.next(evt.target.value)
     }
