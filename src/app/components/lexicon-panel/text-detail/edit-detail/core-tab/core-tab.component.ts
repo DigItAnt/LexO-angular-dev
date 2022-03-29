@@ -186,7 +186,7 @@ export class CoreTabComponent implements OnInit {
 
     this.expand.expEdit$.subscribe(
       trigger => {
-        console.log("trigger core-tab: ", trigger)
+        /* console.log("trigger core-tab: ", trigger) */
         if(trigger){
           let isEditExpanded = this.expand.isEditTabExpanded();
           let isEpigraphyExpanded = this.expand.isEpigraphyTabExpanded();

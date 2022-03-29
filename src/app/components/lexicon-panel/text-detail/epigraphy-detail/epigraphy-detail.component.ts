@@ -16,6 +16,28 @@ export class EpigraphyDetailComponent implements OnInit {
   constructor(private documentService: DocumentSystemService, private exp : ExpanderService) { }
 
   ngOnInit(): void {
+    this.exp.openEpigraphy$.subscribe(
+      boolean => {
+        if(boolean){
+          setTimeout(() => {
+            var text_detail = document.querySelectorAll('#epigraphy-dettaglio');
+            text_detail.forEach(element => {
+              if(!element.classList.contains('show')){
+                element.classList.add('show')
+              }
+            })
+            let a_link = document.querySelectorAll('a[data-target="#epigraphy-dettaglio"]');
+            a_link.forEach(element => {
+              if(element.classList.contains("collapsed")){
+                element.classList.remove('collapsed')
+              }else{
+                //element.classList.add('collapsed')
+              }
+            })
+           }, 100);
+        }
+      }
+    )
 
     this.documentService.epigraphyData$.subscribe(
       object => {

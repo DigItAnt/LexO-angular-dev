@@ -19,12 +19,35 @@ export class EditDetailComponent implements OnInit {
   ngOnInit(): void {
     
     this.object = null;
+    this.exp.openEdit$.subscribe(
+      boolean => {
+        if(boolean){
+          setTimeout(() => {
+            var text_detail = document.querySelectorAll('#text-dettaglio');
+            text_detail.forEach(element => {
+              if(!element.classList.contains('show')){
+                element.classList.add('show')
+              }
+            })
+            let a_link = document.querySelectorAll('a[data-target="#text-dettaglio"]');
+            a_link.forEach(element => {
+              if(element.classList.contains("collapsed")){
+                element.classList.remove('collapsed')
+              }else{
+                //element.classList.add('collapsed')
+              }
+            })
+           }, 100);
+        }
+      }
+    )
     this.lexicalService.coreData$.subscribe(
       object => {
         if(object != null){
           if(object['lexicalEntryInstanceName'] != undefined ||
              object['formInstanceName'] != undefined ||
-             object['senseInstanceName'] != undefined){
+             object['senseInstanceName'] != undefined ||
+             object['etymologyInstanceName'] != undefined){
                setTimeout(() => {
                 var navTabLinks = this.navtabs.nativeElement.querySelectorAll('a')
                 this.object = object;
