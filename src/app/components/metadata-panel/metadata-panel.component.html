@@ -31,12 +31,33 @@
                                 <span class="badge badge-primary">Form</span>
                             </div> -->
                             <div class="d-flex">
-                                <div class="col-md-4 ">
+                                <table class="table table-bordered">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row">Title:</th>
+                                            <td>{{object.fileID}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Id:</th>
+                                            <td>{{object['element-id']}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Editor:</th>
+                                            <td>{{object.editor}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Path:</th>
+                                            <td>{{object.path}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- <div class="col-md-4 ">
                                     <p class="card-text">Title:</p>
                                 </div>
                                 <div class="col-md-8 p-0">
                                     <p class="card-text font-italic">{{object.fileID}}</p>
-                                </div>
+                                </div> -->
                             </div>
                            <!--  <div class="d-flex mt-3">
                                 <div class="col-md-6 ">
@@ -54,33 +75,31 @@
                                     <p class="card-text">26/09/2021</p>
                                 </div>
                             </div> -->
-                            <div class="d-flex mt-3">
+                            <!-- <div class="d-flex mt-3">
                                 <div class="col-md-4 ">
                                     <p class="card-text">ID:</p>
                                 </div>
                                 <div class="col-md-8 p-0">
                                     <p class="card-text font-italic">{{object['element-id']}}</p>
                                 </div>
-                                <!-- <div class="col-md-6 p-0">
-                                    <p class="card-text citational-tooltip pointer" data-toggle="tooltip" data-placement="bottom" data-html="true" data-trigger="click" title="Forma citazionale completa <br> <a href='#'>Link</a>">&lt;forma_citazionale_1&gt;</p>
-                                </div> -->
-                            </div>
-                            <div class="d-flex mt-3">
+                                
+                            </div> -->
+                            <!-- <div class="d-flex mt-3">
                                 <div class="col-md-4 ">
                                     <p class="card-text">Editor:</p>
                                 </div>
                                 <div class="col-md-8 p-0">
                                     <p class="card-text font-italic">{{object.editor}}</p>
                                 </div>
-                            </div>
-                            <div class="d-flex mt-3">
+                            </div> -->
+                            <!-- <div class="d-flex mt-3">
                                 <div class="col-md-4 ">
                                     <p class="card-text">Path:</p>
                                 </div>
                                 <div class="col-md-8 p-0">
                                     <p class="card-text font-italic">{{object.path}}</p>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -93,15 +112,58 @@
                             <!-- <div class="d-flex">
                                 <span class="badge badge-primary">Form</span>
                             </div> -->
+
                             <div class="d-flex">
+                                <table class="table table-bordered">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row">Trismegistos ID</th>
+                                            <td><a target="_blank" [href]="'//'+object.trismegistos.trismegistosID_url"> {{object.trismegistos.trismegistosID}}</a></td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Other IDs:</th>
+                                            <td>
+                                                <p *ngFor="let other_id of object.traditionalIDs">
+                                                    <a [href]="'//'+other_id.traditionalID_URL">
+                                                        {{other_id.traditionalID}}
+                                                    </a>
+                                                </p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Original Place:</th>
+                                            <td>
+                                                <a *ngIf="object.originalPlace.ancientNameUrl != ''" target="_blank" [href]="'//'+object.originalPlace.ancientNameUrl"> {{object.originalPlace.ancientName}}</a> <span *ngIf="object.originalPlace.ancientNameUrl == ''">{{object.originalPlace.ancientName}}</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Settlement:</th>
+                                            <td>
+                                                <a *ngIf="object.settlement.placeOfConservationExternalReference != ''" target="_blank" [href]="object.settlement.placeOfConservationExternalReference"> {{object.settlement.placeOfConservation}}</a> <span *ngIf="object.settlement.placeOfConservationExternalReference == ''">{{object.settlement.placeOfConservation}}</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Material:</th>
+                                            <td>
+                                                <a *ngIf="object.support.material_conceptUrl != ''" target="_blank" [href]="object.support.material_conceptUrl"> {{object.support.material}}</a> <span *ngIf="object.support.material_conceptUrl == ''">{{object.support.material}}</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Object Type:</th>
+                                            <td>
+                                                <a *ngIf="object.support.objectType_conceptUrl != ''" target="_blank" [href]="object.support.objectType_conceptUrl"> {{object.support.objectType}}</a> <span *ngIf="object.support.objectType_conceptUrl == ''">{{object.support.objectType}}</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- <div class="d-flex">
                                 <div class="col-md-12 ">
                                     <p class="card-text"> <span class="font-italic">Trismegistos ID: </span>  <a target="_blank" [href]="'//'+object.trismegistos.trismegistosID_url"> {{object.trismegistos.trismegistosID}}</a></p>
                                 </div>
-                                <!-- <div class="col-md-6 pr-0">
-                                    <p class="card-text font-italic">{{object.trismegistos.trismegistosID}}</p>
-                                </div> -->
-                            </div>
-                            <div class="d-flex mt-3" *ngIf="object.traditionalIDs.length > 0">
+                            </div> -->
+                            <!-- <div class="d-flex mt-3" *ngIf="object.traditionalIDs.length > 0">
                                 <div class="col-md-6 ">
                                     <p class="card-text">Other IDs:</p>
                                 </div>
@@ -118,9 +180,31 @@
                                             </a>
                                         </li>
                                     </ul>
-                                    <!-- <p class="card-text">Creation date:</p> -->
+                                </div>
+                            </div> -->
+                            <!-- <div class="d-flex">
+                                <div class="col-md-12 ">
+                                    <p class="card-text"> <span>Original Place: </span>  <a *ngIf="object.originalPlace.ancientNameUrl != ''" target="_blank" [href]="'//'+object.originalPlace.ancientNameUrl"> {{object.originalPlace.ancientName}}</a> <span *ngIf="object.originalPlace.ancientNameUrl == ''">{{object.originalPlace.ancientName}}</span></p>
                                 </div>
                             </div>
+                            
+                            <div class="d-flex">
+                                <div class="col-md-12 ">
+                                    <p class="card-text"> <span>Settlement: </span>  <a *ngIf="object.settlement.placeOfConservationExternalReference != ''" target="_blank" [href]="object.settlement.placeOfConservationExternalReference"> {{object.settlement.placeOfConservation}}</a> <span *ngIf="object.settlement.placeOfConservationExternalReference == ''">{{object.settlement.placeOfConservation}}</span></p>
+                                </div>
+                            </div>
+
+                            <div class="d-flex">
+                                <div class="col-md-12 ">
+                                    <p class="card-text"> <span>Material: </span>  <a *ngIf="object.support.material_conceptUrl != ''" target="_blank" [href]="object.support.material_conceptUrl"> {{object.support.material}}</a> <span *ngIf="object.support.material_conceptUrl == ''">{{object.support.material}}</span></p>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex">
+                                <div class="col-md-12 ">
+                                    <p class="card-text"> <span>Object Type: </span>  <a *ngIf="object.support.objectType_conceptUrl != ''" target="_blank" [href]="object.support.objectType_conceptUrl"> {{object.support.objectType}}</a> <span *ngIf="object.support.objectType_conceptUrl == ''">{{object.support.objectType}}</span></p>
+                                </div>
+                            </div> -->
                             <!-- <div class="d-flex mt-3">
                                 <div class="col-md-6 ">
                                     <p class="card-text">Id no:</p>
