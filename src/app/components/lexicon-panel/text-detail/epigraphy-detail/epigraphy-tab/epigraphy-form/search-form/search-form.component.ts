@@ -201,12 +201,12 @@ export class SearchFormComponent implements OnInit {
     //console.log(idPopover, tokenData, data);
 
     console.log(parameters)
-
+    
     this.annotatorService.addAnnotation(parameters, tokenData.node).subscribe(
       data=> {
         console.log(data);
         this.bind.annotationArray.push(data.annotation);
-        this.bind.populateLocalAnnotation(data.annotation)
+        this.bind.populateLocalAnnotation(tokenData)
         
         this.bind.object.forEach(element => {
           if(data.annotation.attributes.node_id == element.id){

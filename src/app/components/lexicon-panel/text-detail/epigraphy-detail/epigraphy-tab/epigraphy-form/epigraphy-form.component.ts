@@ -410,7 +410,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
               let end = element.end;
 
               this.annotationArray.forEach(element => {
-                if(start >= element.spans[0].start && end <= element.spans[0].end ){
+                if(element.spans[0].start >= start  && element.spans[0].end <= end){
                   localArray.push(element);
                 }
               })
@@ -950,20 +950,22 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
     this.renderer.appendChild(span, div);
   }
 
-  populateLocalAnnotation(anno){
+  populateLocalAnnotation(tokenData){
     this.token_annotationArray = [];
     //console.log(anno)
     this.annotationArray.forEach(
       annotation => {
         //console.log(annotation)
-        let start_token = anno.spans[0].start;
-        let end_token = anno.spans[0].end;
+        let start_token = tokenData.begin;
+        let end_token = tokenData.end;
 
         annotation.spans.forEach(element => {
-          if(start_token >= element.start  && end_token <= element.end){
+          if( element.start >= start_token  &&  element.end <= end_token){
             this.token_annotationArray.push(annotation);
           }
         });
+
+        
       }
     )
     if(this.token_annotationArray.length > 0){
