@@ -502,6 +502,8 @@ export class DocumentSystemTreeComponent implements OnInit {
         setTimeout(() => {
           
           this.textTree.treeText.treeModel.nodes.push(data.node);
+          this.textTree.counter = this.textTree.treeText.treeModel.nodes.length
+          //console.log(this.textTree.treeText.treeModel.nodes.length)
           //this.textTree.treeText.treeModel.updateTreeView();
           this.textTree.treeText.treeModel.update();
           this.textTree.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();

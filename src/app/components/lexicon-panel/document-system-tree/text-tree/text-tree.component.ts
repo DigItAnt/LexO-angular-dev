@@ -400,6 +400,7 @@ export class TextTreeComponent implements OnInit {
             console.log(x)
             x.data.children.push(data.node)
             setTimeout(() => {
+              this.counter = this.nodes.length;
               this.updateTreeView();
               this.treeText.treeModel.update();
               this.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
@@ -501,15 +502,17 @@ export class TextTreeComponent implements OnInit {
 
       this.documentService.removeFile(parameters).subscribe(
         data=>{
-          //console.log(data);
+          console.log(data);
           this.toastr.info('File '+ evt['name'] +' deleted', '', {
             timeOut: 5000,
           });
-          this.nodes = data['documentSystem'];
+          
+          //this.nodes = data['documentSystem'];
           this.lexicalService.sendToAttestationPanel(null);
           this.documentService.sendToEpigraphyTab(null)
           this.expander.expandCollapseEpigraphy(false);
-          this.expander.openCollapseEpigraphy(false)
+          this.expander.openCollapseEpigraphy(false);
+          
           /* expandedNodes.forEach( (node: TreeNode) => {
           
             setTimeout(() => {
@@ -528,6 +531,11 @@ export class TextTreeComponent implements OnInit {
           })
 
           this.treeText.treeModel.update()
+
+          setTimeout(() => {
+            console.log(this.nodes)
+            this.counter = this.nodes.length;
+          }, 100);
           
           
         },error=>{
@@ -581,6 +589,11 @@ export class TextTreeComponent implements OnInit {
           })
 
           this.treeText.treeModel.update()
+
+          setTimeout(() => {
+            console.log(this.nodes)
+            this.counter = this.nodes.length;
+          }, 100);
           
           
         },error=>{
