@@ -519,7 +519,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
                               let startAnnotation = annotation.spans[0].start;
                               let endAnnotation = annotation.spans[0].end;
       
-                              if(startElement >= startAnnotation && endElement <= endAnnotation){
+                              if(startAnnotation >= startElement  && endAnnotation <= endElement){
                                 let positionElement = element.position;
                                 let elementHTML = document.getElementsByClassName('token-'+(positionElement-1))[0]
                                 var that = this;
