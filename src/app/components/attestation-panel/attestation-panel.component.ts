@@ -111,9 +111,15 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
     this.annotatorService.deleteAnnotationRequest(id, node_id);
     this.annotatorService.deleteAnnotation(id).subscribe(
       data=> {
-        console.log(data)
+        console.log(data);
+        this.toastr.success('Attestation deleted correctly', 'Info', {
+          timeOut : 5000
+        })
       },error => {
-        console.log(error)
+        console.log(error);
+        this.toastr.error('Error on deleting attestation', 'Error', {
+          timeOut : 5000
+        })
       }
     );
     if(this.formData.length == 0){
@@ -147,9 +153,15 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
 
       this.annotatorService.updateAnnotation(annotation).subscribe(
         data=> {
-          console.log(data)
-        },error =>{
-          console.log(error)
+          console.log(data);
+          this.toastr.success('Attestation updated correctly', 'Info', {
+            timeOut : 5000
+          })
+        },error => {
+          console.log(error);
+          this.toastr.error('Error on updating attestation', 'Error', {
+            timeOut : 5000
+          })
         }
       )
 
@@ -175,8 +187,17 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
       let annotation = data?.a;
       console.log(annotation)
       this.annotatorService.updateAnnotation(annotation).subscribe(
-        data=>{console.log(data)},
-        error=>{console.log(error)}
+        data=> {
+          console.log(data);
+          this.toastr.success('Attestation updated correctly', 'Info', {
+            timeOut : 5000
+          })
+        },error => {
+          console.log(error);
+          this.toastr.error('Error on updating attestation', 'Error', {
+            timeOut : 5000
+          })
+        }
       )
       
     }
@@ -381,6 +402,10 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
 
           this.modal.hide();
 
+          this.toastr.success('Item added correctly', 'Info', {
+            timeOut : 5000
+          })
+
         },error=>{
           console.log(error);
           //@ts-ignore
@@ -388,6 +413,10 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
           $('.modal-backdrop').remove();
 
           this.modal.hide();
+
+          this.toastr.error('Error on adding item', 'Info', {
+            timeOut : 5000
+          })
 
         }
       )
@@ -494,8 +523,18 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
     )
 
     this.annotatorService.updateAnnotation(item).subscribe(
-      data=>{console.log(data)},
-      error=>{console.log(error)}
+      data=>{
+        console.log(data)
+        this.toastr.success('Attestation removed correctly', 'Info', {
+          timeOut : 5000
+        })
+      },
+      error=>{
+        console.log(error)
+        this.toastr.error('Error on removing attestation', 'Error', {
+          timeOut : 5000
+        })
+      }
     )
     console.log(this.formData, item)
   }

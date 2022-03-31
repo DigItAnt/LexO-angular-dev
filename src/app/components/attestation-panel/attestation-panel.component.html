@@ -75,7 +75,7 @@
                                             <div class="card">
                                                 <a class="biblioCollapse" data-toggle="collapse" [attr.data-target]="'#attestation_biblio_collapse-'+item?.id+'-'+j" aria-expanded="true" [attr.aria-controls]="'#attestation_biblio_collapse-'+item?.id+'-'+j">
                                                     
-                                                    <span class="text-id pointer">
+                                                    <span class="text-id pointer" style="z-index: 0;">
                                                         <span  *ngFor="let auth of item_biblio.creators">
                                                             <b *ngIf="auth.creatorType == 'author'">{{auth.lastName}} {{auth.firstName}} </b>
                                                         </span>

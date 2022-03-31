@@ -22,7 +22,7 @@
 
         <div *ngFor="let token of object; let i = index" class="panel-body">
 
-            <span #span_modal="ngbPopover" *ngIf="token.text != '' && token.text != '.'"
+            <span #span_modal="ngbPopover" *ngIf="token.text != '' && token.text != '.' && token.text != ':' "
                 [attr.position]="token.position"
                 [ngClass]="{'unselectable': !token.selected, 'selected' : token.selected, 'editing' : token.editing}"
                 class="token token-{{i}} p-2" style="display: block" container="body" [triggers]="manual"

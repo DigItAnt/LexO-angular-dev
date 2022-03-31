@@ -44,7 +44,7 @@ export class AnnotatorService {
   }
 
   updateAnnotation(annotation : object) : Observable<any>{
-    return this.http.put(this.baseUrl + 'annotation', annotation);
+    return this.http.put(this.baseUrl + 'annotation?requestUUID=test123', annotation);
   }
 
 }

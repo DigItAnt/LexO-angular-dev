@@ -1,5 +1,6 @@
 import { Component, Input, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { NgSelectComponent } from '@ng-select/ng-select';
+import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { AnnotatorService } from 'src/app/services/annotator/annotator.service';
@@ -15,7 +16,7 @@ export class SearchFormComponent implements OnInit {
   private search_subject: Subject<any> = new Subject();
   searchResults: any[];
 
-  constructor(private annotatorService: AnnotatorService, private lexicalService : LexicalEntriesService, private expander : ExpanderService, private renderer : Renderer2) { }
+  constructor(private toastr: ToastrService, private annotatorService: AnnotatorService, private lexicalService : LexicalEntriesService, private expander : ExpanderService, private renderer : Renderer2) { }
 
   @Input() bind;
   @ViewChild('select_form') select_form: NgSelectComponent;
@@ -206,7 +207,7 @@ export class SearchFormComponent implements OnInit {
       data=> {
         console.log(data);
         this.bind.annotationArray.push(data.annotation);
-        this.bind.populateLocalAnnotation(tokenData)
+        this.bind.populateLocalAnnotation(tokenData);
         
         this.bind.object.forEach(element => {
           if(data.annotation.attributes.node_id == element.id){
@@ -215,10 +216,17 @@ export class SearchFormComponent implements OnInit {
             this.renderer.addClass(elementHTML, 'annotation');
           }
         });
+
+        this.toastr.success('New attestation created', 'Info', {
+          timeOut : 5000
+        })
        
       },
       error => {
         console.log(error);
+        this.toastr.error('Error on create new attestation', 'Error', {
+          timeOut : 5000
+        })
       }
     )
 

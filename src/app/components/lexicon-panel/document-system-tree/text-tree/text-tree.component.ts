@@ -1050,10 +1050,15 @@ export class TextTreeComponent implements OnInit {
         this.treeText.treeModel.update();
         this.updateTreeView();
         this.searchIconSpinner = false;
+        
       },
       error => {
         console.log(error)
         this.searchIconSpinner = false;
+
+        this.toastr.error('Error on search text', 'Error', {
+          timeOut : 5000
+        })
       }
     )
   }
