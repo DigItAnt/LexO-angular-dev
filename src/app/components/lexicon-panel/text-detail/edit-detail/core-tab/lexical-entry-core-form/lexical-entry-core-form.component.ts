@@ -227,7 +227,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                         element['label_lang'] = element.label+"@"+element.language
                     });
                     console.log(filter_lang)
-                    this.searchResults = data['list']
+                    this.searchResults = filter_lang;
                     this.filterLoading = false;
                 }, error => {
                     //console.log(error)
