@@ -25,7 +25,7 @@ module.exports = function (config) {
       suppressAll: true // removes the duplicated traces
     },
     coverageReporter: {
-      dir: require('path').join(__dirname, './coverage/lexO-angular'),
+      dir: require('path').join(__dirname, './coverage/LexO-angular'),
       subdir: '.',
       reporters: [
         { type: 'html' },

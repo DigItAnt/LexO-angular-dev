@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "lexO-angular": {
+    "LexO-angular": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -20,7 +20,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/lexO-angular",
+            "outputPath": "dist/LexO-angular",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -65,8 +65,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "3mb",
+                  "maximumError": "5mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -80,19 +80,19 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "lexO-angular:build",
+            "browserTarget": "LexO-angular:build",
             "proxyConfig": "src/proxy.conf.json"
           },
           "configurations": {
             "production": {
-              "browserTarget": "lexO-angular:build:production"
+              "browserTarget": "LexO-angular:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "lexO-angular:build"
+            "browserTarget": "LexO-angular:build"
           }
         },
         "test": {
@@ -129,16 +129,16 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "lexO-angular:serve"
+            "devServerTarget": "LexO-angular:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "lexO-angular:serve:production"
+              "devServerTarget": "LexO-angular:serve:production"
             }
           }
         }
       }
     }
   },
-  "defaultProject": "lexO-angular"
+  "defaultProject": "LexO-angular"
 }
