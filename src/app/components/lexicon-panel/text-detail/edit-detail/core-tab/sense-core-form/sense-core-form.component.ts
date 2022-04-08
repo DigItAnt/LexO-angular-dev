@@ -45,6 +45,7 @@ export class SenseCoreFormComponent implements OnInit {
 
   senseCore = new FormGroup({
     definition: new FormArray([this.createDefinition()]),
+    confidence : new FormControl(null),
     usage: new FormControl('', [Validators.required, Validators.minLength(5)]),
     topic: new FormControl('', [Validators.required, Validators.minLength(5)]),
     reference: new FormArray([this.createReference()]),
@@ -80,6 +81,7 @@ export class SenseCoreFormComponent implements OnInit {
 
     this.senseCore = this.formBuilder.group({
       definition: this.formBuilder.array([]),
+      confidence : false,
       usage: '',
       topic: '',
       reference: this.formBuilder.array([this.createReference()]),
@@ -136,6 +138,7 @@ export class SenseCoreFormComponent implements OnInit {
           }
         }
         //console.log(this.object)
+        this.senseCore.get('confidence').setValue(this.object.confidence, { emitEvent : false })
         this.senseCore.get('topic').setValue(this.object.topic, { emitEvent : false })
         this.senseCore.get('usage').setValue(this.object.usage, { emitEvent: false });
         this.addLexicalConcept(this.object.concept);
@@ -176,6 +179,53 @@ export class SenseCoreFormComponent implements OnInit {
         }
       )
     })
+
+    this.senseCore.get('confidence').valueChanges.pipe(debounceTime(100)).subscribe(newConfidence => {
+      let confidence_value = null;
+      console.log(newConfidence)
+      if(newConfidence == false){
+        confidence_value = 1
+        this.senseCore.get('confidence').setValue(false, { emitEvent: false });
+      }else{
+        confidence_value = 0
+        this.senseCore.get('confidence').setValue(true, { emitEvent: false });
+      }
+
+      this.lexicalService.spinnerAction('on');
+      let etyId = this.object.etymology.etymologyInstanceName;
+      let parameters = {
+          relation: 'confidence',
+          value: confidence_value
+      }
+      console.log(parameters)
+      /* this.lexicalService.updateEtymology(etyId, parameters).subscribe(
+          data => {
+              console.log(data);
+              data['request'] = 0;
+              data['new_label'] = confidence_value
+              this.lexicalService.refreshAfterEdit(data);
+              this.lexicalService.updateLexCard(data)
+              this.lexicalService.spinnerAction('off');
+          },
+          error => {
+              console.log(error);
+               const data = this.object.etymology;
+              data['request'] = 0;
+              data['new_label'] = confidence_value;
+              this.lexicalService.refreshAfterEdit(data);
+              this.lexicalService.spinnerAction('off');
+              this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+              if(error.status == 200){
+                this.toastr.success('Label updated', '', {timeOut: 5000})
+
+              }else{
+                this.toastr.error(error.error, 'Error', {timeOut: 5000})
+
+              }
+          }
+      ) */
+
+    });
 
     this.senseCore.get('topic').valueChanges.pipe(debounceTime(1000)).subscribe(newTopic => {
       if(newTopic.trim() != ''){

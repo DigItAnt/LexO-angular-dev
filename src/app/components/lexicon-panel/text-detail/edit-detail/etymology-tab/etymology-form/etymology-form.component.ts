@@ -39,7 +39,7 @@ export class EtymologyFormComponent implements OnInit {
   etyForm = new FormGroup({
     label: new FormControl(''),
     author: new FormControl(''),
-    uncertain : new FormControl(null),
+    confidence : new FormControl(null),
     etylink: new FormArray([this.createEtyLink()]),
     cognates: new FormArray([this.createCognate()])
   })

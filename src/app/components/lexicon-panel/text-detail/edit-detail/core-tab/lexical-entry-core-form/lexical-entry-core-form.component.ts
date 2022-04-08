@@ -77,6 +77,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
         language: new FormControl('', [Validators.required, Validators.minLength(0)]),
         pos: new FormControl(''),
         morphoTraits: new FormArray([this.createMorphoTraits()]),
+        stemType : new FormControl(''),
         evokes: new FormArray([this.createEvokes()]),
         denotes: new FormArray([this.createDenotes()]),
         cognate : new FormArray([this.createCognates()]),
@@ -163,6 +164,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
             language: '',
             pos: '',
             morphoTraits: this.formBuilder.array([]),
+            stemType : '',
             evokes: this.formBuilder.array([this.createEvokes()]),
             denotes: this.formBuilder.array([this.createDenotes()]),
             cognate: this.formBuilder.array([this.createCognates()]),
@@ -291,6 +293,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                 
                 const lexId = this.object.lexicalEntryInstanceName;
                 this.coreForm.get('label').setValue(this.object.label, { emitEvent: false });
+                this.coreForm.get('stemType').setValue(this.object.stemType, { emitEvent: false });
                 if(this.object.type == 'Etymon'){
                     this.coreForm.get('type').disable({onlySelf: true, emitEvent: false})
                 }else{
@@ -829,6 +832,52 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                 } else if (updatedLabel.length < 3) {
                     
                     this.emptyLabelFlag = true;
+                }
+            }
+        )
+
+        this.coreForm.get("stemType").valueChanges.pipe(debounceTime(1000)).subscribe(
+            updateStem => {
+                if (updateStem.length > 2 && updateStem.trim() != '') {
+                    //this.emptyLabelFlag = false;
+                    this.lexicalService.spinnerAction('on');
+                    let lexId = this.object.lexicalEntryInstanceName;
+                    let parameters = {
+                        relation: 'label',
+                        value: updateStem
+                    }
+                    /* this.lexicalService.updateLexicalEntry(lexId, parameters).subscribe(
+                        data => {
+                            console.log(data);
+                            data['request'] = 0;
+                            data['new_label'] = updatedLabel
+                            this.lexicalService.refreshAfterEdit(data);
+                            this.lexicalService.spinnerAction('off');
+                            this.lexicalService.updateLexCard(data)
+                            
+                        },
+                        error => {
+                            console.log(error);
+                            const data = this.object;
+                            data['request'] = 0;
+                            data['new_label'] = updatedLabel;
+                            this.lexicalService.refreshAfterEdit(data);
+                            this.lexicalService.spinnerAction('off');
+                            this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+                            if(typeof(error.error) != 'object'){
+                                this.toastr.error(error.error, 'Error', {
+                                  timeOut: 5000,
+                                });
+                            }else{
+                                this.toastr.success('Label changed correctly for ' + lexId, '', {
+                                    timeOut: 5000,
+                                });
+                            }
+                        }
+                    ) */
+                } else if (updateStem.length < 3) {
+                    
+                    //this.emptyLabelFlag = true;
                 }
             }
         )
