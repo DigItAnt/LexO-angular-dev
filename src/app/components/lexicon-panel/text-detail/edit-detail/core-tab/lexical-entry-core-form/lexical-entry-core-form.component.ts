@@ -71,6 +71,8 @@ export class LexicalEntryCoreFormComponent implements OnInit {
     emptyLabelFlag = false;
     emptyFlag = false;
 
+    disableAddMorpho = false;
+
     coreForm = new FormGroup({
         label: new FormControl('', [Validators.required, Validators.minLength(3)]),
         type: new FormControl(''),
@@ -668,6 +670,8 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                     this.lexicalService.spinnerAction('off');
                     this.lexicalService.refreshFilter({ request: true })
                     this.lexicalService.updateLexCard(data)
+
+                    this.disableAddMorpho = false;
                     setTimeout(() => {
                         
                         let traitDescription = '';
@@ -700,6 +704,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                     this.lexicalService.refreshAfterEdit({ request: 0, label: this.object.label });
                     this.lexicalService.spinnerAction('off');
                     this.lexicalService.refreshFilter({ request: true })
+                    this.disableAddMorpho = false;
                     this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
                     setTimeout(() => {
                         
@@ -817,7 +822,8 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                             data['new_label'] = updatedLabel;
                             this.lexicalService.refreshAfterEdit(data);
                             this.lexicalService.spinnerAction('off');
-                            this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+                            this.lexicalService.updateLexCard({ lastUpdate: error.error.text });
+                            this.lexicalService.changeDecompLabel(updatedLabel)
                             if(typeof(error.error) != 'object'){
                                 this.toastr.error(error.error, 'Error', {
                                   timeOut: 5000,
@@ -1261,15 +1267,18 @@ export class LexicalEntryCoreFormComponent implements OnInit {
     
 
     addMorphoTraits(t?, v?, d?) {
+        
         this.morphoTraits = this.coreForm.get('morphoTraits') as FormArray;
         if (t != undefined) {
             this.morphoTraits.push(this.createMorphoTraits(t, v, d));
         } else {
+            this.disableAddMorpho = true;
             this.morphoTraits.push(this.createMorphoTraits());
         }
     }
 
     removeElement(index) {
+        
         this.memoryTraits.splice(index, 1);
         this.valueTraits.splice(index, 1);
         this.staticMorpho.splice(index, 1)
@@ -1317,6 +1326,8 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                     }
                 }
             )
+        }else{
+            this.disableAddMorpho = false;
         }
 
 

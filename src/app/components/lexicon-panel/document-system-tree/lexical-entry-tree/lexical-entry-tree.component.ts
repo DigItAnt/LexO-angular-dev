@@ -856,6 +856,7 @@ export class LexicalEntryTreeComponent implements OnInit {
       let instance = node.data.lexicalEntryInstanceName;
       this.lexicalService.getLexEntryElements(instance).subscribe(
         data => {
+          console.log(data['elements'])
           data["elements"] = data["elements"].filter(function(obj){
             return obj.count != 0;
           })
@@ -931,6 +932,44 @@ export class LexicalEntryTreeComponent implements OnInit {
             } else {
               newNodes[i]['flagAuthor'] = true
             }
+          }
+        },error => {
+          //console.log(error)
+        }
+      )
+      
+    } else if (node.data.label == "constituent") {
+      let parentInstance = node.parent.data.lexicalEntryInstanceName;
+      this.lexicalService.getConstituents(parentInstance).subscribe(
+        data => {
+          console.log(data)
+          newNodes = data.map((c) => Object.assign({}, c));
+          for (var i = 0; i < newNodes.length; i++) {
+            newNodes[i]['hasChildren'] = null;
+            /* if (newNodes[i].creator == node.parent.data.creator) {
+              newNodes[i]['flagAuthor'] = false
+            } else {
+              newNodes[i]['flagAuthor'] = true
+            } */
+          }
+        },error => {
+          //console.log(error)
+        }
+      )
+      
+    } else if (node.data.label == "subterm") {
+      let parentInstance = node.parent.data.lexicalEntryInstanceName;
+      this.lexicalService.getSubTerms(parentInstance).subscribe(
+        data => {
+          console.log(data)
+          newNodes = data.map((c) => Object.assign({}, c));
+          for (var i = 0; i < newNodes.length; i++) {
+            newNodes[i]['hasChildren'] = null;
+            /* if (newNodes[i].creator == node.parent.data.creator) {
+              newNodes[i]['flagAuthor'] = false
+            } else {
+              newNodes[i]['flagAuthor'] = true
+            } */
           }
         },error => {
           //console.log(error)

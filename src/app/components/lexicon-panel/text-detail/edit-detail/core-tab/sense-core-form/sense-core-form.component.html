@@ -6,7 +6,7 @@
         <div class="input-group col-lg-12">
             <div class="card">
                 <span class="text-id"><b>DEFINITIONS</b></span>
-                <a class="pointer" (click)="addDefinition()"><span class="collapse-icon"><i
+                <a class="pointer" (click)="addDefinition()" [ngClass]="{no_pointer: disableAddDef}"><span class="collapse-icon"><i
                             class="fa fa-plus-square"></i></span></a>
                 <div class="card-body">
 
@@ -17,7 +17,7 @@
                         <div class="input-group col-md-9">
                             <textarea type="text" class="form-control"
                                 placeholder="" (keyup)="debounceExistingKeyup($event, i)" [value]="def['value']" style="resize: none;"></textarea>
-                            <div (click)="removeDefinition(i)" class="input-group-append ml-2"> <button
+                            <div (click)="removeDefinition(i)" class="input-group-append ml-2" *ngIf="def['trait'] != 'definition'"> <button
                                     class="btn btn-danger" type="button"
                                     style="font-size: 12px; border-radius: .25rem;"><i
                                         class="fa fa-trash-alt"></i></button>

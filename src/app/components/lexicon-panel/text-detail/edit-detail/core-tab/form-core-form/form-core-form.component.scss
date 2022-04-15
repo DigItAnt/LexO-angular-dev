@@ -75,3 +75,11 @@
     border-top-right-radius: .25rem;
     border-bottom-right-radius: .25rem;
 }
+
+.no_pointer {
+    pointer-events: none;
+
+    .collapse-icon{
+        color: #8c8c8c;
+    }
+}

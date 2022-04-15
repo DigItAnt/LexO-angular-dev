@@ -43,7 +43,7 @@
         <div class="input-group col-lg-12">
             <div class="card">
                 <span class="text-id"><b>OTHER REPRESENTATION</b></span>
-                <a class="pointer" (click)="addLabel()"><span class="collapse-icon"><i
+                <a class="pointer" (click)="addLabel()" [ngClass]="{no_pointer: disableAddOther}"><span class="collapse-icon"><i
                             class="fa fa-plus-square"></i></span></a>
                 <div class="card-body">
                     <div class="d-flex my-3" *ngFor="let def of staticOtherDef; let i = index">
@@ -53,7 +53,7 @@
                         <div class="input-group col-md-8">
                             <input type="text" class="form-control"
                                 placeholder="" (keyup)="debounceKeyupExisting($event, i)" [value]="def['value']">
-                            <div (click)="removeLabel(i)" class="input-group-append ml-2"> <button
+                            <div *ngIf="def['trait'] != 'writtenRep'" (click)="removeLabel(i)" class="input-group-append ml-2"> <button
                                     class="btn btn-danger" type="button"
                                     style="font-size: 12px; border-radius: .25rem;"><i
                                         class="fa fa-trash-alt"></i></button>
@@ -102,7 +102,7 @@
         <div class="input-group col-lg-12">
             <div class="card">
                 <span class="text-id"><b>MORPHOLOGY</b></span>
-                <a class="pointer" (click)="addMorphoTraits()"><span class="collapse-icon"><i
+                <a class="pointer" (click)="addMorphoTraits()" [ngClass]="{no_pointer: disableAddMorpho}"><span class="collapse-icon"><i
                             class="fa fa-plus-square"></i></span></a>
                 <div class="card-body">
 

@@ -21,6 +21,7 @@ import {
   trigger,
   state
 } from "@angular/animations";
+import { ToastrService } from 'ngx-toastr';
 
 
 @Component({
@@ -47,17 +48,22 @@ export class DecompositionTabComponent implements OnInit {
   object: any;
   exp_trig = '';
 
+  creationDate;
+  lastUpdate;
+
   isLexicalEntry = false;
+  searchIconSpinner = false;
 
   decompData : any;
 
   @ViewChild('expander') expander_body: ElementRef;
   
-  constructor(private lexicalService: LexicalEntriesService, private expand: ExpanderService, private rend: Renderer2) { }
+  constructor(private toastr: ToastrService, private lexicalService: LexicalEntriesService, private expand: ExpanderService, private rend: Renderer2) { }
 
   ngOnInit(): void {
     this.lexicalService.coreData$.subscribe(
       object => {
+        this.object = null;
         if(this.object != object){
           this.decompData = null;
         }
@@ -67,6 +73,9 @@ export class DecompositionTabComponent implements OnInit {
           if(this.object.lexicalEntry != undefined && this.object.sense == undefined){
             this.isLexicalEntry = true;
             this.decompData = object;
+
+            this.creationDate = object['creationDate'];
+            this.lastUpdate = object['lastUpdate']
           }else if(this.object.form != undefined){
             this.isLexicalEntry = false;
             this.decompData = null;
@@ -79,6 +88,18 @@ export class DecompositionTabComponent implements OnInit {
         }
       }
     );
+
+    this.lexicalService.updateLexCardReq$.subscribe(
+      data => {
+        console.log(data)
+        if(data != null){
+          this.lastUpdate = data['lastUpdate']
+          if(data['creationDate'] != undefined){
+            this.creationDate = data['creationDate']
+          }
+        }
+      }
+    )
 
     this.expand.expEdit$.subscribe(
       trigger => {
@@ -146,6 +167,204 @@ export class DecompositionTabComponent implements OnInit {
       }, 10);
     }
     
+  }
+
+  addNewForm(){
+    this.searchIconSpinner = true;
+    /* console.log(this.object) */
+    this.object['request'] = 'form'
+    if(this.isLexicalEntry){
+      let lexicalId = this.object.lexicalEntryInstanceName;
+      this.lexicalService.createNewForm(lexicalId).subscribe(
+        data=>{
+          this.toastr.success('Form added correctly', '', {
+            timeOut: 5000,
+          });
+          console.log(data);
+          if(data['creator'] == this.object.creator){
+            data['flagAuthor'] = false;
+          }else{
+            data['flagAuthor'] = true;
+          }
+          this.lexicalService.addSubElementRequest({'lex' : this.object, 'data' : data});
+          this.searchIconSpinner = false;
+        },error=> {
+          console.log(error)
+          this.toastr.error(error.error, 'Error', {
+            timeOut: 5000,
+          });
+          this.searchIconSpinner = false;
+        }
+      )
+    }/* else if(this.isForm){
+      let parentNodeInstanceName = this.object.parentNodeInstanceName;
+      //console.log(this.object);
+      this.object['request'] = 'form';
+      this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
+      this.lexicalService.createNewForm(parentNodeInstanceName).subscribe(
+        data=>{
+          if(data['creator'] == this.object.creator){
+            data['flagAuthor'] = false;
+          }else{
+            data['flagAuthor'] = true;
+          }
+          this.lexicalService.addSubElementRequest({'lex' : this.object, 'data' : data});
+          this.searchIconSpinner = false;
+          this.toastr.success('Form added correctly', '', {
+            timeOut: 5000,
+          });
+        },error=> {
+          //console.log(error)
+          this.searchIconSpinner = false;
+          this.toastr.error(error.error, 'Error', {
+            timeOut: 5000,
+          });
+        }
+      )
+    }else if(this.isSense){
+      let parentNodeInstanceName = this.object.parentNodeInstanceName;
+      this.object['request'] = 'form';
+      this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
+      //console.log(this.object);
+      this.lexicalService.createNewForm(parentNodeInstanceName).subscribe(
+        data=>{
+          if(data['creator'] == this.object.creator){
+            data['flagAuthor'] = false;
+          }else{
+            data['flagAuthor'] = true;
+          }
+          this.lexicalService.addSubElementRequest({'lex' : this.object, 'data' : data});
+          this.searchIconSpinner = false;
+          this.toastr.success('Form added correctly', '', {
+            timeOut: 5000,
+          });
+        },error=> {
+          this.toastr.error(error.error, 'Error', {
+            timeOut: 5000,
+          });
+          this.searchIconSpinner = false;
+        }
+      )
+    } */
+    
+  }
+
+  addNewSense(){
+    this.searchIconSpinner = true;
+    this.object['request'] = 'sense'
+    if(this.isLexicalEntry){
+      let lexicalId = this.object.lexicalEntryInstanceName;
+      this.lexicalService.createNewSense(lexicalId).subscribe(
+        data=>{
+          if(data['creator'] == this.object.creator){
+            data['flagAuthor'] = false;
+          }else{
+            data['flagAuthor'] = true;
+          }
+          this.lexicalService.addSubElementRequest({'lex' : this.object, 'data' : data});
+          this.searchIconSpinner = false;
+          this.toastr.success('Sense added correctly', '', {
+            timeOut: 5000,
+          });
+        },error=> {
+          this.searchIconSpinner = false;
+          this.toastr.error(error.error, 'Error', {
+            timeOut: 5000,
+          });
+          
+        }
+      )
+    }/* else if(this.isSense){
+      let parentNodeInstanceName = this.object.parentNodeInstanceName;
+      this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
+      this.object['request'] = 'sense'
+      //console.log(this.object);
+      this.lexicalService.createNewSense(parentNodeInstanceName).subscribe(
+        data=>{
+          if(data['creator'] == this.object.creator){
+            data['flagAuthor'] = false;
+          }else{
+            data['flagAuthor'] = true;
+          }
+          this.lexicalService.addSubElementRequest({'lex' : this.object, 'data' : data});
+          this.searchIconSpinner = false;
+          this.toastr.success('Sense added correctly', '', {
+            timeOut: 5000,
+          });
+        },error=> {
+          this.searchIconSpinner = false;
+          this.toastr.error(error.error, 'Error', {
+            timeOut: 5000,
+          });
+        }
+      )
+    }else if(this.isForm){
+      let parentNodeInstanceName = this.object.parentNodeInstanceName;
+      this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
+      this.object['request'] = 'sense'
+      //console.log(this.object);
+      this.lexicalService.createNewSense(parentNodeInstanceName).subscribe(
+        data=>{
+          if(data['creator'] == this.object.creator){
+            data['flagAuthor'] = false;
+          }else{
+            data['flagAuthor'] = true;
+          }
+          this.lexicalService.addSubElementRequest({'lex' : this.object, 'data' : data});
+          this.searchIconSpinner = false;
+          this.toastr.success('Sense added correctly', '', {
+            timeOut: 5000,
+          });
+          //this.lexicalService.refreshLexEntryTree();
+        },error=> {
+          this.searchIconSpinner = false;
+          this.toastr.error(error.error, 'Error', {
+            timeOut: 5000,
+          });
+          //this.lexicalService.refreshLexEntryTree();
+        }
+      )
+    } */
+
+  }
+
+  addNewEtymology(){
+    this.searchIconSpinner = true;
+    this.object['request'] = 'etymology'
+    let parentNodeInstanceName = '';
+    if(this.object.lexicalEntryInstanceName != undefined
+      && this.object.senseInstanceName == undefined){
+        console.log(1)
+        parentNodeInstanceName = this.object.lexicalEntryInstanceName;
+    }/* else if(this.object.formInstanceName != undefined){
+      parentNodeInstanceName = this.object.parentNodeInstanceName;
+      this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
+      console.log(2)
+    }else if(this.object.senseInstanceName != undefined){
+      parentNodeInstanceName = this.object.parentNodeInstanceName;
+      this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
+      console.log(3)
+    } */
+
+    console.log(parentNodeInstanceName)
+    this.lexicalService.createNewEtymology(parentNodeInstanceName).subscribe(
+      data=>{
+        console.log(data)
+        if(data['creator'] == this.object.creator){
+          data['flagAuthor'] = false;
+        }else{
+          data['flagAuthor'] = true;
+        }
+        this.lexicalService.addSubElementRequest({'lex' : this.object, 'data' : data});
+        this.searchIconSpinner = false;
+        this.toastr.success('Etymology added correctly', '', {
+          timeOut: 5000,
+        });
+      },error=> {
+        this.searchIconSpinner = false;
+      }
+    )
+
   }
 
 }

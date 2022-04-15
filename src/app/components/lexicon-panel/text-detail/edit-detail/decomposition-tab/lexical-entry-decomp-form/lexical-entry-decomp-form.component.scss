@@ -80,11 +80,6 @@
     pointer-events: none;
 }
 
-// Required
-@import "../../../../../../../../node_modules/bootstrap/scss/functions";
-@import "../../../../../../../../node_modules/bootstrap/scss/variables";
-@import "../../../../../../../../node_modules/bootstrap/scss/mixins";
-
 
 .row {
     align-items: center;
@@ -162,4 +157,13 @@
 
 .resizeNgSelect {
     width: 15%;
+}
+
+
+.no_pointer {
+    pointer-events: none;
+    border-color: #8c8c8c;
+    pointer-events: none;
+    color: #8c8c8c;
+    
 }

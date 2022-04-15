@@ -34,6 +34,7 @@ export class LexicalEntriesService {
   private _updateLangSelect : BehaviorSubject<object> = new BehaviorSubject(null);
   private _triggerNotePanel : BehaviorSubject<boolean> = new BehaviorSubject(null);
   private _triggerAttestationPanel : BehaviorSubject<boolean> = new BehaviorSubject(null);
+  private _changeDecompLabel : BehaviorSubject<string> = new BehaviorSubject(null);
 
   private baseUrl = "/LexO-backend-itant/service/"
   private key = "PRINitant19";
@@ -54,6 +55,7 @@ export class LexicalEntriesService {
   updateLangSelect$ = this._updateLangSelect.asObservable();
   triggerNotePanel$ = this._triggerNotePanel.asObservable();
   triggerAttestationPanel$ = this._triggerAttestationPanel.asObservable();
+  changeDecompLabel$ = this._changeDecompLabel.asObservable();
 
   constructor(private http: HttpClient) { }
 
@@ -64,6 +66,10 @@ export class LexicalEntriesService {
   sendToAttestationPanel(object: object) {
     this._attestationPanelData.next(object)
   } 
+
+  changeDecompLabel(string:string){
+    this._changeDecompLabel.next(string);
+  }
   
   /* sendToVartransTab(object: object) {
     this._vartransData.next(object)
@@ -343,6 +349,23 @@ export class LexicalEntriesService {
   }
 
   deleteEtylink(etyLinkInstance: string) : Observable<any>{
-    return this.http.get(this.baseUrl + "lexicon/delete/"+etyLinkInstance+"/etymologicalLink?=&key="+this.key+"&author="+this.author+"");
+    return this.http.get(this.baseUrl + "lexicon/delete/"+etyLinkInstance+"/etymologicalLink?key="+this.key+"&author="+this.author+"");
+  }
+
+  //DECOMP
+  getSubTerms(lexicalEntityID: string) : Observable<any>{
+    return this.http.get(this.baseUrl + "lexicon/data/"+lexicalEntityID+"/subTerms?key="+this.key);
+  }
+
+  getConstituents(lexicalEntityID: string) : Observable<any>{
+    return this.http.get(this.baseUrl + "lexicon/data/"+lexicalEntityID+"/constituents?key="+this.key);
+  }
+
+  createComponent(lexicalEntityID : string) : Observable<any>{
+    return this.http.get(this.baseUrl + "lexicon/creation/component?id="+lexicalEntityID+"&key="+this.key+"&author="+this.author+"");
+  }
+
+  deleteComponent(compId : string) : Observable<any>{
+    return this.http.get(this.baseUrl + "lexicon/delete/"+compId+"/component?key="+this.key);
   }
 }

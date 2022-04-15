@@ -81,3 +81,11 @@
         border: 1px solid #ffc107!important;
     }
 }
+
+.no_pointer {
+    pointer-events: none;
+
+    .collapse-icon{
+        color: #8c8c8c;
+    }
+}

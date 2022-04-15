@@ -61,6 +61,9 @@ export class FormCoreFormComponent implements OnInit {
   inheritanceArray: FormArray;
   labelArray: FormArray;
 
+  disableAddOther = false;
+  disableAddMorpho = false;
+
   constructor(private dataService: DataService, private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder, private toastr: ToastrService) { }
 
   ngOnInit() {
@@ -408,6 +411,7 @@ export class FormCoreFormComponent implements OnInit {
           console.log(data)
           this.lexicalService.spinnerAction('off');
           this.lexicalService.updateLexCard(this.object)
+          this.disableAddMorpho = false;
           setTimeout(() => {
                     
             //@ts-ignore
@@ -422,6 +426,7 @@ export class FormCoreFormComponent implements OnInit {
           console.log(error)
           this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
+          this.disableAddMorpho = false;
           if(typeof(error.error) != 'object'){
             this.toastr.error(error.error, 'Error', {
               timeOut: 5000,
@@ -594,8 +599,11 @@ export class FormCoreFormComponent implements OnInit {
           this.lexicalService.spinnerAction('off');
           /* this.lexicalService.refreshAfterEdit(data); */
           this.lexicalService.updateLexCard(data)
+          this.disableAddOther = false;
         }, error => {
           console.log(error);
+          this.disableAddOther = false;
+
           this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
         }
@@ -648,6 +656,7 @@ export class FormCoreFormComponent implements OnInit {
     if (t != undefined) {
       this.labelArray.push(this.createLabel(t, v));
     } else {
+      this.disableAddOther = true;
       this.labelArray.push(this.createLabel());
     }
 
@@ -664,6 +673,7 @@ export class FormCoreFormComponent implements OnInit {
       this.morphoTraits.push(this.createMorphoTraits(t, v, d));
     } else {
       this.morphoTraits.push(this.createMorphoTraits());
+      this.disableAddMorpho = true;
     }
   }
 
@@ -701,6 +711,8 @@ export class FormCoreFormComponent implements OnInit {
           }
         }
       )
+    }else{
+      this.disableAddMorpho = false;
     }
 
     this.staticMorpho.splice(index, 1);
@@ -735,6 +747,9 @@ export class FormCoreFormComponent implements OnInit {
           console.log(error)
         }
       )
+    }else{
+      this.disableAddOther = false;
+
     }
     this.staticOtherDef.splice(index, 1)
     this.labelArray.removeAt(index);

@@ -38,6 +38,8 @@ export class SenseCoreFormComponent implements OnInit {
   peopleLoading = false;
   counter = 0;
 
+  disableAddDef = false;
+
   definitionData = [];
   definitionMemory = [];
 
@@ -325,6 +327,7 @@ export class SenseCoreFormComponent implements OnInit {
     if(pId != undefined){
       this.definitionArray.push(this.createDefinition(pId, pVal));
     }else{
+      this.disableAddDef = true;
       this.definitionArray.push(this.createDefinition());
     }
   }
@@ -337,7 +340,7 @@ export class SenseCoreFormComponent implements OnInit {
 
     //console.log(trait + value)
 
-    if (trait != '') {
+    if (trait != null) {
 
       let senseId = this.object.senseInstanceName;
 
@@ -365,6 +368,8 @@ export class SenseCoreFormComponent implements OnInit {
           }
         }
       )
+    }else{
+      this.disableAddDef = false;
     }
     this.definitionMemory.splice(index, 1);
     this.staticDef.splice(index, 1);
@@ -462,14 +467,17 @@ export class SenseCoreFormComponent implements OnInit {
           this.lexicalService.spinnerAction('off');
           //this.lexicalService.refreshLexEntryTree();
           this.lexicalService.updateLexCard(data)
+          this.disableAddDef = false;
         }, error => {
           console.log(error);
           //this.lexicalService.refreshLexEntryTree();
+          this.disableAddDef = false;
           if(trait == 'definition'){
             const data = this.object;
             data['whatToSearch'] = 'sense';
             data['new_definition'] = newValue;
             data['request'] = 6;
+            
             this.lexicalService.refreshAfterEdit(data);
             if(error.status != 200){
               this.toastr.error(error.error, 'Error', {
