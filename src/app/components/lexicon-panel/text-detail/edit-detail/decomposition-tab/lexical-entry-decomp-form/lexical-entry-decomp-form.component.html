@@ -86,71 +86,7 @@
                                     </div>
                                 </div>
 
-                               <!--  <div formArrayName="corresponds_to" class="col-xl-12">
-                                    <div *ngFor="let sub of comp['controls'].corresponds_to['controls']; let j = index">
-                                        <div [formGroupName]="j" class="d-xl-flex" >
-                                            <label class="col-xl-3 col-form-label">Corresponds To:</label>
-                                            <div class="col-xl-9">
-                                                <div class="form-group row ml-2 mr-2">
-                                                    <div class="input-group" *ngIf="{switch : false}; let variable">
-                                                        <ng-select #select_corresponds_to formControlName="entity" name="entity" [dropdownPosition]="'top'"
-                                                            (keyup)="triggerCorrespondsTo($event)" (change)="handleCorrespondsTo(select_corresponds_to, i)"
-                                                            [items]="searchResults" bindValue="label" (focus)="deleteData()" bindLabel="label"
-                                                            placeholder="Search cognates" appendTo="body">
-                                                            <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
-                                                                <div>
-                                                                    <span>{{item.label}} </span><span style="color: blue;">@{{item.language}}</span>
-                                                                </div>
-
-                                                            </ng-template>
-                                                        </ng-select>
-                                                        
-                                                        <div class="input-group-append ml-2">
-                                                            <button class="btn btn-primary" type="button"><i
-                                                                    class="fa fa-external-link-alt"></i></button>
-                                                        </div>
-                                                        <div class="input-group-append ml-2">
-                                                            <button (click)="removeCorrespondsToComponent(i, j)" class="btn btn-danger" type="button"><i class="fa fa-trash-alt"></i></button>
-                                                        </div>
-                                                        <div class="input-group-append ml-2">
-                                                            <button (click)="addRelation(i)" class="btn btn-outline-primary" type="button">
-                                                                <i class="fa fa-plus"></i>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>                                                  
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
- -->
-                                
-                                <!-- RELATION -->
-                                <!-- <ng-container *ngFor="let stat of staticMorpho[i]; let j = index">
-                                    <div class="d-flex my-3" *ngIf="stat['trait'] != 'partOfSpeech'">
-                                        <div class="col-md-4">
-                                            <label class="col-form-label">{{stat['trait']}}</label>
-                                        </div>
-                                        <div class="input-group col-md-8">
-                                            <select class="form-control selectTrait" style="font-size:12px;"
-                                                (change)="onChangeExistingValue($event, i)">
-                                                <option *ngFor="let item of valueTraits[i][j];"
-                                                    [selected]="stat['value'] === item.valueId">{{item.valueId}}</option>
-                                            </select>
-                                            <div class="input-group-append ml-2">
-                                                <button *ngIf="coreForm['controls'].morphoTraits?.value[i] != null" class="btn btn-secondary trait-tooltip" type="button" data-toggle="tooltip"
-                                                data-placement="top" data-trigger="hover" [attr.data-original-title]="coreForm.get('morphoTraits').at(i).get('description').value"
-                                                    style="font-size: 12px; border-radius: .25rem;"><i class="fas fa-question"></i></button>
-                                                    
-                                            </div>
-                                            <div (click)="removeRelation(i, j)" class="input-group-append ml-2"> <button
-                                                    class="btn btn-danger" type="button"
-                                                    style="font-size: 12px; border-radius: .25rem;"><i
-                                                        class="fa fa-trash-alt"></i></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </ng-container> -->
+                              
             
                                 <ng-container formArrayName="relation"
                                     *ngFor="let sub of comp['controls'].relation['controls']; let j = index">
@@ -168,6 +104,7 @@
                                                 Please, don't leave this field blank
                                             </div>
                                         </div>
+                                        <!-- {{valueTraits | json}} -->
                                         <div class="input-group col-md-8" [formGroupName]="j">
                                             <!-- {{valueTraits | json}} {{i}} {{j}} -->
                                             <select class="form-control selectTrait" formControlName="value" name="value"

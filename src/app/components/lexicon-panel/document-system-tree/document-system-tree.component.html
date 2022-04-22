@@ -18,7 +18,7 @@
                     <button class="btn btn-link" title="Language"><i class="fa fa-globe-americas"></i></button>
                     <div class="dropdown-menu" aria-labelledby="textTreeActionDropdown">
                         <a class="dropdown-item" (click)="addFile.click()" style="cursor: pointer;">Add new file</a>
-                        <input #addFile type="file" hidden (change)="addNewFile($event)">
+                        <input #addFile type="file" accept=".xml" hidden (change)="addNewFile($event)" multiple>
                         <a class="dropdown-item" (click)="addNewFolder()" style="cursor: pointer;">Add new folder</a>
                       </div>
                 </div>

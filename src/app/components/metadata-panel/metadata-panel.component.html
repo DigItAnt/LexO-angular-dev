@@ -120,7 +120,7 @@
                                     <tbody>
                                         <tr>
                                             <th scope="row">Trismegistos ID</th>
-                                            <td><a target="_blank" [href]="'//'+object.trismegistos.trismegistosID_url"> {{object.trismegistos.trismegistosID}}</a></td>
+                                            <td><a target="_blank" [href]="'//'+object?.trismegistos?.trismegistosID_url"> {{object?.trismegistos?.trismegistosID}}</a></td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Other IDs:</th>
@@ -135,25 +135,25 @@
                                         <tr>
                                             <th scope="row">Original Place:</th>
                                             <td>
-                                                <a *ngIf="object.originalPlace.ancientNameUrl != ''" target="_blank" [href]="object.originalPlace.ancientNameUrl"> {{object.originalPlace.ancientName}}</a> <span *ngIf="object.originalPlace.ancientNameUrl == ''">{{object.originalPlace.ancientName}}</span>
+                                                <a *ngIf="object?.originalPlace?.ancientNameUrl != ''" target="_blank" [href]="object?.originalPlace?.ancientNameUrl"> {{object?.originalPlace?.ancientName}}</a> <span *ngIf="object?.originalPlace?.ancientNameUrl == ''">{{object?.originalPlace?.ancientName}}</span>
                                             </td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Settlement:</th>
                                             <td>
-                                                <a *ngIf="object.settlement.placeOfConservationExternalReference != ''" target="_blank" [href]="object.settlement.placeOfConservationExternalReference"> {{object.settlement.placeOfConservation}}</a> <span *ngIf="object.settlement.placeOfConservationExternalReference == ''">{{object.settlement.placeOfConservation}}</span>
+                                                <a *ngIf="object?.settlement?.placeOfConservationExternalReference != ''" target="_blank" [href]="object?.settlement?.placeOfConservationExternalReference"> {{object?.settlement?.placeOfConservation}}</a> <span *ngIf="object?.settlement?.placeOfConservationExternalReference == ''">{{object?.settlement?.placeOfConservation}}</span>
                                             </td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Material:</th>
                                             <td>
-                                                <a *ngIf="object.support.material_conceptUrl != ''" target="_blank" [href]="object.support.material_conceptUrl"> {{object.support.material}}</a> <span *ngIf="object.support.material_conceptUrl == ''">{{object.support.material}}</span>
+                                                <a *ngIf="object?.support?.material_conceptUrl != ''" target="_blank" [href]="object?.support?.material_conceptUrl"> {{object?.support?.material}}</a> <span *ngIf="object?.support?.material_conceptUrl == ''">{{object?.support?.material}}</span>
                                             </td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Object Type:</th>
                                             <td>
-                                                <a *ngIf="object.support.objectType_conceptUrl != ''" target="_blank" [href]="object.support.objectType_conceptUrl"> {{object.support.objectType}}</a> <span *ngIf="object.support.objectType_conceptUrl == ''">{{object.support.objectType}}</span>
+                                                <a *ngIf="object?.support?.objectType_conceptUrl != ''" target="_blank" [href]="object?.support?.objectType_conceptUrl"> {{object?.support?.objectType}}</a> <span *ngIf="object?.support?.objectType_conceptUrl == ''">{{object?.support?.objectType}}</span>
                                             </td>
                                         </tr>
                                     </tbody>

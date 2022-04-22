@@ -120,21 +120,34 @@
   <context-menu>
 
     <!-- FOLDER CONTEXT MENU -->
-    <ng-template contextMenuItem let-item [visible]="isFolder" (execute)="triggerUploader($event.item)">
+    <ng-template contextMenuItem let-item [visible]="isFolder " (execute)="triggerUploader($event.item)">
       Add File
     </ng-template>
-    <ng-template contextMenuItem let-item [visible]="isFolder" (execute)="addFolder($event.item)">
+    <ng-template contextMenuItem let-item [visible]="isFolder " (execute)="addFolder($event.item)">
       Add Folder
     </ng-template>
-    <ng-template contextMenuItem let-item [visible]="isFolder" [enabled]="noRoot" (execute)="removeFolder($event.item)">
+    <ng-template contextMenuItem let-item [visible]="isFolder " [enabled]="noRoot" (execute)="removeFolder($event.item)">
       Delete Folder
     </ng-template>
-    <ng-template contextMenuItem let-item [visible]="isFolder" [enabled]="noRoot"
+    <ng-template contextMenuItem let-item [visible]="isFolder " [enabled]="noRoot"
       (execute)="renameNode($event.item)">
       <span >Rename Folder</span> <!-- (click)="renameFolderModel.show();" -->
     </ng-template>
 
+    <ng-template contextMenuItem let-item [visible]="multipleSelection" (execute)="copyElements()">
+      Copy Elements
+    </ng-template>
+    <ng-template contextMenuItem let-item [visible]="isFolderMultiple" (execute)="pasteElements($event.item)">
+      Paste Elements
+    </ng-template>
+    <ng-template contextMenuItem divider="true" [visible]="multipleSelection"></ng-template>
+    <ng-template contextMenuItem let-item [visible]="multipleSelection" (execute)="removeElements()">
+      Delete Elements
+    </ng-template>
+    
 
+<!--     <ng-template contextMenuItem divider="multipleSelection" [visible]="multipleSelection"></ng-template>
+ -->
     <!-- FILE CONTEXT MENU -->
     <ng-template contextMenuItem let-item [visible]="isFile" (execute)="copyFile($event.item)">
       Copy File
@@ -149,23 +162,23 @@
     <ng-template contextMenuItem let-item [visible]="isFile" (execute)="removeFile($event.item)">
       Delete File
     </ng-template>
-    <ng-template contextMenuItem divider="true" [visible]="isFile"></ng-template>
+    <ng-template contextMenuItem divider="isFile" [visible]="isFile"></ng-template>
     <ng-template contextMenuItem let-item [visible]="isFile" (execute)="downloadFile($event.item)">
       Download File
     </ng-template>
 
-    <ng-template contextMenuItem divider="true"></ng-template>
+    <ng-template contextMenuItem [visible]="enableMetadata" divider="true"></ng-template>
     <!-- METADATA -->
-    <ng-template contextMenuItem let-item (execute)="populateMetadata($event.item)">
+    <ng-template contextMenuItem let-item [visible]="enableMetadata"  (execute)="populateMetadata($event.item)">
       <span (click)="editMetadata.show();">Edit Metadata</span>
     </ng-template>
-    <ng-template contextMenuItem let-item (execute)="copyFile($event.item)">
+    <ng-template contextMenuItem let-item  [visible]="enableMetadata" (execute)="copyFile($event.item)">
       <span (click)="removeMetadataModal.show();"> Delete Metadata</span>
     </ng-template>
   </context-menu>
 </div>
 
-<input #uploadFile type="file" hidden (change)="addFile($event)">
+<input #uploadFile type="file" accept=".xml" hidden (change)="addFile($event)" multiple>
 
 <!-- <app-modal #renameFolderModel class="add_languages_modal">
   <ng-container class="app-modal-header"></ng-container>

@@ -368,4 +368,8 @@ export class LexicalEntriesService {
   deleteComponent(compId : string) : Observable<any>{
     return this.http.get(this.baseUrl + "lexicon/delete/"+compId+"/component?key="+this.key);
   }
+
+  getCorrespondsTo(compId: string) : Observable<any>{
+    return this.http.get(this.baseUrl + "lexicon/data/"+compId+"/correspondsTo?key="+this.key);
+  }
 }

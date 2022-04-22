@@ -11,7 +11,7 @@ You should have received a copy of the GNU General Public License along with Epi
 */
 
 import { DatePipe } from '@angular/common';
-import { Component, ElementRef, HostListener, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, FormArray, FormBuilder, ValidatorFn, AbstractControl } from '@angular/forms';
 import { TreeNode, TreeModel, TREE_ACTIONS, KEYS, IActionMapping, ITreeOptions } from '@circlon/angular-tree-component';
 import { ModalComponent } from 'ng-modal-lib';
@@ -33,21 +33,21 @@ const actionMapping: IActionMapping = {
       }
     }, */
     click: (tree, node, $event) => {
-      /* $event.shiftKey
+      $event.shiftKey
         ? TREE_ACTIONS.TOGGLE_ACTIVE_MULTI(tree, node, $event)
-        : TREE_ACTIONS.TOGGLE_ACTIVE(tree, node, $event); */
+        : TREE_ACTIONS.TOGGLE_ACTIVE(tree, node, $event);
       
       if(node.data.rename_mode){
         $event.preventDefault();
-      }else{
+      }/* else{
         TREE_ACTIONS.TOGGLE_ACTIVE(tree, node, $event);
-      }
+      } */
     },
     expanderClick: (tree, node, $event) => {
       if(node.data.rename_mode){
         $event.preventDefault();
       }else{
-        console.log(node);
+        //console.log(node);
         TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
       }
     }
@@ -68,7 +68,7 @@ const actionMapping: IActionMapping = {
   selector: 'app-text-tree',
   templateUrl: './text-tree.component.html',
   styleUrls: ['./text-tree.component.scss'],
-  providers: [DatePipe]
+  providers: [DatePipe],
 })
 
 export class TextTreeComponent implements OnInit {
@@ -110,6 +110,7 @@ export class TextTreeComponent implements OnInit {
   searchIconSpinner = false;
   searchIconSpinner_input = false;
   selectedFileToCopy : any;
+  selectedFileToCopyArray : any;
   selectedNodeId;
 
   memoryMetadata = [];
@@ -125,6 +126,11 @@ export class TextTreeComponent implements OnInit {
   options: ITreeOptions = {
     actionMapping,
     allowDrag: (node) => node.isLeaf,
+    allowDrop: (element, { parent, index }) => {
+      // return true / false based on element, to.parent, to.index. e.g.
+      //console.log(element, parent, index, parent.data.type == 'folder')
+      return parent.data.type == 'directory';
+    },
     getNodeClone: (node) => ({
       ...node.data,
       id: v4(),
@@ -297,24 +303,231 @@ export class TextTreeComponent implements OnInit {
     )
   }
 
-  isFolder(item : any){
+  
+
+  isFolder = (item : any) : boolean =>{
     if(item.type != undefined){
-      return item.type == 'directory';
+      return item.type == 'directory' && (this.treeText.treeModel.activeNodes.length == 1 || this.treeText.treeModel.activeNodes.length == 0);
     }else{
       return false
     }
   }
 
-  isFile(item : any){
+  isFile = (item : any) : boolean =>{
     if(item.type != undefined){
-      return item.type == 'file';
+      return item.type == 'file' && (this.treeText.treeModel.activeNodes.length == 1 || this.treeText.treeModel.activeNodes.length == 0);
     }else{
       return false
     }
+  }
+
+  enableMetadata = (item : any) : boolean => {
+    return (item.type == 'file' || item.type == 'folder') && (this.treeText.treeModel.activeNodes.length == 1 || this.treeText.treeModel.activeNodes.length == 0);
+  }
+
+  multipleSelection = (item : any): boolean =>{
+    //console.log(this.treeText.treeModel.activeNodes)
+    return this.treeText.treeModel.activeNodes.length > 1;
   }
 
   noRoot(item : any){
     return item.name != 'root';
+  }
+
+  isFolderMultiple = (item : any) : boolean => {
+    if(this.selectedFileToCopyArray != undefined){
+      return item.type == 'directory' && this.selectedFileToCopyArray.length > 1;
+    }else{
+      return false;
+    }
+  }
+
+  pasteElementsReq = (item : any) : boolean => {
+    if(this.selectedFileToCopyArray != undefined){
+      return this.selectedFileToCopyArray.length > 1;
+    }else{
+      return false;
+    }
+    
+  }
+
+  pasteElements(item){
+    console.log(item)
+    let target_element_id = item['element-id']
+    if(this.selectedFileToCopyArray != undefined){
+      this.selectedFileToCopyArray.forEach((element : any) => {
+        if(element.data.type == 'file'){
+
+          let parameters = {
+            "requestUUID": "string",
+            "user-id": 0,
+            "element-id": element?.data['element-id'],
+            "target-id": target_element_id
+          }
+
+          this.documentService.copyFileTo(parameters).subscribe(
+            data=>{
+              console.log(data);
+              //this.nodes = data['documentSystem'];
+              this.toastr.info('File '+ element?.data?.name +' copied', '', {
+                timeOut: 5000,
+              });
+              this.treeText.treeModel.getNodeBy(x => {
+                if(x.data['element-id'] === target_element_id){
+                  console.log('entrato')
+                  x.expand();
+      
+                  let node = {
+                    children : element?.data.children,
+                    "element-id" : element?.data['element-id']+123213,
+                    id : element?.data?.id+1232312,
+                    metadata : element?.data?.metadata,
+                    name : element?.data?.name,
+                    path : element?.data?.path,
+                    rename_mode : false,
+                    type : element?.data?.type
+                  }
+                  
+                  x.data.children.push(node)
+                    setTimeout(() => {
+                      this.counter = this.nodes.length;
+                      this.updateTreeView();
+                      this.treeText.treeModel.update();
+                      //this.treeText.treeModel.getNodeById(node.id).setActiveAndVisible();
+                    }, 100);
+                  }
+                })              
+      
+                this.treeText.treeModel.update()
+              
+                this.selectedFileToCopyArray = null;
+            },error=>{
+              //console.log(error)
+              this.selectedFileToCopyArray = null;
+            }
+          )
+        }else{
+          this.toastr.error('You can\'t copy folder, please select only files or move entire folder', 'Error', {
+            timeOut: 5000
+          })
+        }
+      });
+    }
+  }
+
+  copyElements(){
+    this.selectedFileToCopy = null;
+    this.selectedFileToCopyArray = this.treeText.treeModel.activeNodes;
+  }
+  
+  removeElements(){
+    let selected_elements = Array.from(this.treeText.treeModel.activeNodes);
+    selected_elements.forEach(
+      (elements : any) => {
+        try {
+          let data_node = elements.data;
+          let parameters = {
+            "requestUUID" : "string",
+            "user-id" : 0,
+            "element-id" : data_node['element-id'],
+          }
+
+          if(data_node.type == 'file'){
+            this.documentService.removeFile(parameters).subscribe(
+              data=>{
+                console.log(data);
+                this.toastr.info('File '+ data_node.name +' deleted', '', {
+                  timeOut: 5000,
+                });
+                
+                //this.nodes = data['documentSystem'];
+                this.lexicalService.sendToAttestationPanel(null);
+                this.documentService.sendToEpigraphyTab(null)
+                this.expander.expandCollapseEpigraphy(false);
+                this.expander.openCollapseEpigraphy(false);
+      
+                this.documentService.sendToMetadataPanel(null)
+                
+                /* expandedNodes.forEach( (node: TreeNode) => {
+                
+                  setTimeout(() => {
+                    this.treeText.treeModel.getNodeBy(x => {
+                      if(x.data['element-id'] === node.data['element-id']){
+                        x.expand()
+                      }
+                    })              
+                  }, 300);
+                }) */
+      
+                this.treeText.treeModel.getNodeBy(x => {
+                  if(x.data['element-id'] === data_node['element-id']){
+                    x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1)
+                  }
+                })
+      
+                this.treeText.treeModel.update()
+      
+                setTimeout(() => {
+                  console.log(this.nodes)
+                  this.counter = this.nodes.length;
+                }, 100);
+                
+                
+              },error=>{
+                console.log(error)
+                if(typeof(error.error) == 'string'){
+                  this.toastr.info(error.error, '', {
+                    timeOut: 5000,
+                  });
+                }
+                
+              }
+            )
+          }else if(data_node.type == 'directory'){
+            this.documentService.removeFolder(parameters).subscribe(
+              data=>{
+                console.log(data);
+                
+                this.toastr.info('Folder ' + data_node.name + ' removed correctly', 'Info', {
+                  timeOut: 5000
+                })
+      
+                this.treeText.treeModel.getNodeBy(x => {
+                  if(x.data['element-id'] === data_node['element-id']){
+                    x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1)
+                  }
+                })
+      
+                this.treeText.treeModel.update()
+      
+                setTimeout(() => {
+                  console.log(this.nodes)
+                  this.counter = this.nodes.length;
+                }, 100);
+                
+                
+              },error=>{
+                console.log(error)
+                this.toastr.error('Something went wront ', 'Error', {
+                  timeOut: 5000
+                })
+                if(typeof(error.error) == 'string'){
+                  this.toastr.info(error.error, '', {
+                    timeOut: 5000,
+                  });
+                }
+              }
+            )
+          }
+
+          
+        } catch (error) {
+          
+        }
+        
+
+      }
+    )
   }
   
 
@@ -331,13 +544,15 @@ export class TextTreeComponent implements OnInit {
       
       this.documentService.addFolder(parameters).subscribe(
         data=>{
+          console.log(data)
           this.toastr.info('New folder added', '', {
             timeOut: 5000,
           });
           this.treeText.treeModel.getNodeBy(x => {
             if(x.data['element-id'] === element_id){
               x.expand()
-              let element_id_new_node = Math.floor(Math.random() * (9728157429307 - 1728157429307) + 1728157429307);
+
+              let element_id_new_node = data.node['element-id'];
               let id_new_node = Math.floor(Math.random() * (9728157429307 - 1728157429307) + 1728157429307);
               let new_node = {
                 "children" : [],
@@ -345,7 +560,7 @@ export class TextTreeComponent implements OnInit {
                 "id" : id_new_node,
                 "metadata" : {},
                 "path" : "",
-                "name" : "new-folder_"+ Math.floor(Math.random() * (99999 - 10) + 10),
+                "name" : data.node.name,
                 "type" : "directory",
                 "rename_mode" : false
               }
@@ -371,62 +586,101 @@ export class TextTreeComponent implements OnInit {
   addFile(evt){
     console.log(evt)
     let element_id = this.uploadFile_input.nativeElement['element-id'];
-    let file_name = evt.target.files[0].name;
-    this.renderer.removeAttribute(this.uploadFile_input.nativeElement, 'element-id');
+    this.selectedFileToCopy = null;
+    let file_name, parameters;
 
-    let parameters = {
-      "requestUUID" : "string",
-      "user-id" : 0,
-      "element-id" : element_id,
-      "file-name" : file_name
+    if(evt.target.files != undefined){
+      if(evt.target.files.length == 1){
+        file_name = evt.target.files[0].name;
+        parameters = {
+          "requestUUID" : "string",
+          "user-id" : 0,
+          "element-id" : element_id,
+          "file-name" : file_name
+        }
+        const formData = new FormData();
+        formData.append('file', evt.target.files[0])
+        this.documentService.uploadFile(formData, element_id, 11).subscribe(
+          data=>{
+            console.log(data)
+           
+            this.treeText.treeModel.getNodeBy(x => {
+              if(x.data['element-id'] === element_id){
+                x.expand()
+                
+                this.toastr.info('New file added', '', {
+                  timeOut: 5000,
+                });
+                console.log(x)
+                x.data.children.push(data.node)
+                setTimeout(() => {
+                  this.counter = this.nodes.length;
+                  this.updateTreeView();
+                  this.treeText.treeModel.update();
+                  this.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
+                }, 100);
+                
+              }
+            })    
+            
+            
+            
+          },error=>{
+            console.log(error)
+          }
+        )
+      }else{
+        let files_array = evt.target.files;
+        Array.from(files_array).forEach((element : any) => {
+
+          file_name = element.name;
+          parameters = {
+            "requestUUID": "string",
+            "user-id": 0,
+            "element-id": element_id,
+            "file-name": file_name
+          }
+
+          const formData = new FormData();
+          formData.append('file', element);
+
+          this.documentService.uploadFile(formData, element_id, 11).subscribe(
+            data => {
+              console.log(data)
+              this.treeText.treeModel.getNodeBy(x => {
+                if(x.data['element-id'] === element_id){
+                  x.expand()
+                  
+                  this.toastr.info('New file added', '', {
+                    timeOut: 5000,
+                  });
+                  console.log(x)
+                  x.data.children.push(data.node)
+                  setTimeout(() => {
+                    this.counter = this.nodes.length;
+                    this.updateTreeView();
+                    this.treeText.treeModel.update();
+                    this.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
+                  }, 100);
+                  
+                }
+              })
+
+
+
+            }, error => {
+              console.log(error);
+              this.toastr.error('Error when adding new file', '', {
+                timeOut: 5000,
+              });
+            }
+          )
+        });
+      }
     }
-    
+        
     console.log(parameters)
     const expandedNodes = this.treeText.treeModel.expandedNodes;
-
-    const formData = new FormData();
-    formData.append('file', evt.target.files[0])
-    
-    this.documentService.uploadFile(formData, element_id, 11).subscribe(
-      data=>{
-        console.log(data)
-       
-        this.treeText.treeModel.getNodeBy(x => {
-          if(x.data['element-id'] === element_id){
-            x.expand()
-            /* let element_id_new_node = Math.floor(Math.random() * (9728157429307 - 1728157429307) + 1728157429307);
-            let id_new_node = Math.floor(Math.random() * (9728157429307 - 1728157429307) + 1728157429307);
-            let new_node = {
-              "children" : [],
-              "element-id" : element_id_new_node,
-              "id" : id_new_node,
-              "metadata" : {},
-              "path" : "",
-              "name" : "new-file_"+ Math.floor(Math.random() * (99999 - 10) + 10),
-              "type" : "file",
-              "rename_mode" : false
-            } */
-            this.toastr.info('New file added', '', {
-              timeOut: 5000,
-            });
-            console.log(x)
-            x.data.children.push(data.node)
-            setTimeout(() => {
-              this.counter = this.nodes.length;
-              this.updateTreeView();
-              this.treeText.treeModel.update();
-              this.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
-            }, 100);
-            
-          }
-        })    
-        
-        
-        
-      },error=>{
-        console.log(error)
-      }
-    )
     
   }
 
@@ -439,7 +693,8 @@ export class TextTreeComponent implements OnInit {
 
   copyFile(evt){
     console.log(evt);
-    this.selectedFileToCopy = evt
+    this.selectedFileToCopy = evt;
+    this.selectedFileToCopyArray = null;
   }
 
   pasteFile(evt){
@@ -456,19 +711,39 @@ export class TextTreeComponent implements OnInit {
     this.documentService.copyFileTo(parameters).subscribe(
       data=>{
         console.log(data);
-        this.nodes = data['documentSystem'];
+        //this.nodes = data['documentSystem'];
         this.toastr.info('File '+ evt['name'] +' copied', '', {
           timeOut: 5000,
         });
-        setTimeout(() => {
-          
-          this.treeText.treeModel.getNodeBy(x => {
-            if(x.data['element-id'] === element_id_target){
-              x.expand();
+        this.treeText.treeModel.getNodeBy(x => {
+          if(x.data['element-id'] === element_id_target){
+            console.log('entrato')
+            x.expand();
+
+            let node = {
+              children : this.selectedFileToCopy.children,
+              "element-id" : this.selectedFileToCopy['element-id'],
+              id : this.selectedFileToCopy.id+1232312,
+              metadata : this.selectedFileToCopy.metadata,
+              name : this.selectedFileToCopy.name,
+              path : '',
+              rename_mode : false,
+              type : this.selectedFileToCopy.type
+            }
+            
+            x.data.children.push(node)
+              setTimeout(() => {
+                this.counter = this.nodes.length;
+                this.updateTreeView();
+                this.treeText.treeModel.update();
+                this.treeText.treeModel.getNodeById(node.id).setActiveAndVisible();
+              }, 100);
             }
           })              
-        }, 300);
-        this.selectedFileToCopy = null;
+
+          this.treeText.treeModel.update()
+        
+          this.selectedFileToCopy = null;
       },error=>{
         //console.log(error)
         this.selectedFileToCopy = null;
@@ -501,6 +776,7 @@ export class TextTreeComponent implements OnInit {
   }
   
   removeFile(evt){
+    this.selectedFileToCopy = null;
     if(evt != undefined){
       let element_id = evt['element-id'];
       let parameters = {
@@ -524,6 +800,8 @@ export class TextTreeComponent implements OnInit {
           this.documentService.sendToEpigraphyTab(null)
           this.expander.expandCollapseEpigraphy(false);
           this.expander.openCollapseEpigraphy(false);
+
+          this.documentService.sendToMetadataPanel(null)
           
           /* expandedNodes.forEach( (node: TreeNode) => {
           
@@ -648,7 +926,7 @@ export class TextTreeComponent implements OnInit {
 
   moveFile(evt){
     if(evt != undefined){
-      //console.log(evt);
+      console.log(evt);
       let element_id = evt.node['element-id'];
       let target_id = evt.to.parent['element-id'];
       let parameters = {
@@ -662,7 +940,7 @@ export class TextTreeComponent implements OnInit {
       this.documentService.moveFileTo(parameters).subscribe(
         data=>{
           console.log(data);
-          this.toastr.info('File '+ evt['name'] +' moved', '', {
+          this.toastr.info('File '+ evt.node['name'] +' moved', '', {
             timeOut: 5000,
           });
           
