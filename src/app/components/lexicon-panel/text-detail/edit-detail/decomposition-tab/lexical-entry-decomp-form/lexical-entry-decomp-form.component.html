@@ -12,7 +12,7 @@
                             <i class="fa fa-plus"></i>
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                          <a class="dropdown-item" (click)="addSubterm()" [class.disabled]="subtermDisabled" style="cursor: pointer;">Sub Term</a>
+                          <!-- <a class="dropdown-item" (click)="addSubterm()" [class.disabled]="subtermDisabled" style="cursor: pointer;">Sub Term</a> -->
                           <a class="dropdown-item" (click)="addComponent()" style="cursor: pointer;">Component</a>
                         </div>
                       </div>
@@ -51,6 +51,17 @@
                                         <textarea (keyup)="debounceKeyup($event, i, 'note')" formControlName="note" name="note" class="form-control" style="resize: none;"></textarea>
                                     </div>
                                 </div>  
+
+                                <div class="form-group row ml-2 mt-3 mr-2" *ngIf="{confidence : comp.get('confidence').value >= 0}; let variable">
+                                    <div class="col-lg-3">
+                                        <label for="uncertainBox">Uncertain</label>
+                                    </div>
+                                    <div class="col-lg-3 input-group">
+                                        <input (change)="debounceKeyup($event, i, 'confidence')" (keyup)="debounceKeyup($event, i, 'confidence')" *ngIf="variable.confidence" id="attributes"  step="0.1" formControlName="confidence" name="confidence" type="number" min="0" max="1" class="form-control" placeholder="No info" [value]="comp.get('confidence').value">
+                                        <button type="button" class="btn btn-secondary rounded-circle ml-2" *ngIf="!variable.confidence" (click)="variable.confidence = !variable.confidence"><i class="fas fa-plus"></i></button>
+                                        <button type="button" class="btn btn-secondary rounded-circle ml-2" *ngIf="variable.confidence" (click)="variable.confidence = !variable.confidence; applyUncertain(i)"><i class="fas fa-minus"></i></button>
+                                    </div>
+                                </div>
 
                                 <!-- CORRESPONDS TO -->
                                 <div class="form-group row ml-2 mt-3 mr-2">
@@ -160,53 +171,51 @@
 
 
     <!-- SUB-TERM -->
-    <div formArrayName="subterm">
-        <div *ngFor="let sub of decompForm['controls'].subterm['controls']; let i = index">
-            <div [formGroupName]="i">
-                <div class="form-group row ml-2 mt-3 mr-2">
-                    <div class="input-group col-xl-12">
-                        <div class="card">
-                            <span class="text-id"><b>SUBTERM</b></span>
-                            <a class="pointer" (click)="addSubtermElement(i)"><span class="add-icon"><i class="fa fa-plus-square"></i></span></a>
-                            <a class="pointer" (click)="removeSubterm(i)"><span class="trash-icon"><i class="fa fa-trash"></i></span></a>
-                            <div class="card-body">
+    
+        
+    <div class="form-group row ml-2 mt-3 mr-2">
+        <div class="input-group col-xl-12">
+            <div class="card">
+                <span class="text-id"><b>SUBTERM</b></span>
+                <a class="pointer" (click)="addSubterm()"><span class="add-icon" [class.disabled]="subtermDisabled"><i class="fa fa-plus-square"></i></span></a>
+                <!-- <a class="pointer" (click)="removeSubterm(i)"><span class="trash-icon"><i class="fa fa-trash"></i></span></a> -->
+                <div class="card-body">
 
-                                <!-- SUB-TERM -->
-                                <div formArrayName="subterm_array" class="col-xl-12">
-                                    <div *ngFor="let arr of sub['controls'].subterm_array['controls']; let j = index">
-                                        <div [formGroupName]="j" class="d-xl-flex" style="align-items: center;">
-                                            <div class="form-group row ml-2 mt-2 mr-2 w-100">
-                                                <div class="input-group" *ngIf="{switch : false}; let variable">
-                                                    <ng-select #select_subterm formControlName="entity" name="entity" [dropdownPosition]="'top'"
-                                                            (keyup)="triggerSubterm($event)" (change)="handleSubterm(select_subterm, i)"
-                                                            [items]="searchResults" bindValue="label" (focus)="deleteData()" bindLabel="label"
-                                                            placeholder="Search cognates" appendTo="body">
-                                                            <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
-                                                                <div>
-                                                                    <span>{{item.label}} </span><span style="color: blue;">@{{item.language}}</span>
-                                                                </div>
+                    
+            
+                    <!-- SUB-TERM -->
+                    <div formArrayName="subterm" class="col-xl-12">
+                        <div *ngFor="let sub of decompForm['controls'].subterm['controls']; let i = index">
+                            <div [formGroupName]="i" class="d-xl-flex" style="align-items: center;">
+                                <div class="form-group row ml-2 mt-2 mr-2 w-100">
+                                    <div class="input-group" *ngIf="{switch : false}; let variable">
+                                        <ng-select #select_subterm formControlName="label" name="label" [dropdownPosition]="'top'"
+                                                (keyup)="triggerSubterm($event)" (change)="handleSubterm(select_subterm, i)"
+                                                [items]="searchResults" bindValue="label" (focus)="deleteData()" bindLabel="label"
+                                                placeholder="Search cognates" appendTo="body">
+                                                <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                                                    <div>
+                                                        <span>{{item.label}} </span><span style="color: blue;">@{{item.language}}</span>
+                                                    </div>
 
-                                                            </ng-template>
-                                                        </ng-select>
-                                                    <input formControlName="entity" name="entity" type="text" class="form-control" id="inputDenotes" placeholder="Insert URI" *ngIf="variable.switch">
-                                                    <div class="input-group-append ml-3 form-check">
-                                                        <input class="form-check-input vartrans-tooltip" type="checkbox" (change)="variable.switch=!variable.switch" data-toggle="tooltip" data-placement="bottom" data-trigger="hover" title="Clicca per inserire un URI manualmente">
-                                                    </div>
-                                                    <div class="input-group-append ml-2">
-                                                        <button class="btn btn-primary" type="button"><i
-                                                                class="fa fa-external-link-alt"></i></button>
-                                                    </div>
-                                                    <div class="input-group-append ml-2">
-                                                        <button (click)="removeSubtermElement(i, j)" class="btn btn-danger" type="button"><i class="fa fa-trash-alt"></i></button>
-                                                    </div>
-                                                    <div class="input-group-append ml-2">
-                                                        <button  class="btn btn-outline-primary invisible" type="button"><i class="fa fa-plus"></i></button>
-                                                    </div>
-                                                </div>
-                                            </div>                                                  
+                                                </ng-template>
+                                            </ng-select>
+                                        <input formControlName="entity" name="entity" type="text" class="form-control" id="inputDenotes" placeholder="Insert URI" *ngIf="variable.switch">
+                                        <div class="input-group-append ml-3 form-check">
+                                            <input class="form-check-input vartrans-tooltip" type="checkbox" (change)="variable.switch=!variable.switch" data-toggle="tooltip" data-placement="bottom" data-trigger="hover" title="Clicca per inserire un URI manualmente">
                                         </div>
+                                        <!-- <div class="input-group-append ml-2">
+                                            <button class="btn btn-primary" type="button"><i
+                                                    class="fa fa-external-link-alt"></i></button>
+                                        </div> -->
+                                        <div class="input-group-append ml-2">
+                                            <button (click)="removeSubterm(i)" class="btn btn-danger" type="button"><i class="fa fa-trash-alt"></i></button>
+                                        </div>
+                                       <!--  <div class="input-group-append ml-2">
+                                            <button  class="btn btn-outline-primary invisible" type="button"><i class="fa fa-plus"></i></button>
+                                        </div> -->
                                     </div>
-                                </div>
+                                </div>                                                  
                             </div>
                         </div>
                     </div>
@@ -214,4 +223,6 @@
             </div>
         </div>
     </div>
+           
+    
 </form>

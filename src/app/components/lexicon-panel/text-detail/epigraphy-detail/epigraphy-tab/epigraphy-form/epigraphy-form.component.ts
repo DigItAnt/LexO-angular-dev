@@ -303,41 +303,44 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
       let htmlNode = document.getElementById(this.selectedPopover.htmlNodeName)
       let tokenId = this.selectedPopover.tokenId;
 
-      this.object.forEach(element => {
-        if (element.id != tokenId) {
-
-          element.editing = false;
-
-          this.selectedPopover.htmlNodeName = '';
-          this.selectedPopover.tokenId = ''
-        }
-      });
-
-      let parentMarkElement = document.getElementsByClassName('token-' + tokenId)[0];
-      if (parentMarkElement != null) {
-        let i = 0;
-        Array.from(parentMarkElement.children).forEach(
-          element => {
-            console.log(element)
-            if (element.classList.contains('mark')) {
-
-              let textMarkElement = element.textContent;
-              const text = this.renderer.createText(textMarkElement)
-              //parentMarkElement.textContent = parentMarkElement.textContent.trim();
-              //let innerText = parentMarkElement.textContent;
-              this.renderer.insertBefore(parentMarkElement, text, element)
-              this.renderer.removeChild(parentMarkElement, element);
-              //parentMarkElement.insertBefore(text, parentMarkElement.childNodes[i+1]);
-              //let children = parentMarkElement.children;
-              //parentMarkElement.textContent = innerText
-              i++;
-              return;
-            }
-            i++;
+      if(this.object != undefined){
+        this.object.forEach(element => {
+          if (element.id != tokenId) {
+  
+            element.editing = false;
+  
+            this.selectedPopover.htmlNodeName = '';
+            this.selectedPopover.tokenId = ''
           }
-        );
-
+        });
+  
+        let parentMarkElement = document.getElementsByClassName('token-' + tokenId)[0];
+        if (parentMarkElement != null) {
+          let i = 0;
+          Array.from(parentMarkElement.children).forEach(
+            element => {
+              console.log(element)
+              if (element.classList.contains('mark')) {
+  
+                let textMarkElement = element.textContent;
+                const text = this.renderer.createText(textMarkElement)
+                //parentMarkElement.textContent = parentMarkElement.textContent.trim();
+                //let innerText = parentMarkElement.textContent;
+                this.renderer.insertBefore(parentMarkElement, text, element)
+                this.renderer.removeChild(parentMarkElement, element);
+                //parentMarkElement.insertBefore(text, parentMarkElement.childNodes[i+1]);
+                //let children = parentMarkElement.children;
+                //parentMarkElement.textContent = innerText
+                i++;
+                return;
+              }
+              i++;
+            }
+          );
+  
+        }
       }
+      
 
 
 

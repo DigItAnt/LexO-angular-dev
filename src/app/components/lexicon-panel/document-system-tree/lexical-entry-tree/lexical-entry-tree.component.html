@@ -147,13 +147,13 @@
         <ng-template #treeNodeWrapperTemplate let-node let-index="index">
             <div class="node-wrapper"  style="justify-content: space-between; padding: 0px 15px;" > <!-- [style.padding-left]="node.getNodePadding()" -->
                 <div>
-                    <tree-node-expander [node]="node"></tree-node-expander>
+                    <tree-node-expander [node]="node" *ngIf="node.data.hasChildren == true"></tree-node-expander>
                     <div class="node-content-wrapper" [class.node-content-wrapper-active]="node.isActive"
                         [class.node-content-wrapper-focused]="node.isFocused" (click)="node.mouseAction('click', $event)"
                         (dblclick)="node.mouseAction('dblClick', $event)" [contextMenu]="basicMenu" [contextMenuSubject]="node.data">
     
                         <span
-                            *ngIf="node.data.count == undefined && labelView && node.data.definition == undefined && node.data.type!='canonicalForm' && node.data.sense == undefined">{{
+                            *ngIf="node.data.count == undefined && labelView && node.data.componentInstanceName == undefined && node.data.definition == undefined && node.data.type!='canonicalForm' && node.data.sense == undefined">{{
                             node.data.label }}</span>
                         <span
                             *ngIf="node.data.count == undefined && idView && node.data.definition == undefined && node.data.type!='canonicalForm' && node.data.sense == undefined && node.data.etymologyInstanceName == undefined">{{
@@ -173,6 +173,15 @@
 
                         <span *ngIf="node.data.count == undefined && idView && node.data.etymologyInstanceName != undefined">{{
                             node.data.etymologyInstanceName }}</span>
+
+                        <span *ngIf="node.data.count == undefined && labelView && node.data.componentInstanceName != undefined && node.data.label == ''">
+                           Anonimous component</span>
+
+                        <span *ngIf="node.data.count == undefined && labelView && node.data.componentInstanceName != undefined && node.data.label != ''">
+                            {{node.data.label}}</span>
+                        
+                        <span *ngIf="node.data.count == undefined && idView && node.data.componentInstanceName != undefined">
+                            {{node.data.componentInstanceName}}</span>
     
                         <span class="lexical-tooltip"
                             *ngIf="node.data.count == undefined && labelView && node.data.definition != undefined && node.data.label != undefined"

@@ -12,7 +12,7 @@
                 </div>
             </div>
         </div>
-        <div class="form-group row ml-2 mt-3 mr-2">
+        <!-- <div class="form-group row ml-2 mt-3 mr-2">
             <div class="col-lg-3">
                 <div class="form-check p-0">
                     <label class="form-check-label" for="gridCheck1">
@@ -21,7 +21,31 @@
                     <input [checked]="coreForm.get('type').value == 'Etymon'" class="form-check-input" style="margin-left: 10px;" type="checkbox" id="gridCheck1" onchange="document.getElementById('typeSelect').disabled = this.checked;" (change)="variable.etymon = !variable.etymon; isEtymon(variable.etymon);">
                 </div>
             </div>
+        </div> -->
+
+        <div class="form-group row ml-2 mt-3 mr-2">
+            <div class="col-lg-3">
+                <label class="" for="sw">Etymon</label>
+            </div>
+            <div class="col-lg-9">
+                <div class="custom-control custom-switch d-inline" id="sw">
+                    <input type="checkbox" class="custom-control-input" id="edit_extra_block" name="extra_block" value="" [checked]="coreForm.get('type').value == 'Etymon'" style="margin-left: 10px;" onchange="document.getElementById('typeSelect').disabled = this.checked;" (change)="variable.etymon = !variable.etymon; isEtymon(variable.etymon);">
+                    <label class="custom-control-label" for="edit_extra_block"></label>
+                 </div>
+            </div>
         </div>
+
+        <div class="form-group row ml-2 mt-3 mr-2" *ngIf="{confidence : coreForm.get('confidence').value >= 0}; let variable">
+            <div class="col-lg-3">
+                <label for="uncertainBox">Uncertain</label>
+            </div>
+            <div class="col-lg-3 input-group">
+                <input *ngIf="variable.confidence" id="attributes"  step="0.1" formControlName="confidence" name="confidence" type="number" min="0" max="1" class="form-control" placeholder="No info" [value]="coreForm.get('confidence').value">
+                <button type="button" class="btn btn-secondary rounded-circle ml-2" *ngIf="!variable.confidence" (click)="variable.confidence = !variable.confidence"><i class="fas fa-plus"></i></button>
+                <button type="button" class="btn btn-secondary rounded-circle ml-2" *ngIf="variable.confidence" (click)="variable.confidence = !variable.confidence; applyUncertain()"><i class="fas fa-minus"></i></button>
+            </div>
+        </div>
+
         <div class="form-group row ml-2 mt-3 mr-2" *ngIf="!variable.etymon">
             <div class="col-lg-3 col-form-label">
                 <label for="inputType">Type:</label>

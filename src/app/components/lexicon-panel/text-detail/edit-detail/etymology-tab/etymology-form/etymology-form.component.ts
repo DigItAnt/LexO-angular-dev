@@ -191,11 +191,12 @@ export class EtymologyFormComponent implements OnInit {
       this.lexicalService.spinnerAction('on');
       let etyId = this.object.etymology.etymologyInstanceName;
       let parameters = {
+          type: "confidence",
           relation: 'confidence',
           value: confidence_value
       }
       console.log(parameters)
-      this.lexicalService.updateEtymology(etyId, parameters).subscribe(
+      this.lexicalService.updateGenericRelation(etyId, parameters).subscribe(
           data => {
               console.log(data);
               /* data['request'] = 0;

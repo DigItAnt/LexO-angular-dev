@@ -116,7 +116,7 @@
 
 .add-icon {
     position: absolute;
-    right: 28px;
+    right: 4px;
     top: -16px;
     background: white;
     text-align: center;
@@ -166,4 +166,9 @@
     pointer-events: none;
     color: #8c8c8c;
     
+}
+
+.disabled {
+    color: #dfdfdf;
+    pointer-events: none;
 }

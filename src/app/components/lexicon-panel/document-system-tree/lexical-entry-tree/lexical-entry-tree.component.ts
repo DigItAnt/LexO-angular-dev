@@ -294,6 +294,8 @@ export class LexicalEntryTreeComponent implements OnInit {
         case 'form' : instanceName = 'formInstanceName'; break;
         case 'sense' : instanceName = 'senseInstanceName'; break;
         case 'etymology' : instanceName = 'etymologyInstanceName'; break;
+        case 'subterm' : instanceName = 'lexicalEntryInstanceName'; break;
+        case 'constituent' : instanceName = 'componentInstanceName'; break;
       }
       this.lexicalEntryTree.treeModel.getNodeBy(x=>{
         if(lex.lexicalEntryInstanceName != undefined){
@@ -391,11 +393,16 @@ export class LexicalEntryTreeComponent implements OnInit {
                       data['definition'] = 'no definition'
                     }
                     data['label'] = data[instanceName];
+
+                    if(lex.request == 'subterm'){
+                      data.children == null;
+                      data.label = data.label;
+                    }
                     element.count++;
                     element.children.push(data);
                     this.lexicalEntryTree.treeModel.update();
                     this.lexicalEntryTree.treeModel.getNodeBy(y => {
-                      if(y.data.label === data['label']){
+                      if(y.data.label === data['label'] && lex.request != 'subterm'){
                         y.setActiveAndVisible();
                       }
                     })
@@ -430,11 +437,25 @@ export class LexicalEntryTreeComponent implements OnInit {
             
             x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
             
+            let countSubterm = x.parent.data.count;
+            if(countSubterm != 0){
+              x.parent.data.count--;
+              countSubterm--;
+            }
             
-            this.lexicalEntryTree.treeModel.update();
+            //this.lexicalEntryTree.treeModel.update();
             if(this.nodes.length == 0){
               this.lexicalEntriesFilter(this.parameters);
             }
+
+            
+            
+            if(countSubterm == 0){
+              x.parent.parent.data.children.splice(x.parent.parent.data.children.indexOf(x.parent.data), 1)
+            }
+            console.log(x.parent)
+            
+            this.lexicalEntryTree.treeModel.update()
             
             return true;
           }else{
@@ -482,8 +503,28 @@ export class LexicalEntryTreeComponent implements OnInit {
           }else{
             return false;
           }
-        }else if(signal.etymology.etymologyInstanceName != undefined){
+        }else if(signal.etymology != undefined){
           if(x.data.etymologyInstanceName === signal.etymology.etymologyInstanceName){
+            x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
+            let countSense = x.parent.data.count;
+            if(countSense != 0){
+              x.parent.data.count--;
+              countSense--;
+            }
+            
+            if(countSense == 0){
+              x.parent.parent.data.children.splice(x.parent.parent.data.children.indexOf(x.parent.data), 1)
+            }
+            console.log(x.parent)
+            
+            this.lexicalEntryTree.treeModel.update()
+            
+            return true;
+          }else{
+            return false;
+          }
+        }else if(signal.componentInstanceName != undefined){
+          if(x.data.componentInstanceName === signal.componentInstanceName){
             x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
             let countSense = x.parent.data.count;
             if(countSense != 0){
@@ -557,12 +598,12 @@ export class LexicalEntryTreeComponent implements OnInit {
 
   resetFields(){
     this.initialValues.text = '';
-    this.filterForm.reset(this.initialValues);
+    this.filterForm.reset(this.initialValues, {emitEvent : false});
     setTimeout(() => {
-      this.filterForm.get('text').setValue('', {eventEmit : false});
+      //this.filterForm.get('text').setValue('', {eventEmit : false});
       this.lexicalEntriesFilter(this.parameters);
       this.lexicalEntryTree.treeModel.update();
-      this.updateTreeView();
+      //this.updateTreeView();
       /* this.lexicalService.sendToCoreTab(null);
       this.lexicalService.sendToRightTab(null); */
     }, 500);  

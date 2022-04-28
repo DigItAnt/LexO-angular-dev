@@ -13,7 +13,7 @@ You should have received a copy of the GNU General Public License along with Epi
 import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Subject, Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, pairwise, startWith } from 'rxjs/operators';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { DataService, Person } from '../lexical-entry-core-form/data.service';
 import { ToastrService } from 'ngx-toastr';
@@ -47,7 +47,7 @@ export class SenseCoreFormComponent implements OnInit {
 
   senseCore = new FormGroup({
     definition: new FormArray([this.createDefinition()]),
-    confidence : new FormControl(null),
+    confidence: new FormControl(null),
     usage: new FormControl('', [Validators.required, Validators.minLength(5)]),
     topic: new FormControl('', [Validators.required, Validators.minLength(5)]),
     reference: new FormArray([this.createReference()]),
@@ -55,7 +55,7 @@ export class SenseCoreFormComponent implements OnInit {
     sense_of: new FormControl('', [Validators.required, Validators.minLength(5)])
   })
 
-  definitionArray : FormArray;
+  definitionArray: FormArray;
   lexicalConceptArray: FormArray;
 
   constructor(private dataService: DataService, private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder, private toastr: ToastrService) { }
@@ -83,7 +83,7 @@ export class SenseCoreFormComponent implements OnInit {
 
     this.senseCore = this.formBuilder.group({
       definition: this.formBuilder.array([]),
-      confidence : false,
+      confidence: false,
       usage: '',
       topic: '',
       reference: this.formBuilder.array([this.createReference()]),
@@ -116,32 +116,32 @@ export class SenseCoreFormComponent implements OnInit {
       }
       this.object = changes.senseData.currentValue;
       if (this.object != null) {
-        
+
         this.definitionData = [];
         this.definitionMemory = [];
 
-        for(var i = 0; i < this.object.definition.length; i++){
+        for (var i = 0; i < this.object.definition.length; i++) {
           const pId = this.object.definition[i]['propertyID'];
           const pVal = this.object.definition[i]['propertyValue'];
           this.definitionData.push(pId);
 
-          if(pId == 'definition' && pVal == ''){
+          if (pId == 'definition' && pVal == '') {
             this.definitionMemory.push(pId);
             this.addDefinition(pId, pVal)
 
-            this.staticDef.push({trait : pId, value: pVal})
+            this.staticDef.push({ trait: pId, value: pVal })
           }
 
-          if(pVal != ''){
+          if (pVal != '') {
             this.definitionMemory.push(pId);
             this.addDefinition(pId, pVal)
 
-            this.staticDef.push({trait : pId, value: pVal})
+            this.staticDef.push({ trait: pId, value: pVal })
           }
         }
         //console.log(this.object)
-        this.senseCore.get('confidence').setValue(this.object.confidence, { emitEvent : false })
-        this.senseCore.get('topic').setValue(this.object.topic, { emitEvent : false })
+        this.senseCore.get('confidence').setValue(this.object.confidence, { emitEvent: false })
+        this.senseCore.get('topic').setValue(this.object.topic, { emitEvent: false })
         this.senseCore.get('usage').setValue(this.object.usage, { emitEvent: false });
         this.addLexicalConcept(this.object.concept);
         this.senseCore.get('sense_of').setValue(this.object.sense, { emitEvent: false });
@@ -169,11 +169,11 @@ export class SenseCoreFormComponent implements OnInit {
           //this.lexicalService.refreshLexEntryTree();
           this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
-          if(error.status != 200){
+          if (error.status != 200) {
             this.toastr.error(error.error, 'Error', {
               timeOut: 5000,
             });
-          }else{
+          } else {
             this.toastr.success('Sense usage changed', '', {
               timeOut: 5000,
             });
@@ -182,55 +182,65 @@ export class SenseCoreFormComponent implements OnInit {
       )
     })
 
-    this.senseCore.get('confidence').valueChanges.pipe(debounceTime(100)).subscribe(newConfidence => {
-      let confidence_value = null;
-      console.log(newConfidence)
-      if(newConfidence == false){
-        confidence_value = 1
-        this.senseCore.get('confidence').setValue(false, { emitEvent: false });
-      }else{
-        confidence_value = 0
-        this.senseCore.get('confidence').setValue(true, { emitEvent: false });
-      }
-
+    this.senseCore.controls['confidence'].valueChanges.pipe(startWith(undefined), debounceTime(1000), pairwise()).subscribe(newConfidence => {
+      console.log('Old value: ', newConfidence[0]);
+      console.log('New value: ', newConfidence[1]);
       this.lexicalService.spinnerAction('on');
-      let etyId = this.object.etymology.etymologyInstanceName;
-      let parameters = {
+      let parameters = {};
+      let senseId = this.object.senseInstanceName;
+      let oldValue = newConfidence[0];
+      let newValue = newConfidence[1];
+
+      if (oldValue == undefined) {
+        parameters = {
+          type: "confidence",
           relation: 'confidence',
-          value: confidence_value
+          value: newValue
+        }
+      } else if (oldValue != undefined && this.object.confidence == -1) {
+        parameters = {
+          type: "confidence",
+          relation: 'confidence',
+          value: newValue,
+          currentValue: -1
+        }
+      } else {
+        parameters = {
+          type: "confidence",
+          relation: 'confidence',
+          value: newValue,
+          currentValue: oldValue
+        }
       }
+
       console.log(parameters)
-      /* this.lexicalService.updateEtymology(etyId, parameters).subscribe(
-          data => {
-              console.log(data);
-              data['request'] = 0;
-              data['new_label'] = confidence_value
-              this.lexicalService.refreshAfterEdit(data);
-              this.lexicalService.updateLexCard(data)
-              this.lexicalService.spinnerAction('off');
-          },
-          error => {
-              console.log(error);
-               const data = this.object.etymology;
-              data['request'] = 0;
-              data['new_label'] = confidence_value;
-              this.lexicalService.refreshAfterEdit(data);
-              this.lexicalService.spinnerAction('off');
-              this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
-              if(error.status == 200){
-                this.toastr.success('Label updated', '', {timeOut: 5000})
+      this.lexicalService.updateGenericRelation(senseId, parameters).subscribe(
+        data => {
+          console.log(data);
 
-              }else{
-                this.toastr.error(error.error, 'Error', {timeOut: 5000})
+          this.lexicalService.updateLexCard(data)
+          this.lexicalService.spinnerAction('off');
+        },
+        error => {
+          console.log(error);
 
-              }
+          this.lexicalService.spinnerAction('off');
+
+          if (error.status == 200) {
+            this.toastr.success('Confidence updated', '', { timeOut: 5000 })
+            this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+            this.senseCore.get('confidence').setValue(newValue, { emitEvent: false });
+            this.object.confidence = newValue;
+          } else {
+            this.toastr.error(error.error, 'Error', { timeOut: 5000 })
+
           }
-      ) */
-
-    });
+        }
+      )
+    })
 
     this.senseCore.get('topic').valueChanges.pipe(debounceTime(1000)).subscribe(newTopic => {
-      if(newTopic.trim() != ''){
+      if (newTopic.trim() != '') {
         this.lexicalService.spinnerAction('on');
         let senseId = this.object.senseInstanceName;
         let parameters = {
@@ -246,22 +256,22 @@ export class SenseCoreFormComponent implements OnInit {
             this.toastr.success('Sense topic changed', '', {
               timeOut: 5000,
             });
-            
+
           }, error => {
             console.log(error)
             //this.lexicalService.refreshLexEntryTree();
             this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
             this.lexicalService.spinnerAction('off');
-            if(typeof(error.error) != 'object'){
+            if (typeof (error.error) != 'object') {
               this.toastr.error(error.error, 'Error', {
                 timeOut: 5000,
               });
             }
-            
+
           }
         )
       }
-      
+
     })
 
     this.senseCore.get('reference').valueChanges.pipe(debounceTime(1000)).subscribe(newDef => {
@@ -284,11 +294,11 @@ export class SenseCoreFormComponent implements OnInit {
           //this.lexicalService.refreshLexEntryTree();
           this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
-          if(error.status != 200){
+          if (error.status != 200) {
             this.toastr.error(error.error, 'Error', {
               timeOut: 5000,
             });
-          }else{
+          } else {
             this.toastr.success('Sense reference changed', '', {
               timeOut: 5000,
             });
@@ -298,16 +308,56 @@ export class SenseCoreFormComponent implements OnInit {
     })
   }
 
+  applyUncertain() {
+    this.lexicalService.spinnerAction('on');
+    let oldValue = this.senseCore.get('confidence').value;
+    let senseId = this.object.senseInstanceName;
+    let parameters = {
+      relation: 'confidence',
+      value: 0
+    }
+    console.log(parameters)
+    this.lexicalService.deleteLinguisticRelation(senseId, parameters).subscribe(
+      data => {
+        console.log(data);
+        /* data['request'] = 0;
+        data['new_label'] = confidence_value
+        this.lexicalService.refreshAfterEdit(data); */
+        this.lexicalService.updateLexCard(data)
+        this.lexicalService.spinnerAction('off');
+        this.senseCore.get('confidence').setValue(-1, { emitEvent: false });
+        this.object.confidence = -1;
+      },
+      error => {
+        console.log(error);
+        /*  const data = this.object.etymology;
+        data['request'] = 0;
+        data['new_label'] = confidence_value;
+        this.lexicalService.refreshAfterEdit(data); */
+        this.lexicalService.spinnerAction('off');
+        this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+        if (error.status == 200) {
+          this.toastr.success('Confidence updated', '', { timeOut: 5000 })
+          this.senseCore.get('confidence').setValue(-1, { emitEvent: false });
+          this.object.confidence = -1;
+        } else {
+          this.toastr.error(error.error, 'Error', { timeOut: 5000 })
+
+        }
+      }
+    )
+  }
+
   onChangeDefinitionTrait(evt, i) {
 
     setTimeout(() => {
       this.definitionArray = this.senseCore.get('definition') as FormArray;
       this.definitionArray.at(i).patchValue({ propertyID: evt.target.value, propertyValue: "" });
       if (evt.target.value != '') {
-        
+
         this.definitionMemory[i] = evt.target.value;
       } else {
-        
+
         this.definitionMemory.splice(i, 1)
       }
 
@@ -322,17 +372,17 @@ export class SenseCoreFormComponent implements OnInit {
     })
   }
 
-  addDefinition(pId?, pVal?){
+  addDefinition(pId?, pVal?) {
     this.definitionArray = this.senseCore.get('definition') as FormArray;
-    if(pId != undefined){
+    if (pId != undefined) {
       this.definitionArray.push(this.createDefinition(pId, pVal));
-    }else{
+    } else {
       this.disableAddDef = true;
       this.definitionArray.push(this.createDefinition());
     }
   }
-  
-  removeDefinition(index){
+
+  removeDefinition(index) {
     const definitionArray = this.senseCore.get('definition') as FormArray;
 
     const trait = this.definitionArray.at(index).get('propertyID').value;
@@ -348,27 +398,27 @@ export class SenseCoreFormComponent implements OnInit {
         relation: trait,
         value: value
       }
-      
+
       this.lexicalService.deleteLinguisticRelation(senseId, parameters).subscribe(
         data => {
           console.log(data)
           this.lexicalService.updateLexCard(this.object)
-          
+
           this.toastr.success('Sense definition deleted', '', {
             timeOut: 5000,
           });
-          
+
         }, error => {
           console.log(error);
           this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
-          if(typeof(error.error) != 'object'){
+          if (typeof (error.error) != 'object') {
             this.toastr.error(error.error, 'Error', {
               timeOut: 5000,
             });
           }
         }
       )
-    }else{
+    } else {
       this.disableAddDef = false;
     }
     this.definitionMemory.splice(index, 1);
@@ -386,22 +436,22 @@ export class SenseCoreFormComponent implements OnInit {
     this.subject_def.next({ evt, i })
   }
 
-  createDefinition(pId?, pVal?){
-    if(pId != undefined){
+  createDefinition(pId?, pVal?) {
+    if (pId != undefined) {
       return this.formBuilder.group({
         propertyID: new FormControl(pId, [Validators.required, Validators.minLength(0)]),
-        propertyValue : new FormControl(pVal, [Validators.required, Validators.minLength(0)])
+        propertyValue: new FormControl(pVal, [Validators.required, Validators.minLength(0)])
       })
-    }else{
+    } else {
       return this.formBuilder.group({
         propertyID: new FormControl(null, [Validators.required, Validators.minLength(0)]),
-        propertyValue : new FormControl(null, [Validators.required, Validators.minLength(0)])
+        propertyValue: new FormControl(null, [Validators.required, Validators.minLength(0)])
       })
     }
-    
+
   }
 
-  onChangeExistingDefinition(evt, i){
+  onChangeExistingDefinition(evt, i) {
 
     this.definitionArray = this.senseCore.get('definition') as FormArray;
     const trait = this.definitionArray.at(i).get('propertyID').value;
@@ -409,22 +459,22 @@ export class SenseCoreFormComponent implements OnInit {
     const senseId = this.object.senseInstanceName;
     const parameters = { relation: trait, value: newValue }
 
-    if(trait != undefined && newValue != ''){
+    if (trait != undefined && newValue != '') {
 
-      this.staticDef[i] = {trait : trait, value : newValue};
+      this.staticDef[i] = { trait: trait, value: newValue };
       this.lexicalService.updateSense(senseId, parameters).pipe(debounceTime(1000)).subscribe(
         data => {
           console.log(data)
           this.lexicalService.spinnerAction('off');
           //this.lexicalService.refreshLexEntryTree();
-          if(trait == 'definition'){
+          if (trait == 'definition') {
 
           }
           this.lexicalService.updateLexCard(data)
         }, error => {
           console.log(error);
           //this.lexicalService.refreshLexEntryTree();
-          if(trait == 'definition'){
+          if (trait == 'definition') {
             const data = this.object;
             data['whatToSearch'] = 'sense';
             data['new_definition'] = newValue;
@@ -433,20 +483,20 @@ export class SenseCoreFormComponent implements OnInit {
           }
           this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
-          if(error.status != 200){
+          if (error.status != 200) {
             this.toastr.error(error.error, 'Error', {
               timeOut: 5000,
             });
-          }else{
+          } else {
             this.toastr.success('Sense definition changed', '', {
               timeOut: 5000,
             });
           }
         }
       )
-    }else {
+    } else {
       this.lexicalService.spinnerAction('off');
-      this.staticDef[i] = {trait : trait, value : ""};
+      this.staticDef[i] = { trait: trait, value: "" };
     }
   }
 
@@ -458,9 +508,9 @@ export class SenseCoreFormComponent implements OnInit {
     const senseId = this.object.senseInstanceName;
     const parameters = { relation: trait, value: newValue }
 
-    if(trait != undefined && newValue != ''){
+    if (trait != undefined && newValue != '') {
 
-      this.staticDef.push({trait : trait, value : newValue});
+      this.staticDef.push({ trait: trait, value: newValue });
       this.lexicalService.updateSense(senseId, parameters).pipe(debounceTime(1000)).subscribe(
         data => {
           console.log(data)
@@ -472,19 +522,19 @@ export class SenseCoreFormComponent implements OnInit {
           console.log(error);
           //this.lexicalService.refreshLexEntryTree();
           this.disableAddDef = false;
-          if(trait == 'definition'){
+          if (trait == 'definition') {
             const data = this.object;
             data['whatToSearch'] = 'sense';
             data['new_definition'] = newValue;
             data['request'] = 6;
-            
+
             this.lexicalService.refreshAfterEdit(data);
-            if(error.status != 200){
+            if (error.status != 200) {
               this.toastr.error(error.error, 'Error', {
                 timeOut: 5000,
               });
-            }else{
-              this.toastr.success('Sense '+trait+' changed', '', {
+            } else {
+              this.toastr.success('Sense ' + trait + ' changed', '', {
                 timeOut: 5000,
               });
             }
@@ -493,7 +543,7 @@ export class SenseCoreFormComponent implements OnInit {
           this.lexicalService.spinnerAction('off');
         }
       )
-    }else {
+    } else {
       this.lexicalService.spinnerAction('off');
     }
   }

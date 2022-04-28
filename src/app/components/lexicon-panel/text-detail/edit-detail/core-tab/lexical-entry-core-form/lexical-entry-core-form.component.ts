@@ -18,7 +18,7 @@ import { ToastrService } from 'ngx-toastr';
 
 
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators, Form } from '@angular/forms';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, pairwise, startWith } from 'rxjs/operators';
 import { NgSelectComponent } from '@ng-select/ng-select';
 
 
@@ -76,6 +76,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
     coreForm = new FormGroup({
         label: new FormControl('', [Validators.required, Validators.minLength(3)]),
         type: new FormControl(''),
+        confidence : new FormControl(null),
         language: new FormControl('', [Validators.required, Validators.minLength(0)]),
         pos: new FormControl(''),
         morphoTraits: new FormArray([this.createMorphoTraits()]),
@@ -163,6 +164,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
         this.coreForm = this.formBuilder.group({
             label: '',
             type: '',
+            confidence : null,
             language: '',
             pos: '',
             morphoTraits: this.formBuilder.array([]),
@@ -301,6 +303,8 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                 }else{
                     this.coreForm.get('type').enable({onlySelf: true, emitEvent: false})
                 }
+                this.coreForm.get('confidence').setValue(this.object.confidence, { emitEvent: false });
+                
 
                 this.object.type.forEach(element => {
                     if(element != 'Cognate'){
@@ -842,49 +846,100 @@ export class LexicalEntryCoreFormComponent implements OnInit {
             }
         )
 
+        this.coreForm.controls['confidence'].valueChanges.pipe(startWith(undefined), debounceTime(1000), pairwise()).subscribe(newConfidence => {
+            console.log('Old value: ', newConfidence[0]);
+            console.log('New value: ', newConfidence[1]);
+            this.lexicalService.spinnerAction('on');
+            let parameters = {};
+            let lexId = this.object.lexicalEntryInstanceName;
+            let oldValue = newConfidence[0];
+            let newValue = newConfidence[1];
+
+            if(oldValue == undefined){
+                parameters = {
+                    type: "confidence",
+                    relation: 'confidence',
+                    value: newValue
+                }
+            }else if(oldValue != undefined && this.object.confidence == -1){
+                parameters = {
+                    type: "confidence",
+                    relation: 'confidence',
+                    value: newValue,
+                    currentValue : -1
+                }
+            }else{
+                parameters = {
+                    type: "confidence",
+                    relation: 'confidence',
+                    value: newValue,
+                    currentValue : oldValue
+                }
+            }
+            
+            console.log(parameters)
+            this.lexicalService.updateGenericRelation(lexId, parameters).subscribe(
+                data => {
+                    console.log(data);
+                   
+                    this.lexicalService.updateLexCard(data)
+                    this.lexicalService.spinnerAction('off');
+                },
+                error => {
+                    console.log(error);
+                   
+                    this.lexicalService.spinnerAction('off');
+                    
+                    if(error.status == 200){
+                      this.toastr.success('Confidence updated', '', {timeOut: 5000})
+                      this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+                      this.coreForm.get('confidence').setValue(newValue, { emitEvent: false });
+                      this.object.confidence = newValue;
+                    }else{
+                      this.toastr.error(error.error, 'Error', {timeOut: 5000})
+      
+                    }
+                }
+            )
+        })
+
+        
+
         this.coreForm.get("stemType").valueChanges.pipe(debounceTime(1000)).subscribe(
             updateStem => {
-                if (updateStem.length > 2 && updateStem.trim() != '') {
-                    //this.emptyLabelFlag = false;
-                    this.lexicalService.spinnerAction('on');
-                    let lexId = this.object.lexicalEntryInstanceName;
-                    let parameters = {
-                        relation: 'label',
-                        value: updateStem
-                    }
-                    /* this.lexicalService.updateLexicalEntry(lexId, parameters).subscribe(
-                        data => {
-                            console.log(data);
-                            data['request'] = 0;
-                            data['new_label'] = updatedLabel
-                            this.lexicalService.refreshAfterEdit(data);
-                            this.lexicalService.spinnerAction('off');
-                            this.lexicalService.updateLexCard(data)
-                            
-                        },
-                        error => {
-                            console.log(error);
-                            const data = this.object;
-                            data['request'] = 0;
-                            data['new_label'] = updatedLabel;
-                            this.lexicalService.refreshAfterEdit(data);
-                            this.lexicalService.spinnerAction('off');
-                            this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
-                            if(typeof(error.error) != 'object'){
-                                this.toastr.error(error.error, 'Error', {
-                                  timeOut: 5000,
-                                });
-                            }else{
-                                this.toastr.success('Label changed correctly for ' + lexId, '', {
-                                    timeOut: 5000,
-                                });
-                            }
-                        }
-                    ) */
-                } else if (updateStem.length < 3) {
-                    
-                    //this.emptyLabelFlag = true;
+                
+                this.lexicalService.spinnerAction('on');
+                let lexId = this.object.lexicalEntryInstanceName;
+                let parameters = {
+                    type: 'extension',
+                    relation : 'stemType',
+                    value: updateStem
                 }
+                this.lexicalService.updateGenericRelation(lexId, parameters).subscribe(
+                    data => {
+                        console.log(data);
+                        
+                        this.lexicalService.spinnerAction('off');
+                        this.lexicalService.updateLexCard(data)
+                        
+                    },
+                    error => {
+                        console.log(error);
+                       
+                        this.lexicalService.spinnerAction('off');
+                        this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+                        if(typeof(error.error) != 'object'){
+                            this.toastr.error(error.error, 'Error', {
+                                timeOut: 5000,
+                            });
+                        }else{
+                            this.toastr.success('stemType changed correctly for ' + lexId, '', {
+                                timeOut: 5000,
+                            });
+                        }
+                    }
+                )
+                 
             }
         )
 
@@ -958,6 +1013,46 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                         }, 1000);
                     }
                 )
+            }
+        )
+    }
+
+    applyUncertain(){
+        this.lexicalService.spinnerAction('on');
+        let oldValue = this.coreForm.get('confidence').value;
+        let lexId = this.object.lexicalEntryInstanceName;
+        let parameters = {
+            relation: 'confidence',
+            value: 0,
+        }
+        console.log(parameters)
+        this.lexicalService.deleteLinguisticRelation(lexId, parameters).subscribe(
+            data => {
+                console.log(data);
+                /* data['request'] = 0;
+                data['new_label'] = confidence_value
+                this.lexicalService.refreshAfterEdit(data); */
+                this.lexicalService.updateLexCard(data)
+                this.lexicalService.spinnerAction('off');
+                this.coreForm.get('confidence').setValue(-1, { emitEvent: false });
+                this.object.confidence = -1;
+            },
+            error => {
+                console.log(error);
+                /*  const data = this.object.etymology;
+                data['request'] = 0;
+                data['new_label'] = confidence_value;
+                this.lexicalService.refreshAfterEdit(data); */
+                this.lexicalService.spinnerAction('off');
+                this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+                if(error.status == 200){
+                    this.toastr.success('Confidence updated', '', {timeOut: 5000})
+                    this.coreForm.get('confidence').setValue(-1, { emitEvent: false });
+                    this.object.confidence = -1;
+                }else{
+                    this.toastr.error(error.error, 'Error', {timeOut: 5000})
+    
+                }
             }
         )
     }
