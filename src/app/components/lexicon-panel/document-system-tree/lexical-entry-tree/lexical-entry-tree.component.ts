@@ -339,6 +339,14 @@ export class LexicalEntryTreeComponent implements OnInit {
                     }else if(lex.request == 'etymology'){
                       data['label'] = "Etymology of: "+lex.parentNodeLabel;
                       console.log(data['label'])
+                    }else if(lex.request == 'subterm'){
+                      data.label = data.label;
+                      data.children = null;
+                      data.hasChildren = false;
+                    }else if(lex.request == 'constituent'){
+                      data.label = '';
+                      data.children = null;
+                      data.hasChildren = false;
                     }else{
                       data['label'] = data[instanceName];
                     }
@@ -355,9 +363,9 @@ export class LexicalEntryTreeComponent implements OnInit {
                     element.children.push(data);
                     this.lexicalEntryTree.treeModel.update();
                     this.lexicalEntryTree.treeModel.getNodeBy(y => {
-                      if(y.data.etymology == undefined && y.data.label === data['label']){
+                      if(y.data.etymology == undefined && y.data.label === data['label'] && lex.request != 'subterm'){
                         y.setActiveAndVisible();
-                      }else if(y.data.etymology != undefined && y.data.etymologyInstanceName === data['etymologyInstanceName']){
+                      }else if(y.data.etymology != undefined && y.data.etymologyInstanceName === data['etymologyInstanceName'] && lex.request != 'subterm'){
                         y.setActiveAndVisible();
                       }
                     })
@@ -396,8 +404,15 @@ export class LexicalEntryTreeComponent implements OnInit {
 
                     if(lex.request == 'subterm'){
                       data.children == null;
+                      data.hasChildren = false;
                       data.label = data.label;
                     }
+
+                    if(lex.request == 'constituent'){
+                      data.children == null;
+                      data.label = '';
+                    }
+
                     element.count++;
                     element.children.push(data);
                     this.lexicalEntryTree.treeModel.update();

@@ -529,6 +529,29 @@ export class TextTreeComponent implements OnInit {
       }
     )
   }
+
+  createNewFile(evt){
+    if(evt != undefined){
+      console.log(evt)
+      let element_id = evt['element-id'];
+      let parameters = {
+        requestUUID : "string",
+        "user-id" : 0,
+        "element-id" : element_id,
+        filename : "string"
+      }
+
+      this.documentService.createFile(parameters).subscribe(
+        data =>{
+          console.log(data)
+          this.updateTreeView();
+          this.treeText.treeModel.update();
+        },error=> {
+          console.log(error)
+        }
+      )
+    }
+  }
   
 
   addFolder(evt){

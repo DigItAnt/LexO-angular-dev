@@ -173,14 +173,22 @@ export class LexicalEntryDecompFormComponent implements OnInit {
                 Array.from(data).forEach((element: any) => {
 
                   this.lexicalService.getCorrespondsTo(element.componentInstanceName).subscribe(
-                    data => {
-                      console.log(data)
+                    correspondsTo_data => {
+                      console.log(correspondsTo_data);
+
+                      let corr;
+                      if(correspondsTo_data != undefined){
+                        corr = correspondsTo_data.lexicalEntryInstanceName;
+                      }
+                      element.corresponds_to = corr;
+                      this.addComponent(element, Array.from(data).indexOf(element));
                     }, error => {
                       console.log(error)
                     }
                   )
 
-                  this.addComponent(element, Array.from(data).indexOf(element))
+                  
+
                 });
               }
             }, error => {
@@ -234,7 +242,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
 
       let parameters;
 
-      if (oldValue == '') {
+      if (oldValue == '' || oldValue == null) {
         parameters = {
           type: "decomp",
           relation: fieldType,
@@ -758,11 +766,11 @@ export class LexicalEntryDecompFormComponent implements OnInit {
           let compId = data.componentInstanceName;
           let componentURI = data.component;
           let creator = data.creator;
-          let label = data.label;
+          let label = '';
           let creationDate = data.creationDate;
           let lastUpdate = data.lastUpdate;
           let morphology = data.morphology;
-          let note = data.note;
+          let note = '';
           let position = data.position;
 
           let confidence = data.confidence;
@@ -795,11 +803,11 @@ export class LexicalEntryDecompFormComponent implements OnInit {
       let lastUpdate = element.lastUpdate;
       let note = element.note;
       let position = element.position;
-
+      let corr_to = element.corresponds_to;
       let confidence = element.confidence;
 
       this.componentArray = this.decompForm.get('component') as FormArray;
-      this.componentArray.push(this.createComponent(compId, componentURI, confidence, creator, label, creationDate, lastUpdate, [], note, position));
+      this.componentArray.push(this.createComponent(compId, componentURI, confidence, creator, label, creationDate, lastUpdate, [], note, position, corr_to));
 
       let morphology = element.morphology;
       element.morphology = [];
@@ -1074,7 +1082,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
     control.removeAt(iy);
   }
 
-  createComponent(compId?, componentURI?, confidence?, creator?, label?, creationDate?, lastUpdate?, morphology?, note?, position?) {
+  createComponent(compId?, componentURI?, confidence?, creator?, label?, creationDate?, lastUpdate?, morphology?, note?, position?, corr_to?) {
     if (compId == undefined) {
       return this.formBuilder.group({
         id: new FormControl(''),
@@ -1100,7 +1108,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
         lastUpdate: new FormControl(lastUpdate),
         relation: new FormArray([]),
         note: new FormControl(note),
-        corresponds_to: new FormControl(null),
+        corresponds_to: new FormControl(corr_to),
         position: new FormControl(position)
       })
     }

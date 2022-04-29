@@ -489,6 +489,26 @@ export class DocumentSystemTreeComponent implements OnInit {
     )
   }
 
+  createNewFile(){
+    let element_id = 0;
+    let parameters = {
+      requestUUID : "string",
+      "user-id" : 0,
+      "element-id" : element_id,
+      filename : "string"
+    }
+
+    this.documentService.createFile(parameters).subscribe(
+      data =>{
+        console.log(data)
+        this.textTree.updateTreeView();
+        this.textTree.treeText.treeModel.update();
+      },error=> {
+        console.log(error)
+      }
+    )
+  }
+
 
   addNewFile(evt?) {
     let element_id = 0;

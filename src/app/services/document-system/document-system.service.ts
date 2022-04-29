@@ -119,4 +119,9 @@ export class DocumentSystemService {
   searchFiles(parameters): Observable<any> {
     return this.http.post(this.baseUrl_document + "api/searchFiles", parameters)
   }
+
+  //POST ​/api​/crud​/createFile --> create file
+  createFile(parameters): Observable<any> {
+    return this.http.post(this.baseUrl_document + "api/crud/deleteMetadata", parameters)
+  }
 }

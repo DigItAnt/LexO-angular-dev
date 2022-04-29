@@ -123,6 +123,11 @@
     <ng-template contextMenuItem let-item [visible]="isFolder " (execute)="triggerUploader($event.item)">
       Add File
     </ng-template>
+    <ng-template contextMenuItem divider="true" [visible]="isFolder"></ng-template>
+    <ng-template contextMenuItem let-item [visible]="isFolder " (execute)="createNewFile($event.item)">
+      Create new empty File
+    </ng-template>
+    <ng-template contextMenuItem divider="true" [visible]="isFolder"></ng-template>
     <ng-template contextMenuItem let-item [visible]="isFolder " (execute)="addFolder($event.item)">
       Add Folder
     </ng-template>
