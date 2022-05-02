@@ -7,12 +7,22 @@
     align-items: center;
 }
 
-.btn {
-    border-radius: 0.25rem !important;
-    padding: 0 0.75rem !important;
-    font-size: 12px;
-
+.showall{
+    .btn {
+        border-radius: 0.25rem;
+        padding: 0 0.75rem ;
+        font-size: 12px;
+    
+    }
 }
+
+.empty {
+
+    .btn {
+        font-size: 12px;
+    }
+}
+
 
 .leiden{
     button{

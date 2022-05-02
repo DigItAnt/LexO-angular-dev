@@ -71,6 +71,8 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
   epidoc_annotation_array = [];
   leiden_array = [];
 
+  isEmptyFile = false;
+
   @HostListener('document:mouseup', ['$event'])
   onMouseUp(event): void {
     setTimeout(() => {
@@ -293,11 +295,14 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
     /* console.log(event) */
     if (event.altKey && event.ctrlKey) {
       this.multiWordMode = true;
-      this.object.forEach(element => {
-        element.editing = false;
-        this.selectedPopover.htmlNodeName = '';
-        this.selectedPopover.tokenId = ''
-      });
+      if(this.object != undefined){
+        this.object.forEach(element => {
+          element.editing = false;
+          this.selectedPopover.htmlNodeName = '';
+          this.selectedPopover.tokenId = ''
+        });
+      }
+      
     } else if (event.code == 'Escape') {
 
       let htmlNode = document.getElementById(this.selectedPopover.htmlNodeName)
@@ -477,6 +482,12 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
         let element_id = changes.epiData.currentValue['element_id']
         /* console.log(this.object) */
         if (this.object != null) {
+
+          if(this.object.length == 0){
+            this.isEmptyFile = true;
+          }else{
+            this.isEmptyFile = false;
+          }
   
           //TODO: popolare array form con tokens
           //console.log(this.object)
@@ -519,6 +530,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
                 });
                 //this.annotationArray = data.annotations;
                 if(this.annotationArray.length > 0){
+                  
                   this.lexicalService.triggerAttestationPanel(true);
                   this.lexicalService.sendToAttestationPanel(this.annotationArray);
 
@@ -573,6 +585,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
                   this.annotationArray = [];
                   this.lexicalService.triggerAttestationPanel(false);
                   this.lexicalService.sendToAttestationPanel(null);
+
                 }
 
                 /* setTimeout(() => {
@@ -971,8 +984,14 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
     this.annotationArray.forEach(
       annotation => {
         //console.log(annotation)
-        let start_token = tokenData.begin;
-        let end_token = tokenData.end;
+        let start_token, end_token;
+        if(!this.isEmptyFile){
+          start_token = tokenData.begin;
+          end_token = tokenData.end;
+        }else{
+          start_token = tokenData.spans[0].start;
+          end_token = tokenData.spans[0].end;
+        }
 
         annotation.spans.forEach(element => {
           if( element.start >= start_token  &&  element.end <= end_token){

@@ -18,8 +18,8 @@
                         aria-controls="file" aria-selected="true">File</a>
                 </li>
                 <li>
-                    <a class="nav-link" id="text-tab" data-toggle="tab" href="#text" role="tab"
-                        aria-controls="text" aria-selected="false">Epigraphy</a>
+                    <a class="nav-link" id="text-tab" data-toggle="tab" href="#text_metadata" role="tab"
+                        aria-controls="text_metadata" aria-selected="false">Epigraphy</a>
                 </li>
             </ul>
             <div class="tab-content" id="myTabContent" *ngIf="object != null">
@@ -37,19 +37,19 @@
                                     <tbody>
                                         <tr>
                                             <th scope="row">Title:</th>
-                                            <td>{{object.fileID}}</td>
+                                            <td>{{object.title != undefined ? object.title : 'no info'}}</td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Id:</th>
-                                            <td>{{object['element-id']}}</td>
+                                            <td>{{object['element-id'] != undefined ? object['element-id'] : 'no info'}}</td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Editor:</th>
-                                            <td>{{object.editor}}</td>
+                                            <td>{{object.editor != undefined ? object.editor : 'no info'}}</td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Path:</th>
-                                            <td>{{object.path}}</td>
+                                            <td>{{object.path != undefined ? object.path : 'no info'}}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -105,7 +105,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="tab-pane fade" id="text" role="tabpanel" aria-labelledby="text-tab">
+                <div class="tab-pane fade" id="text_metadata" role="tabpanel" aria-labelledby="text-tab">
                     <div class="card epi_body">
                         <span class="text-id">EPIGRAPHY</span>
                         <!-- <a href="#a"><span class="edit-icon"><i class="fa fa-edit"></i></span></a>

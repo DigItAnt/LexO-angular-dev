@@ -137,6 +137,7 @@ export class SearchFormComponent implements OnInit {
     let parameters = {}
     let idPopover = this.bind.selectedPopover.tokenId;
     let tokenData = this.bind.object[idPopover];
+    let element_id = this.bind.epiData.element_id;
     let textSelection = this.bind.message;
     let selectionSpan = this.bind.spanSelection;
     let formValue = data.form;
@@ -144,7 +145,7 @@ export class SearchFormComponent implements OnInit {
     console.log(selectionSpan)
     console.log(textSelection)
     if(textSelection != '' && textSelection != undefined){
-      console.log(111)
+      //console.log(111)
       parameters["value"] = formValue;
       parameters["layer"] = "attestation";
       parameters["attributes"] = {
@@ -168,7 +169,7 @@ export class SearchFormComponent implements OnInit {
       ];
       parameters["id"] = tokenData.node;
     }else if(textSelection == '' && !Array.isArray(selectionSpan)){
-      console.log(222)
+      //console.log(222)
       parameters["value"] = formValue;
       parameters["layer"] = "attestation";
       parameters["attributes"] = {
@@ -192,7 +193,7 @@ export class SearchFormComponent implements OnInit {
       ];
       parameters["id"] = tokenData.node;
     }else if(Array.isArray(selectionSpan)){ //MULTIWORD
-      console.log(333)
+      //console.log(333)
       parameters["value"] = formValue;
       parameters["layer"] = "attestation";
       parameters["attributes"] = {
@@ -210,24 +211,64 @@ export class SearchFormComponent implements OnInit {
       };
       parameters["spans"] = selectionSpan
       parameters["id"] = tokenData.node;
+    }else if(this.bind.isEmptyFile){
+      parameters["value"] = formValue;
+      parameters["layer"] = "attestation";
+      parameters["attributes"] = {
+        author : "",
+        creator : "prova",
+        note: "",
+        confidence : 1,
+        timestamp : new Date().getTime().toString(),
+        bibliography: [],
+        validity : "",
+        externalRef : "",
+        node_id : undefined,
+        label : data.label,
+        form_id : data.formInstanceName
+      };
+      parameters["spans"] = [
+        {
+          start : 0,
+          end : 0
+        }
+      ];
+      parameters["id"] = element_id;
     }
     //console.log(idPopover, tokenData, data);
 
     console.log(parameters)
+
+    let identifier;
+
+    if(!this.bind.isEmptyFile){
+      identifier = tokenData.node;
+    }else{
+      identifier = element_id
+    }
     
-    this.annotatorService.addAnnotation(parameters, tokenData.node).subscribe(
+    this.annotatorService.addAnnotation(parameters, identifier).subscribe(
       data=> {
         console.log(data);
         this.bind.annotationArray.push(data.annotation);
-        this.bind.populateLocalAnnotation(tokenData);
+
+        if(!this.bind.isEmptyFile){
+          this.bind.populateLocalAnnotation(tokenData);
+        }else{
+          this.bind.populateLocalAnnotation(data.annotation)
+        }
         
-        this.bind.object.forEach(element => {
-          if(data.annotation.attributes.node_id == element.id){
-            let positionElement = element.position;
-            let elementHTML = document.getElementsByClassName('token-'+(positionElement-1))[0]
-            this.renderer.addClass(elementHTML, 'annotation');
-          }
-        });
+        
+        if(!this.bind.isEmptyFile){
+          this.bind.object.forEach(element => {
+            if(data.annotation.attributes.node_id == element.id){
+              let positionElement = element.position;
+              let elementHTML = document.getElementsByClassName('token-'+(positionElement-1))[0]
+              this.renderer.addClass(elementHTML, 'annotation');
+            }
+          });
+        }
+        
 
         this.toastr.success('New attestation created', 'Info', {
           timeOut : 5000

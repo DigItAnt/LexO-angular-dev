@@ -495,14 +495,19 @@ export class DocumentSystemTreeComponent implements OnInit {
       requestUUID : "string",
       "user-id" : 0,
       "element-id" : element_id,
-      filename : "string"
+      filename : "new_file"+Math.floor(Math.random() * (99999 - 10) + 10)
     }
 
     this.documentService.createFile(parameters).subscribe(
       data =>{
         console.log(data)
-        this.textTree.updateTreeView();
+        this.textTree.treeText.treeModel.nodes.push(data.node);
+        this.textTree.counter = this.textTree.treeText.treeModel.nodes.length
         this.textTree.treeText.treeModel.update();
+        this.toastr.info('New file added', '', {
+          timeOut: 5000,
+        });
+        this.textTree.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
       },error=> {
         console.log(error)
       }

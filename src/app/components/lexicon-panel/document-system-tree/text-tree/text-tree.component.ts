@@ -538,14 +538,30 @@ export class TextTreeComponent implements OnInit {
         requestUUID : "string",
         "user-id" : 0,
         "element-id" : element_id,
-        filename : "string"
+        filename : "new_file"+Math.floor(Math.random() * (99999 - 10) + 10)
       }
 
       this.documentService.createFile(parameters).subscribe(
         data =>{
           console.log(data)
-          this.updateTreeView();
-          this.treeText.treeModel.update();
+          this.treeText.treeModel.getNodeBy(x => {
+            if(x.data['element-id'] === element_id){
+              x.expand()
+              
+              this.toastr.info('New file added', '', {
+                timeOut: 5000,
+              });
+              console.log(x)
+              x.data.children.push(data.node)
+              setTimeout(() => {
+                this.counter = this.nodes.length;
+                this.updateTreeView();
+                this.treeText.treeModel.update();
+                this.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
+              }, 100);
+              
+            }
+          })
         },error=> {
           console.log(error)
         }
@@ -1030,7 +1046,7 @@ export class TextTreeComponent implements OnInit {
         this.documentService.renameFolder(parameters).subscribe(
           data=> {
             //console.log(data);
-            this.toastr.info('Folder '+ node.data.name +' name updated', '', {
+            this.toastr.info('Folder '+ node.data.name +' renamed', '', {
               timeOut: 5000,
             });
             setTimeout(() => {
@@ -1076,7 +1092,7 @@ export class TextTreeComponent implements OnInit {
       }else if(node_type == 'file'){
         this.documentService.renameFile(parameters).subscribe(
           data=> {
-            this.toastr.info('Folder name updated', '', {
+            this.toastr.info('File renamed', '', {
               timeOut: 5000,
             });
             //console.log(data);
