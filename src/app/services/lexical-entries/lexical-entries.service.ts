@@ -35,12 +35,14 @@ export class LexicalEntriesService {
   private _triggerNotePanel : BehaviorSubject<boolean> = new BehaviorSubject(null);
   private _triggerAttestationPanel : BehaviorSubject<boolean> = new BehaviorSubject(null);
   private _changeDecompLabel : BehaviorSubject<string> = new BehaviorSubject(null);
+  private _decompData : BehaviorSubject<object> = new BehaviorSubject(null);
 
   private baseUrl = "/LexO-backend-itant/service/"
   private key = "PRINitant19";
   private author = "michele";
 
   coreData$ = this._coreFormData.asObservable();
+  decompData$ = this._decompData.asObservable();
   attestationPanelData$ = this._attestationPanelData.asObservable();
   /* vartransData = this._vartransData.asObservable(); */
   etymologyData$ = this._etymologyData.asObservable();
@@ -62,6 +64,10 @@ export class LexicalEntriesService {
   sendToCoreTab(object: object) {
     this._coreFormData.next(object)
   } 
+
+  sendToDecompTab(object: object){
+    this._decompData.next(object);
+  }
   
   sendToAttestationPanel(object: object) {
     this._attestationPanelData.next(object)

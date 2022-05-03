@@ -29,22 +29,22 @@ import { ToastrService } from 'ngx-toastr';
 
 const actionMapping: IActionMapping = {
   mouse: {
-    
+
     dblClick: (tree, node, $event) => {
       if (node.hasChildren) {
         TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
       }
     },
     click: (tree, node, $event) => {
-      
-        TREE_ACTIONS.TOGGLE_ACTIVE(tree, node, $event);
-        TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
-    },
-    contextMenu: (tree, node, $event) => {
-      
+
       TREE_ACTIONS.TOGGLE_ACTIVE(tree, node, $event);
       TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
-  },
+    },
+    contextMenu: (tree, node, $event) => {
+
+      TREE_ACTIONS.TOGGLE_ACTIVE(tree, node, $event);
+      TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
+    },
   }
 };
 
@@ -120,45 +120,45 @@ export class LexicalEntryTreeComponent implements OnInit {
 
   initialValues = this.filterForm.value;
 
-  copySubject : Subject<string> = new Subject();
+  copySubject: Subject<string> = new Subject();
 
-  constructor(private expander : ExpanderService, private renderer: Renderer2, private element: ElementRef, private lexicalService: LexicalEntriesService, private toastr: ToastrService) { 
+  constructor(private expander: ExpanderService, private renderer: Renderer2, private element: ElementRef, private lexicalService: LexicalEntriesService, private toastr: ToastrService) {
 
-    var refreshTooltip = setInterval((val)=>{
+    var refreshTooltip = setInterval((val) => {
       //console.log('called'); 
       //@ts-ignore
       $('.lexical-tooltip').tooltip('disable');
       //@ts-ignore
       $('.lexical-tooltip').tooltip('enable');
-       //@ts-ignore
-       $('.note-tooltip').tooltip('disable');
+      //@ts-ignore
+      $('.note-tooltip').tooltip('disable');
       //@ts-ignore
       $('.note-tooltip').tooltip('enable');
     }, 2000)
   }
 
   ngOnInit(): void {
-    
+
     this.viewPort = this.element.nativeElement.querySelector('tree-viewport');
     this.renderer.addClass(this.viewPort, 'search-results');
 
     this.onChanges();
-    
+
     this.lexicalService.deleteReq$.subscribe(
       signal => {
-        
+
         ////console.log("richiesta eliminazione lexical entry");
-        if(signal != null){
-          this.lexEntryDeleteReq(signal);     
+        if (signal != null) {
+          this.lexEntryDeleteReq(signal);
         }
-        
+
       }
     )
 
     this.lexicalService.addSubReq$.subscribe(
       signal => {
 
-        if(signal != null){
+        if (signal != null) {
           this.addSubElement(signal)
         }
       }
@@ -184,8 +184,8 @@ export class LexicalEntryTreeComponent implements OnInit {
 
     this.lexicalService.refreshFilter$.subscribe(
       signal => {
-        
-        if(signal != null){
+
+        if (signal != null) {
 
           this.lexicalService.getLexicalEntriesList(this.parameters).subscribe(
             data => {
@@ -196,43 +196,43 @@ export class LexicalEntryTreeComponent implements OnInit {
             }
           );
 
-          
+
           this.lexicalService.getLanguages().subscribe(
             data => {
-             
+
               this.languages = data;
             }
           );
-      
+
           this.lexicalService.getTypes().subscribe(
             data => {
               this.types = data;
             }
           );
-      
+
           this.lexicalService.getAuthors().subscribe(
             data => {
               this.authors = data;
             }
           );
-      
+
           this.lexicalService.getPos().subscribe(
             data => {
               this.partOfSpeech = data;
             }
           )
-      
+
           this.lexicalService.getStatus().subscribe(
             data => {
               this.status = data;
             }
           )
 
-          
+
         }
       }
     )
-    
+
     /* //console.log(this.parameters) */
     this.lexicalService.getLexicalEntriesList(this.parameters).subscribe(
       data => {
@@ -282,133 +282,133 @@ export class LexicalEntryTreeComponent implements OnInit {
     })
   }
 
-  addSubElement(signal?){
-    
+  addSubElement(signal?) {
+
     setTimeout(() => {
       let instanceName;
       let lex = signal.lex;
       let data = signal.data;
       console.log(lex)
       console.log(data)
-      switch(lex.request){
-        case 'form' : instanceName = 'formInstanceName'; break;
-        case 'sense' : instanceName = 'senseInstanceName'; break;
-        case 'etymology' : instanceName = 'etymologyInstanceName'; break;
-        case 'subterm' : instanceName = 'lexicalEntryInstanceName'; break;
-        case 'constituent' : instanceName = 'componentInstanceName'; break;
+      switch (lex.request) {
+        case 'form': instanceName = 'formInstanceName'; break;
+        case 'sense': instanceName = 'senseInstanceName'; break;
+        case 'etymology': instanceName = 'etymologyInstanceName'; break;
+        case 'subterm': instanceName = 'lexicalEntryInstanceName'; break;
+        case 'constituent': instanceName = 'componentInstanceName'; break;
       }
-      this.lexicalEntryTree.treeModel.getNodeBy(x=>{
-        if(lex.lexicalEntryInstanceName != undefined){
-          if(x.data.lexicalEntryInstanceName === lex.lexicalEntryInstanceName){
-            if(x.data.children == undefined && !x.isExpanded){
-              x.expand();              
+      this.lexicalEntryTree.treeModel.getNodeBy(x => {
+        if (lex.lexicalEntryInstanceName != undefined) {
+          if (x.data.lexicalEntryInstanceName === lex.lexicalEntryInstanceName) {
+            if (x.data.children == undefined && !x.isExpanded) {
+              x.expand();
               var that = this;
-              this.interval = setInterval((val)=>{                
-                if(x.data.children != undefined){
-                  this.lexicalEntryTree.treeModel.getNodeBy(y=>{
-                    if(y.data[instanceName] != undefined){
+              this.interval = setInterval((val) => {
+                if (x.data.children != undefined) {
+                  this.lexicalEntryTree.treeModel.getNodeBy(y => {
+                    if (y.data[instanceName] != undefined) {
                       /* console.log(y.data[instanceName]) */
-                      if(y.data['creator'] == x.data.creator){
+                      if (y.data['creator'] == x.data.creator) {
                         y.data['flagAuthor'] = false;
-                      }else{
+                      } else {
                         y.data['flagAuthor'] = true;
                       }
-                      if(y.data[instanceName] === data[instanceName]){
+                      if (y.data[instanceName] === data[instanceName]) {
                         y.setActiveAndVisible();
                         clearInterval(that.interval)
                         return true;
-                      }else{
+                      } else {
                         return false;
                       }
-                    }else{
+                    } else {
                       return false;
-                    }           
-                  })                  
+                    }
+                  })
                 }
               }, 3000)
-              
-            }else if(x.data.children != undefined){
+
+            } else if (x.data.children != undefined) {
               let checkExistence = x.data.children.filter(element => {
                 return element.label === lex.request
               });
-              if(checkExistence.length == 1){
+              if (checkExistence.length == 1) {
                 x.data.children.filter(element => {
-                  if(element.label === lex.request){
-                    if(lex.request == 'sense'){
+                  if (element.label === lex.request) {
+                    if (lex.request == 'sense') {
                       data['definition'] = 'no definition'
-                    }else if(lex.request == 'etymology'){
-                      data['label'] = "Etymology of: "+lex.parentNodeLabel;
+                    } else if (lex.request == 'etymology') {
+                      data['label'] = "Etymology of: " + lex.parentNodeLabel;
                       console.log(data['label'])
-                    }else if(lex.request == 'subterm'){
+                    } else if (lex.request == 'subterm') {
                       data.label = data.label;
                       data.children = null;
                       data.hasChildren = false;
-                    }else if(lex.request == 'constituent'){
+                    } else if (lex.request == 'constituent') {
                       data.label = '';
                       data.children = null;
                       data.hasChildren = false;
-                    }else{
+                    } else {
                       data['label'] = data[instanceName];
                     }
                     /* console.log(data['creator'] == x.data.creator);
                     console.log(data['creator'], x.data.creator) */
 
-                    if(data['creator'] == x.data.creator){
+                    if (data['creator'] == x.data.creator) {
                       data['flagAuthor'] = false;
-                    }else{
+                    } else {
                       data['flagAuthor'] = true;
                     }
-                    
+
                     element.count++;
                     element.children.push(data);
                     this.lexicalEntryTree.treeModel.update();
                     this.lexicalEntryTree.treeModel.getNodeBy(y => {
-                      if(y.data.etymology == undefined && y.data.label === data['label'] && lex.request != 'subterm'){
+                      if (y.data.etymology == undefined && y.data.label === data['label'] && lex.request != 'subterm') {
                         y.setActiveAndVisible();
-                      }else if(y.data.etymology != undefined && y.data.etymologyInstanceName === data['etymologyInstanceName'] && lex.request != 'subterm'){
+                      } else if (y.data.etymology != undefined && y.data.etymologyInstanceName === data['etymologyInstanceName'] && lex.request != 'subterm') {
                         y.setActiveAndVisible();
                       }
                     })
                     return true;
-                  }else{
+                  } else {
                     return false;
                   }
                 });
-              }else if(checkExistence.length == 0){
+              } else if (checkExistence.length == 0) {
                 let node = {
-                  hasChildren : true,
-                  label : lex.request,
+                  hasChildren: true,
+                  label: lex.request,
                   children: [],
-                  count : 0
+                  count: 0
                 }
                 x.data.children.push(node);
-                x.data.children.sort(function(a, b) {
+                x.data.children.sort(function (a, b) {
                   var textA = a.label.toUpperCase();
                   var textB = b.label.toUpperCase();
                   return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
                 })
                 this.lexicalEntryTree.treeModel.update();
                 x.data.children.filter(element => {
-                  if(element.label === lex.request){
+                  if (element.label === lex.request) {
                     console.log(data['creator'] == x.data.creator);
                     console.log(data['creator'], x.data.creator)
-                    if(data['creator'] == x.data.creator){
+                    if (data['creator'] == x.data.creator) {
                       data['flagAuthor'] = false;
-                    }else{
+                    } else {
                       data['flagAuthor'] = true;
                     }
-                    if(lex.request == 'sense'){
+                    if (lex.request == 'sense') {
                       data['definition'] = 'no definition'
                     }
                     data['label'] = data[instanceName];
 
-                    if(lex.request == 'subterm'){
+                    if (lex.request == 'subterm') {
                       data.children == null;
                       data.hasChildren = false;
                       data.label = data.label;
                     }
 
-                    if(lex.request == 'constituent'){
+                    if (lex.request == 'constituent') {
                       data.children == null;
                       data.label = '';
                     }
@@ -417,162 +417,162 @@ export class LexicalEntryTreeComponent implements OnInit {
                     element.children.push(data);
                     this.lexicalEntryTree.treeModel.update();
                     this.lexicalEntryTree.treeModel.getNodeBy(y => {
-                      if(y.data.label === data['label'] && lex.request != 'subterm'){
+                      if (y.data.label === data['label'] && lex.request != 'subterm') {
                         y.setActiveAndVisible();
                       }
                     })
                     return true;
-                  }else{
+                  } else {
                     return false;
                   }
                 });
               }
-            }else{
+            } else {
               return false;
             }
             return true;
-          }else{
+          } else {
             return false;
           }
-        }else{
+        } else {
           return false;
         }
       })
     }, 300);
   }
 
-  lexEntryDeleteReq(signal?){
+  lexEntryDeleteReq(signal?) {
 
 
     setTimeout(() => {
-      
+
       this.lexicalEntryTree.treeModel.getNodeBy(x => {
-        if(signal.lexicalEntryInstanceName != undefined){
-          if(x.data.lexicalEntryInstanceName === signal.lexicalEntryInstanceName){
-            
+        if (signal.lexicalEntryInstanceName != undefined) {
+          if (x.data.lexicalEntryInstanceName === signal.lexicalEntryInstanceName) {
+
             x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
-            
+
             let countSubterm = x.parent.data.count;
-            if(countSubterm != 0){
+            if (countSubterm != 0) {
               x.parent.data.count--;
               countSubterm--;
             }
-            
+
             //this.lexicalEntryTree.treeModel.update();
-            if(this.nodes.length == 0){
+            if (this.nodes.length == 0) {
               this.lexicalEntriesFilter(this.parameters);
             }
 
-            
-            
-            if(countSubterm == 0){
+
+
+            if (countSubterm == 0) {
               x.parent.parent.data.children.splice(x.parent.parent.data.children.indexOf(x.parent.data), 1)
             }
             console.log(x.parent)
-            
+
             this.lexicalEntryTree.treeModel.update()
-            
+
             return true;
-          }else{
+          } else {
             return false;
           }
-        }else if(signal.formInstanceName != undefined){
-          if(x.data.formInstanceName === signal.formInstanceName){
-            
+        } else if (signal.formInstanceName != undefined) {
+          if (x.data.formInstanceName === signal.formInstanceName) {
+
             x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
             let countForm = x.parent.data.count;
-            if(countForm != 0){
+            if (countForm != 0) {
               x.parent.data.count--;
               countForm--;
             }
-            
-            if(countForm == 0){
+
+            if (countForm == 0) {
               x.parent.parent.data.children.splice(x.parent.parent.data.children.indexOf(x.parent.data), 1)
             }
             console.log(x.parent)
-            
+
             this.lexicalEntryTree.treeModel.update()
-            
+
             return true;
-          }else{
+          } else {
             return false;
           }
-        }else if(signal.senseInstanceName != undefined){
-          if(x.data.senseInstanceName === signal.senseInstanceName){
-            
+        } else if (signal.senseInstanceName != undefined) {
+          if (x.data.senseInstanceName === signal.senseInstanceName) {
+
             x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
             let countSense = x.parent.data.count;
-            if(countSense != 0){
+            if (countSense != 0) {
               x.parent.data.count--;
               countSense--;
             }
-            
-            if(countSense == 0){
+
+            if (countSense == 0) {
               x.parent.parent.data.children.splice(x.parent.parent.data.children.indexOf(x.parent.data), 1)
             }
             console.log(x.parent)
-            
+
             this.lexicalEntryTree.treeModel.update()
-            
+
             return true;
-          }else{
+          } else {
             return false;
           }
-        }else if(signal.etymology != undefined){
-          if(x.data.etymologyInstanceName === signal.etymology.etymologyInstanceName){
+        } else if (signal.etymology != undefined) {
+          if (x.data.etymologyInstanceName === signal.etymology.etymologyInstanceName) {
             x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
             let countSense = x.parent.data.count;
-            if(countSense != 0){
+            if (countSense != 0) {
               x.parent.data.count--;
               countSense--;
             }
-            
-            if(countSense == 0){
+
+            if (countSense == 0) {
               x.parent.parent.data.children.splice(x.parent.parent.data.children.indexOf(x.parent.data), 1)
             }
             console.log(x.parent)
-            
+
             this.lexicalEntryTree.treeModel.update()
-            
+
             return true;
-          }else{
+          } else {
             return false;
           }
-        }else if(signal.componentInstanceName != undefined){
-          if(x.data.componentInstanceName === signal.componentInstanceName){
+        } else if (signal.componentInstanceName != undefined) {
+          if (x.data.componentInstanceName === signal.componentInstanceName) {
             x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
             let countSense = x.parent.data.count;
-            if(countSense != 0){
+            if (countSense != 0) {
               x.parent.data.count--;
               countSense--;
             }
-            
-            if(countSense == 0){
+
+            if (countSense == 0) {
               x.parent.parent.data.children.splice(x.parent.parent.data.children.indexOf(x.parent.data), 1)
             }
             console.log(x.parent)
-            
+
             this.lexicalEntryTree.treeModel.update()
-            
+
             return true;
-          }else{
+          } else {
             return false;
           }
-        }else{
+        } else {
           return false;
         }
       })
-      
-    }, 300);  
+
+    }, 300);
   }
 
   lexicalEntriesFilter(newPar) {
-    
+
     setTimeout(() => {
       const viewPort_prova = this.element.nativeElement.querySelector('tree-viewport') as HTMLElement;
       viewPort_prova.scrollTop = 0
     }, 300);
-    
+
     this.searchIconSpinner = true;
     let parameters = newPar;
     parameters['offset'] = this.offset;
@@ -581,9 +581,9 @@ export class LexicalEntryTreeComponent implements OnInit {
     this.lexicalService.getLexicalEntriesList(newPar).subscribe(
       data => {
         console.log(data)
-        if(data['list'].length > 0){
+        if (data['list'].length > 0) {
           this.show = false;
-        }else {
+        } else {
           this.show = true;
         }
         this.nodes = data['list'];
@@ -598,7 +598,7 @@ export class LexicalEntryTreeComponent implements OnInit {
     )
   }
 
-  getParameters(){
+  getParameters() {
     return this.initialValues;
   }
 
@@ -611,9 +611,9 @@ export class LexicalEntryTreeComponent implements OnInit {
     });
   }
 
-  resetFields(){
+  resetFields() {
     this.initialValues.text = '';
-    this.filterForm.reset(this.initialValues, {emitEvent : false});
+    this.filterForm.reset(this.initialValues, { emitEvent: false });
     setTimeout(() => {
       //this.filterForm.get('text').setValue('', {eventEmit : false});
       this.lexicalEntriesFilter(this.parameters);
@@ -621,8 +621,8 @@ export class LexicalEntryTreeComponent implements OnInit {
       //this.updateTreeView();
       /* this.lexicalService.sendToCoreTab(null);
       this.lexicalService.sendToRightTab(null); */
-    }, 500);  
-    
+    }, 500);
+
   }
 
   updateTreeView() {
@@ -635,29 +635,29 @@ export class LexicalEntryTreeComponent implements OnInit {
   }
 
   onEvent = ($event: any) => {
-    
+
     console.log($event)
     setTimeout(() => {
       //@ts-ignore
       $('.lexical-tooltip').tooltip();
     }, 2000);
-    
-    if ($event.eventName == 'activate' && $event.node.data.lexicalEntry != undefined 
-                                       && $event.node.data.form == undefined
-                                       && $event.node.data.sense == undefined
-                                       && $event.node.data.etymology == undefined
-                                       && $event.node.data.lexicalEntryInstanceName != this.selectedNodeId) {
+
+    if ($event.eventName == 'activate' && $event.node.data.lexicalEntry != undefined
+      && $event.node.data.form == undefined
+      && $event.node.data.sense == undefined
+      && $event.node.data.etymology == undefined
+      && $event.node.data.lexicalEntryInstanceName != this.selectedNodeId) {
       //this.lexicalService.sendToCoreTab($event.node.data);
       let idLexicalEntry = $event.node.data.lexicalEntryInstanceName;
       this.lexicalService.getLexEntryData(idLexicalEntry).subscribe(
         data => {
-          
+
           console.log(data);
           this.selectedNodeId = $event.node.data.lexicalEntryInstanceName;
           this.lexicalService.sendToCoreTab(data);
           this.lexicalService.sendToRightTab(data);
           this.lexicalService.sendToEtymologyTab(null);
-          this.lexicalService.updateLexCard({lastUpdate : data['lastUpdate'], creationDate : data['creationDate']});
+          this.lexicalService.updateLexCard({ lastUpdate: data['lastUpdate'], creationDate: data['creationDate'] });
 
 
           /* if(this.expander.isEpigraphyTabExpanded() && !this.expander.isEditTabExpanded()){
@@ -667,32 +667,32 @@ export class LexicalEntryTreeComponent implements OnInit {
             this.expander.expandCollapseEdit(true);
           } */
 
-          if(!this.expander.isEditTabOpen() && !this.expander.isEpigraphyTabOpen()){
-            if(!this.expander.isEditTabExpanded() && !this.expander.isEpigraphyTabExpanded()){
-              
+          if (!this.expander.isEditTabOpen() && !this.expander.isEpigraphyTabOpen()) {
+            if (!this.expander.isEditTabExpanded() && !this.expander.isEpigraphyTabExpanded()) {
+
               this.expander.expandCollapseEdit(true);
               this.expander.openCollapseEdit(true);
             }
-          }else if(!this.expander.isEditTabOpen() && this.expander.isEpigraphyTabOpen()){
-            if(!this.expander.isEditTabExpanded() && this.expander.isEpigraphyTabExpanded()){
+          } else if (!this.expander.isEditTabOpen() && this.expander.isEpigraphyTabOpen()) {
+            if (!this.expander.isEditTabExpanded() && this.expander.isEpigraphyTabExpanded()) {
               this.expander.expandCollapseEpigraphy(false);
               this.expander.openCollapseEdit(true)
             }
           }
-          
+
 
           //@ts-ignore
           $("#coreTabModal").modal("show");
           $('.modal-backdrop').appendTo('.core-tab-body');
           //@ts-ignore
-          $('#coreTabModal').modal({backdrop: 'static', keyboard: false})  
+          $('#coreTabModal').modal({ backdrop: 'static', keyboard: false })
           $('body').removeClass("modal-open")
           $('body').css("padding-right", "");
 
-          if(data.note != undefined){
-            if(data.note != ""){
+          if (data.note != undefined) {
+            if (data.note != "") {
               this.lexicalService.triggerNotePanel(true);
-            }else{
+            } else {
               this.lexicalService.triggerNotePanel(false);
             }
           }
@@ -701,9 +701,9 @@ export class LexicalEntryTreeComponent implements OnInit {
 
         }
       )
-    } else if($event.eventName == 'activate' 
-              && $event.node.data.form != undefined 
-              && $event.node.data.formInstanceName != this.selectedNodeId){
+    } else if ($event.eventName == 'activate'
+      && $event.node.data.form != undefined
+      && $event.node.data.formInstanceName != this.selectedNodeId) {
 
       let formId = $event.node.data.formInstanceName;
 
@@ -716,32 +716,32 @@ export class LexicalEntryTreeComponent implements OnInit {
           this.lexicalService.sendToCoreTab(data)
           this.lexicalService.sendToEtymologyTab(null);
           this.lexicalService.sendToRightTab(data);
-          this.lexicalService.updateLexCard({lastUpdate : data['lastUpdate'], creationDate : data['creationDate']})
+          this.lexicalService.updateLexCard({ lastUpdate: data['lastUpdate'], creationDate: data['creationDate'] })
           //@ts-ignore
           $("#coreTabModal").modal("show");
           $('.modal-backdrop').appendTo('.core-tab-body');
           //@ts-ignore
-          $('#coreTabModal').modal({backdrop: 'static', keyboard: false})  
+          $('#coreTabModal').modal({ backdrop: 'static', keyboard: false })
           $('body').removeClass("modal-open")
           $('body').css("padding-right", "");
 
-          if(!this.expander.isEditTabOpen() && !this.expander.isEpigraphyTabOpen()){
-            if(!this.expander.isEditTabExpanded() && !this.expander.isEpigraphyTabExpanded()){
-              
+          if (!this.expander.isEditTabOpen() && !this.expander.isEpigraphyTabOpen()) {
+            if (!this.expander.isEditTabExpanded() && !this.expander.isEpigraphyTabExpanded()) {
+
               this.expander.expandCollapseEdit(true);
               this.expander.openCollapseEdit(true);
             }
-          }else if(!this.expander.isEditTabOpen() && this.expander.isEpigraphyTabOpen()){
-            if(!this.expander.isEditTabExpanded() && this.expander.isEpigraphyTabExpanded()){
+          } else if (!this.expander.isEditTabOpen() && this.expander.isEpigraphyTabOpen()) {
+            if (!this.expander.isEditTabExpanded() && this.expander.isEpigraphyTabExpanded()) {
               this.expander.expandCollapseEpigraphy(false);
               this.expander.openCollapseEdit(true)
             }
           }
 
-          if(data.note != undefined){
-            if(data.note != ""){
+          if (data.note != undefined) {
+            if (data.note != "") {
               this.lexicalService.triggerNotePanel(true);
-            }else{
+            } else {
               this.lexicalService.triggerNotePanel(false);
             }
           }
@@ -750,10 +750,10 @@ export class LexicalEntryTreeComponent implements OnInit {
           //console.log(error)
         }
       )
-    
-    }else if($event.eventName == 'activate' 
-            && $event.node.data.sense != undefined 
-            && $event.node.data.senseInstanceName != this.selectedNodeId){
+
+    } else if ($event.eventName == 'activate'
+      && $event.node.data.sense != undefined
+      && $event.node.data.senseInstanceName != this.selectedNodeId) {
 
       let senseId = $event.node.data.senseInstanceName;
 
@@ -766,32 +766,32 @@ export class LexicalEntryTreeComponent implements OnInit {
           this.lexicalService.sendToCoreTab(data)
           this.lexicalService.sendToEtymologyTab(null);
           this.lexicalService.sendToRightTab(data);
-          this.lexicalService.updateLexCard({lastUpdate : data['lastUpdate'], creationDate : data['creationDate']})
+          this.lexicalService.updateLexCard({ lastUpdate: data['lastUpdate'], creationDate: data['creationDate'] })
           //@ts-ignore
           $("#coreTabModal").modal("show");
           $('.modal-backdrop').appendTo('.core-tab-body');
           //@ts-ignore
-          $('#coreTabModal').modal({backdrop: 'static', keyboard: false})  
+          $('#coreTabModal').modal({ backdrop: 'static', keyboard: false })
           $('body').removeClass("modal-open")
           $('body').css("padding-right", "");
 
-          if(!this.expander.isEditTabOpen() && !this.expander.isEpigraphyTabOpen()){
-            if(!this.expander.isEditTabExpanded() && !this.expander.isEpigraphyTabExpanded()){
-              
+          if (!this.expander.isEditTabOpen() && !this.expander.isEpigraphyTabOpen()) {
+            if (!this.expander.isEditTabExpanded() && !this.expander.isEpigraphyTabExpanded()) {
+
               this.expander.expandCollapseEdit(true);
               this.expander.openCollapseEdit(true);
             }
-          }else if(!this.expander.isEditTabOpen() && this.expander.isEpigraphyTabOpen()){
-            if(!this.expander.isEditTabExpanded() && this.expander.isEpigraphyTabExpanded()){
+          } else if (!this.expander.isEditTabOpen() && this.expander.isEpigraphyTabOpen()) {
+            if (!this.expander.isEditTabExpanded() && this.expander.isEpigraphyTabExpanded()) {
               this.expander.expandCollapseEpigraphy(false);
               this.expander.openCollapseEdit(true)
             }
           }
 
-          if(data.note != undefined){
-            if(data.note != ""){
+          if (data.note != undefined) {
+            if (data.note != "") {
               this.lexicalService.triggerNotePanel(true);
-            }else{
+            } else {
               this.lexicalService.triggerNotePanel(false);
             }
           }
@@ -800,9 +800,9 @@ export class LexicalEntryTreeComponent implements OnInit {
           //console.log(error)
         }
       )
-    }else if($event.eventName == 'activate' 
-            && $event.node.data.etymology != undefined 
-            && $event.node.data.etymologyInstanceName != this.selectedNodeId){
+    } else if ($event.eventName == 'activate'
+      && $event.node.data.etymology != undefined
+      && $event.node.data.etymologyInstanceName != this.selectedNodeId) {
 
       let etymologyId = $event.node.data.etymologyInstanceName;
 
@@ -815,32 +815,83 @@ export class LexicalEntryTreeComponent implements OnInit {
           this.lexicalService.sendToCoreTab(null);
           this.lexicalService.sendToEtymologyTab(data);
           this.lexicalService.sendToRightTab(data);
-          this.lexicalService.updateLexCard({lastUpdate : data['etymology']['lastUpdate'], creationDate : data['etymology']['creationDate']})
+          this.lexicalService.updateLexCard({ lastUpdate: data['etymology']['lastUpdate'], creationDate: data['etymology']['creationDate'] })
           //@ts-ignore
           $("#etymologyTabModal").modal("show");
           $('.modal-backdrop').appendTo('.etym-tab-body');
           //@ts-ignore
-          $('#etymologyTabModal').modal({backdrop: 'static', keyboard: false})  
+          $('#etymologyTabModal').modal({ backdrop: 'static', keyboard: false })
           $('body').removeClass("modal-open")
           $('body').css("padding-right", "");
 
-          if(!this.expander.isEditTabOpen() && !this.expander.isEpigraphyTabOpen()){
-            if(!this.expander.isEditTabExpanded() && !this.expander.isEpigraphyTabExpanded()){
-              
+          if (!this.expander.isEditTabOpen() && !this.expander.isEpigraphyTabOpen()) {
+            if (!this.expander.isEditTabExpanded() && !this.expander.isEpigraphyTabExpanded()) {
+
               this.expander.expandCollapseEdit(true);
               this.expander.openCollapseEdit(true);
             }
-          }else if(!this.expander.isEditTabOpen() && this.expander.isEpigraphyTabOpen()){
-            if(!this.expander.isEditTabExpanded() && this.expander.isEpigraphyTabExpanded()){
+          } else if (!this.expander.isEditTabOpen() && this.expander.isEpigraphyTabOpen()) {
+            if (!this.expander.isEditTabExpanded() && this.expander.isEpigraphyTabExpanded()) {
               this.expander.expandCollapseEpigraphy(false);
               this.expander.openCollapseEdit(true)
             }
           }
 
-          if(data.note != undefined){
-            if(data.note != ""){
+          if (data.note != undefined) {
+            if (data.note != "") {
               this.lexicalService.triggerNotePanel(true);
-            }else{
+            } else {
+              this.lexicalService.triggerNotePanel(false);
+            }
+          }
+        },
+        error => {
+          console.log(error)
+        }
+      )
+    } else if ($event.eventName == 'activate'
+      && $event.node.data.component != undefined
+      && $event.node.data.componentInstanceName != this.selectedNodeId) {
+
+      let compId = $event.node.data.componentInstanceName;
+      let parentInstanceLabel = $event.node.parent.parent.data.label;
+      let parentInstanceName = $event.node.parent.parent.data.lexicalEntryInstanceName;
+
+      this.lexicalService.getLexEntryData(parentInstanceName).subscribe(
+        data => {
+          this.selectedNodeId = $event.node.data.parentNodeInstanceName;
+          
+          console.log(data)
+          //this.lexicalService.sendToCoreTab(data);
+          //this.lexicalService.sendToEtymologyTab(data);
+          this.lexicalService.sendToDecompTab(data);
+          this.lexicalService.sendToRightTab(data);
+          this.lexicalService.updateLexCard({ lastUpdate: data['lastUpdate'], creationDate: data['creationDate'] })
+          //@ts-ignore
+          $("#etymologyTabModal").modal("show");
+          $('.modal-backdrop').appendTo('.etym-tab-body');
+          //@ts-ignore
+          $('#etymologyTabModal').modal({ backdrop: 'static', keyboard: false })
+          $('body').removeClass("modal-open")
+          $('body').css("padding-right", "");
+
+          if (!this.expander.isEditTabOpen() && !this.expander.isEpigraphyTabOpen()) {
+            if (!this.expander.isEditTabExpanded() && !this.expander.isEpigraphyTabExpanded()) {
+
+              this.expander.expandCollapseEdit(true);
+              this.expander.openCollapseEdit(true);
+            }
+          } else if (!this.expander.isEditTabOpen() && this.expander.isEpigraphyTabOpen()) {
+            if (!this.expander.isEditTabExpanded() && this.expander.isEpigraphyTabExpanded()) {
+              this.expander.expandCollapseEpigraphy(false);
+              this.expander.openCollapseEdit(true)
+            }
+          }
+
+          if (data.note != undefined) {
+            if (data.note != "") {
+              this.lexicalService.triggerNotePanel(true);
+            } else {
               this.lexicalService.triggerNotePanel(false);
             }
           }
@@ -850,7 +901,7 @@ export class LexicalEntryTreeComponent implements OnInit {
         }
       )
     }
-    
+
   };
 
   onKey = ($event: any) => {
@@ -869,7 +920,7 @@ export class LexicalEntryTreeComponent implements OnInit {
 
     this.offset += 500;
     this.modalShow = true;
-    
+
     //@ts-ignore
     $("#lazyLoadingModal").modal("show");
     $('.modal-backdrop').appendTo('.tree-view');
@@ -892,8 +943,8 @@ export class LexicalEntryTreeComponent implements OnInit {
         this.lexicalEntryTree.treeModel.update();
         this.updateTreeView();
         this.modalShow = false;
-        
-        setTimeout(()=>{
+
+        setTimeout(() => {
           //@ts-ignore
           $('#lazyLoadingModal').modal('hide');
           $('.modal-backdrop').remove();
@@ -913,16 +964,16 @@ export class LexicalEntryTreeComponent implements OnInit {
       this.lexicalService.getLexEntryElements(instance).subscribe(
         data => {
           console.log(data['elements'])
-          data["elements"] = data["elements"].filter(function(obj){
+          data["elements"] = data["elements"].filter(function (obj) {
             return obj.count != 0;
           })
           newNodes = data["elements"].map((c) => Object.assign({}, c));
-          
+
           newNodes.forEach(element => {
             setTimeout(() => {
-              try{
+              try {
                 const someNode = this.lexicalEntryTree.treeModel.getNodeById(element.id);
-              
+
                 someNode.expand();
                 //console.log(someNode)
                 var that = this;
@@ -930,14 +981,14 @@ export class LexicalEntryTreeComponent implements OnInit {
                                
                   
                 }, 2000) */
-              }catch(e){
+              } catch (e) {
                 console.log(e)
               }
-              
+
             }, 1000);
-            
+
           });
-          
+
         },
         error => {
 
@@ -971,7 +1022,7 @@ export class LexicalEntryTreeComponent implements OnInit {
               newNodes[i]['flagAuthor'] = true
             }
           }
-        },error => {
+        }, error => {
           //console.log(error)
         }
       )
@@ -989,11 +1040,11 @@ export class LexicalEntryTreeComponent implements OnInit {
               newNodes[i]['flagAuthor'] = true
             }
           }
-        },error => {
+        }, error => {
           //console.log(error)
         }
       )
-      
+
     } else if (node.data.label == "constituent") {
       let parentInstance = node.parent.data.lexicalEntryInstanceName;
       this.lexicalService.getConstituents(parentInstance).subscribe(
@@ -1008,11 +1059,11 @@ export class LexicalEntryTreeComponent implements OnInit {
               newNodes[i]['flagAuthor'] = true
             } */
           }
-        },error => {
+        }, error => {
           //console.log(error)
         }
       )
-      
+
     } else if (node.data.label == "subterm") {
       let parentInstance = node.parent.data.lexicalEntryInstanceName;
       this.lexicalService.getSubTerms(parentInstance).subscribe(
@@ -1027,13 +1078,13 @@ export class LexicalEntryTreeComponent implements OnInit {
               newNodes[i]['flagAuthor'] = true
             } */
           }
-        },error => {
+        }, error => {
           //console.log(error)
         }
       )
-      
+
     }
-    
+
     return new Promise((resolve, reject) => {
       setTimeout(() => resolve(newNodes), 1000);
     });
@@ -1041,17 +1092,17 @@ export class LexicalEntryTreeComponent implements OnInit {
 
 
   /* To copy any Text */
-  copyText(val: string){
+  copyText(val: string) {
     console.log(val)
 
     let value = '';
-    if(val['lexicalEntry'] != undefined && val['sense']==undefined && val['etymology'] == undefined){
+    if (val['lexicalEntry'] != undefined && val['sense'] == undefined && val['etymology'] == undefined) {
       value = val['lexicalEntry']
-    }else if(val['form'] != undefined){
+    } else if (val['form'] != undefined) {
       value = val['form']
-    }else if(val['sense'] != undefined){
+    } else if (val['sense'] != undefined) {
       value = val['sense']
-    }else if(val['etymology'] != undefined){
+    } else if (val['etymology'] != undefined) {
       value = val['etymology']
     }
     this.copySubject.next(value);

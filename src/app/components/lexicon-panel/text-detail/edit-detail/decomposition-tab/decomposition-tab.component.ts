@@ -89,6 +89,34 @@ export class DecompositionTabComponent implements OnInit {
       }
     );
 
+    this.lexicalService.decompData$.subscribe(
+      object => {
+        this.object = null;
+        if(this.object != object){
+          this.decompData = null;
+        }
+        this.object = object
+        
+        if(this.object != null){
+          if(this.object.lexicalEntry != undefined && this.object.sense == undefined){
+            this.isLexicalEntry = true;
+            this.decompData = object;
+
+            this.creationDate = object['creationDate'];
+            this.lastUpdate = object['lastUpdate']
+          }else if(this.object.form != undefined){
+            this.isLexicalEntry = false;
+            this.decompData = null;
+            this.object = null;
+          }else if(this.object.sense != undefined){
+            this.isLexicalEntry = false;
+            this.decompData = null;
+            this.object = null;
+          }
+        }
+      }
+    );
+
     this.lexicalService.updateLexCardReq$.subscribe(
       data => {
         console.log(data)
@@ -146,7 +174,7 @@ export class DecompositionTabComponent implements OnInit {
     );
   }
 
-  changeStatus() {
+  /* changeStatus() {
     if (this.lock < 2) {
       this.lock++;
     } else if (this.lock > 1) {
@@ -167,7 +195,7 @@ export class DecompositionTabComponent implements OnInit {
       }, 10);
     }
     
-  }
+  } */
 
   addNewForm(){
     this.searchIconSpinner = true;

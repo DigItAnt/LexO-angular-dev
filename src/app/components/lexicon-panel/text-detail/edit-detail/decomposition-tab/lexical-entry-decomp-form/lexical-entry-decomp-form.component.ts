@@ -28,6 +28,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
 
   @Input() decData: any;
   private subterm_subject: Subject<any> = new Subject();
+  private ext_subterm_subject: Subject<any> = new Subject();
   private corresponds_subject: Subject<any> = new Subject();
   private update_component_subject: Subject<any> = new Subject();
   switchInput = false;
@@ -82,6 +83,12 @@ export class LexicalEntryDecompFormComponent implements OnInit {
     this.subterm_subject.pipe(debounceTime(1000)).subscribe(
       data => {
         this.onSearchFilter(data)
+      }
+    )
+
+    this.ext_subterm_subject.pipe(debounceTime(1000)).subscribe(
+      data => {
+          this.onChangeSubterm(data)
       }
     )
 
@@ -1142,6 +1149,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
       subterm_array: new FormArray([this.createSubtermComponent()])
     })
   } */
+  
 
   handleSubterm(evt, i) {
 
@@ -1151,10 +1159,10 @@ export class LexicalEntryDecompFormComponent implements OnInit {
         let label = evt.selectedItems[0]['value']['lexicalEntryInstanceName'];
         this.onChangeSubterm({ name: label, i: i, object: evt.selectedItems[0]['value'] })
       }
-    } /* else {
+    } else {
         let label = evt.target.value;
-        this.Subterm_subject.next({ name: label, i: i })
-    } */
+        this.ext_subterm_subject.next({ name: label, i: i })
+    }
   }
 
   handleCorrespondsTo(evt, i) {
@@ -1205,9 +1213,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
         }, error => {
           console.log(error)
 
-          data['request'] = 'subterm';
-          this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': data['object'] });
-          this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+          
           this.lexicalService.spinnerAction('off');
           if (error.status == 200) {
 
@@ -1216,6 +1222,10 @@ export class LexicalEntryDecompFormComponent implements OnInit {
             });
 
             this.subtermDisabled = false;
+
+            data['request'] = 'subterm';
+            this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': data['object'] });
+            this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
 
           } else {
             this.toastr.error(error.error, 'Error', {
