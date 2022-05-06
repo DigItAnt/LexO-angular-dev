@@ -192,7 +192,7 @@
                                         <ng-select #select_subterm formControlName="label" *ngIf="!variable.switch" name="label" [dropdownPosition]="'top'"
                                                 (keyup)="triggerSubterm($event)" (change)="handleSubterm(select_subterm, i)"
                                                 [items]="searchResults" bindValue="label" (focus)="deleteData()" bindLabel="label"
-                                                placeholder="Search cognates" appendTo="body">
+                                                placeholder="Search lexical entries" appendTo="body">
                                                 <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                                                     <div>
                                                         <span>{{item.label}} </span><span style="color: blue;">@{{item.language}}</span>
