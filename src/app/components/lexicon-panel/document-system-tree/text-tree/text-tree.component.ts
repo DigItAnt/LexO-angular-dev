@@ -1200,7 +1200,7 @@ export class TextTreeComponent implements OnInit {
 
   removeMetadataItem(index){
     this.metadata_array = this.metadataForm.get('metadata_array') as FormArray;
-    let name = this.metadata_array.at(index).get('name').value;
+    let name = this.metadata_array.at(index).get('key').value;
     this.toastr.info('Metadata deleted for ' + name + ' node' , '', {
       timeOut: 5000,
     });

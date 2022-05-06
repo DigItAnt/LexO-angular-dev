@@ -432,7 +432,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
 
                   let traitDescription = '';
                   this.morphologyData.filter(x => {
-                    if (x.propertyId == trait && trait != 'partOfSpeech') {
+                    if (x.propertyId == trait  ) {
                       x.propertyValues.filter(y => {
                         if (y.valueId == value) {
                           traitDescription = y.valueDescription;
@@ -469,7 +469,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
 
                   let traitDescription = '';
                   this.morphologyData.filter(x => {
-                    if (x.propertyId == trait && trait != 'partOfSpeech') {
+                    if (x.propertyId == trait  ) {
                       x.propertyValues.filter(y => {
                         if (y.valueId == value) {
                           traitDescription = y.valueDescription;
@@ -531,7 +531,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
 
               let traitDescription = '';
               this.morphologyData.filter(x => {
-                if (x.propertyId == trait && trait != 'partOfSpeech') {
+                if (x.propertyId == trait  ) {
                   x.propertyValues.filter(y => {
                     if (y.valueId == value) {
                       traitDescription = y.valueDescription;
@@ -568,7 +568,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
 
               let traitDescription = '';
               this.morphologyData.filter(x => {
-                if (x.propertyId == trait && trait != 'partOfSpeech') {
+                if (x.propertyId == trait  ) {
                   x.propertyValues.filter(y => {
                     if (y.valueId == value) {
                       traitDescription = y.valueDescription;
@@ -621,7 +621,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
 
               let traitDescription = '';
               this.morphologyData.filter(x => {
-                if (x.propertyId == trait && trait != 'partOfSpeech') {
+                if (x.propertyId == trait  ) {
                   x.propertyValues.filter(y => {
                     if (y.valueId == value) {
                       traitDescription = y.valueDescription;
@@ -658,7 +658,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
 
               let traitDescription = '';
               this.morphologyData.filter(x => {
-                if (x.propertyId == trait && trait != 'partOfSpeech') {
+                if (x.propertyId == trait  ) {
                   x.propertyValues.filter(y => {
                     if (y.valueId == value) {
                       traitDescription = y.valueDescription;
@@ -1046,13 +1046,13 @@ export class LexicalEntryDecompFormComponent implements OnInit {
           this.toastr.info('Subterm removed correctly', 'Info', {
             timeOut: 5000
           })
-          this.lexicalService.deleteRequest({ lexicalEntryInstanceName: entity });
+          this.lexicalService.deleteRequest({ subtermInstanceName: entity, parentNode : this.object.lexicaleEntryInstanceName });
         }, error => {
           console.log(error)
           this.toastr.info('Subterm removed correctly', 'Info', {
             timeOut: 5000
           })
-          this.lexicalService.deleteRequest({ lexicalEntryInstanceName: entity });
+          this.lexicalService.deleteRequest({ subtermInstanceName: entity, parentNode : this.object.lexicaleEntryInstanceName });
         }
       )
 
@@ -1206,6 +1206,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
           this.lexicalService.updateLexCard(data)
           this.memorySubterm[index] = data;
 
+          this.subtermArray.at(index).patchValue({ entity: data.object.label, label: data['label'], language: data['language'] })
           this.subtermDisabled = false;
           //TODO: metodo per popolare dinamicamente albero
 
@@ -1222,8 +1223,9 @@ export class LexicalEntryDecompFormComponent implements OnInit {
             });
 
             this.subtermDisabled = false;
-
+            this.memorySubterm[index] = data.object;
             data['request'] = 'subterm';
+            this.subtermArray.at(index).patchValue({ entity: newValue, label: data.object.label, language: data.object.language })
             this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': data['object'] });
             this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
 
@@ -1239,7 +1241,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
 
 
     } else {
-      const oldValue = this.memorySubterm[index]['lexicalEntry']
+      const oldValue = this.memorySubterm[index]['lexicalEntryInstanceName']
       const newValue = data['name']
       const parameters = {
         type: "decomp",

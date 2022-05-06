@@ -399,8 +399,14 @@ export class LexicalEntryTreeComponent implements OnInit {
                     }
                     if (lex.request == 'sense') {
                       data['definition'] = 'no definition'
+                    }else if (lex.request == 'subterm') {
+                      data.label = data.label;
+                      data.children = null;
+                      data.hasChildren = false;
+                    }else{
+                      data['label'] = data[instanceName];
                     }
-                    data['label'] = data[instanceName];
+                    
 
                     if (lex.request == 'subterm') {
                       data.children == null;
@@ -417,7 +423,7 @@ export class LexicalEntryTreeComponent implements OnInit {
                     element.children.push(data);
                     this.lexicalEntryTree.treeModel.update();
                     this.lexicalEntryTree.treeModel.getNodeBy(y => {
-                      if (y.data.label === data['label'] && lex.request != 'subterm') {
+                      if (y.data.label === data['label']  && lex.request != 'subterm') { /* && lex.request != 'subterm' */
                         y.setActiveAndVisible();
                       }
                     })
@@ -558,7 +564,42 @@ export class LexicalEntryTreeComponent implements OnInit {
           } else {
             return false;
           }
-        } else {
+        } else if(signal.subtermInstanceName != undefined){
+          let parent = signal.parentNodeInstanceName;
+          if(x.data.lexicalEntryInstanceName == signal.parentNodeInstanceName ){
+            console.log(x)
+            let children = x.data.children;
+
+            if(children.length >= 1){
+              Array.from(children).forEach((y : any) => {
+                if(y.lexicalEntryInstanceName == signal.subtermInstanceName){
+                
+                  console.log(y, x)
+
+                  x.data.children.splice(x.data.children.indexOf(y), 1);
+
+                  let countSubterm = x.data.count;
+                  if (countSubterm != 0) {
+                    x.data.count--;
+                    countSubterm--;
+                  }
+
+                  if (this.nodes.length == 0) {
+                    this.lexicalEntriesFilter(this.parameters);
+                  }
+      
+      
+      
+                  if (countSubterm == 0) {
+                    x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1)
+                  }
+
+                  this.lexicalEntryTree.treeModel.update()
+                }
+              })
+            }
+          }
+        }else {
           return false;
         }
       })
@@ -864,7 +905,7 @@ export class LexicalEntryTreeComponent implements OnInit {
           console.log(data)
           //this.lexicalService.sendToCoreTab(data);
           //this.lexicalService.sendToEtymologyTab(data);
-          this.lexicalService.sendToDecompTab(data);
+          //this.lexicalService.sendToDecompTab(data);
           this.lexicalService.sendToRightTab(data);
           this.lexicalService.updateLexCard({ lastUpdate: data['lastUpdate'], creationDate: data['creationDate'] })
           //@ts-ignore

@@ -108,7 +108,7 @@
                                                 <option value="">Select a trait...</option>
                                                 <option *ngFor="let mt of morphologyData"
                                                     [selected]="sub.value['trait'] === mt.propertyId"
-                                                    [disabled]="memoryComponent[i].morphology.indexOf(mt.propertyId) > -1 || mt.propertyId == 'partOfSpeech'">{{mt.propertyId}}</option>
+                                                    [disabled]="memoryComponent[i].morphology.indexOf(mt.propertyId) > -1 ">{{mt.propertyId}}</option>
                                             </select>
                                             <div class="invalid-feedback" *ngIf="sub.get('trait').invalid"
                                                 style="display: block;">
