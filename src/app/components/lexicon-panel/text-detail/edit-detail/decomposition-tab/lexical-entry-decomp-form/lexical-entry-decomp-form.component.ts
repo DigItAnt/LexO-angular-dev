@@ -1331,7 +1331,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
 
 
     } else {
-      const oldValue = this.memoryComponent[index].corresponds_to['name']
+      const oldValue = this.memoryComponent[index].corresponds_to
       const newValue = data['name']
       const parameters = {
         type: "decomp",
