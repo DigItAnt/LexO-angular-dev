@@ -595,6 +595,10 @@ export class LexicalEntryTreeComponent implements OnInit {
                   }
 
                   this.lexicalEntryTree.treeModel.update()
+                  return true
+                  
+                }else{
+                  return false
                 }
               })
             }
@@ -602,6 +606,7 @@ export class LexicalEntryTreeComponent implements OnInit {
         }else {
           return false;
         }
+        return false;
       })
 
     }, 300);
