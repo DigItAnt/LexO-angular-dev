@@ -205,15 +205,19 @@ export class CoreTabComponent implements OnInit {
 
           /* console.log(isEditExpanded);
           console.log(isEpigraphyExpanded) */
-          if(!isEpigraphyExpanded){
-            this.exp_trig = 'in';
-            this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(100vh - 22rem)')
-            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(100vh - 22rem)')
-          }else{
-            this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12.5rem)');
-            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)');
-            this.exp_trig = 'in';
-          }
+
+          setTimeout(() => {
+            if(!isEpigraphyExpanded){
+              this.exp_trig = 'in';
+              this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(100vh - 22rem)')
+              this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(100vh - 22rem)')
+            }else{
+              this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12.5rem)');
+              this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)');
+              this.exp_trig = 'in';
+            }
+          }, 100);
+          
           
         }else if(trigger==null){
           return;
@@ -430,6 +434,7 @@ export class CoreTabComponent implements OnInit {
     let lexicalId = this.object.lexicalEntryInstanceName
     this.lexicalService.deleteLexicalEntry(lexicalId).subscribe(
       data=>{
+        //console.log(data)
         this.searchIconSpinner = false;
         this.lexicalService.deleteRequest(this.object);
         this.lexicalEntryData = null;
@@ -440,10 +445,17 @@ export class CoreTabComponent implements OnInit {
         this.lexicalService.sendToCoreTab(null);
         this.lexicalService.sendToRightTab(null);
         this.biblioService.sendDataToBibliographyPanel(null);
+
+        this.expand.expandCollapseEdit(false);
+        this.expand.openCollapseEdit(false)
+        if(this.expand.isEpigraphyOpen){
+          this.expand.expandCollapseEpigraphy();
+        }
         this.toastr.success(lexicalId + 'deleted correctly', '', {
           timeOut: 5000,
         });
       },error=> {
+        //console.log(error)
         this.searchIconSpinner = false;
         //this.lexicalService.deleteRequest(this.object);
         //this.lexicalService.refreshLangTable();

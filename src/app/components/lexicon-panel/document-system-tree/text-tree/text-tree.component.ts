@@ -445,6 +445,10 @@ export class TextTreeComponent implements OnInit {
                 this.documentService.sendToEpigraphyTab(null)
                 this.expander.expandCollapseEpigraphy(false);
                 this.expander.openCollapseEpigraphy(false);
+
+                if(this.expander.isEditOpen){
+                  this.expander.expandCollapseEdit(true);
+                }
       
                 this.documentService.sendToMetadataPanel(null)
                 
@@ -841,6 +845,10 @@ export class TextTreeComponent implements OnInit {
           this.expander.openCollapseEpigraphy(false);
 
           this.documentService.sendToMetadataPanel(null)
+
+          if(this.expander.isEditOpen){
+            this.expander.expandCollapseEdit();
+          }
           
           /* expandedNodes.forEach( (node: TreeNode) => {
           
