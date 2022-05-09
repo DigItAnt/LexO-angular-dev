@@ -1,6 +1,4 @@
-﻿
-
-<div class="card">
+﻿<div class="card">
     <div class="card-header" id="metadataHeading">
         <h5 class="mb-0">
             <a class="btn btn-link w-100 d-flex align-self-center collapsed" data-toggle="collapse"
@@ -11,7 +9,7 @@
     </div>
     <!-- {{object | json}} -->
     <div id="metadataCollapse" class="collapse" aria-labelledby="metadataHeading">
-        <div class="card-body" >
+        <div class="card-body">
             <ul class="nav nav-tabs" id="myTab" role="tablist" *ngIf="object != null">
                 <li class="nav-item">
                     <a class="nav-link active" id="file-tab" data-toggle="tab" href="#file" role="tab"
@@ -21,10 +19,14 @@
                     <a class="nav-link" id="text-tab" data-toggle="tab" href="#text_metadata" role="tab"
                         aria-controls="text_metadata" aria-selected="false">Epigraphy</a>
                 </li>
+                <li>
+                    <a class="nav-link" id="other-tab" data-toggle="tab" href="#other_metadata" role="tab"
+                        aria-controls="other_metadata" aria-selected="false">Other</a>
+                </li>
             </ul>
             <div class="tab-content" id="myTabContent" *ngIf="object != null">
-                <div class="tab-pane fade show active" id="file" role="tabpanel" aria-labelledby="file-tab" >
-                    <div class="card file_body" >
+                <div class="tab-pane fade show active" id="file" role="tabpanel" aria-labelledby="file-tab">
+                    <div class="card file_body">
                         <span class="text-id">FILE</span>
                         <!-- <a href="#a"><span class="edit-icon"><i class="fa fa-edit"></i></span></a>
                         <a href="#b"><span class="trash-icon"><i class="fa fa-trash"></i></span></a> -->
@@ -41,7 +43,8 @@
                                         </tr>
                                         <tr>
                                             <th scope="row">Id:</th>
-                                            <td>{{object['element-id'] != undefined ? object['element-id'] : 'no info'}}</td>
+                                            <td>{{object['element-id'] != undefined ? object['element-id'] : 'no info'}}
+                                            </td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Editor:</th>
@@ -53,55 +56,7 @@
                                         </tr>
                                     </tbody>
                                 </table>
-
-                                <!-- <div class="col-md-4 ">
-                                    <p class="card-text">Title:</p>
-                                </div>
-                                <div class="col-md-8 p-0">
-                                    <p class="card-text font-italic">{{object.fileID}}</p>
-                                </div> -->
                             </div>
-                           <!--  <div class="d-flex mt-3">
-                                <div class="col-md-6 ">
-                                    <p class="card-text">Author:</p>
-                                </div>
-                                <div class="col-md-6 p-0">
-                                    <p class="card-text">XXX</p>
-                                </div>
-                            </div> -->
-                            <!-- <div class="d-flex mt-3">
-                                <div class="col-md-6 ">
-                                    <p class="card-text">Creation date:</p>
-                                </div>
-                                <div class="col-md-6 p-0">
-                                    <p class="card-text">26/09/2021</p>
-                                </div>
-                            </div> -->
-                            <!-- <div class="d-flex mt-3">
-                                <div class="col-md-4 ">
-                                    <p class="card-text">ID:</p>
-                                </div>
-                                <div class="col-md-8 p-0">
-                                    <p class="card-text font-italic">{{object['element-id']}}</p>
-                                </div>
-                                
-                            </div> -->
-                            <!-- <div class="d-flex mt-3">
-                                <div class="col-md-4 ">
-                                    <p class="card-text">Editor:</p>
-                                </div>
-                                <div class="col-md-8 p-0">
-                                    <p class="card-text font-italic">{{object.editor}}</p>
-                                </div>
-                            </div> -->
-                            <!-- <div class="d-flex mt-3">
-                                <div class="col-md-4 ">
-                                    <p class="card-text">Path:</p>
-                                </div>
-                                <div class="col-md-8 p-0">
-                                    <p class="card-text font-italic">{{object.path}}</p>
-                                </div>
-                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -120,7 +75,9 @@
                                     <tbody>
                                         <tr>
                                             <th scope="row">Trismegistos ID</th>
-                                            <td><a target="_blank" [href]="'//'+object?.trismegistos?.trismegistosID_url"> {{object?.trismegistos?.trismegistosID}}</a></td>
+                                            <td><a target="_blank"
+                                                    [href]="'//'+object?.trismegistos?.trismegistosID_url">
+                                                    {{object?.trismegistos?.trismegistosID}}</a></td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Other IDs:</th>
@@ -135,89 +92,95 @@
                                         <tr>
                                             <th scope="row">Original Place:</th>
                                             <td>
-                                                <a *ngIf="object?.originalPlace?.ancientNameUrl != ''" target="_blank" [href]="object?.originalPlace?.ancientNameUrl"> {{object?.originalPlace?.ancientName}}</a> <span *ngIf="object?.originalPlace?.ancientNameUrl == ''">{{object?.originalPlace?.ancientName}}</span>
+                                                <a *ngIf="object?.originalPlace?.ancientNameUrl != ''" target="_blank"
+                                                    [href]="object?.originalPlace?.ancientNameUrl">
+                                                    {{object?.originalPlace?.ancientName}}</a> <span
+                                                    *ngIf="object?.originalPlace?.ancientNameUrl == ''">{{object?.originalPlace?.ancientName}}</span>
                                             </td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Settlement:</th>
                                             <td>
-                                                <a *ngIf="object?.settlement?.placeOfConservationExternalReference != ''" target="_blank" [href]="object?.settlement?.placeOfConservationExternalReference"> {{object?.settlement?.placeOfConservation}}</a> <span *ngIf="object?.settlement?.placeOfConservationExternalReference == ''">{{object?.settlement?.placeOfConservation}}</span>
+                                                <a *ngIf="object?.settlement?.placeOfConservationExternalReference != ''"
+                                                    target="_blank"
+                                                    [href]="object?.settlement?.placeOfConservationExternalReference">
+                                                    {{object?.settlement?.placeOfConservation}}</a> <span
+                                                    *ngIf="object?.settlement?.placeOfConservationExternalReference == ''">{{object?.settlement?.placeOfConservation}}</span>
                                             </td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Material:</th>
                                             <td>
-                                                <a *ngIf="object?.support?.material_conceptUrl != ''" target="_blank" [href]="object?.support?.material_conceptUrl"> {{object?.support?.material}}</a> <span *ngIf="object?.support?.material_conceptUrl == ''">{{object?.support?.material}}</span>
+                                                <a *ngIf="object?.support?.material_conceptUrl != ''" target="_blank"
+                                                    [href]="object?.support?.material_conceptUrl">
+                                                    {{object?.support?.material}}</a> <span
+                                                    *ngIf="object?.support?.material_conceptUrl == ''">{{object?.support?.material}}</span>
                                             </td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Object Type:</th>
                                             <td>
-                                                <a *ngIf="object?.support?.objectType_conceptUrl != ''" target="_blank" [href]="object?.support?.objectType_conceptUrl"> {{object?.support?.objectType}}</a> <span *ngIf="object?.support?.objectType_conceptUrl == ''">{{object?.support?.objectType}}</span>
+                                                <a *ngIf="object?.support?.objectType_conceptUrl != ''" target="_blank"
+                                                    [href]="object?.support?.objectType_conceptUrl">
+                                                    {{object?.support?.objectType}}</a> <span
+                                                    *ngIf="object?.support?.objectType_conceptUrl == ''">{{object?.support?.objectType}}</span>
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
 
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="other_metadata" role="tabpanel" aria-labelledby="other-tab">
+                    <div class="card epi_body">
+                        <!-- <span class="text-id">EPIGRAPHY</span> -->
+                        <!-- <a href="#a"><span class="edit-icon"><i class="fa fa-edit"></i></span></a>
+                        <a href="#b"><span class="trash-icon"><i class="fa fa-trash"></i></span></a> -->
+                        <div class="card-body">
                             <!-- <div class="d-flex">
-                                <div class="col-md-12 ">
-                                    <p class="card-text"> <span class="font-italic">Trismegistos ID: </span>  <a target="_blank" [href]="'//'+object.trismegistos.trismegistosID_url"> {{object.trismegistos.trismegistosID}}</a></p>
-                                </div>
+                                <span class="badge badge-primary">Form</span>
                             </div> -->
-                            <!-- <div class="d-flex mt-3" *ngIf="object.traditionalIDs.length > 0">
-                                <div class="col-md-6 ">
-                                    <p class="card-text">Other IDs:</p>
-                                </div>
-                                <div class="col-md-6 pr-0">
-                                    <p class="card-text font-italic"></p>
-                                </div>
-                            </div>
-                            <div class="d-flex mt-3">
-                                <div class="col-md-12 ">
-                                    <ul>
-                                        <li *ngFor="let other_id of object.traditionalIDs">
-                                            <a [href]="'//'+other_id.traditionalID_URL">
-                                                {{other_id.traditionalID}}
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div> -->
-                            <!-- <div class="d-flex">
-                                <div class="col-md-12 ">
-                                    <p class="card-text"> <span>Original Place: </span>  <a *ngIf="object.originalPlace.ancientNameUrl != ''" target="_blank" [href]="'//'+object.originalPlace.ancientNameUrl"> {{object.originalPlace.ancientName}}</a> <span *ngIf="object.originalPlace.ancientNameUrl == ''">{{object.originalPlace.ancientName}}</span></p>
-                                </div>
-                            </div>
-                            
-                            <div class="d-flex">
-                                <div class="col-md-12 ">
-                                    <p class="card-text"> <span>Settlement: </span>  <a *ngIf="object.settlement.placeOfConservationExternalReference != ''" target="_blank" [href]="object.settlement.placeOfConservationExternalReference"> {{object.settlement.placeOfConservation}}</a> <span *ngIf="object.settlement.placeOfConservationExternalReference == ''">{{object.settlement.placeOfConservation}}</span></p>
-                                </div>
-                            </div>
 
                             <div class="d-flex">
-                                <div class="col-md-12 ">
-                                    <p class="card-text"> <span>Material: </span>  <a *ngIf="object.support.material_conceptUrl != ''" target="_blank" [href]="object.support.material_conceptUrl"> {{object.support.material}}</a> <span *ngIf="object.support.material_conceptUrl == ''">{{object.support.material}}</span></p>
-                                </div>
+                                <table class="table table-borderless text-break" style="table-layout: fixed;">
+                                    <tbody>
+                                        <tr style="width: 100%;" *ngFor="let subprop of object | keyvalue">
+                                            <th style="width: 40%;" scope="row" *ngIf="subprop?.key != 'title' || 
+                                                                   subprop?.key != 'element-id' ||
+                                                                   subprop?.key != 'editor' ||
+                                                                   subprop?.key != 'path' ||
+                                                                   subprop?.key != 'trismegistos' ||
+                                                                   subprop?.key != 'originalPlace' ||
+                                                                   subprop?.key != 'settlement' ||
+                                                                   subprop?.key != 'support'">{{subprop?.key}}</th>
+                                            <td 
+                                                *ngIf="subprop?.value != '' && !isObject(subprop?.value) && !isArray(subprop?.value)">
+                                                {{subprop?.value}}</td>
+                                            <div *ngIf="isObject(subprop?.value)">
+                                                <table class="table table-borderless text-break"
+                                                    style="table-layout: fixed;">
+                                                    <tr style="width: 100%;" *ngFor="let object of subprop.value | keyvalue">
+                                                        <th style="width: 40%;">{{object?.key}}</th>
+                                                        <td style="width: 60%;" *ngIf="object?.value != ''">{{object?.value}}</td>
+                                                        <td style="width: 60%;" *ngIf="object?.value == ''"><span class="font-italic">No info</span></td>
+                                                    </tr>
+                                                </table>
+                                                <!--  <span  *ngFor="let object of subprop.value | keyvalue">
+                                                    {{object?.key}} - {{object?.value}} <br>
+                                                </span> -->
+                                            </div>
+                                            <div *ngIf="isArray(subprop?.value)">
+
+                                            </div>
+                                            <td  *ngIf="subprop?.value == ''"><span class="font-italic">No
+                                                    info</span></td> <!-- style="word-break: keep-all; width: 65%;" -->
+                                        </tr>
+
+                                    </tbody>
+                                </table>
                             </div>
-                            
-                            <div class="d-flex">
-                                <div class="col-md-12 ">
-                                    <p class="card-text"> <span>Object Type: </span>  <a *ngIf="object.support.objectType_conceptUrl != ''" target="_blank" [href]="object.support.objectType_conceptUrl"> {{object.support.objectType}}</a> <span *ngIf="object.support.objectType_conceptUrl == ''">{{object.support.objectType}}</span></p>
-                                </div>
-                            </div> -->
-                            <!-- <div class="d-flex mt-3">
-                                <div class="col-md-6 ">
-                                    <p class="card-text">Id no:</p>
-                                </div>
-                                <div class="col-md-6 pr-0">
-                                    <p class="card-text font-italic">Idf391</p>
-                                </div>
-                                <div class="col-md-6 pr-0">
-                                    <p class="card-text citational-tooltip pointer" data-toggle="tooltip" data-placement="bottom" data-html="true" data-trigger="click" title="Forma citazionale completa <br> <a href='#'>Link</a>">&lt;forma_citazionale_1&gt;</p>
-                                </div>
-                            </div> -->
                         </div>
                     </div>
                 </div>

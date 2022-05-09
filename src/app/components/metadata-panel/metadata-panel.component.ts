@@ -44,4 +44,9 @@ export class MetadataPanelComponent implements OnInit, OnChanges {
     }
     
   }
+
+  isArray(val): boolean { return Array.isArray(val); }
+
+  isObject(val): boolean { return typeof val === 'object' && !Array.isArray(val); }
+
 }
