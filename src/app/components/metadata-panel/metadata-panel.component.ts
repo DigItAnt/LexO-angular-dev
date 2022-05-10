@@ -47,6 +47,13 @@ export class MetadataPanelComponent implements OnInit, OnChanges {
 
   isArray(val): boolean { return Array.isArray(val); }
 
+  isNumber(val): boolean { return typeof val == 'number'; }
+
   isObject(val): boolean { return typeof val === 'object' && !Array.isArray(val); }
+
+  isLink(val) : boolean { 
+    const re = /((http|https):\/\/)(([\w.-]*)\.([\w]*))/;
+    return val.match(re); 
+  }
 
 }

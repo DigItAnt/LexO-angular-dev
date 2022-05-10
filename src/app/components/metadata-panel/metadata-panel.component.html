@@ -147,7 +147,7 @@
                                 <table class="table table-borderless text-break" style="table-layout: fixed;">
                                     <tbody>
                                         <tr style="width: 100%;" *ngFor="let subprop of object | keyvalue">
-                                            <th style="width: 40%;" scope="row" *ngIf="subprop?.key != 'title' || 
+                                            <th style="width: 30%;" scope="row" *ngIf="subprop?.key != 'title' || 
                                                                    subprop?.key != 'element-id' ||
                                                                    subprop?.key != 'editor' ||
                                                                    subprop?.key != 'path' ||
@@ -156,15 +156,21 @@
                                                                    subprop?.key != 'settlement' ||
                                                                    subprop?.key != 'support'">{{subprop?.key}}</th>
                                             <td 
-                                                *ngIf="subprop?.value != '' && !isObject(subprop?.value) && !isArray(subprop?.value)">
-                                                {{subprop?.value}}</td>
+                                                *ngIf="subprop?.value != '' && !isObject(subprop?.value) && !isArray(subprop?.value) && !isNumber(subprop?.value)">
+                                                
+                                                <a [href]="subprop?.value"  target="_blank" *ngIf="isLink(subprop?.value)">{{subprop?.value}}</a>
+                                                <span *ngIf="!isLink(subprop?.value)">{{subprop?.value}}</span>
+                                            </td>
                                             <div *ngIf="isObject(subprop?.value)">
                                                 <table class="table table-borderless text-break"
                                                     style="table-layout: fixed;">
                                                     <tr style="width: 100%;" *ngFor="let object of subprop.value | keyvalue">
-                                                        <th style="width: 40%;">{{object?.key}}</th>
-                                                        <td style="width: 60%;" *ngIf="object?.value != ''">{{object?.value}}</td>
-                                                        <td style="width: 60%;" *ngIf="object?.value == ''"><span class="font-italic">No info</span></td>
+                                                        <th style="width: 30%;">{{object?.key}}</th>
+                                                        <td style="width: 70%;" *ngIf="object?.value != ''">
+                                                            <a [href]="object?.value" target="_blank" *ngIf="isLink(object?.value)">{{object?.value}}</a>
+                                                            <span *ngIf="!isLink(object?.value)">{{object?.value}}</span>
+                                                        </td>
+                                                        <td style="width: 70%;" *ngIf="object?.value == ''"><span class="font-italic">No info</span></td>
                                                     </tr>
                                                 </table>
                                                 <!--  <span  *ngFor="let object of subprop.value | keyvalue">
@@ -172,7 +178,19 @@
                                                 </span> -->
                                             </div>
                                             <div *ngIf="isArray(subprop?.value)">
-
+                                                <table class="table table-borderless text-break" style="table-layout: fixed;">
+                                                    <div *ngFor="let array of subprop.value">
+                                                        <tr style="width: 100%;" *ngFor="let object of array | keyvalue">
+                                                            <th style="width: 30%;">{{object?.key}}</th>
+                                                            <td style="width: 70%;" *ngIf="object?.value != ''">
+                                                                <a [href]="object?.value" target="_blank" *ngIf="isLink(object?.value)">{{object?.value}}</a>
+                                                                <span *ngIf="!isLink(object?.value)">{{object?.value}}</span>
+                                                            </td>
+                                                            <td style="width: 70%;" *ngIf="object?.value == ''"><span class="font-italic">No info</span></td>
+                                                        </tr>
+                                                    </div>
+                                                    
+                                                </table>
                                             </div>
                                             <td  *ngIf="subprop?.value == ''"><span class="font-italic">No
                                                     info</span></td> <!-- style="word-break: keep-all; width: 65%;" -->
