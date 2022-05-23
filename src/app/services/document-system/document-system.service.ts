@@ -19,7 +19,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 })
 export class DocumentSystemService {
 
-  private baseUrl_document = "https://lari2.ilc.cnr.it/belexo/"
+  private baseUrl_document = "https://lari2.ilc.cnr.it/cash/"
 
   private _epigraphyData: BehaviorSubject<object> = new BehaviorSubject(null);
   private _epigraphyTextData: BehaviorSubject<string> = new BehaviorSubject(null);

@@ -18,7 +18,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class AnnotatorService {
-  private baseUrl = "https://lari2.ilc.cnr.it/belexo/api/v1/"
+  private baseUrl = "https://lari2.ilc.cnr.it/cash/api/v1/"
 
   constructor(private http: HttpClient) { }
 

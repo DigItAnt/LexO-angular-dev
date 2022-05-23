@@ -335,6 +335,7 @@ export class LexicalEntryTreeComponent implements OnInit {
                 x.data.children.filter(element => {
                   if (element.label === lex.request) {
                     if (lex.request == 'sense') {
+                      data['label'] = 'no definition'
                       data['definition'] = 'no definition'
                     } else if (lex.request == 'etymology') {
                       data['label'] = "Etymology of: " + lex.parentNodeLabel;

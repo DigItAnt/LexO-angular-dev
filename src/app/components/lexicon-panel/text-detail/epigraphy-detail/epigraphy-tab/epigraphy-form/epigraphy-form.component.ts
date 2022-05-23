@@ -796,26 +796,29 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
   enterCell(evt, i) {
     //console.log("enter cell " + i);
-    /* console.log(evt); */
-    let parentNode = evt.target.parentElement
-    if (parentNode != undefined) {
-      let classNames = parentNode.className;
-      let matchTest = /(^|\s)(multiword-span-\d)(\s|$)/.test(classNames)
-      if (matchTest) {
-        //TODO: highlight su div che contiene multiword
-        console.log("muli")
-      } else {
-        this.object[i]['selected'] = true;
-        
-        if (window.getSelection) {
-          if (window.getSelection().empty) {  // Chrome
-            window.getSelection().empty();
-          } else if (window.getSelection().removeAllRanges) {  // Firefox
-            window.getSelection().removeAllRanges();
+    //console.log(evt);
+    if(evt.target.innerText != '.' && evt.target.innerText != ':' && evt.target.innerText != ''){
+      let parentNode = evt.target.parentElement
+      if (parentNode != undefined) {
+        let classNames = parentNode.className;
+        let matchTest = /(^|\s)(multiword-span-\d)(\s|$)/.test(classNames)
+        if (matchTest) {
+          //TODO: highlight su div che contiene multiword
+          
+        } else {
+          this.object[i]['selected'] = true;
+          
+          if (window.getSelection) {
+            if (window.getSelection().empty) {  // Chrome
+              window.getSelection().empty();
+            } else if (window.getSelection().removeAllRanges) {  // Firefox
+              window.getSelection().removeAllRanges();
+            }
           }
         }
       }
     }
+    
 
 
 
@@ -855,7 +858,10 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
   triggerBind(popover, evt, i) {
     if (!this.multiWordMode) {
-      this.bind_subject.next({ popover, evt, i })
+      if(evt.target.innerText != '.' && evt.target.innerText != ':' && evt.target.innerText != ''){
+        this.bind_subject.next({ popover, evt, i })
+      }
+      
     } else {
       //console.log("multiword mode", i)
       console.log(popover);

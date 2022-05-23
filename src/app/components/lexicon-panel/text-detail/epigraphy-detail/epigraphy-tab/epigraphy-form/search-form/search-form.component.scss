@@ -1,11 +1,14 @@
-.btn {
-    border-radius: 0.25rem !important;
-    padding: 0 0.75rem !important;
-    font-size: 12px;
-
+.searchSelect{
+    .btn {
+        border-radius: 0.25rem !important;
+        padding: 0 0.75rem !important;
+        font-size: 12px;
+    
+    }
+    
+    .form-control {
+        font-size: 12px;
+        height: 2rem;
+    }
 }
 
-.form-control {
-    font-size: 12px;
-    height: 2rem;
-}
