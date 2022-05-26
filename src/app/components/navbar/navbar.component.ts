@@ -11,6 +11,9 @@ You should have received a copy of the GNU General Public License along with Epi
 */
 
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { KeycloakService } from 'keycloak-angular';
+import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -18,10 +21,28 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent implements OnInit {
+ 
+  username : string;
+  userRoles;
 
-  constructor() { }
+  constructor(private route: ActivatedRoute, private router: Router, private keycloakService: KeycloakService, private auth : AuthService) { }
 
   ngOnInit(): void {
+    if(this.auth.getLoggedUser()['preferred_username'] != undefined){
+      this.username = this.auth.getLoggedUser()['preferred_username'];
+    }
+    
+    this.userRoles = this.auth.getUserRoles();
+  }
+
+  logout(){
+    this.auth.logout();
+  }
+
+
+  isAdmin = () => {
+    let admin = (element) => element == 'ADMIN';
+    console.log(this.userRoles.some(admin))
   }
 
 }

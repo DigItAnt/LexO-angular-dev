@@ -25,4 +25,8 @@ nav {
     font-size: 14px;
 }
 
+.pointer {
+    cursor: pointer;
+}
+
 //TODO: per le immagini multiple ricordare che il parent deve avere position:relative; e le img devono avere position absolute e le positioni left equamente suddivise in base al numero di utenti connessi
