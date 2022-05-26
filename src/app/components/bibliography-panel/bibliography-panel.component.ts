@@ -30,7 +30,7 @@ export class BibliographyPanelComponent implements OnInit {
   bibliographyData : any[];
   object : any;
   countElement = 0;
-  loadingSynchro = false;
+  loadingSynchro = [];
   bibliographyForm = new FormGroup({
     bibliography: new FormArray([this.createBibliography()]),
   })
@@ -130,7 +130,7 @@ export class BibliographyPanelComponent implements OnInit {
             data.forEach(element => {
               this.bibliographyData.push(element);
 
-              this.addBibliographyElement(element.title, element.author, element.date, element.note, element.textualReference)
+              this.addBibliographyElement(element.id, element.title, element.author, element.date, element.note, element.textualReference)
               this.memoryNote[count] = element.note;
               this.memoryTextualRef[count] = element.textualReference
               count++;
@@ -157,7 +157,7 @@ export class BibliographyPanelComponent implements OnInit {
             data.forEach(element => {
               this.bibliographyData.push(element);
 
-              this.addBibliographyElement(element.title, element.author, element.date, element.note, element.textualReference)
+              this.addBibliographyElement(element.id, element.title, element.author, element.date, element.note, element.textualReference)
               this.memoryNote[count] = element.note;
               this.memoryTextualRef[count] = element.textualReference
               count++;
@@ -183,7 +183,7 @@ export class BibliographyPanelComponent implements OnInit {
             data.forEach(element => {
               this.bibliographyData.push(element);
 
-              this.addBibliographyElement(element.title, element.author, element.date, element.note, element.textualReference)
+              this.addBibliographyElement(element.id, element.title, element.author, element.date, element.note, element.textualReference)
               this.memoryNote[count] = element.note;
               this.memoryTextualRef[count] = element.textualReference
               count++;
@@ -364,9 +364,9 @@ export class BibliographyPanelComponent implements OnInit {
     }
   }
 
-  synchronizeBibliography(id){
+  synchronizeBibliography(id, i){
     console.log(id)
-    this.loadingSynchro = true;
+    this.loadingSynchro[i] = true;
     let lexId = '';
     if(this.object.lexicalEntryInstanceName != undefined
       && this.object.senseInstanceName == undefined){
@@ -385,14 +385,14 @@ export class BibliographyPanelComponent implements OnInit {
     this.lexicalService.synchronizeBibliographyItem(lexId, id).pipe(debounceTime(500)).subscribe(
       data => {
         console.log(data);
-        this.loadingSynchro = false;
+        this.loadingSynchro[i] = false;
       },error=>{
         console.log(error);
         if(error.status == 200){
           this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
           this.toastr.success('Item n°'+id+' synchronized', '')
         }
-        this.loadingSynchro = false;
+        this.loadingSynchro[i] = false;
       }
     );  
   }
