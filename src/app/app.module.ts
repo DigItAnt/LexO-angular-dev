@@ -11,15 +11,17 @@ You should have received a copy of the GNU General Public License along with Epi
 */
 
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { TreeModule } from '@circlon/angular-tree-component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { DataTablesModule } from 'angular-datatables';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { AngularEditorModule } from '@kolkov/angular-editor'
 import { NgSelectModule } from '@ng-select/ng-select';
 import { ContextMenuModule } from 'ngx-contextmenu';
 import { ToastrModule } from 'ngx-toastr';
+import { initializer } from '../app/services/initializer/app-init';
+import { KeycloakService, KeycloakAngularModule } from 'keycloak-angular';
+
 
 
 
@@ -71,6 +73,8 @@ import { MetadataPanelComponent } from './components/metadata-panel/metadata-pan
 import { EpigraphyFormComponent } from './components/lexicon-panel/text-detail/epigraphy-detail/epigraphy-tab/epigraphy-form/epigraphy-form.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SearchFormComponent } from './components/lexicon-panel/text-detail/epigraphy-detail/epigraphy-tab/epigraphy-form/search-form/search-form.component';
+import { AuthService } from './services/auth/auth.service';;
+import { UnauthorizedPageComponent } from './views/unauthorized-page/unauthorized-page/unauthorized-page.component'
 
 
 @NgModule({
@@ -118,25 +122,34 @@ import { SearchFormComponent } from './components/lexicon-panel/text-detail/epig
     MetadataPanelComponent,
     EpigraphyFormComponent,
     SearchFormComponent
-  ],
+,
+    UnauthorizedPageComponent  ],
   imports: [
     ContextMenuModule.forRoot({useBootstrap4: true}),
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
     TreeModule,
-    DataTablesModule,
     InfiniteScrollModule,
     HttpClientModule,
     AngularEditorModule,
     NgSelectModule,
     ModalModule,
     FormsModule,
+    KeycloakAngularModule,
     ReactiveFormsModule,
     ToastrModule.forRoot(),
     NgbModule
   ],
-  providers: [],
+  providers: [
+    { 
+      provide: APP_INITIALIZER, 
+      useFactory: initializer, 
+      deps: [ KeycloakService ], 
+      multi: true
+    },
+    AuthService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
