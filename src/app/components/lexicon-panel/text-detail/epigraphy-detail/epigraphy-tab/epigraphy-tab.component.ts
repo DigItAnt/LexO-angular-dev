@@ -11,8 +11,9 @@ You should have received a copy of the GNU General Public License along with Epi
 */
 
 import { trigger, state, style, transition, animate } from '@angular/animations';
-import { Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
 import * as Recogito from '@recogito/recogito-js';
+import { Subscription } from 'rxjs';
 import { DocumentSystemService } from 'src/app/services/document-system/document-system.service';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
 
@@ -36,19 +37,21 @@ import { ExpanderService } from 'src/app/services/expander/expander.service';
   ]
 })
 
-export class EpigraphyTabComponent implements OnInit {
+export class EpigraphyTabComponent implements OnInit, OnDestroy {
   exp_trig = '';
   name: any;
   revisor:any;
   object : any;
   epigraphyData: any;
+
+  subscription: Subscription;
   @ViewChild('expanderEpigraphy') expander_body: ElementRef;
 
   constructor(private documentService: DocumentSystemService, private expand : ExpanderService, private rend: Renderer2) { }
 
   ngOnInit(): void {
 
-    this.documentService.epigraphyData$.subscribe(
+    this.subscription = this.documentService.epigraphyData$.subscribe(
       object => {
         if(this.object != object){
           this.epigraphyData = null; 
@@ -87,7 +90,8 @@ export class EpigraphyTabComponent implements OnInit {
           this.epigraphyData = null;
         }
         
-      }
+      },error => {},
+     
     );
     
     /* console.log('My Content: ' + document.getElementById('pippo'));
@@ -170,20 +174,25 @@ export class EpigraphyTabComponent implements OnInit {
 
     this.expand.expEdit$.subscribe(
       trigger => {
-        if(trigger){
-          this.exp_trig = 'in';
-          this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 15rem)')
-          this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 15rem)')
-        }else if(trigger==null){
-          return;
-        }else{
-          this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 15rem)');
-          this.exp_trig = 'out';
-        }
+        setTimeout(() => {
+          if(trigger){
+            this.exp_trig = 'in';
+            this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 15rem)')
+            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 15rem)')
+          }else if(trigger==null){
+            return;
+          }else{
+            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 15rem)');
+            this.exp_trig = 'out';
+          }
+        }, 100);
+        
       }
     );
   }
 
-  
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
 
 }

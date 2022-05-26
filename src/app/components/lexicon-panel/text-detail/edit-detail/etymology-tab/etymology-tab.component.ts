@@ -131,27 +131,30 @@ export class EtymologyTabComponent implements OnInit {
 
     this.expand.expEdit$.subscribe(
       trigger => {
-        if(trigger){
-          let isEditExpanded = this.expand.isEditTabExpanded();
-          let isEpigraphyExpanded = this.expand.isEpigraphyTabExpanded();
-
-          if(!isEpigraphyExpanded){
-            this.exp_trig = 'in';
-            this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(100vh - 22rem)')
-            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(100vh - 22rem)')
+        setTimeout(() => {
+          if(trigger){
+            let isEditExpanded = this.expand.isEditTabExpanded();
+            let isEpigraphyExpanded = this.expand.isEpigraphyTabExpanded();
+  
+            if(!isEpigraphyExpanded){
+              this.exp_trig = 'in';
+              this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(100vh - 22rem)')
+              this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(100vh - 22rem)')
+            }else{
+              this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12.5rem)');
+              this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)');
+              this.exp_trig = 'in';
+            }
+            
+          }else if(trigger==null){
+            return;
           }else{
             this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12.5rem)');
             this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)');
-            this.exp_trig = 'in';
+            this.exp_trig = 'out';
           }
-          
-        }else if(trigger==null){
-          return;
-        }else{
-          this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12.5rem)');
-          this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)');
-          this.exp_trig = 'out';
-        }
+        }, 100);
+        
       }
     );
 

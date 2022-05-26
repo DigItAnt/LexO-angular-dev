@@ -127,7 +127,7 @@ export class SearchFormComponent implements OnInit {
 
     this.lexicalService.getLexEntryTypes().subscribe(
       data => {
-        console.log(data)
+        //console.log(data)
         this.lexEntryTypesData = data;
 
       }
@@ -217,7 +217,7 @@ export class SearchFormComponent implements OnInit {
       limit: 500
     }
     console.log(parameters)
-    if (data != "") { /* && data.length >= 3 */
+    if (data != undefined) { /* && data.length >= 3 */
 
       this.lexicalService.getFormList(parameters).subscribe(
         data => {
@@ -225,7 +225,8 @@ export class SearchFormComponent implements OnInit {
           this.searchResults = data['list'];
           this.loader = false;
         }, error => {
-          //console.log(error)
+          console.log(error)
+          this.loader = false;
         }
       )
     }
@@ -343,7 +344,7 @@ export class SearchFormComponent implements OnInit {
         }
       ];
       parameters["id"] = tokenData.node;
-    } else if (textSelection == '' && !Array.isArray(selectionSpan)) {
+    } else if (textSelection == '' && !Array.isArray(selectionSpan) && !this.bind.isEmptyFile) {
       //console.log(222)
       parameters["value"] = formValue;
       parameters["layer"] = "attestation";

@@ -360,7 +360,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
   }
 
   constructor(private router : Router, private annotatorService: AnnotatorService, private expander: ExpanderService, private renderer: Renderer2, private documentService: DocumentSystemService, private formBuilder: FormBuilder, private toastr: ToastrService, private lexicalService: LexicalEntriesService, private config: NgbPopoverConfig) { 
-    this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe((val) => {
+    /* this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe((val) => {
       setTimeout(() => {
         this.lexicalService.sendToCoreTab(null);
         this.documentService.sendToEpigraphyTab(null)
@@ -371,7 +371,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
         this.expander.expandCollapseEdit(false)
       }, 1000);
       
-    })
+    }) */
   }
 
 
@@ -480,13 +480,15 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
         
         this.object = changes.epiData.currentValue['tokens'];
         let element_id = changes.epiData.currentValue['element_id']
-        /* console.log(this.object) */
+        console.log(this.object)
         if (this.object != null) {
 
           if(this.object.length == 0){
             this.isEmptyFile = true;
+            console.log("FILE VUOTO")
           }else{
             this.isEmptyFile = false;
+            console.log("FILE NON VUOTO")
           }
   
           //TODO: popolare array form con tokens
@@ -1386,6 +1388,10 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
       }
     }, 10);
 
+  }
+
+  triggerEmptySearch(){
+    this.annotatorService.triggerSearch('');
   }
 
   deleteAnnotation(annotation, index, token){

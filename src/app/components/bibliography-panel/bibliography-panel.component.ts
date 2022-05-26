@@ -93,7 +93,7 @@ export class BibliographyPanelComponent implements OnInit {
         this.lexicalService.getBibliographyData(lexId).subscribe(
           data=>{
             console.log(data);
-            if(data!= []){
+            if(data != []){
               let count = 0;
               data.forEach(element => {
                 this.bibliographyData.push(element);
@@ -105,8 +105,8 @@ export class BibliographyPanelComponent implements OnInit {
                 this.countElement++;
               });
               
-              this.bibliographyData['parentNodeLabel']= this.object['lexicalEntry'];
-              this.bibliographyData['lexicalEntryInstanceName']= this.object['lexicalEntryInstanceName'];
+              /* this.bibliographyData['parentNodeLabel']= this.object['lexicalEntry'];
+              this.bibliographyData['lexicalEntryInstanceName']= this.object['lexicalEntryInstanceName']; */
             }
             
             

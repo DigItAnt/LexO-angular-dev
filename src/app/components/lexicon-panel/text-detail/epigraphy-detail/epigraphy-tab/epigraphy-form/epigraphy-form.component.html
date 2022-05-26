@@ -12,7 +12,7 @@
     <h5 class="mr-2">Add attestation</h5>
 
     <button #button_modal="ngbPopover" type="button" class="btn btn-outline-secondary token mb-2"  container="body"  popoverTitle="Pop title" 
-    [autoClose]="'outside'" [ngbPopover]="tokenPopover" [placement]="'bottom'"  popoverClass="token_modal">
+    [autoClose]="'outside'" [ngbPopover]="tokenPopover" [placement]="'bottom'"  popoverClass="token_modal" (click)="triggerEmptySearch()">
     <i class="fa fa-plus"></i>
     </button>
 

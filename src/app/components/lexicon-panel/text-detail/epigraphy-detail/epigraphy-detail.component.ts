@@ -10,7 +10,8 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { DocumentSystemService } from 'src/app/services/document-system/document-system.service';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
 
@@ -19,12 +20,13 @@ import { ExpanderService } from 'src/app/services/expander/expander.service';
   templateUrl: './epigraphy-detail.component.html',
   styleUrls: ['./epigraphy-detail.component.scss']
 })
-export class EpigraphyDetailComponent implements OnInit {
+export class EpigraphyDetailComponent implements OnInit, OnDestroy {
 
   @ViewChild('navTabsEpigraphy') navtabs: ElementRef; 
   @ViewChild('navContentEpigraphy') navcontent: ElementRef; 
 
   object : any;
+  subscription : Subscription;
   constructor(private documentService: DocumentSystemService, private exp : ExpanderService) { }
 
   ngOnInit(): void {
@@ -51,7 +53,7 @@ export class EpigraphyDetailComponent implements OnInit {
       }
     )
 
-    this.documentService.epigraphyData$.subscribe(
+    this.subscription = this.documentService.epigraphyData$.subscribe(
       object => {
        /*  console.log(object) */
         if(object != null){
@@ -138,5 +140,9 @@ export class EpigraphyDetailComponent implements OnInit {
         
       }
     }, 200);
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 }
