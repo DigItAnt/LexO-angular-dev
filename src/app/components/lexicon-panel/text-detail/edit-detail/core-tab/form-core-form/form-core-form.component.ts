@@ -815,7 +815,8 @@ export class FormCoreFormComponent implements OnInit {
 
     this.staticMorpho.splice(index, 1);
     this.morphoTraits.removeAt(index);
-    this.memoryTraits.splice(index, 1)
+    this.memoryTraits.splice(index, 1);
+    this.valueTraits.splice(index, 1)
   }
 
   removeLabel(index) {
