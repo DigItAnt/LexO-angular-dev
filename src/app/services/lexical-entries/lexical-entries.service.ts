@@ -14,6 +14,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
+import { AuthService } from '../auth/auth.service';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -39,7 +41,7 @@ export class LexicalEntriesService {
 
   private baseUrl = "/LexO-backend-itant/service/"
   private key = "PRINitant19";
-  private author = "michele";
+  private author = "";
 
   coreData$ = this._coreFormData.asObservable();
   decompData$ = this._decompData.asObservable();
@@ -59,7 +61,7 @@ export class LexicalEntriesService {
   triggerAttestationPanel$ = this._triggerAttestationPanel.asObservable();
   changeDecompLabel$ = this._changeDecompLabel.asObservable();
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private auth: AuthService) { }
 
   sendToCoreTab(object: object) {
     this._coreFormData.next(object)
@@ -215,6 +217,7 @@ export class LexicalEntriesService {
 
   //GET /lexicon/creation/lexicalEntry --> create new lexical entry
   newLexicalEntry(): Observable<any> {
+    this.author = this.auth.getUsername();
     return this.http.get(this.baseUrl + "lexicon/creation/lexicalEntry?key=" + this.key + "&author=" + this.author);
   }
 
@@ -246,27 +249,32 @@ export class LexicalEntriesService {
 
   //POST ​/lexicon​/update​/{id}​/lexicalEntry --> lexical entry update
   updateLexicalEntry(lexId, parameters): Observable<any> {
+    this.author = this.auth.getUsername();
     return this.http.post(this.baseUrl + "lexicon/update/" + lexId + "/lexicalEntry?key=" + this.key + "&user=" + this.author, parameters);
   }
 
 
   //POST ​/lexicon​/update​/{id}​/linguisticRelation --> linguistic Relation update for Core
   updateLinguisticRelation(lexId, parameters): Observable<any> {
+    this.author = this.auth.getUsername();
     return this.http.post(this.baseUrl + "lexicon/update/" + lexId + "/linguisticRelation?key=" + this.key + "&user=" + this.author, parameters);
   }
 
   //POST ​/lexicon​/update​/{id}​/genericRelation --> Generic relation update
   updateGenericRelation(lexId, parameters) : Observable<any> {
+    this.author = this.auth.getUsername();
     return this.http.post(this.baseUrl + "lexicon/update/" + lexId + "/genericRelation?key=" + this.key + "&user=" + this.author, parameters);
   }
 
   //POST /lexicon/update/{id}/form --> update form values
   updateForm(formId, parameters): Observable<any> {
+    this.author = this.auth.getUsername();
     return this.http.post(this.baseUrl + "lexicon/update/" + formId + "/form?key=" + this.key + "&user=" + this.author, parameters);
   }
 
   //POST /lexicon/update/{id}/lexicalSense --> update form values
   updateSense(senseId, parameters): Observable<any> {
+    this.author = this.auth.getUsername();
     return this.http.post(this.baseUrl + "lexicon/update/" + senseId + "/lexicalSense?key=" + this.key + "&user=" + this.author, parameters);
   }
 
@@ -288,21 +296,25 @@ export class LexicalEntriesService {
 
   //GET /lexicon/creation/form --> create new form
   createNewForm(lexId): Observable<any> {
+    this.author = this.auth.getUsername();
     return this.http.get(this.baseUrl + "lexicon/creation/form?lexicalEntryID="+ lexId +"&key=" + this.key + "&author=" + this.author);
   }
 
   //GET /lexicon/creation/lexicalSense --> create new sense
   createNewSense(lexId): Observable<any> {
+    this.author = this.auth.getUsername();
     return this.http.get(this.baseUrl + "lexicon/creation/lexicalSense?lexicalEntryID="+ lexId +"&key=" + this.key + "&author=" + this.author);
   }
 
   //GET /lexicon/creation/language --> create new language
   createNewLanguage(langId): Observable<any> {
+    this.author = this.auth.getUsername();
     return this.http.get(this.baseUrl + "lexicon/creation/language?key=" + this.key + "&lang="+ langId +"&author=" + this.author);
   }
 
   //POST /lexicon/update/{id}/language --> update language
   updateLanguage(langId, parameters): Observable<any> {
+    this.author = this.auth.getUsername();
     return this.http.post(this.baseUrl + "lexicon/update/" + langId + "/language?key=" + this.key + "&author=" + this.author, parameters);
   }
   
@@ -313,6 +325,7 @@ export class LexicalEntriesService {
   }
 
   addBibliographyData(instance : string, parameters){
+    this.author = this.auth.getUsername();
     return this.http.post(this.baseUrl + "lexicon/creation/bibliography?lexicalEntityID=" + instance + "&key="+ this.key +"&author="+this.author+"", parameters);
   }
 
@@ -327,6 +340,7 @@ export class LexicalEntriesService {
 
   //ETYMOLOGY
   createNewEtymology(instance: string) : Observable<any>{
+    this.author = this.auth.getUsername();
     return this.http.get(this.baseUrl + "lexicon/creation/etymology?lexicalEntryID="+instance+"&key="+this.key+"&author="+this.author+"");
   }
 
@@ -339,6 +353,7 @@ export class LexicalEntriesService {
   }
 
   updateEtymology(etymId, parameters): Observable<any> {
+    this.author = this.auth.getUsername();
     return this.http.post(this.baseUrl + "lexicon/update/" + etymId + "/etymology?key=" + this.key + "&author=" + this.author, parameters);
   }
 
@@ -347,14 +362,17 @@ export class LexicalEntriesService {
   }
 
   deleteEtymology(etymInstance : string) : Observable<any>{
+    this.author = this.auth.getUsername();
     return this.http.get(this.baseUrl + "lexicon/delete/"+etymInstance+"/etymology?key="+this.key+"&author="+this.author+"");
   }
 
   updateEtylink(etymId, parameters): Observable<any> {
+    this.author = this.auth.getUsername();
     return this.http.post(this.baseUrl + "lexicon/update/" + etymId + "/etymologicalLink?key=" + this.key + "&author=" + this.author, parameters);
   }
 
   deleteEtylink(etyLinkInstance: string) : Observable<any>{
+    this.author = this.auth.getUsername();
     return this.http.get(this.baseUrl + "lexicon/delete/"+etyLinkInstance+"/etymologicalLink?key="+this.key+"&author="+this.author+"");
   }
 
@@ -368,6 +386,7 @@ export class LexicalEntriesService {
   }
 
   createComponent(lexicalEntityID : string) : Observable<any>{
+    this.author = this.auth.getUsername();
     return this.http.get(this.baseUrl + "lexicon/creation/component?id="+lexicalEntityID+"&key="+this.key+"&author="+this.author+"");
   }
 
