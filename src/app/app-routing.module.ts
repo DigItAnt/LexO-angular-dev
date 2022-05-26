@@ -12,6 +12,7 @@ You should have received a copy of the GNU General Public License along with Epi
 
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { AuthGuard } from './services/guard/auth.guard';
 import { HomePageComponent } from './views/home-page/home-page.component';
 import { LexiconPageComponent } from './views/lexicon-page/lexicon-page.component';
 import { LoginPageComponent } from './views/login-page/login-page.component';
@@ -20,11 +21,11 @@ import { ProfilePageComponent } from './views/profile-page/profile-page.componen
 import { SearchPageComponent } from './views/search-page/search-page.component';
 
 const routes: Routes = [
-  {path: '', redirectTo: 'home', pathMatch: 'full'},
-  {path: 'home', component: HomePageComponent},
-  {path: 'login', component: LoginPageComponent},
-  {path: 'lexicon', component: LexiconPageComponent},
-  {path: 'user', component: ProfilePageComponent},
+  {path: '', redirectTo: 'lexicon', pathMatch: 'full'},
+  /* {path: 'home', component: HomePageComponent}, */
+  /* {path: 'login', component: LoginPageComponent}, */
+  {path: 'lexicon', component: LexiconPageComponent, canActivate: [AuthGuard], data: {roles: ['USER']}},
+  {path: 'user', component: ProfilePageComponent, canActivate: [AuthGuard], data: {roles: ['ADMIN']}},
   {path: 'search', component: SearchPageComponent},
   {path: '**', component: PageNotFoundComponent}
 ];

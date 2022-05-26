@@ -15,7 +15,18 @@ You should have received a copy of the GNU General Public License along with Epi
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  keycloak: {
+    // Url of the Identity Provider
+    issuer: 'https://lari2.ilc.cnr.it/auth/',
+
+    // Realm
+    realm: 'princnr',
+
+    // The SPA's id. 
+    // The SPA is registerd with this id at the auth-serverß
+    clientId: 'princlient',
+  }
 };
 
 /*
