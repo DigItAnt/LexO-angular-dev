@@ -10,5 +10,11 @@
         "secure": false,
         "changeOrigin": true,
         "logLevel": "debug"
+    },
+    "/auth/*": {
+        "target": "https://lari2.ilc.cnr.it",
+        "secure": false,
+        "changeOrigin": true,
+        "logLevel": "debug"
     }
 }
