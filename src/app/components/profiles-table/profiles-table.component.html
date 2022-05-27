@@ -1,27 +1,111 @@
-﻿<!-- 
+﻿<div class="row h-100">
 
-<div class="table-responsive">
-  <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="row-border hover">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>First name</th>
-        <th>Last name</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let user of users">
-        <td>{{ user['user-id']}}</td>
-        <td>{{ user['first-name']}}</td>
-        <td>{{ user['last-name']}}</td>
-      </tr>
-    </tbody>
-    <tfoot>
-      <tr>
-        <th><input type="text" placeholder="Search ID" name="search-id"/></th>
-        <th><input type="text" placeholder="Search first name" name="search-first-name"/></th>
-        <th><input type="text" placeholder="Search last name" name="search-last-name"/></th>
-      </tr>
-    </tfoot>
-  </table>
-</div> -->
+  <!-- USER LIST -->
+  <div class="col-lg-4 pb-3">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between">
+        <div class="d-flex align-items-center">
+          Users
+        </div>
+        <button type="button" class="btn btn-primary btn-sm" href="#user-detail"
+            role="tab" aria-controls="home"><i class="fas fa-plus-square"></i> Create</button>
+
+      </div>
+      <div class="card-body">
+
+        <!-- SEARCH BAR -->
+        <div class="input-group">
+          <span class="input-group-prepend">
+            <div class="input-group-text bg-transparent border-right-0"><i class="fa fa-search"></i></div>
+          </span>
+          <input class="form-control py-2 border-left-0 border" type="search" id="example-search-input">
+        </div>
+
+
+        <!-- USER-LIST -->
+        <div class="list-group mt-2" id="list-tab" role="tablist">
+          <a class="list-group-item list-group-item-action" id="users-list" data-toggle="list" href="#user-detail"
+            role="tab" aria-controls="home">Home</a>
+            <a class="list-group-item list-group-item-action" id="users-list" data-toggle="list" href="#user-detail"
+            role="tab" aria-controls="home">Home</a>
+        </div>
+
+      </div>
+      <div class="card-footer text-muted">
+        2 days ago
+      </div>
+    </div>
+  </div>
+
+  <!-- USER DETAILS -->
+
+
+  <div class="col-lg-8 pb-3">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between">
+        <div class="d-flex align-items-center">
+          User details
+        </div>
+
+      </div>
+      <div class="card-body">
+
+        <div class="tab-content" id="nav-tabContent">
+          <div class="tab-pane fade" id="user-detail" role="tabpanel" aria-labelledby="users-list">
+
+            <form action="">
+              <div class="form-group row ml-2 mt-3 mr-2">
+                <label for="inputLabel" class="col-lg-3 col-form-label">Username:</label>
+                <div class="input-group col-lg-9">
+                  <input id="username" type="text" class="form-control" placeholder="" required>
+                  <!-- <div class="invalid-feedback" style="display: block;">
+                        Please, insert at least three characters.
+                    </div> -->
+                </div>
+              </div>
+
+              <div class="form-group row ml-2 mt-3 mr-2">
+                <label for="inputLabel" class="col-lg-3 col-form-label">Password:</label>
+                <div class="input-group col-lg-9">
+                  <input id="password" type="password" class="form-control" placeholder="" required>
+                  <!-- <div class="invalid-feedback" style="display: block;">
+                        Please, insert at least three characters.
+                    </div> -->
+                </div>
+              </div>
+
+              <div class="form-group row ml-2 mt-3 mr-2">
+                <label for="inputLabel" class="col-lg-3 col-form-label">Repeat password:</label>
+                <div class="input-group col-lg-9">
+                  <input id="repeat_password" type="password" class="form-control" placeholder="" required>
+                  <!-- <div class="invalid-feedback" style="display: block;">
+                        Please, insert at least three characters.
+                    </div> -->
+                </div>
+              </div>
+
+              <div class="form-group row ml-2 mt-3 mr-2">
+                <label for="inputLabel" class="col-lg-3 col-form-label">Roles:</label>
+                <div class="input-group col-lg-9">
+                  <ng-select [items]="companies"
+                            [hideSelected]="true"
+                            multiple="true"
+                            bindLabel="name"
+                            [(ngModel)]="selectedCompanies" [ngModelOptions]="{standalone: true}">
+                  </ng-select>
+                </div>
+              </div>
+            </form>
+            
+          </div>
+        </div>
+
+      </div>
+      <div class="card-footer text-muted d-flex justify-content-end">
+        <button type="button" class="btn btn-primary mr-2"><i class="fas fa-save"></i> Create</button>
+        <button type="button" class="btn btn-secondary"><i class="fas fa-times"></i> Cancel</button>
+      </div>
+    </div>
+  </div>
+
+</div>

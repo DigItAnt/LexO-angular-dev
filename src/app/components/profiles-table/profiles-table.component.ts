@@ -19,21 +19,26 @@ import { Subject } from 'rxjs';
   templateUrl: './profiles-table.component.html',
   styleUrls: ['./profiles-table.component.scss']
 })
-export class ProfilesTableComponent implements OnInit, AfterViewInit {
+export class ProfilesTableComponent implements OnInit {
 
   message = '';
+
+  selectedCompanies;
+  companies: any[] = [];
+  companiesNames = ['ADMIN', 'USER', 'REVIEWER'];
 
 
   constructor(private httpClient: HttpClient) { }
 
  
   ngOnInit(): void {
+    this.companiesNames.forEach((c, i) => {
+      this.companies.push({ id: i, name: c });
+    });
     
   }
 
-  ngAfterViewInit(): void {
-    
-   
-    
+  addTagFn(name) {
+    return { name: name, tag: true };
   }
 }
