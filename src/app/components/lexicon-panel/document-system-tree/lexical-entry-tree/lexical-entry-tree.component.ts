@@ -660,6 +660,7 @@ export class LexicalEntryTreeComponent implements OnInit {
 
   resetFields() {
     this.initialValues.text = '';
+    this.offset = 0;
     this.filterForm.reset(this.initialValues, { emitEvent: false });
     setTimeout(() => {
       //this.filterForm.get('text').setValue('', {eventEmit : false});
