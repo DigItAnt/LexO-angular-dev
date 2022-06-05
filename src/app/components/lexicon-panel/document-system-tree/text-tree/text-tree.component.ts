@@ -103,7 +103,7 @@ export class TextTreeComponent implements OnInit {
   }
   
   show = false;
-  nodes : any;
+  nodes = [];
 
   renameNodeSelected : any;
   validName = null;
@@ -282,8 +282,10 @@ export class TextTreeComponent implements OnInit {
   loadTree(){
     this.documentService.getDocumentSystem().subscribe(
       data => {
-        console.log(data)
+        console.log(data);
+
         if(data['documentSystem'].length != 0){
+          console.log("CIAO")
           this.nodes = data['documentSystem'];
           setTimeout(() => {
             this.treeText.treeModel.getNodeBy(
