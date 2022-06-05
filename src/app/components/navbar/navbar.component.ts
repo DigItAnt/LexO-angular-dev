@@ -12,7 +12,7 @@ You should have received a copy of the GNU General Public License along with Epi
 
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { KeycloakService } from 'keycloak-angular';
+import { KeycloakEventType, KeycloakService } from 'keycloak-angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
@@ -32,7 +32,16 @@ export class NavbarComponent implements OnInit {
       this.username = this.auth.getLoggedUser()['preferred_username'];
     }
     
-    this.userRoles = this.auth.getUserRoles();
+    this.userRoles = this.auth.getCurrentUserRole();
+
+    this.keycloakService.keycloakEvents$.subscribe({
+      next: (e) => {
+        // console.log(e)
+        if (e.type == KeycloakEventType.OnTokenExpired) {
+          this.keycloakService.updateToken(20);
+        }
+      }
+    });
   }
 
   logout(){
