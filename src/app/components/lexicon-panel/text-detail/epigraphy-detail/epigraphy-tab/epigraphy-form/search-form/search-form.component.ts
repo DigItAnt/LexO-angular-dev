@@ -19,6 +19,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { AnnotatorService } from 'src/app/services/annotator/annotator.service';
+import { AuthService } from 'src/app/services/auth/auth.service';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 
@@ -37,9 +38,10 @@ export class SearchFormComponent implements OnInit {
   lexEntryTypesData: any;
   typesData: any;
   addTagFormText: any;
+  creator : any;
 
 
-  constructor(private formBuilder: FormBuilder, private modalService: NgbModal, private toastr: ToastrService, private annotatorService: AnnotatorService, private lexicalService: LexicalEntriesService, private expander: ExpanderService, private renderer: Renderer2) { }
+  constructor(private formBuilder: FormBuilder, private modalService: NgbModal, private toastr: ToastrService, private annotatorService: AnnotatorService, private lexicalService: LexicalEntriesService, private expander: ExpanderService, private renderer: Renderer2, private auth : AuthService) { }
 
   @Input() bind;
   @ViewChild('addFormModal') addFormModal: any;
@@ -85,6 +87,10 @@ export class SearchFormComponent implements OnInit {
     setTimeout(() => {
       //console.log(this.select_form);
     }, 1000);
+
+    if(this.auth.getLoggedUser()['preferred_username'] != undefined){
+      this.creator = this.auth.getLoggedUser()['preferred_username'];
+    }
 
     this.search_lex_entries_subject.pipe(debounceTime(1000)).subscribe(
       data => {
@@ -318,6 +324,10 @@ export class SearchFormComponent implements OnInit {
     let selectionSpan = this.bind.spanSelection;
     let formValue = data.form;
 
+    if(this.creator == undefined){
+      this.creator = '';
+    }
+
     console.log(selectionSpan)
     console.log(textSelection)
     if (textSelection != '' && textSelection != undefined) {
@@ -326,7 +336,7 @@ export class SearchFormComponent implements OnInit {
       parameters["layer"] = "attestation";
       parameters["attributes"] = {
         author: "",
-        creator: "",
+        creator: this.creator,
         note: "",
         confidence: 1,
         timestamp: new Date().getTime().toString(),
@@ -350,7 +360,7 @@ export class SearchFormComponent implements OnInit {
       parameters["layer"] = "attestation";
       parameters["attributes"] = {
         author: "",
-        creator: "prova",
+        creator: this.creator,
         note: "",
         confidence: 1,
         timestamp: new Date().getTime().toString(),
@@ -374,7 +384,7 @@ export class SearchFormComponent implements OnInit {
       parameters["layer"] = "attestation";
       parameters["attributes"] = {
         author: "",
-        creator: "prova",
+        creator: this.creator,
         note: "",
         confidence: 1,
         timestamp: new Date().getTime().toString(),
