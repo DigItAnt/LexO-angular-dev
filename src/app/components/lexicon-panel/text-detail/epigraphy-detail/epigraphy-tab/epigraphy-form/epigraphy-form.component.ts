@@ -36,6 +36,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
   object: any;
   tokenArray: FormArray;
   textEpigraphy = '';
+  htmlLeiden : any;
 
   private bind_subject: Subject<any> = new Subject();
   searchResults = [];
@@ -390,6 +391,21 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
           this.textEpigraphy = data;
         }else{
           this.textEpigraphy = '';
+        }
+      },error=>{
+        console.log(error)
+      }
+    )
+
+    this.documentService.epigraphyLeidenData$.subscribe(
+      data=>{
+        console.log(data)
+        if(data != null){
+          this.htmlLeiden = data.innerHTML;
+
+
+        }else{
+          this.htmlLeiden = '';
         }
       },error=>{
         console.log(error)

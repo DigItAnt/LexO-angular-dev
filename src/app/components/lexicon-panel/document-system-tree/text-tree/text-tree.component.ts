@@ -25,6 +25,7 @@ import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-
 import { v4 } from 'uuid';
 
 
+
 const actionMapping: IActionMapping = {
   mouse: {
     /* dblClick: (tree, node, $event) => {
@@ -122,6 +123,7 @@ export class TextTreeComponent implements OnInit {
   
   metadata_array: FormArray;
   metadata_search : FormArray;
+
   
   options: ITreeOptions = {
     actionMapping,
@@ -205,6 +207,44 @@ export class TextTreeComponent implements OnInit {
       $('body').removeClass("modal-open")
       $('body').css("padding-right", "");
 
+      this.documentService.getContent(this.selectedNodeId).subscribe(
+        data=>{
+
+          let text = data.text;
+          let object = {
+            xmlString : text
+          }
+
+          this.documentService.sendLeidenToEpigraphyTab(null);
+          this.documentService.testConvert(object).subscribe(
+            data=>{
+              console.log("TEST", data);
+              
+              if(data != undefined){
+                try {
+                  let raw = data.xml;
+                  let html = new DOMParser().parseFromString(raw, "text/html").querySelectorAll('#edition .textpart')[0];
+                  
+                  console.log(html)
+
+                  this.documentService.sendLeidenToEpigraphyTab(html);
+
+                } catch (error) {
+                  console.log(error)
+                  
+                }
+              } 
+            },error =>{
+              console.log("ERROR TEST", error)
+              this.documentService.sendLeidenToEpigraphyTab(null);
+            }
+          )
+
+        },error=>{
+          console.log(error)
+        }
+      )
+
       this.annotatorService.getTokens(this.selectedNodeId).subscribe(
         data => {
 
@@ -261,6 +301,8 @@ export class TextTreeComponent implements OnInit {
           console.log(error)
         }
       )
+
+      
     
     }
   }
@@ -285,7 +327,7 @@ export class TextTreeComponent implements OnInit {
         console.log(data);
 
         if(data['documentSystem'].length != 0){
-          console.log("CIAO")
+          //console.log("CIAO")
           this.nodes = data['documentSystem'];
           setTimeout(() => {
             this.treeText.treeModel.getNodeBy(

@@ -28,7 +28,7 @@ import { ConfirmedValidator } from './validator/password-match';
 export class ProfilesTableComponent implements OnInit, OnChanges {
 
   message = '';
-  users;
+  users = [];
   private idClient;
   private selected_idUser;
   private modalRef : NgbModalRef;
@@ -140,7 +140,16 @@ export class ProfilesTableComponent implements OnInit, OnChanges {
 
     this.auth.searchUser().subscribe(
       data => {
-        this.users = data;
+        //this.users = data;
+        if(data!= undefined){
+          Array.from(data).forEach((usr:any) => {
+            if(usr.username != undefined){
+              if(usr.username != 'prinadmin'){
+                this.users.push(usr);
+              }
+            }
+          })
+        }
       }, error => {
         console.log(error)
       }

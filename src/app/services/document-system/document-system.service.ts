@@ -23,11 +23,13 @@ export class DocumentSystemService {
 
   private _epigraphyData: BehaviorSubject<object> = new BehaviorSubject(null);
   private _epigraphyTextData: BehaviorSubject<string> = new BehaviorSubject(null);
+  private _epigraphyLeidenData: BehaviorSubject<any> = new BehaviorSubject(null);
   private _metadataData : BehaviorSubject<object> = new BehaviorSubject(null);
   private _triggerMetadataPanel : BehaviorSubject<boolean> = new BehaviorSubject(null);
 
   epigraphyData$ = this._epigraphyData.asObservable();
   epigraphyTextData$ = this._epigraphyTextData.asObservable();
+  epigraphyLeidenData$ = this._epigraphyLeidenData.asObservable();
   metadataData$ = this._metadataData.asObservable();
   triggerMetadataPanel$ = this._triggerMetadataPanel.asObservable();
 
@@ -39,6 +41,10 @@ export class DocumentSystemService {
 
   sendTextToEpigraphyTab(string : string){
     this._epigraphyTextData.next(string);
+  }
+
+  sendLeidenToEpigraphyTab(string : any){
+    this._epigraphyLeidenData.next(string);
   }
 
   sendToMetadataPanel(object : object){
@@ -123,5 +129,15 @@ export class DocumentSystemService {
   //POST ​/api​/crud​/createFile --> create file
   createFile(parameters): Observable<any> {
     return this.http.post(this.baseUrl_document + "api/crud/createFile", parameters)
+  }
+
+
+  getContent(nodeId) : Observable<any> {
+    return this.http.get(this.baseUrl_document + "api/v1/getcontent?requestUUID=11&nodeid="+nodeId);
+  }
+
+
+  testConvert(parameters) : Observable<any> {
+    return this.http.post("https://lari2.ilc.cnr.it/" + 'leiden', parameters);
   }
 }

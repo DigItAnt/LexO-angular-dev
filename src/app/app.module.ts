@@ -135,11 +135,11 @@ import { UnauthorizedPageComponent } from './views/unauthorized-page/unauthorize
     AngularEditorModule,
     NgSelectModule,
     ModalModule,
+    NgbModule,
     FormsModule,
     KeycloakAngularModule,
     ReactiveFormsModule,
-    ToastrModule.forRoot(),
-    NgbModule
+    ToastrModule.forRoot()
   ],
   providers: [
     { 
