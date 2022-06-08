@@ -24,12 +24,14 @@ export class DocumentSystemService {
   private _epigraphyData: BehaviorSubject<object> = new BehaviorSubject(null);
   private _epigraphyTextData: BehaviorSubject<string> = new BehaviorSubject(null);
   private _epigraphyLeidenData: BehaviorSubject<any> = new BehaviorSubject(null);
+  private _epigraphyTranslationData: BehaviorSubject<any> = new BehaviorSubject(null);
   private _metadataData : BehaviorSubject<object> = new BehaviorSubject(null);
   private _triggerMetadataPanel : BehaviorSubject<boolean> = new BehaviorSubject(null);
 
   epigraphyData$ = this._epigraphyData.asObservable();
   epigraphyTextData$ = this._epigraphyTextData.asObservable();
   epigraphyLeidenData$ = this._epigraphyLeidenData.asObservable();
+  epigraphyTranslationData$ = this._epigraphyTranslationData.asObservable();
   metadataData$ = this._metadataData.asObservable();
   triggerMetadataPanel$ = this._triggerMetadataPanel.asObservable();
 
@@ -41,6 +43,10 @@ export class DocumentSystemService {
 
   sendTextToEpigraphyTab(string : string){
     this._epigraphyTextData.next(string);
+  }
+
+  sendTranslationToEpigraphyTab(array : any){
+    this._epigraphyTranslationData.next(array);
   }
 
   sendLeidenToEpigraphyTab(string : any){

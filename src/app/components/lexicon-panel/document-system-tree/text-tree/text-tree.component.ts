@@ -223,11 +223,58 @@ export class TextTreeComponent implements OnInit {
               if(data != undefined){
                 try {
                   let raw = data.xml;
-                  let html = new DOMParser().parseFromString(raw, "text/html").querySelectorAll('#edition .textpart')[0];
-                  
-                  console.log(html)
+                  let childNodes = new DOMParser().parseFromString(raw, "text/html").querySelectorAll('#edition .textpart')[0].childNodes[0].childNodes;
+                  let leidenLines = []; 
 
-                  this.documentService.sendLeidenToEpigraphyTab(html);
+                  for(var i = 0; i < childNodes.length; i++){
+                    let node = childNodes[i];
+
+                    if(node.nodeName == 'A' || node.nodeName == 'BR'){
+                      
+                      let string = '';
+                      //console.log("LINE BREAK: " + i)
+                      for(var j = i; j < childNodes.length; j++){
+
+                        let textNode = childNodes[j];
+                        
+                        if(textNode.nodeName == '#text' && textNode.nodeValue.trim() != ''){
+
+                          string += textNode.nodeValue;
+
+                          if(j == childNodes.length-1){
+                            leidenLines.push(string);
+                            break;
+                          }
+
+                          //console.log(textNode.nodeValue)
+                        }else if(textNode.nodeName == 'BR' && i != j){
+                          leidenLines.push(string)
+                          
+                          i = j-1;
+                          break;
+                        }
+                      }
+                    }
+                  }
+
+                  this.documentService.sendLeidenToEpigraphyTab(leidenLines);
+
+
+                  let translations = new DOMParser().parseFromString(raw, "text/html").querySelectorAll('#translation');
+                  let translationArray = [];            
+                  translations.forEach(element=>{
+                    let childNodes = element.childNodes;
+                    let string = '';
+                    childNodes.forEach((child : any) =>{
+                      if(child.nodeName == 'P'){
+                        
+                        string += child.innerHTML;
+                      }
+                    })
+                    translationArray.push(string)
+                  })
+                  
+                  this.documentService.sendTranslationToEpigraphyTab(translationArray);
 
                 } catch (error) {
                   console.log(error)
@@ -285,7 +332,7 @@ export class TextTreeComponent implements OnInit {
       
       
 
-      this.annotatorService.getText(this.selectedNodeId).subscribe(
+      /* this.annotatorService.getText(this.selectedNodeId).subscribe(
         data=>{
           console.log(data);
           if(data != undefined){
@@ -300,7 +347,7 @@ export class TextTreeComponent implements OnInit {
           }
           console.log(error)
         }
-      )
+      ) */
 
       
     

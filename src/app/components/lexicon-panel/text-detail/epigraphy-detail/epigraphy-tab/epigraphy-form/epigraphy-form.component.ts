@@ -36,7 +36,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
   object: any;
   tokenArray: FormArray;
   textEpigraphy = '';
-  htmlLeiden : any;
+  leidenLines : any;
 
   private bind_subject: Subject<any> = new Subject();
   searchResults = [];
@@ -71,6 +71,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
   token_annotationArray = [];
   epidoc_annotation_array = [];
   leiden_array = [];
+  translation_array = [];
 
   isEmptyFile = false;
 
@@ -401,11 +402,26 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
       data=>{
         console.log(data)
         if(data != null){
-          this.htmlLeiden = data.innerHTML;
+          this.leidenLines = data;
 
 
         }else{
-          this.htmlLeiden = '';
+          this.leidenLines = [];
+        }
+      },error=>{
+        console.log(error)
+      }
+    )
+
+    this.documentService.epigraphyTranslationData$.subscribe(
+      data=>{
+        console.log(data)
+        if(data != null){
+          this.translation_array = data;
+
+
+        }else{
+          this.translation_array = [];
         }
       },error=>{
         console.log(error)
