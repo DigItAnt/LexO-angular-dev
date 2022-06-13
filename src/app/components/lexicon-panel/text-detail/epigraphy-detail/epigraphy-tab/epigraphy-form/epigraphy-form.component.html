@@ -101,9 +101,9 @@
             <h5>Inscription</h5>
         </div>
         
-        <div class="form-group row ml-2 mt-3 mr-2 leiden_raw p-2" *ngIf="object != null && object.length != 0">
+        <div class="form-group row ml-2 mt-3 mr-2 leiden_raw p-2" *ngIf="object != null && object.length != 0" style="font-family: 'NewAthena';">
             <ol class="pl-3">
-                <li *ngFor="let line of leidenLines">
+                <li *ngFor="let line of leidenLines; let i = index">
                     {{line}}
                 </li>
             </ol>
