@@ -9,7 +9,8 @@ body {
 
 // OVERRIDING STYLE FOR LEXICAL TREE VIEW
 
-.lexicalEntryTree {
+.lexicalEntryTree,
+.lexicalConceptTree {
     .node-content-wrapper {
         padding: 2px 5px 0 12px;
     }
