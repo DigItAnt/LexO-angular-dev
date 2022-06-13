@@ -28,6 +28,8 @@ export class DocumentSystemTreeComponent implements OnInit {
   switcher = false;
   @ViewChild('lexTree') lexTree: any;
   @ViewChild('textTree') textTree: any;
+  @ViewChild('conceptTree') conceptTree: any;
+
 
   constructor(private exp: ExpanderService, private lexicalService: LexicalEntriesService, private toastr: ToastrService, private renderer: Renderer2, private documentService: DocumentSystemService) { }
 
@@ -604,35 +606,6 @@ export class DocumentSystemTreeComponent implements OnInit {
       }
     }
 
-
-
-
-    /* this.documentService.uploadFile(formData, element_id, 11).subscribe(
-      data=>{
-        console.log(data)
-        
-        this.toastr.info('New file added', '', {
-          timeOut: 5000,
-        });
-        setTimeout(() => {
-          
-          this.textTree.treeText.treeModel.nodes.push(data.node);
-          this.textTree.counter = this.textTree.treeText.treeModel.nodes.length
-          //console.log(this.textTree.treeText.treeModel.nodes.length)
-          //this.textTree.treeText.treeModel.updateTreeView();
-          this.textTree.treeText.treeModel.update();
-          this.textTree.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
-          
-        }, 500);
-        
-        
-      },error=>{
-        console.log(error);
-        this.toastr.error('Error when adding new file', '', {
-          timeOut: 5000,
-        });
-      }
-    ) */
     console.log(evt);
   }
 

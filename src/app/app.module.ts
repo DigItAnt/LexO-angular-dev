@@ -75,7 +75,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SearchFormComponent } from './components/lexicon-panel/text-detail/epigraphy-detail/epigraphy-tab/epigraphy-form/search-form/search-form.component';
 import { AuthService } from './services/auth/auth.service';;
 import { UnauthorizedPageComponent } from './views/unauthorized-page/unauthorized-page/unauthorized-page.component'
-
+;
+import { ConceptTreeComponent } from './components/lexicon-panel/document-system-tree/concept-tree/concept-tree.component'
 
 @NgModule({
   declarations: [
@@ -123,7 +124,8 @@ import { UnauthorizedPageComponent } from './views/unauthorized-page/unauthorize
     EpigraphyFormComponent,
     SearchFormComponent
 ,
-    UnauthorizedPageComponent  ],
+    UnauthorizedPageComponent ,
+    ConceptTreeComponent ],
   imports: [
     ContextMenuModule.forRoot({useBootstrap4: true}),
     BrowserModule,
