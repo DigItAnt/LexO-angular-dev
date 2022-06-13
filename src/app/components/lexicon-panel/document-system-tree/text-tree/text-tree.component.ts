@@ -284,6 +284,7 @@ export class TextTreeComponent implements OnInit {
             },error =>{
               console.log("ERROR TEST", error)
               this.documentService.sendLeidenToEpigraphyTab(null);
+              this.documentService.sendTranslationToEpigraphyTab(null);
             }
           )
 
