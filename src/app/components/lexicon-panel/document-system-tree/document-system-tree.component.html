@@ -78,19 +78,19 @@
             <h5 class="mb-0 d-flex flex-wrap justify-content-between align-items-center">
                 <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#ontologia"
                     aria-expanded="false" aria-controls="ontologia">
-                    <i class="fa"></i> Ontologia
+                    <i class="fa"></i> Lexical Concept
                 </button>
-                <div class="icons-container">
+                <!-- <div class="icons-container">
                     <button class="btn btn-link"><i class="fa fa-plus"></i></button>
                     <button class="btn btn-link"><i class="fa fa-file-import"></i></button>
                     <button class="btn btn-link"><i class="fa fa-download"></i></button>
                     <button class="btn btn-link" title="Language"><i class="fa fa-globe-americas"></i></button>
-                </div>
+                </div> -->
             </h5>
         </div>
         <div id="ontologia" class="collapse" aria-labelledby="headingFour" data-parent="#tree-accordion">
             <div class="card-body">
-                ...
+                <app-concept-tree #conceptTree></app-concept-tree>
             </div>
         </div>
     </div>
