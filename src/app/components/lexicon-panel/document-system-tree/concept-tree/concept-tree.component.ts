@@ -1,7 +1,20 @@
+/*
+  © Copyright 2021-2022  Istituto di Linguistica Computazionale "A. Zampolli", Consiglio Nazionale delle Ricerche, Pisa, Italy.
+ 
+This file is part of EpiLexo.
+
+EpiLexo is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
+*/
+
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { IActionMapping, ITreeOptions, ITreeState, KEYS, TreeModel, TREE_ACTIONS } from '@circlon/angular-tree-component';
 import { debounceTime } from 'rxjs/operators';
+import { ConceptService } from 'src/app/services/concept/concept.service';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { v4 } from 'uuid';
 
@@ -86,10 +99,12 @@ export class ConceptTreeComponent implements OnInit {
 
   constructor(private element: ElementRef,
               private formBuilder: FormBuilder,
-              private lexicalService : LexicalEntriesService
+              private lexicalService : LexicalEntriesService,
+              private conceptService : ConceptService
   ) { }
 
   ngOnInit(): void {
+    this.loadTree();
     this.conceptFilterForm = this.formBuilder.group({
       search_text : new FormControl(null),
       search_mode : new FormControl('starts')
@@ -159,29 +174,7 @@ export class ConceptTreeComponent implements OnInit {
   }
 
   loadTree(){
-    /* this.documentService.getDocumentSystem().subscribe(
-      data => {
-        console.log(data);
-
-        if(data['documentSystem'].length != 0){
-          //console.log("CIAO")
-          this.nodes = data['documentSystem'];
-          setTimeout(() => {
-            this.treeText.treeModel.getNodeBy(
-              item => {
-                item.data.rename_mode = false;
-              }
-            )
-          }, 100);
-        }
-        
-        
-        this.counter = data['results'];
-      },
-      error => {
-        console.log(error)
-      }
-    ) */
+    
 
   }
 
