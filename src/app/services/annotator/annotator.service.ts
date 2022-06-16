@@ -24,8 +24,10 @@ export class AnnotatorService {
 
   private _triggerSearch: BehaviorSubject<any> = new BehaviorSubject(null);
   private _deleteAnnoRequest: BehaviorSubject<any> = new BehaviorSubject(null);
+  private _getIdText: BehaviorSubject<any> = new BehaviorSubject(null);
   triggerSearch$ = this._triggerSearch.asObservable();
   deleteAnnoReq$ = this._deleteAnnoRequest.asObservable();
+  getIdText$ = this._getIdText.asObservable();
 
   triggerSearch(string : string) {
     this._triggerSearch.next(string)
@@ -33,6 +35,10 @@ export class AnnotatorService {
 
   deleteAnnotationRequest(id : number, node_id : number){
     this._deleteAnnoRequest.next({id, node_id})
+  }
+
+  getIdText(object: any){
+    this._getIdText.next(object);
   }
 
   getTokens(id: number) : Observable<any> {

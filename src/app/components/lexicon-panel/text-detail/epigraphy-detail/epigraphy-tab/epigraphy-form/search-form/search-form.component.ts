@@ -335,7 +335,7 @@ export class SearchFormComponent implements OnInit {
       parameters["value"] = formValue;
       parameters["layer"] = "attestation";
       parameters["attributes"] = {
-        author: "",
+        author: this.creator,
         creator: this.creator,
         note: "",
         confidence: 1,
@@ -359,7 +359,7 @@ export class SearchFormComponent implements OnInit {
       parameters["value"] = formValue;
       parameters["layer"] = "attestation";
       parameters["attributes"] = {
-        author: "",
+        author: this.creator,
         creator: this.creator,
         note: "",
         confidence: 1,
@@ -383,7 +383,7 @@ export class SearchFormComponent implements OnInit {
       parameters["value"] = formValue;
       parameters["layer"] = "attestation";
       parameters["attributes"] = {
-        author: "",
+        author: this.creator,
         creator: this.creator,
         note: "",
         confidence: 1,
@@ -401,8 +401,8 @@ export class SearchFormComponent implements OnInit {
       parameters["value"] = formValue;
       parameters["layer"] = "attestation";
       parameters["attributes"] = {
-        author: "",
-        creator: "prova",
+        author: this.creator,
+        creator: this.creator,
         note: "",
         confidence: 1,
         timestamp: new Date().getTime().toString(),

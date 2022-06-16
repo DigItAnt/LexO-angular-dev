@@ -73,6 +73,8 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
   leiden_array = [];
   translation_array = [];
 
+  fileId;
+
   isEmptyFile = false;
 
   @HostListener('document:mouseup', ['$event'])
@@ -512,6 +514,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
         
         this.object = changes.epiData.currentValue['tokens'];
         let element_id = changes.epiData.currentValue['element_id']
+        this.fileId = changes.epiData.currentValue['epidoc_id']
         console.log(this.object)
         if (this.object != null) {
 

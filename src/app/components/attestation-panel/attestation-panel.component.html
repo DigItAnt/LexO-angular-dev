@@ -15,7 +15,7 @@
                 <div class="card mb-4 pt-4" *ngFor="let item of formData; let i = index">
                     <a class="attestationCollapse" data-toggle="collapse" [attr.data-target]="'#attestation_collapse-'+i"
                         aria-expanded="true" [attr.aria-controls]="'#attestation_collapse-'+i"><span class="text-id pointer"><b
-                                class="badge badge-primary">ID:{{item?.id}} - {{item?.attributes.label != undefined ? item?.attributes.label : ''}}</b></span></a>
+                                class="badge badge-primary">{{fileId}} - {{item?.attributes.label != undefined ? item?.attributes.label : ''}}</b></span></a>
                    
                     <a (click)="getForm(item?.attributes.form_id)" class="pointer"><span class="external-icon"><i class="fa fa-external-link-alt"></i></span></a>
                     <a (click)="cancelAttestation(i, item?.id, item?.attributes.node_id)" class="pointer"><span class="trash-icon"><i class="fa fa-trash"></i></span></a>
@@ -30,10 +30,10 @@
                             </div> -->
                             
                             <div class="form-group row ml-2 mr-2 mb-0" *ngFor="let subprop of item?.attributes | keyvalue">
-                                <label for="inputLabel" class="col-lg-4 pl-0 pr-0 col-form-label" *ngIf="subprop?.key != 'bibliography' && subprop?.key != 'validity' && subprop?.key != 'node_id'">{{subprop?.key}}:</label>
+                                <label for="inputLabel" class="col-lg-4 pl-0 pr-0 col-form-label" *ngIf="subprop?.key != 'bibliography' && subprop?.key != 'validity' && subprop?.key != 'node_id' && subprop?.key != 'form_id' && subprop?.key != 'creator' && subprop?.key != 'timestamp'">{{subprop?.key}}:</label>
                                 
                                 <div class="input-group col-lg-8 pl-0 pr-0">
-                                    <span class="font-italic overflow-auto p-1" *ngIf="subprop?.key == 'creator' || subprop?.key == 'label' ||  subprop?.key == 'form_id'">{{subprop?.value}}</span>
+                                    <span class="font-italic overflow-auto p-1" *ngIf="subprop?.key == 'label'">{{subprop?.value}}</span>
                                     <input #sub_property *ngIf="subprop?.key != 'creator' && 
                                                   subprop?.key != 'label' && 
                                                   subprop?.key != 'note' &&
@@ -46,7 +46,7 @@
                                                   (keyup)="triggerUpdateAttestation($event, sub_property.value, subprop?.key, item)" id="attributes" name="attributes" type="text" class="form-control" placeholder="No info" [value]="subprop?.value">
                                     <input #confidence *ngIf="subprop?.key == 'confidence'" 
                                                   (keyup)="triggerUpdateAttestation($event, confidence.value, subprop?.key, item)" (change)="triggerUpdateAttestation($event, confidence.value, subprop?.key, item)" id="attributes" name="attributes" type="number" min="0" max="1" step="0.1" class="form-control" placeholder="No info" [value]="subprop?.value">
-                                    <span class="font-italic overflow-auto p-1" *ngIf="subprop?.key == 'timestamp'">{{subprop?.value | date: 'dd/MM/yyyy HH:mm:ss'}}</span>
+                                    <!-- <span class="font-italic overflow-auto p-1" *ngIf="subprop?.key == 'timestamp'">{{subprop?.value | date: 'dd/MM/yyyy HH:mm:ss'}}</span> -->
                                     <textarea #text_area (keyup)="triggerUpdateAttestation($event, text_area.value, subprop?.key, item)" *ngIf="subprop?.key == 'note'" id="attributes" name="attributes" type="text" class="form-control" placeholder="No info" style="resize: none;">{{subprop?.value}}</textarea>
                                 </div>
                             </div>

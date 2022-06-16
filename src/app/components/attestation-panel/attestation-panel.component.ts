@@ -43,11 +43,22 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
   queryMode = 'titleCreatorYear';
   selectedItem;
   selectedAnnotation;
+  fileId;
+
   constructor(private toastr: ToastrService, private biblioService : BibliographyService, private expander: ExpanderService, private annotatorService : AnnotatorService, private lexicalService : LexicalEntriesService) { }
   
   
   formData = [];
   ngOnInit(): void {
+
+    this.annotatorService.getIdText$.subscribe(
+      data=>{
+        console.log(data);
+        this.fileId = data;
+      },error=>{
+        console.log(error)
+      }
+    )
 
     this.update_anno_subject.pipe(debounceTime(1000)).subscribe(
       data => {
@@ -56,6 +67,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
         }
       }
     )
+    
 
     this.update_biblio_anno_subject.pipe(debounceTime(100)).subscribe(
       data => {

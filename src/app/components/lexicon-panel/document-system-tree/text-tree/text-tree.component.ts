@@ -113,6 +113,7 @@ export class TextTreeComponent implements OnInit {
   selectedFileToCopy : any;
   selectedFileToCopyArray : any;
   selectedNodeId;
+  selectedEpidocId;
 
   memoryMetadata = [];
   metadataForm = new FormGroup({
@@ -199,6 +200,7 @@ export class TextTreeComponent implements OnInit {
 
     if ($event.eventName == 'activate' && $event.node.data.type != 'directory' && this.selectedNodeId != $event.node.data['element-id']) {
       this.selectedNodeId = $event.node.data['element-id'];
+      this.selectedEpidocId = $event.node.data.metadata['itAnt_ID'];
       //@ts-ignore
       $("#epigraphyTabModal").modal("show");
       $('.modal-backdrop').appendTo('.epigraphy-tab-body');
@@ -206,6 +208,9 @@ export class TextTreeComponent implements OnInit {
       $('#epigraphyTabModal').modal({backdrop: 'static', keyboard: false})  
       $('body').removeClass("modal-open")
       $('body').css("padding-right", "");
+
+
+      this.annotatorService.getIdText(this.selectedEpidocId);
 
       this.documentService.getContent(this.selectedNodeId).subscribe(
         data=>{
@@ -218,7 +223,7 @@ export class TextTreeComponent implements OnInit {
           this.documentService.sendLeidenToEpigraphyTab(null);
           this.documentService.testConvert(object).subscribe(
             data=>{
-              console.log("TEST", data);
+              // console.log("TEST", data);
               
               if(data != undefined){
                 try {
@@ -301,7 +306,8 @@ export class TextTreeComponent implements OnInit {
           let tokens = data.tokens;
           this.documentService.sendToEpigraphyTab({
             tokens : tokens,
-            element_id : element_id
+            element_id : element_id,
+            epidoc_id : this.selectedEpidocId
           })
 
           if(!this.expander.isEditTabOpen() && !this.expander.isEpigraphyTabOpen()){
