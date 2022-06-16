@@ -12,8 +12,8 @@
         <div class="card-body">
             <ul class="nav nav-tabs" id="myTab" role="tablist" *ngIf="object != null">
                 <li class="nav-item">
-                    <a class="nav-link active" id="file-tab" data-toggle="tab" href="#file" role="tab"
-                        aria-controls="file" aria-selected="true">File</a>
+                    <a class="nav-link active" id="edition-tab" data-toggle="tab" href="#edition" role="tab"
+                        aria-controls="edition" aria-selected="true">Edition</a>
                 </li>
                 <li>
                     <a class="nav-link" id="text-tab" data-toggle="tab" href="#text_metadata" role="tab"
@@ -25,9 +25,9 @@
                 </li>
             </ul>
             <div class="tab-content" id="myTabContent" *ngIf="object != null">
-                <div class="tab-pane fade show active" id="file" role="tabpanel" aria-labelledby="file-tab">
+                <div class="tab-pane fade show active" id="edition" role="tabpanel" aria-labelledby="file-tab">
                     <div class="card file_body">
-                        <span class="text-id">FILE</span>
+                        <span class="text-id">EDITION</span>
                         <!-- <a href="#a"><span class="edit-icon"><i class="fa fa-edit"></i></span></a>
                         <a href="#b"><span class="trash-icon"><i class="fa fa-trash"></i></span></a> -->
                         <div class="card-body">
@@ -49,10 +49,6 @@
                                         <tr>
                                             <th scope="row">Editor:</th>
                                             <td>{{object.editor != undefined ? object.editor : 'no info'}}</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">Path:</th>
-                                            <td>{{object.path != undefined ? object.path : 'no info'}}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -147,14 +143,14 @@
                                 <table class="table table-borderless text-break" style="table-layout: fixed;">
                                     <tbody>
                                         <tr style="width: 100%;" *ngFor="let subprop of object | keyvalue">
-                                            <th style="width: 30%;" scope="row" *ngIf="subprop?.key != 'title' || 
+                                            <th style="width: 30%;" scope="row" *ngIf="(subprop?.key != 'title' || 
                                                                    subprop?.key != 'element-id' ||
                                                                    subprop?.key != 'editor' ||
                                                                    subprop?.key != 'path' ||
                                                                    subprop?.key != 'trismegistos' ||
                                                                    subprop?.key != 'originalPlace' ||
                                                                    subprop?.key != 'settlement' ||
-                                                                   subprop?.key != 'support'">{{subprop?.key}}</th>
+                                                                   subprop?.key != 'support') && subprop?.value != ''">{{subprop?.key}}</th>
                                             <td 
                                                 *ngIf="subprop?.value != '' && !isObject(subprop?.value) && !isArray(subprop?.value) && !isNumber(subprop?.value)">
                                                 
@@ -165,12 +161,11 @@
                                                 <table class="table table-borderless text-break"
                                                     style="table-layout: fixed;">
                                                     <tr style="width: 100%;" *ngFor="let object of subprop.value | keyvalue">
-                                                        <th style="width: 30%;">{{object?.key}}</th>
+                                                        <th style="width: 30%;" *ngIf="object?.value != ''">{{object?.key}}</th>
                                                         <td style="width: 70%;" *ngIf="object?.value != ''">
                                                             <a [href]="object?.value" target="_blank" *ngIf="isLink(object?.value)">{{object?.value}}</a>
                                                             <span *ngIf="!isLink(object?.value)">{{object?.value}}</span>
                                                         </td>
-                                                        <td style="width: 70%;" *ngIf="object?.value == ''"><span class="font-italic">No info</span></td>
                                                     </tr>
                                                 </table>
                                                 <!--  <span  *ngFor="let object of subprop.value | keyvalue">
@@ -181,19 +176,17 @@
                                                 <table class="table table-borderless text-break" style="table-layout: fixed;">
                                                     <div *ngFor="let array of subprop.value">
                                                         <tr style="width: 100%;" *ngFor="let object of array | keyvalue">
-                                                            <th style="width: 30%;">{{object?.key}}</th>
+                                                            <th style="width: 30%;" *ngIf="object?.value != ''">{{object?.key}}</th>
                                                             <td style="width: 70%;" *ngIf="object?.value != ''">
                                                                 <a [href]="object?.value" target="_blank" *ngIf="isLink(object?.value)">{{object?.value}}</a>
                                                                 <span *ngIf="!isLink(object?.value)">{{object?.value}}</span>
                                                             </td>
-                                                            <td style="width: 70%;" *ngIf="object?.value == ''"><span class="font-italic">No info</span></td>
                                                         </tr>
                                                     </div>
                                                     
                                                 </table>
                                             </div>
-                                            <td  *ngIf="subprop?.value == ''"><span class="font-italic">No
-                                                    info</span></td> <!-- style="word-break: keep-all; width: 65%;" -->
+            
                                         </tr>
 
                                     </tbody>
