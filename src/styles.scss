@@ -242,3 +242,7 @@ tree-node-content {
 .ng-dropdown-panel {
     z-index: 1065 !important;
 }
+
+.btn-secondary:not(:disabled):not(.disabled).active {
+    background-color: #1caa00 !important;
+}

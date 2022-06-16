@@ -12,7 +12,7 @@
     <div id="attestationCollapse" class="collapse" aria-labelledby="attestationHeading">
         <div class="card-body">
             <div *ngIf="formData != null">
-                <div class="card mb-3 p-1" *ngFor="let item of formData; let i = index">
+                <div class="card mb-4 pt-4" *ngFor="let item of formData; let i = index">
                     <a class="attestationCollapse" data-toggle="collapse" [attr.data-target]="'#attestation_collapse-'+i"
                         aria-expanded="true" [attr.aria-controls]="'#attestation_collapse-'+i"><span class="text-id pointer"><b
                                 class="badge badge-primary">ID:{{item?.id}} - {{item?.attributes.label != undefined ? item?.attributes.label : ''}}</b></span></a>
@@ -22,18 +22,18 @@
     
                     <div [id]="'attestation_collapse-'+i" class="collapse" >
                         <div class="card-body" style="max-height: 15rem;  overflow: auto;  ">
-                            <div class="form-group row ml-2 mr-2 mb-0">
+                            <!-- <div class="form-group row ml-2 mr-2 mb-0">
                                 <label for="inputLabel" class="col-lg-4 pl-0 pr-0 col-form-label">URI:</label>
                                 <div class="input-group col-lg-8 pl-0 pr-0">
                                     <span class="font-italic overflow-auto p-1">{{item?.value}}</span>
                                 </div>
-                            </div>
+                            </div> -->
                             
                             <div class="form-group row ml-2 mr-2 mb-0" *ngFor="let subprop of item?.attributes | keyvalue">
-                                <label for="inputLabel" class="col-lg-4 pl-0 pr-0 col-form-label" *ngIf="subprop?.key != 'bibliography'">{{subprop?.key}}:</label>
+                                <label for="inputLabel" class="col-lg-4 pl-0 pr-0 col-form-label" *ngIf="subprop?.key != 'bibliography' && subprop?.key != 'validity' && subprop?.key != 'node_id'">{{subprop?.key}}:</label>
                                 
                                 <div class="input-group col-lg-8 pl-0 pr-0">
-                                    <span class="font-italic overflow-auto p-1" *ngIf="subprop?.key == 'creator' || subprop?.key == 'label' || subprop?.key == 'node_id' || subprop?.key == 'form_id'">{{subprop?.value}}</span>
+                                    <span class="font-italic overflow-auto p-1" *ngIf="subprop?.key == 'creator' || subprop?.key == 'label' ||  subprop?.key == 'form_id'">{{subprop?.value}}</span>
                                     <input #sub_property *ngIf="subprop?.key != 'creator' && 
                                                   subprop?.key != 'label' && 
                                                   subprop?.key != 'note' &&
@@ -41,7 +41,8 @@
                                                   subprop?.key != 'node_id' &&
                                                   subprop?.key != 'form_id' &&
                                                   subprop?.key != 'confidence' &&
-                                                  subprop?.key != 'bibliography'" 
+                                                  subprop?.key != 'bibliography'  &&
+                                                  subprop?.key != 'validity'" 
                                                   (keyup)="triggerUpdateAttestation($event, sub_property.value, subprop?.key, item)" id="attributes" name="attributes" type="text" class="form-control" placeholder="No info" [value]="subprop?.value">
                                     <input #confidence *ngIf="subprop?.key == 'confidence'" 
                                                   (keyup)="triggerUpdateAttestation($event, confidence.value, subprop?.key, item)" (change)="triggerUpdateAttestation($event, confidence.value, subprop?.key, item)" id="attributes" name="attributes" type="number" min="0" max="1" step="0.1" class="form-control" placeholder="No info" [value]="subprop?.value">
@@ -70,7 +71,7 @@
                                 
                             </div>
                             <div *ngIf="item?.attributes.bibliography.length > 0">
-                                <div class="form-group row ml-2 mt-3 mr-2" *ngFor="let item_biblio of item?.attributes.bibliography; let j = index">
+                                <div class="form-group row ml-2 mt-3 mb-1  mr-2" *ngFor="let item_biblio of item?.attributes.bibliography; let j = index">
                                     <div class="input-group col-xl-12 p-0">
                                         <!-- {{item_biblio.creators | json}} -->
                                         <div id="accordion">
@@ -99,34 +100,34 @@
                                                 <div [id]="'attestation_biblio_collapse-'+item?.id+'-'+j" class="collapse" > <!-- data-parent="#accordion" -->
                                                     <div class="card-body mt-2">
                                                         <div class="form-group row ml-2 mr-2 mb-0">
-                                                            <label for="inputLabel" class="col-lg-4 col-form-label">Title:</label>
+                                                            <label for="inputLabel" class="col-lg-4 px-0 col-form-label">Title:</label>
                                                             <div class="input-group col-lg-8 pl-0">
                                                                 <input id="title"  name="title" type="text" class="form-control" placeholder="" disabled [value]="item_biblio?.title">
                                                             </div>
                                                         </div>           
                                                         <div class="form-group row ml-2 mr-2 mb-0">
-                                                            <label for="inputLabel" class="col-lg-4 col-form-label">Author:</label>
-                                                            <div class="input-group col-lg-8 pl-0">
-                                                                <span *ngFor="let auth of item_biblio.creators">
+                                                            <label for="inputLabel" class="col-lg-4 px-0 col-form-label">Author:</label>
+                                                            <div class="input-group col-lg-8 pl-0  ">
+                                                                <span *ngFor="let auth of item_biblio.creators" class="pb-1">
                                                                     <input id="author"   name="author" type="text" class="form-control" placeholder="" disabled [value]="auth.firstName + ' ' + auth.lastName">
                                                                 </span>
                                                                 
                                                             </div>
                                                         </div>   
                                                         <div class="form-group row ml-2 mr-2 mb-0">
-                                                            <label for="inputLabel" class="col-lg-4 col-form-label">Date:</label>
+                                                            <label for="inputLabel" class="col-lg-4 px-0 col-form-label">Date:</label>
                                                             <div class="input-group col-lg-8 pl-0">
                                                                 <input id="date"   name="date" type="text" class="form-control" placeholder="" disabled [value]="item_biblio.date">
                                                             </div>
                                                         </div>
                                                         <div class="form-group row ml-2 mr-2">
-                                                            <label for="inputLabel" class="col-lg-4 col-form-label">Note:</label>
+                                                            <label for="inputLabel" class="col-lg-4 px-0 col-form-label">Note:</label>
                                                             <div class="input-group col-lg-8 pl-0">
                                                                 <textarea #note_item_biblio_anno (keyup)="debounceKeyup(note_item_biblio_anno.value, item, j, 'note')"  name="note" class="form-control" style="resize: none;" [value]="item_biblio.note"></textarea>
                                                             </div>
                                                         </div>  
                                                         <div class="form-group row ml-2 mr-2">
-                                                            <label for="inputLabel" class="col-lg-4 col-form-label">TextualRef:</label>
+                                                            <label for="inputLabel" class="col-lg-4 px-0 col-form-label">TextualRef:</label>
                                                             <div class="input-group col-lg-8 pl-0">
                                                                 <textarea #txtref_item_biblio_anno (keyup)="debounceKeyup(txtref_item_biblio_anno.value, item, j, 'textualRef')"  name="textualReference" class="form-control" style="resize: none;" [value]="item_biblio.textualRef"></textarea>
                                                             </div>

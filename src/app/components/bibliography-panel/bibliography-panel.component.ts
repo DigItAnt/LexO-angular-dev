@@ -190,7 +190,7 @@ export class BibliographyPanelComponent implements OnInit {
               this.countElement++;
             });
             
-            this.bibliographyData['parentNodeLabel']= this.object['sense'];
+            this.bibliographyData['parentNodeLabel']= this.object['etymology'];
             this.bibliographyData['etymologyInstanceName']= this.object['etymologyInstanceName'];
           }, error=>{
             this.toastr.error(error.error, 'Error', {
