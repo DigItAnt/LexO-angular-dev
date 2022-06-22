@@ -20,6 +20,7 @@ import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators, Form } from '@angular/forms';
 import { debounceTime, pairwise, startWith } from 'rxjs/operators';
 import { NgSelectComponent } from '@ng-select/ng-select';
+import { LilaService } from 'src/app/services/lila/lila.service';
 
 
 @Component({
@@ -58,7 +59,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
 
     interval;
 
-    searchResults: [];
+    searchResults= [];
     filterLoading = false;
 
     private denotes_subject: Subject<any> = new Subject();
@@ -83,8 +84,9 @@ export class LexicalEntryCoreFormComponent implements OnInit {
         stemType : new FormControl(''),
         evokes: new FormArray([this.createEvokes()]),
         denotes: new FormArray([this.createDenotes()]),
-        cognate : new FormArray([this.createCognates()]),
-        isCognate : new FormControl(null)
+        cognates : new FormArray([this.createCognates()]),
+        isCognate : new FormControl(null),
+        isEtymon : new FormControl(null)
     })
 
     morphoTraits: FormArray;
@@ -92,7 +94,10 @@ export class LexicalEntryCoreFormComponent implements OnInit {
     denotesArray: FormArray;
     cognatesArray: FormArray;
 
-    constructor(private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder, private toastr: ToastrService) {
+    constructor(private lexicalService: LexicalEntriesService, 
+                private formBuilder: FormBuilder, 
+                private toastr: ToastrService,
+                private lilaService : LilaService) {
 
     }
 
@@ -171,8 +176,9 @@ export class LexicalEntryCoreFormComponent implements OnInit {
             stemType : '',
             evokes: this.formBuilder.array([this.createEvokes()]),
             denotes: this.formBuilder.array([this.createDenotes()]),
-            cognate: this.formBuilder.array([this.createCognates()]),
-            isCognate : false
+            cognates: this.formBuilder.array([this.createCognates()]),
+            isCognate : false,
+            isEtymon : false
         })
 
         this.onChanges();
@@ -184,11 +190,11 @@ export class LexicalEntryCoreFormComponent implements OnInit {
         }
     } */
 
-    triggerCognates(evt) {
+    triggerCognates(evt, i) {
         console.log(evt)
         if (evt.target != undefined) {
             
-            this.subject.next(evt.target.value)
+            this.subject.next({value: evt.target.value, index: i})
         }
     }
 
@@ -204,8 +210,13 @@ export class LexicalEntryCoreFormComponent implements OnInit {
     onSearchFilter(data) {
         this.filterLoading = true;
         this.searchResults = [];
+
+        let value = data.value;
+        let index = data.index;
+
+        this.cognatesArray = this.coreForm.get('cognates') as FormArray;
         
-        if (this.object.lexicalEntryInstanceName != undefined) {
+        if (this.object.lexicalEntryInstanceName != undefined && !this.cognatesArray.at(index).get('lila').value) {
             let parameters = {
                 text: data,
                 searchMode: "startsWith",
@@ -241,6 +252,42 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                 }
             )
             
+        } else if(this.object.lexicalEntryInstanceName != undefined && this.cognatesArray.at(index).get('lila').value){
+
+            this.searchResults = [];
+            if(this.coreForm.get('isEtymon').value){
+                this.lilaService.queryEtymon(value).subscribe(
+                    data=>{
+                        console.log(data)
+                        if(data.list.length > 0){
+                            data.list.forEach(element => {
+                                this.searchResults.push(element)
+                            });
+                        }
+                    },
+                    error=>{
+                        console.log(error)
+                    }
+                )
+            }
+
+
+            if(this.coreForm.get('isCognate').value){
+                this.lilaService.queryCognate(value).subscribe(
+                    data=>{
+                        console.log(data);
+                        if(data.list.length > 0){
+                            data.list.forEach(element => {
+                                this.searchResults.push(element)
+                            });
+                        }
+                    },
+                    error=>{
+                        console.log(error)
+                    }
+                )
+            }
+
         } else {
             this.filterLoading = false;
         }
@@ -280,7 +327,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                 this.denotesArray = this.coreForm.get('denotes') as FormArray;
                 this.denotesArray.clear();
 
-                this.cognatesArray = this.coreForm.get('cognate') as FormArray;
+                this.cognatesArray = this.coreForm.get('cognates') as FormArray;
                 this.cognatesArray.clear();
 
                 this.evokesArray = this.coreForm.get('evokes') as FormArray;
@@ -320,6 +367,13 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                     this.coreForm.get('isCognate').setValue(true, {emitEvent: false})
                 }else{
                     this.coreForm.get('isCognate').setValue(false, {emitEvent: false})
+                }
+
+                let isEtymon = this.object.type.find(element => element == 'Etymon');
+                if(isEtymon){
+                    this.coreForm.get('isEtymon').setValue(true, {emitEvent: false})
+                }else{
+                    this.coreForm.get('isEtymon').setValue(false, {emitEvent: false})
                 }
 
                 //this.coreForm.get('type').setValue(this.object.type, { emitEvent: false });
@@ -1104,12 +1158,14 @@ export class LexicalEntryCoreFormComponent implements OnInit {
         if (e != undefined) {
             return this.formBuilder.group({
                 entity: new FormControl(e, [Validators.required, Validators.pattern(this.urlRegex)]),
-                type: t
+                type: t,
+                lila: false
             })
         } else {
             return this.formBuilder.group({
                 entity: new FormControl(null, [Validators.required, Validators.pattern(this.urlRegex)]),
-                type: null
+                type: null,
+                lila: false
             })
         }
     }
@@ -1233,7 +1289,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
 
     onChangeCognates(data) {
         var index = data['i'];
-        this.cognatesArray = this.coreForm.get("cognate") as FormArray;
+        this.cognatesArray = this.coreForm.get("cognates") as FormArray;
         if (this.memoryCognates[index] == undefined) {
             const newValue = data['name']
             const parameters = {
@@ -1350,7 +1406,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                 trigger: 'hover'
             });
         }, 1000);
-        this.cognatesArray = this.coreForm.get("cognate") as FormArray;
+        this.cognatesArray = this.coreForm.get("cognates") as FormArray;
         if (e != undefined) {
             this.cognatesArray.push(this.createCognates(e, t));
         } else {
@@ -1465,7 +1521,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
     }
 
     removeCognates(index) {
-        this.cognatesArray = this.coreForm.get('cognate') as FormArray;
+        this.cognatesArray = this.coreForm.get('cognates') as FormArray;
 
         const entity = this.cognatesArray.at(index).get('entity').value;
 

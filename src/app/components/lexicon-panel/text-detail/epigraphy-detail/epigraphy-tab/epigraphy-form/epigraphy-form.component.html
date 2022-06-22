@@ -8,12 +8,12 @@
         </div>
     
         <div class="form-group row ml-2 mt-3 mr-2" *ngIf="object != null && object.length != 0">
-            <h5>Linker</h5>
+            <h6>Linker</h6>
         
         </div>
         
         <div class="form-group row ml-2 mt-3 mr-2 empty" *ngIf="isEmptyFile">
-            <h5 class="mr-2">Add attestation</h5>
+            <h6 class="mr-2">Add attestation</h6>
         
             <button #button_modal="ngbPopover" type="button" class="btn btn-outline-secondary token mb-2"  container="body"  popoverTitle="Pop title" 
             [autoClose]="'outside'" [ngbPopover]="tokenPopover" [placement]="'bottom'"  popoverClass="token_modal" (click)="triggerEmptySearch()">
@@ -98,7 +98,7 @@
 <div class="card mt-2" *ngIf="leidenLines.length != 0">
     <div class="card-body">
         <div class="form-group row ml-2 mt-3 mr-2" *ngIf="object != null && object.length != 0">
-            <h5>Inscription</h5>
+            <h6>Inscription</h6>
         </div>
         
         <div class="form-group row ml-2 mt-3 mr-2 leiden_raw p-2" *ngIf="object != null && object.length != 0" style="font-family: 'NewAthena';">
@@ -115,7 +115,7 @@
 <div class="card mt-2" *ngIf="translation_array.length != 0">
     <div class="card-body">
         <div class="form-group row ml-2 mt-3 mr-2" *ngIf="object != null && object.length != 0">
-            <h5>Translation</h5>
+            <h6>Translation</h6>
         </div>
         
         <div class="form-group row ml-2 mt-3 mr-2 leiden_raw p-2" *ngIf="object != null && object.length != 0">

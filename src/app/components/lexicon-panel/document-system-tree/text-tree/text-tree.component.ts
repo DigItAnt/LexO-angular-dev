@@ -326,9 +326,12 @@ export class TextTreeComponent implements OnInit {
           let metadata = $event.node.data.metadata;
           metadata['path'] = $event.node.data.path;
           metadata['element-id'] = $event.node.data['element-id'];
-          if(metadata != undefined){
+          if(metadata != undefined && Object.keys(metadata).length > 5){
             this.documentService.sendToMetadataPanel(metadata);
             this.documentService.triggerMetadataPanel(true)
+          }else{
+            this.documentService.sendToMetadataPanel(null);
+            this.documentService.triggerMetadataPanel(false)
           }
         },
         error => {

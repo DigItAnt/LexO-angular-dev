@@ -10,12 +10,14 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
+import { Component, Input, OnInit, QueryList, SimpleChanges, ViewChildren } from '@angular/core';
+import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { ToastrService } from 'ngx-toastr';
+import { LilaService } from 'src/app/services/lila/lila.service';
+import { NgSelectComponent } from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-same-as',
@@ -30,8 +32,11 @@ export class SameAsComponent implements OnInit {
   private subject_input: Subject<any> = new Subject();
   subscription: Subscription;
   object: any;
-  searchResults: [];
+  searchResults=[];
   filterLoading = false;
+
+  @ViewChildren('sameAs') sameAsList: QueryList<NgSelectComponent>;
+
 
   memorySameAs = [];
   isSense;
@@ -39,24 +44,31 @@ export class SameAsComponent implements OnInit {
   isLexEntry;
 
   sameAsForm = new FormGroup({
-    sameAsArray: new FormArray([this.createSameAsEntry()])
+    sameAsArray: new FormArray([this.createSameAsEntry()]),
+    isEtymon: new FormControl(null),
+    isCognate: new FormControl(null)
   })
 
   sameAsArray: FormArray;
 
-  constructor(private formBuilder: FormBuilder, private lexicalService : LexicalEntriesService, private toastr: ToastrService) {
+  constructor(private formBuilder: FormBuilder, 
+              private lexicalService : LexicalEntriesService, 
+              private toastr: ToastrService,
+              private lilaService: LilaService) {
   }
 
   ngOnInit() {
     this.sameAsForm = this.formBuilder.group({
-      sameAsArray: this.formBuilder.array([])
+      sameAsArray: this.formBuilder.array([]),
+      isEtymon: false,
+      isCognate: false,
     })
 
-    /* this.subject.pipe(debounceTime(1000)).subscribe(
+    this.subject.pipe(debounceTime(1000)).subscribe(
       data => {
         this.onSearchFilter(data)
       }
-    ) */
+    )
 
     this.subject_input.pipe(debounceTime(1000)).subscribe(
       data => {        
@@ -75,7 +87,7 @@ export class SameAsComponent implements OnInit {
         this.sameAsArray.clear();
         
         this.memorySameAs = [];
-        //console.log(this.object)
+        console.log(this.object)
   
         this.object.array.forEach(element => {
           this.addSameAsEntry(element.lexicalEntity, element.inferred)
@@ -83,6 +95,20 @@ export class SameAsComponent implements OnInit {
         });
 
         //console.log(this.memorySameAs)
+
+        let isCognate = this.object.type.find(element => element == 'Cognate');
+        if(isCognate){
+            this.sameAsForm.get('isCognate').setValue(true, {emitEvent: false})
+        }else{
+            this.sameAsForm.get('isCognate').setValue(false, {emitEvent: false})
+        }
+
+        let isEtymon = this.object.type.find(element => element == 'Etymon');
+        if(isEtymon){
+            this.sameAsForm.get('isEtymon').setValue(true, {emitEvent: false})
+        }else{
+            this.sameAsForm.get('isEtymon').setValue(false, {emitEvent: false})
+        }
 
         if(this.object.lexicalEntryInstanceName != undefined){
           this.isLexEntry = true;
@@ -160,6 +186,177 @@ export class SameAsComponent implements OnInit {
     
   }
 
+  onChangeSameAs(sameAs, index){
+    console.log(sameAs.selectedItems)
+    if(sameAs.selectedItems.length != 0){
+      var selectedValues = sameAs.selectedItems[0].value.lexicalEntry;
+      let lexId = this.object.lexicalEntryInstanceName;
+    
+      let parameters = {
+        type : "reference",
+        relation : "sameAs",
+        value : selectedValues
+      }
+      console.log(parameters)
+      this.lexicalService.updateGenericRelation(lexId, parameters).subscribe(
+        data=>{
+          console.log(data)
+        }, error=>{
+          console.log(error)
+        }
+      )
+    }
+    
+    
+  }
+
+  onSearchFilter(data){
+    this.filterLoading = true;
+    this.searchResults = [];
+
+    let value = data.value;
+    let index = data.index;
+    console.log(data)
+    this.sameAsArray = this.sameAsForm.get('sameAsArray') as FormArray;
+    let isLila = this.sameAsArray.at(index).get('lila').value;
+
+    if(!isLila){
+      if(this.object.lexicalEntryInstanceName != undefined){
+        let parameters = {
+          text: data,
+          searchMode: "startsWith",
+          type: "",
+          pos: "",
+          formType: "entry",
+          author: "",
+          lang: "",
+          status: "",
+          offset: 0,
+          limit: 500
+        }
+        console.log(data.length)
+          this.lexicalService.getLexicalEntriesList(parameters).subscribe(
+            data=>{
+              console.log(data)
+              this.searchResults = data['list']
+              console.log(this.searchResults)
+              this.filterLoading = false;
+            },error=>{
+              console.log(error)
+              this.filterLoading = false;
+            }
+          )
+        
+      }else if(this.object.formInstanceName != undefined){
+          let lexId = this.object.parentInstanceName;
+          let parameters = {
+            form: "pesca",
+            formType: "lemma",
+            lexicalEntry: lexId,
+            senseUris: "",
+            extendTo: "",
+            extensionDegree: 3
+          
+          }
+          console.log(parameters);
+          this.lexicalService.getFormList(parameters).subscribe(
+            data=>{
+              console.log(data)
+              this.searchResults = data['list']
+              this.filterLoading = false;
+            },error=>{
+              console.log(error)
+              this.filterLoading = false;
+            }
+          )
+        
+        
+      }else if(this.object.senseInstanceName != undefined){
+          let parameters = {
+            text: data,
+            searchMode: "startsWith",
+            type: "",
+            pos: "",
+            formType: "entry",
+            author: "",
+            lang: "",
+            status: "",
+            offset: 0,
+            limit: 500
+          }
+    
+          this.lexicalService.getLexicalSensesList(parameters).subscribe(
+            data=>{
+              this.searchResults = data
+              this.filterLoading = false;
+            },error=>{
+              console.log(error)
+              this.filterLoading = false;
+            }
+          )
+      }
+    }else if(isLila){
+      this.searchResults = [];
+      if(this.sameAsForm.get('isEtymon').value){
+          this.lilaService.queryEtymon(value).subscribe(
+              data=>{
+                  console.log(data)
+                  if(data.list.length > 0){
+                      data.list.forEach(element => {
+                          this.searchResults.push(element)
+                      });
+                  }
+              },
+              error=>{
+                  console.log(error)
+              }
+          )
+      }
+
+
+      if(this.sameAsForm.get('isCognate').value){
+          this.lilaService.queryCognate(value).subscribe(
+              data=>{
+                  console.log(data);
+                  if(data.list.length > 0){
+
+                    
+                    const map = data.list.map(element => ({label: element[0].value, pos : element[1].value}))
+
+                    /* map.forEach(element => {
+                      this.searchResults.push(element)
+                    }); */
+
+                    this.searchResults = map;
+
+                  }
+
+              },
+              error=>{
+                  console.log(error)
+              }
+          )
+      }
+    }
+    
+
+    console.log(data)
+  
+  }
+
+  triggerLilaSearch(index){
+    const element = Array.from(this.sameAsList)[index];
+    setTimeout(() => {
+      
+      if(element!=undefined){
+        element.filter(this.object.label)
+        this.onSearchFilter({value: this.object.label, index: index})
+      }
+      
+
+    }, 250);
+  }
+
   deleteData(){
     this.searchResults = [];
   }
@@ -168,6 +365,13 @@ export class SameAsComponent implements OnInit {
     if(evt.target != undefined){
       let value = evt.target.value;
       this.subject_input.next({value, i})
+    }
+  }
+
+  triggerSameAs(evt,i){
+    console.log(evt.target.value)
+    if(evt.target != undefined){
+      this.subject.next({value: evt.target.value, index: i})
     }
   }
 
@@ -184,18 +388,22 @@ export class SameAsComponent implements OnInit {
     if(e == undefined){
       return this.formBuilder.group({
         entity: null,
-        inferred : false
+        inferred : false,
+        lila: false
       })
     }else{
       return this.formBuilder.group({
         entity: e,
-        inferred : i
+        inferred : i,
+        lila: false
       })
     }
     
   }
 
   addSameAsEntry(e?, i?) {
+
+
     this.sameAsArray = this.sameAsForm.get('sameAsArray') as FormArray;
     if(e == undefined){
       this.sameAsArray.push(this.createSameAsEntry());
@@ -204,6 +412,13 @@ export class SameAsComponent implements OnInit {
     }
     
     this.triggerTooltip();
+
+    setTimeout(() => {
+      const index = this.sameAsList.length-1;
+      const element = this.sameAsList.last;
+      element.filter(this.object.label)
+      this.onSearchFilter({value: this.object.label, index: index})
+    }, 250);
   }
 
   removeElement(index) {

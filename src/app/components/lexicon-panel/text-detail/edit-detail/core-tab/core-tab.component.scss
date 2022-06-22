@@ -10,8 +10,9 @@ $font-size: 12px;
     font-size: $font-size;
 }
 
-.card-header {
-    padding: 5px 18px;
+.card-header,
+.card-footer {
+    padding: 0;
     background-color: $gray-300;
 }
 

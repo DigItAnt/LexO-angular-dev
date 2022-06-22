@@ -2,7 +2,7 @@
 
 <form [formGroup]="coreForm" *ngIf="object != null">
     <div *ngIf="{etymon : coreForm.get('type').value == 'Etymon'}; let variable">
-        <div class="form-group row ml-2 mt-3 mr-2">
+        <div class="form-group row m-2">
             <label for="inputLabel" class="col-lg-3 col-form-label">Label:</label>
             <div class="input-group col-lg-7">
                 <input id="label" formControlName="label" name="label" type="text" class="form-control" placeholder=""
@@ -12,7 +12,7 @@
                 </div>
             </div>
         </div>
-        <!-- <div class="form-group row ml-2 mt-3 mr-2">
+        <!-- <div class="form-group row m-2">
             <div class="col-lg-3">
                 <div class="form-check p-0">
                     <label class="form-check-label" for="gridCheck1">
@@ -23,7 +23,7 @@
             </div>
         </div> -->
 
-        <div class="form-group row ml-2 mt-3 mr-2">
+        <div class="form-group row m-2">
             <div class="col-lg-3">
                 <label class="" for="sw">Etymon</label>
             </div>
@@ -35,18 +35,18 @@
             </div>
         </div>
 
-        <div class="form-group row ml-2 mt-3 mr-2" *ngIf="{confidence : coreForm.get('confidence').value >= 0}; let variable">
+        <div class="form-group row m-2" *ngIf="{confidence : coreForm.get('confidence').value >= 0}; let variable">
             <div class="col-lg-3">
                 <label for="uncertainBox">Uncertain</label>
             </div>
-            <div class="col-lg-3 input-group">
+            <div class="col-lg-3 input-group uncertain">
                 <input *ngIf="variable.confidence" id="attributes"  step="0.1" formControlName="confidence" name="confidence" type="number" min="0" max="1" class="form-control" placeholder="No info" [value]="coreForm.get('confidence').value">
-                <button type="button" class="btn btn-secondary rounded-circle ml-2" *ngIf="!variable.confidence" (click)="variable.confidence = !variable.confidence"><i class="fas fa-plus"></i></button>
-                <button type="button" class="btn btn-secondary rounded-circle ml-2" *ngIf="variable.confidence" (click)="variable.confidence = !variable.confidence; applyUncertain()"><i class="fas fa-minus"></i></button>
+                <button type="button" class="btn btn-secondary btn-sm rounded-circle" *ngIf="!variable.confidence" (click)="variable.confidence = !variable.confidence"><i class="fas fa-plus"></i></button>
+                <button type="button" class="btn btn-secondary btn-sm rounded-circle" *ngIf="variable.confidence" (click)="variable.confidence = !variable.confidence; applyUncertain()"><i class="fas fa-minus"></i></button>
             </div>
         </div>
 
-        <div class="form-group row ml-2 mt-3 mr-2" *ngIf="!variable.etymon">
+        <div class="form-group row m-2" *ngIf="!variable.etymon">
             <div class="col-lg-3 col-form-label">
                 <label for="inputType">Type:</label>
             </div>
@@ -71,7 +71,7 @@
                 </div>
             </div>
         </div>
-        <div class="form-group row ml-2 mt-3 mr-2">
+        <div class="form-group row m-2">
             <label for="inputLanguage" class="col-lg-3 col-form-label">Language:</label>
             <div class="col-lg-7">                
                 <select formControlName="language" name="language" class="form-control" (change)="onChangeLanguage($event)">
@@ -88,7 +88,7 @@
     
 
     <!-- MORPHOLOGY -->
-    <div class="form-group row ml-2 mt-3 mr-2">
+    <div class="form-group row m-2">
         <div class="input-group col-lg-12">
             <div class="card">
                 <span class="text-id"><b>MORPHOLOGY</b></span>
@@ -191,7 +191,7 @@
         </div>
     </div>
 
-    <div class="form-group row ml-2 mt-3 mr-2">
+    <div class="form-group row m-2 mt-3">
         <label for="inputLabel" class="col-lg-3 col-form-label">Stem type:</label>
         <div class="input-group col-lg-7">
             <input id="stemType" formControlName="stemType" name="stemType" type="text" class="form-control" placeholder=""
@@ -203,14 +203,14 @@
     </div>
 
 
-    <div class="form-group row ml-2 mt-3 mr-2">
+    <div class="form-group row m-2">
         <div class="input-group col-lg-12">
             <div class="card">
                 <span class="text-id"><b>DENOTES</b></span>
                 <a class="pointer" (click)="addDenotes()"><span class="collapse-icon"><i
                             class="fa fa-plus-square"></i></span></a>
                 <div class="card-body">
-                    <div class="form-group row ml-2 mt-3 mr-2" formArrayName="denotes"
+                    <div class="form-group row m-2" formArrayName="denotes"
                         *ngFor="let den of coreForm.get('denotes')['controls']; let i = index">
                         <div class="input-group col-xl-12"  [formGroupName]="i">
                             <input formControlName="entity" name="entity" type="text" [value]="den.get('entity').value"
@@ -232,18 +232,18 @@
         </div>
     </div>
 
-    <div class="form-group row ml-2 mt-3 mr-2">
+    <div class="form-group row m-2">
         <div class="input-group col-lg-12">
             <div class="card">
                 <span class="text-id"><b>COGNATES</b></span>
                 <a class="pointer" (click)="addCognates()"><span class="collapse-icon"><i
                             class="fa fa-plus-square"></i></span></a>
                 <div class="card-body">
-                    <div class="form-group row ml-2 mt-3 mr-2" formArrayName="cognate"
-                        *ngFor="let cog of coreForm.get('cognate')['controls']; let i = index">
+                    <div class="form-group row m-2" formArrayName="cognates"
+                        *ngFor="let cog of coreForm.get('cognates')['controls']; let i = index">
                         <div class="input-group col-xl-12"  [formGroupName]="i" *ngIf="{switch : false}; let variable">
                             <ng-select #select_cognates formControlName="entity" name="entity" [dropdownPosition]="'top'"
-                                (keyup)="triggerCognates($event)" (change)="handleCognates(select_cognates, i)"
+                                (keyup)="triggerCognates($event, i)" (change)="handleCognates(select_cognates, i)"
                                 [items]="searchResults" bindValue="label" (focus)="deleteData()" bindLabel="label"
                                 placeholder="Search cognates" appendTo="body"
                                 *ngIf="!variable.switch && cog.get('type').value != 'external'">
@@ -265,12 +265,14 @@
                                     data-placement="bottom" data-trigger="hover"
                                     title="Clicca per inserire un URI manualmente">
                             </div>
-                            <div class="input-group-append ml-2">
-                                <button type="button" class="btn btn-secondary" placement="top" ngbTooltip="Enable LiLa endpoint" title="Enable LiLa endpoint" data-toggle="button" aria-pressed="false" autocomplete="off" style="border-radius: .3rem;">
-                                    <img src="../../../../../../../assets/images/graphql.png" alt="Avatar" class="image" style="height: 20px;">
-
-                                  </button>
-                            </div>
+                            <!-- <div class="input-group-append ml-2">
+                                <div class="btn-group-toggle" data-toggle="buttons" placement="top" ngbTooltip="Enable LiLa endpoint" title="Enable LiLa endpoint" >
+                                    <label class="btn btn-secondary" >
+                                      <input type="checkbox" autocomplete="off" autocomplete="off" formControlName="lila" name="lila" style="border-radius: .3rem;" *ngIf="!variable.switch && cog.get('type').value != 'external'"> 
+                                        <img src="../../../../../../../assets/images/graphql.png" alt="Avatar" class="image" style="height: 20px;">
+                                    </label>
+                                </div>
+                            </div> -->
                             <div class="input-group-append ml-2">
                                 <button (click)="removeCognates(i)" class="btn btn-danger" type="button"><i
                                         class="fa fa-trash-alt"></i></button>
@@ -283,3 +285,5 @@
     </div>
 
 </form>
+
+<!-- {{coreForm.value | json}} -->

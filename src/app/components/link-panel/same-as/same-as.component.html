@@ -14,65 +14,68 @@
                                 <div class="d-flex">
                                     <div class="form-group row ml-2  mr-2 w-100" *ngIf="{switch : false}; let variable">
                                         <div class="input-group" *ngIf="{boolean : sameAs.get('inferred').value}; let inf">
-                                            <!-- <ng-select #sameAs formControlName="entity" name="entity"
+                                            <ng-select [isOpen]="dropdown" #sameAs formControlName="entity" name="entity"
                                                 (change)="onChangeSameAs(sameAs, i)" (focus)="deleteData()"
-                                                (keyup)="triggerSameAs($event)" formControlName="entity" name="entity"
+                                                (keyup)="triggerSameAs($event, i)" formControlName="entity" name="entity"
                                                 bindValue="label" class="resizeNgSelect" [items]="searchResults"
                                                 bindLabel="label" placeholder="Search entity" appendTo="body"
                                                 *ngIf="!variable.switch" [readonly]="inf.boolean">
-                                            </ng-select> -->
-                                            <!-- <ng-select #seeAlso formControlName="entity" name="entity"
-                                                (change)="onChangeSameAs(seeAlso, i)" (focus)="deleteData()"
-                                                (keyup)="triggerSameAs($event)" formControlName="entity" name="entity"
-                                                bindValue="lemma" class="resizeNgSelect" [items]="searchResults"
-                                                bindLabel="lemma" placeholder="Search entity" appendTo="body"
-                                                *ngIf="!variable.switch && isSense" [readonly]="inf.boolean">
-                                            </ng-select> -->
+                                                <!-- <ng-template ng-option-tmp let-item="item" let-search="searchTerm" *ngIf="!sameAsForm.get('isEtymon').value || !sameAsForm.get('isCognate').value">
+                                           
+                                                    <div class="card-body p-0">
+                                                        <h6 class="card-title m-0" [ngOptionHighlight]="search">{{item.label}}</h6>
+                                                        <small *ngFor="let sub of item.morphology">
+                                                            <span *ngIf="sub.trait == 'case' || sub.trait == 'gender' || sub.trait == 'number' || sub.trait == 'partOfSpeech'">
+                                                                {{sub.trait}} : {{sub.value}} <br>
+                                                            </span>
+                                                        </small>
+                                                        <small class="card-text">
+                                                           
+                                        
+                                                        </small>
+                                                       
+                                                    </div>
+                                        
+                                                </ng-template>
+
+                                                <ng-template ng-option-tmp let-item="item" let-search="searchTerm" *ngIf="sameAsForm.get('isEtymon').value || sameAsForm.get('isCognate').value">
+                                           
+                                                    <div class="card-body p-0">
+                                                        <h6 class="card-title m-0" [ngOptionHighlight]="search">{{item.label}}</h6>
+                                                        <small >
+                                                            {{item.pos}}
+                                                        </small>
+                                                        <small class="card-text">
+                                                           
+                                        
+                                                        </small>
+                                                       
+                                                    </div>
+                                        
+                                                </ng-template> -->
+                                            </ng-select>
+                                            
                                             <input formControlName="entity" name="entity" type="text"
                                                 class="form-control " (keyup)="triggerSameAsInput($event, i)"
-                                                placeholder="Insert URI">
+                                                placeholder="Insert URI"  *ngIf="variable.switch">
 
                                             <div class="input-group-append" *ngIf="!inf.boolean">
-                                               <!--  <div class="input-group-append ml-2 form-check">
+                                                <div class="input-group-append ml-2 form-check">
                                                     <input class="form-check-input same-as-tooltip" type="checkbox"
                                                         (change)="variable.switch=!variable.switch"
                                                         data-toggle="tooltip" data-placement="bottom"
                                                         data-trigger="hover"
                                                         title="Clicca per inserire un URI manualmente">
                                                     <label class="form-check-label" for="extCheck"></label>
-                                                </div> -->
-                                                <!-- <div class="input-group-append ml-2">
-                                                    <button class="btn btn-primary" type="button"
-                                                        (click)="modalRoot2.show()"><i
-                                                            class="fa fa-external-link-alt"></i></button>
-                                                    <app-modal #modalRoot2 class="modal-demo" [maximizable]="true"
-                                                        [backdrop]="false">
-                                                        <ng-container class="app-modal-header">Demo modal</ng-container>
-                                                        <ng-container class="app-modal-body">
-                                                            <h3>MODAL DIALOG</h3>
-                                                            <p>Lorem Ipsum is simply dummy text of the printing and
-                                                                typesetting
-                                                                industry.
-                                                                Lorem Ipsum has been the industry’s standard dummy text
-                                                                ever
-                                                                since the 1500s.</p>
-                                                        </ng-container>
-                                                        <ng-container class="app-modal-footer">
-                                                            <button type="button" class="button button3"
-                                                                (click)="modalRoot2.hide()">Delete</button>
-                                                            <button type="button" class="button button1"
-                                                                (click)="modalRoot2.hide()">Save</button>
-                                                            <button type="button" class="button button2"
-                                                                style="float: right;" (click)="modalRoot2.hide()">Close
-                                                            </button>
-                                                        </ng-container>
-                                                    </app-modal>
-                                                </div> -->
+                                                </div>
+                                                
                                                 <div class="input-group-append ml-2">
-                                                    <button type="button" class="btn btn-secondary" placement="top" ngbTooltip="Enable LiLa endpoint" title="Enable LiLa endpoint" data-toggle="button" aria-pressed="false" autocomplete="off" style="border-radius: .5rem;">
-                                                        <img src="../../../../assets/images/graphql.png" alt="Avatar" class="image" style="height: 20px;">
-                    
-                                                      </button>
+                                                    <div class="btn-group-toggle" data-toggle="buttons" placement="top" ngbTooltip="Enable LiLa endpoint" title="Enable LiLa endpoint" >
+                                                        <label class="btn btn-secondary" >
+                                                          <input (click)="triggerLilaSearch(i)" type="checkbox" autocomplete="off" autocomplete="off" formControlName="lila" name="lila" style="border-radius: .3rem;" *ngIf="sameAsForm.get('isCognate').value || sameAsForm.get('isEtymon').value"> 
+                                                            <img src="../../../../../../../assets/images/graphql.png" alt="Avatar" class="image" style="height: 20px;">
+                                                        </label>
+                                                    </div>
                                                 </div>
                                                 <div class="input-group-append ml-2">
                                                     <button (click)="removeElement(i)" class="btn btn-danger"
@@ -80,9 +83,7 @@
                                                 </div>
                                             </div>
 
-                                            <!-- <div class="invalid-feedback" *ngIf="sameAs.get('entity').value.length < 3" style="display: block; font-size: 9px;">
-                                                Insert at least 3 chars...
-                                            </div> -->
+                                           
                                         </div>
                                     </div>
                                 </div>

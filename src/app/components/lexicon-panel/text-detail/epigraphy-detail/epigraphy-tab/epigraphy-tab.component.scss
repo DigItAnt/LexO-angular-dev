@@ -22,7 +22,7 @@ p {
 }
 
 .card-header {
-    padding: 5px 18px;
+    padding:0;
     background-color: $gray-300;
 }
 
@@ -53,20 +53,7 @@ p {
 .dropdown-item {
     font-size: 12px;
 }
-
-
-/* .card {
-    border: 0;
-
-    .card-body {
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-        max-height: calc(50vh - 12rem);
-        min-height: calc(50vh - 12rem);
-        overflow: auto;
-        
-    }
-} */
+.nav-link
 
 .xml-icon {
     max-height: 25px;

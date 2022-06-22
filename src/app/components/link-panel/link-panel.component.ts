@@ -44,17 +44,21 @@ export class LinkPanelComponent implements OnInit {
         let lexId = this.object.lexicalEntryInstanceName;
         this.lexicalService.getLexEntryLinguisticRelation(lexId, 'sameAs').subscribe(
           data=>{
-            //console.log(data);
+            console.log(data, this.object);
             this.sameAsData = {}
             this.sameAsData['array'] = data;
             this.sameAsData['parentNodeLabel']= this.object['lexicalEntry'];
             this.sameAsData['lexicalEntryInstanceName']= this.object['lexicalEntryInstanceName'];
+            this.sameAsData['type'] = this.object.type;
           }, error=>{
+            console.log(this.object)
             this.sameAsData = {}
             this.sameAsData['array'] = [];
             this.sameAsData['parentNodeLabel']= this.object['lexicalEntry'];
             this.sameAsData['lexicalEntryInstanceName']= this.object['lexicalEntryInstanceName'];
-            //console.log(error);
+            this.sameAsData['label']= this.object['label'];
+            this.sameAsData['type'] = this.object.type;
+            console.log(error);
             
           }
         )

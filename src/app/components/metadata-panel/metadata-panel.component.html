@@ -16,17 +16,17 @@
                         aria-controls="edition" aria-selected="true">Edition</a>
                 </li>
                 <li>
-                    <a class="nav-link" id="text-tab" data-toggle="tab" href="#text_metadata" role="tab"
-                        aria-controls="text_metadata" aria-selected="false">Epigraphy</a>
+                    <a class="nav-link" id="epigraphy-tab" data-toggle="tab" href="#epigraphy_metadata" role="tab"
+                        aria-controls="epigraphy_metadata" aria-selected="false">Epigraphy</a>
                 </li>
                 <li>
                     <a class="nav-link" id="other-tab" data-toggle="tab" href="#other_metadata" role="tab"
-                        aria-controls="other_metadata" aria-selected="false">Other</a>
+                        aria-controls="other_metadata" aria-selected="false">Text</a>
                 </li>
             </ul>
             <div class="tab-content" id="myTabContent" *ngIf="object != null">
                 <div class="tab-pane fade show active" id="edition" role="tabpanel" aria-labelledby="file-tab">
-                    <div class="card file_body">
+                    <div class="card epi_body">
                         <span class="text-id">EDITION</span>
                         <!-- <a href="#a"><span class="edit-icon"><i class="fa fa-edit"></i></span></a>
                         <a href="#b"><span class="trash-icon"><i class="fa fa-trash"></i></span></a> -->
@@ -35,28 +35,47 @@
                                 <span class="badge badge-primary">Form</span>
                             </div> -->
                             <div class="d-flex">
-                                <table class="table table-borderless">
+                                <table class="table table-borderless w-100" style="table-layout: fixed; ">
                                     <tbody>
-                                        <tr>
-                                            <th scope="row">Title:</th>
-                                            <td>{{object.title != undefined ? object.title : 'no info'}}</td>
+                                        <tr style="width: 100%;" *ngIf="object.title != undefined || object?.title != ''">
+                                            <th style="width: 30%;" scope="row">Title:</th> 
+                                            <td style="width: 70%;"><span>{{object.title}}</span></td>
                                         </tr>
-                                        <tr>
+                                        <tr *ngIf="object['element-id'] != undefined || object['element-id'] != ''">
                                             <th scope="row">Id:</th>
-                                            <td>{{object['element-id'] != undefined ? object['element-id'] : 'no info'}}
-                                            </td>
+                                            <td><span>
+                                                {{object['element-id']}}
+                                            </span> </td>
                                         </tr>
-                                        <tr>
+                                        <tr *ngIf="object.editor != undefined || object?.editor != ''">
                                             <th scope="row">Editor:</th>
-                                            <td>{{object.editor != undefined ? object.editor : 'no info'}}</td>
+                                            <td><span>
+                                                {{object.editor}}
+                                            </span></td>
+                                        </tr>
+                                        <tr style="width: 100%;" *ngIf="object.authority != undefined || object?.authority != ''">
+                                            <th style="width: 30%;" scope="row">Authority:</th>
+                                            <td style="width: 70%;"><span>
+                                                {{object.authority}}
+                                            </span></td>
+                                        </tr>
+                                        <tr *ngIf="object.license != undefined || object?.license != ''">
+                                            <th scope="row">License:</th>
+                                            <td>
+                                                <p class="m-0" *ngFor="let subprop of object.license | keyvalue">
+                                                    <a [href]="subprop?.value"  target="_blank" *ngIf="isLink(subprop?.value)">{{subprop?.value}}</a>
+                                                    <span *ngIf="!isLink(subprop?.value)">{{subprop?.value}}</span>
+                                                </p>
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
+                    
                 </div>
-                <div class="tab-pane fade" id="text_metadata" role="tabpanel" aria-labelledby="text-tab">
+                <div class="tab-pane fade" id="epigraphy_metadata" role="tabpanel" aria-labelledby="epigraphy-tab">
                     <div class="card epi_body">
                         <span class="text-id">EPIGRAPHY</span>
                         <!-- <a href="#a"><span class="edit-icon"><i class="fa fa-edit"></i></span></a>
@@ -69,13 +88,29 @@
                             <div class="d-flex">
                                 <table class="table table-borderless">
                                     <tbody>
-                                        <tr>
+                                        <tr *ngIf="object?.itAnt_ID != undefined && object?.itAnt_ID != ''">
+                                            <th scope="row">ItAnt ID</th>
+                                            <td><span>{{object?.itAnt_ID}}</span></td>
+                                        </tr>
+                                        <tr *ngIf="object?.inscriptionTitle != undefined && object?.inscriptionTitle != ''">
+                                            <th scope="row">Inscription title</th>
+                                            <td><span>{{object?.inscriptionTitle}}</span></td>
+                                        </tr>
+                                        <tr *ngIf="object?.inscriptionType != undefined && object?.inscriptionType != ''">
+                                            <th scope="row">Inscription type</th>
+                                            <td><span>{{object?.inscriptionType}}</span></td>
+                                        </tr>
+                                        <tr *ngIf="object?.summary != undefined && object?.summary != ''">
+                                            <th scope="row">Summary</th>
+                                            <td><span>{{object?.summary}}</span></td>
+                                        </tr>
+                                        <tr *ngIf="object?.trismegistos?.trismegistosID_url!= undefined">
                                             <th scope="row">Trismegistos ID</th>
                                             <td><a target="_blank"
                                                     [href]="'//'+object?.trismegistos?.trismegistosID_url">
                                                     {{object?.trismegistos?.trismegistosID}}</a></td>
                                         </tr>
-                                        <tr>
+                                        <tr *ngIf="object?.traditionalIDs != undefined && object?.traditionalIDs != ''">
                                             <th scope="row">Other IDs:</th>
                                             <td>
                                                 <p class="m-0" *ngFor="let other_id of object.traditionalIDs">
@@ -85,7 +120,7 @@
                                                 </p>
                                             </td>
                                         </tr>
-                                        <tr>
+                                        <tr *ngIf="object?.originalPlace != undefined && object?.originalPlace != ''">
                                             <th scope="row">Original Place:</th>
                                             <td>
                                                 <a *ngIf="object?.originalPlace?.ancientNameUrl != ''" target="_blank"
@@ -94,7 +129,113 @@
                                                     *ngIf="object?.originalPlace?.ancientNameUrl == ''">{{object?.originalPlace?.ancientName}}</span>
                                             </td>
                                         </tr>
-                                        <tr>
+                                        
+                                        
+                                        <tr *ngIf="object?.support?.objectType_conceptUrl != undefined && object?.support?.objectType_conceptUrl != ''">
+                                            <th scope="row">Object Type:</th>
+                                            <td>
+                                                <a *ngIf="object?.support?.objectType_conceptUrl != ''" target="_blank"
+                                                    [href]="object?.support?.objectType_conceptUrl">
+                                                    {{object?.support?.objectType}}</a> <span
+                                                    *ngIf="object?.support?.objectType_conceptUrl == ''">{{object?.support?.objectType}}</span>
+                                            </td>
+                                        </tr>
+                                        <tr *ngIf="object?.condition != undefined && object?.condition != ''">
+                                            <th scope="row">Condition:</th>
+                                            <td><span>{{object?.condition}}</span></td>
+                                        </tr>
+                                        <tr *ngIf="object?.conservationInstitution != undefined && object?.conservationInstitution != ''">
+                                            <th scope="row">Conservation institution:</th>
+                                            <td>
+                                                <a *ngIf="object?.conservationInstitution?.URL != ''" target="_blank"
+                                                    [href]="object?.conservationInstitution?.URL">
+                                                    {{object?.conservationInstitution?.name}}</a> <span
+                                                    *ngIf="object?.conservationInstitution?.URL == ''">{{object?.conservationInstitution?.name}}</span>
+                                            </td>
+                                        </tr>
+                                        <tr *ngIf="object?.dateOfOrigin != undefined && object?.dateOfOrigin != ''">
+                                            <th scope="row">Date of origin:</th>
+                                            <td><span>{{object?.dateOfOrigin}}</span></td>
+                                        </tr>
+                                        <tr *ngIf="object?.dateOfOriginNotBefore != undefined && object?.dateOfOriginNotBefore != ''">
+                                            <th scope="row">Date of origin not before:</th>
+                                            <td><span>{{object?.dateOfOriginNotBefore}}</span></td>
+                                        </tr>
+                                        <tr *ngIf="object?.dateOfOriginNotAfter != undefined && object?.dateOfOriginNotAfter != ''">
+                                            <th scope="row">Date of origin not after:</th>
+                                            <td><span>{{object?.dateOfOriginNotAfter}}</span></td>
+                                        </tr>
+                                        <tr *ngIf="object?.datingCertainty != undefined && object?.datingCertainty != ''">
+                                            <th scope="row">Date certainty:</th>
+                                            <td><span>{{object?.datingCertainty}}</span></td>
+                                        </tr>
+                                        <tr *ngIf="object?.decoration != undefined && object?.decoration != ''">
+                                            <th scope="row">Date certainty:</th>
+                                            <td><span>{{object?.datingCertainty}}</span></td>
+                                        </tr>
+                                        <tr *ngIf="object?.decoration != undefined && object?.decoration != ''">
+                                            <th scope="row">Detailed Find Spot:</th>
+                                            <td><span>{{object?.decoration}}</span></td>
+                                        </tr>
+                                        <tr *ngIf="object?.detailedFindSpot != undefined && object?.detailedFindSpot != ''">
+                                            <th scope="row">Detailed Find Spot:</th>
+                                            <td><span>{{object?.detailedFindSpot}}</span></td>
+                                        </tr>
+                                        <tr style="width: 100%;" *ngIf="object?.discoveryYear != undefined">
+                                            <th style="width: 30%;" scope="row">Discovery Year</th>
+                                            <div *ngIf="isObject(subprop?.value)">
+                                                <table class="table table-borderless text-break"
+                                                    style="table-layout: fixed;">
+                                                    <tr style="width: 100%;" *ngFor="let sub of object?.discoveryYear| keyvalue">
+                                                        <td *ngIf="sub?.value != ''">
+                                                            <b  *ngIf="sub?.value != ''">{{sub?.key}}:</b> <span *ngIf="!isLink(sub?.value)">{{sub?.value}}</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                            <div *ngIf="isArray(subprop?.value)">
+                                                <table class="table table-borderless text-break" style="table-layout: fixed;">
+                                                    <div *ngFor="let array of subprop.value">
+                                                        <tr style="width: 100%;" *ngFor="let object of array | keyvalue">
+                                                            <td>
+                                                                <b  *ngIf="object?.value != ''">{{object?.key}}:</b>
+                                                                <p>
+                                                                    <a [href]="object?.value" target="_blank" *ngIf="isLink(object?.value)">{{object?.value}}</a>
+                                                                    <span *ngIf="!isLink(object?.value)">{{object?.value}}</span>
+                                                                </p>
+                                                            </td>
+                                                        </tr>
+                                                    </div>
+                                                    
+                                                </table>
+                                            </div>
+            
+                                        </tr>
+                                        <tr *ngIf="object?.execution != undefined && object?.execution != ''">
+                                            <th scope="row">Execution:</th>
+                                            <td><span>{{object?.execution}}</span></td>
+                                        </tr>
+                                        <tr *ngIf="object?.layoutNotes != undefined && object?.layoutNotes != ''">
+                                            <th scope="row">Layout Notes:</th>
+                                            <td><span>{{object?.layoutNotes}}</span></td>
+                                        </tr>
+                                        <tr *ngIf="object?.modernFindSpotName != undefined && object?.modernFindSpotName != ''">
+                                            <th scope="row">Modern Find Sport Name:</th>
+                                            <td>
+                                                <a [href]="object?.modernFindSpotNameUri" target="_blank" *ngIf="object?.modernFindSpotNameUri != undefined && object?.modernFindSpotNameUri != ''">{{object?.modernFindSpotName}}</a>
+                                                <span *ngIf="object?.modernFindSpotNameUri == ''">{{object?.modernFindSpotName}}</span>
+                                            </td>
+                                        </tr>
+                                        <tr *ngIf="object?.opistography != undefined && object?.opistography != ''">
+                                            <th scope="row">Opistography:</th>
+                                            <td><span>{{object?.opistography}}</span></td>
+                                        </tr>
+                                        <tr *ngIf="object?.paleographicNotes != undefined && object?.paleographicNotes != ''">
+                                            <th scope="row">Paleographic Notes:</th>
+                                            <td><span>{{object?.paleographicNotes}}</span></td>
+                                        </tr>
+                                        
+                                        <tr *ngIf="object?.settlement != undefined && object?.settlement != ''">
                                             <th scope="row">Settlement:</th>
                                             <td>
                                                 <a *ngIf="object?.settlement?.placeOfConservationExternalReference != ''"
@@ -104,22 +245,13 @@
                                                     *ngIf="object?.settlement?.placeOfConservationExternalReference == ''">{{object?.settlement?.placeOfConservation}}</span>
                                             </td>
                                         </tr>
-                                        <tr>
+                                        <tr *ngIf="object?.support?.material_conceptUrl != undefined && object?.support?.material_conceptUrl != ''">
                                             <th scope="row">Material:</th>
                                             <td>
                                                 <a *ngIf="object?.support?.material_conceptUrl != ''" target="_blank"
                                                     [href]="object?.support?.material_conceptUrl">
                                                     {{object?.support?.material}}</a> <span
                                                     *ngIf="object?.support?.material_conceptUrl == ''">{{object?.support?.material}}</span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">Object Type:</th>
-                                            <td>
-                                                <a *ngIf="object?.support?.objectType_conceptUrl != ''" target="_blank"
-                                                    [href]="object?.support?.objectType_conceptUrl">
-                                                    {{object?.support?.objectType}}</a> <span
-                                                    *ngIf="object?.support?.objectType_conceptUrl == ''">{{object?.support?.objectType}}</span>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -131,7 +263,7 @@
                 </div>
                 <div class="tab-pane fade" id="other_metadata" role="tabpanel" aria-labelledby="other-tab">
                     <div class="card epi_body">
-                        <!-- <span class="text-id">EPIGRAPHY</span> -->
+                        <span class="text-id">TEXT</span>
                         <!-- <a href="#a"><span class="edit-icon"><i class="fa fa-edit"></i></span></a>
                         <a href="#b"><span class="trash-icon"><i class="fa fa-trash"></i></span></a> -->
                         <div class="card-body">
@@ -142,45 +274,41 @@
                             <div class="d-flex">
                                 <table class="table table-borderless text-break" style="table-layout: fixed;">
                                     <tbody>
-                                        <tr style="width: 100%;" *ngFor="let subprop of object | keyvalue">
-                                            <th style="width: 30%;" scope="row" *ngIf="(subprop?.key != 'title' || 
-                                                                   subprop?.key != 'element-id' ||
-                                                                   subprop?.key != 'editor' ||
-                                                                   subprop?.key != 'path' ||
-                                                                   subprop?.key != 'trismegistos' ||
-                                                                   subprop?.key != 'originalPlace' ||
-                                                                   subprop?.key != 'settlement' ||
-                                                                   subprop?.key != 'support') && subprop?.value != ''">{{subprop?.key}}</th>
-                                            <td 
-                                                *ngIf="subprop?.value != '' && !isObject(subprop?.value) && !isArray(subprop?.value) && !isNumber(subprop?.value)">
-                                                
-                                                <a [href]="subprop?.value"  target="_blank" *ngIf="isLink(subprop?.value)">{{subprop?.value}}</a>
-                                                <span *ngIf="!isLink(subprop?.value)">{{subprop?.value}}</span>
-                                            </td>
-                                            <div *ngIf="isObject(subprop?.value)">
+                                        <tr *ngIf="object?.autopsy != undefined && object?.autopsy != ''">
+                                            <th scope="row">Autopsy:</th>
+                                            <td><span>{{object?.autopsy}}</span></td>
+                                        </tr>
+
+                                        <tr *ngIf="object?.autopsyAuthor != undefined && object?.autopsyAuthor != ''">
+                                            <th scope="row">Autopsy author:</th>
+                                            <td><span>{{object?.autopsyAuthor}}</span></td>
+                                        </tr>
+
+                                        <tr style="width: 100%;" *ngIf="object?.language != undefined">
+                                            <th style="width: 30%;" scope="row">Language</th>
+                                            <div *ngIf="isObject(object?.language)">
                                                 <table class="table table-borderless text-break"
                                                     style="table-layout: fixed;">
-                                                    <tr style="width: 100%;" *ngFor="let object of subprop.value | keyvalue">
-                                                        <th style="width: 30%;" *ngIf="object?.value != ''">{{object?.key}}</th>
-                                                        <td style="width: 70%;" *ngIf="object?.value != ''">
-                                                            <a [href]="object?.value" target="_blank" *ngIf="isLink(object?.value)">{{object?.value}}</a>
-                                                            <span *ngIf="!isLink(object?.value)">{{object?.value}}</span>
-                                                        </td>
+                                                    <tr style="width: 100%;" *ngFor="let sub of object?.language | keyvalue">
+                                                        <b  *ngIf="sub?.value != ''">{{sub?.key}}</b>
+                                                        <a [href]="sub?.value" target="_blank" *ngIf="isLink(sub?.value)">{{sub?.value}}</a>
+                                                        <span *ngIf="!isLink(sub?.value)">{{sub?.value}}</span>
                                                     </tr>
                                                 </table>
-                                                <!--  <span  *ngFor="let object of subprop.value | keyvalue">
-                                                    {{object?.key}} - {{object?.value}} <br>
-                                                </span> -->
                                             </div>
-                                            <div *ngIf="isArray(subprop?.value)">
+                                            <div *ngIf="isArray(object?.language)">
                                                 <table class="table table-borderless text-break" style="table-layout: fixed;">
-                                                    <div *ngFor="let array of subprop.value">
+                                                    <div *ngFor="let array of object?.language">
                                                         <tr style="width: 100%;" *ngFor="let object of array | keyvalue">
-                                                            <th style="width: 30%;" *ngIf="object?.value != ''">{{object?.key}}</th>
-                                                            <td style="width: 70%;" *ngIf="object?.value != ''">
-                                                                <a [href]="object?.value" target="_blank" *ngIf="isLink(object?.value)">{{object?.value}}</a>
-                                                                <span *ngIf="!isLink(object?.value)">{{object?.value}}</span>
+                                                            <td>
+                                                                <b  *ngIf="object?.value != ''">{{object?.key}}:</b>
+                                                                <p>
+                                                                    <a [href]="object?.value" target="_blank" *ngIf="isLink(object?.value)">{{object?.value}}</a>
+                                                                    <span *ngIf="!isLink(object?.value)">{{object?.value}}</span>
+                                                                </p>
                                                             </td>
+                                                            
+                                                            
                                                         </tr>
                                                     </div>
                                                     
@@ -189,6 +317,18 @@
             
                                         </tr>
 
+                                        <tr *ngIf="object?.bodytextpart?.ductus != undefined && object?.bodytextpart?.ductus">
+                                            <th scope="row">Ductus:</th>
+                                            <td><span>{{object?.bodytextpart?.ductus}}</span></td>
+                                        </tr>
+                                        <tr *ngIf="object?.wordDivisionType != undefined && object?.wordDivisionType">
+                                            <th scope="row">Word division type:</th>
+                                            <td><span>{{object?.wordDivisionType}}</span></td>
+                                        </tr>
+                                        <tr style="width: 100%;" *ngIf="object?.writingSystem != undefined && object?.writingSystem">
+                                            <th style="width: 30%;" scope="row">Writing system:</th>
+                                            <td style="width: 70%;"><span>{{object?.writingSystem}}</span></td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>

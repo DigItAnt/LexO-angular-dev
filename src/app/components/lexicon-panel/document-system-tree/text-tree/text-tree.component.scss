@@ -15,8 +15,8 @@ $font-size: 12px;
 
 .tree-view {
     padding-top: 15px;
-    height: calc(100vh - 23rem);
-    max-height: calc(100vh - 23rem);
+    height: calc(100vh - 22rem);
+    max-height: calc(100vh - 22rem);
 
     .input-group-text {
       height: 22px;
@@ -37,10 +37,10 @@ $font-size: 12px;
 }
 
 
-.btn {
+/* .btn {
     font-size: 12px;
     height: 32px;
-}
+} */
 
 .card,
 .btn {

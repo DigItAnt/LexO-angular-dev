@@ -34,11 +34,11 @@ import { Subject } from 'rxjs';
   animations: [
     trigger('slideInOut', [
       state('in', style({
-        height: 'calc(100vh - 22rem)',
+        height: 'calc(100vh - 18rem)',
         
       })),
       state('out', style({
-        height: 'calc(50vh - 12.5rem)',
+        height: 'calc(50vh - 10rem)',
       })),
       transition('in => out', animate('400ms ease-in-out')),
       transition('out => in', animate('400ms ease-in-out'))
@@ -210,11 +210,11 @@ export class CoreTabComponent implements OnInit {
             
               if(!isEpigraphyExpanded){
                 this.exp_trig = 'in';
-                this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(100vh - 22rem)')
-                this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(100vh - 22rem)')
+                this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(100vh - 18rem)')
+                this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(100vh - 18rem)')
               }else{
-                this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12.5rem)');
-                this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)');
+                this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 10rem)');
+                this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 10rem)');
                 this.exp_trig = 'in';
               }
             
@@ -223,8 +223,8 @@ export class CoreTabComponent implements OnInit {
           }else if(trigger==null){
             return;
           }else{
-            this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12.5rem)');
-            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)');
+            this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 10rem)');
+            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 10rem)');
             this.exp_trig = 'out';
           }
         }, 100);
@@ -237,12 +237,12 @@ export class CoreTabComponent implements OnInit {
         setTimeout(() => {
           if(trigger){
             this.exp_trig = 'in';
-            this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12.5rem)')
-            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)')
+            this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 10rem)')
+            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 10rem)')
           }else if(trigger==null){
             return;
           }else{
-            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)');
+            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 10rem)');
             this.exp_trig = 'out';
           }
         }, 100);
