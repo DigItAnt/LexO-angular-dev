@@ -27,7 +27,8 @@ const routes: Routes = [
   {path: 'lexicon', component: LexiconPageComponent, canActivate: [AuthGuard], data: {roles: ['USER']}},
   {path: 'user', component: ProfilePageComponent, canActivate: [AuthGuard], data: {roles: ['ADMIN']}},
   {path: 'search', component: SearchPageComponent},
-  {path: '**', component: PageNotFoundComponent}
+  /* {path: '**', component: PageNotFoundComponent} */
+  {path: '**', component: LexiconPageComponent}
 ];
 
 @NgModule({

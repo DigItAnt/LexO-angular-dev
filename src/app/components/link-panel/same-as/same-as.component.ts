@@ -35,7 +35,7 @@ export class SameAsComponent implements OnInit {
   searchResults=[];
   filterLoading = false;
 
-  @ViewChildren('sameAs') sameAsList: QueryList<NgSelectComponent>;
+  @ViewChildren('sameAsSelect') sameAsList: QueryList<NgSelectComponent>;
 
 
   memorySameAs = [];
@@ -321,13 +321,16 @@ export class SameAsComponent implements OnInit {
                   if(data.list.length > 0){
 
                     
-                    const map = data.list.map(element => ({label: element[0].value, pos : element[1].value}))
+                    const map = data.list.map(element => ({label: this.object.label, labelValue: element[0].value, pos : element[1].value}))
 
                     /* map.forEach(element => {
                       this.searchResults.push(element)
                     }); */
 
+                    
+
                     this.searchResults = map;
+                    console.log(this.searchResults)
 
                   }
 
@@ -345,13 +348,19 @@ export class SameAsComponent implements OnInit {
   }
 
   triggerLilaSearch(index){
-    const element = Array.from(this.sameAsList)[index];
+    
+    
     setTimeout(() => {
-      
-      if(element!=undefined){
-        element.filter(this.object.label)
-        this.onSearchFilter({value: this.object.label, index: index})
+      this.sameAsArray = this.sameAsForm.get('sameAsArray') as FormArray;
+      if(this.sameAsArray.at(index).get('lila').value){
+        const element = Array.from(this.sameAsList)[index];
+
+        if(element!=undefined){
+          element.filter(this.object.label)
+          this.onSearchFilter({value: this.object.label, index: index})
+        }
       }
+      
       
 
     }, 250);
@@ -413,12 +422,7 @@ export class SameAsComponent implements OnInit {
     
     this.triggerTooltip();
 
-    setTimeout(() => {
-      const index = this.sameAsList.length-1;
-      const element = this.sameAsList.last;
-      element.filter(this.object.label)
-      this.onSearchFilter({value: this.object.label, index: index})
-    }, 250);
+    
   }
 
   removeElement(index) {
