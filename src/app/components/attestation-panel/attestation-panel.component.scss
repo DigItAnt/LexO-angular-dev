@@ -71,6 +71,10 @@ a {
 
 .card-body {
     padding: 0.5rem 0 0 0;
+
+    max-height: 32rem;
+    overflow: auto;
+    
 }
 
 #attestationCollapse {

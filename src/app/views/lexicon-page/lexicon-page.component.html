@@ -1,13 +1,12 @@
 ﻿
 
 <div class="container-fluid">
-	<br>
 	<div class="row" >
 		<div class="col-md-9">
 			<app-lexicon-panel></app-lexicon-panel>
 		</div>
 		<div class="col-md-3 ">
-			<div class="container-fluid">
+			<div class="container-fluid p-1">
 				<div id="accordion" #accordion>
 					<app-note-panel [noteData]="notes"></app-note-panel>
 					<app-link-panel [linkData]="link"></app-link-panel>

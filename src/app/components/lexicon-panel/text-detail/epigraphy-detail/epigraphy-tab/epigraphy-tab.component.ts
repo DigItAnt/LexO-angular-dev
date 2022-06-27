@@ -25,11 +25,11 @@ import { ExpanderService } from 'src/app/services/expander/expander.service';
   animations: [
     trigger('slideInOut', [
       state('in', style({
-        height: 'calc(100vh - 18rem)',
+        height: 'calc(100vh - 15rem)',
         
       })),
       state('out', style({
-        height: 'calc(50vh - 12rem)',
+        height: 'calc(50vh - 10rem)',
       })),
       transition('in => out', animate('400ms ease-in-out')),
       transition('out => in', animate('400ms ease-in-out'))
@@ -148,14 +148,14 @@ export class EpigraphyTabComponent implements OnInit, OnDestroy {
             
             if(!isEditExpanded){
               
-              this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(100vh - 18rem)')
+              this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(100vh - 15rem)')
               this.exp_trig = 'in';
-              this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(100vh - 18rem)');
+              this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(100vh - 15rem)');
             }else{
               
-              this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12rem)');
+              this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 10rem)');
               this.exp_trig = 'in';
-              this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12rem)');
+              this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 10rem)');
               
             }
             
@@ -163,8 +163,8 @@ export class EpigraphyTabComponent implements OnInit, OnDestroy {
           }else if(trigger==null){
             return;
           }else{
-            this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12rem)');
-            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12rem)');
+            this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 10rem)');
+            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 10rem)');
             this.exp_trig = 'out';
           }
         }, 100);
@@ -177,12 +177,12 @@ export class EpigraphyTabComponent implements OnInit, OnDestroy {
         setTimeout(() => {
           if(trigger){
             this.exp_trig = 'in';
-            this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12rem)')
-            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12rem)')
+            this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 10rem)')
+            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 10rem)')
           }else if(trigger==null){
             return;
           }else{
-            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12rem)');
+            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 10rem)');
             this.exp_trig = 'out';
           }
         }, 100);

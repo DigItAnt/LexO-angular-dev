@@ -246,3 +246,8 @@ tree-node-content {
 .btn-secondary:not(:disabled):not(.disabled).active {
     background-color: #1caa00 !important;
 }
+
+.epi-body > .card-body{
+    max-height: 32rem !important;
+    overflow: auto !important;
+}

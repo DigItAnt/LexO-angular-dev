@@ -16,9 +16,14 @@
                                         <div class="input-group" *ngIf="{boolean : sameAs.get('inferred').value}; let inf">
                                             <ng-select [isOpen]="dropdown" #sameAsSelect formControlName="entity" name="entity"
                                                 (change)="onChangeSameAs(sameAs, i)" (focus)="deleteData()"
-                                                (keyup)="triggerSameAs($event, i)" bindValue="labelValue" class="resizeNgSelect" [items]="searchResults"
-                                                bindLabel="labelValue" placeholder="Search entity" appendTo="body"
+                                                (keyup)="triggerSameAs($event, i)" bindValue="label" class="resizeNgSelect" [items]="searchResults"
+                                                bindLabel="label" placeholder="Search entity" appendTo="body"
                                                 [hidden]="!sameAs.get('lila').value" [readonly]="inf.boolean">
+                                                <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                                           
+                                                    {{item.labelValue}}
+                                        
+                                                </ng-template>
                                                 <!-- <ng-template ng-option-tmp let-item="item" let-search="searchTerm" *ngIf="!sameAsForm.get('isEtymon').value || !sameAsForm.get('isCognate').value">
                                            
                                                     <div class="card-body p-0">
@@ -68,10 +73,10 @@
                                                     <label class="form-check-label" for="extCheck"></label>
                                                 </div> -->
                                                 
-                                                <div class="input-group-append ml-2">
+                                                <div class="input-group-append ml-2" *ngIf="sameAsForm.get('isCognate').value || sameAsForm.get('isEtymon').value">
                                                     <div class="btn-group-toggle" data-toggle="buttons" placement="top" ngbTooltip="Enable LiLa endpoint" title="Enable LiLa endpoint" >
                                                         <label class="btn btn-secondary" >
-                                                          <input (click)="triggerLilaSearch(i)" type="checkbox" autocomplete="off" autocomplete="off" formControlName="lila" name="lila" style="border-radius: .3rem;" *ngIf="sameAsForm.get('isCognate').value || sameAsForm.get('isEtymon').value"> 
+                                                          <input (click)="triggerLilaSearch(i)" type="checkbox" autocomplete="off" autocomplete="off" formControlName="lila" name="lila" style="border-radius: .3rem;" > 
                                                             <img src="../../../../../../../assets/images/graphql.png" alt="Avatar" class="image" style="height: 20px;">
                                                         </label>
                                                     </div>

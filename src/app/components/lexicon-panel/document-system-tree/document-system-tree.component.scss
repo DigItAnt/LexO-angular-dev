@@ -29,8 +29,8 @@ $font-size-btn: 12px;
 #entrate-lessicali > .card-body,
 #text > .card-body,
 #ontologia > .card-body {
-    height: calc(100vh - 12rem);
-    max-height: calc(100vh - 12rem) !important;
+    height: calc(100vh - 10rem);
+    max-height: calc(100vh - 10rem) !important;
     overflow-y: auto !important;
     padding-right: 10px;
 }

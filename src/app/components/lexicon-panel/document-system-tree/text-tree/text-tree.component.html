@@ -1,32 +1,29 @@
 ﻿
 
 <form [formGroup]="textFilterForm">
-  <div class="input-group col-md-12 mt-3">
-    <div class=" input-group col-md-12 p-0">
-      <input formControlName="search_text" id="filterLexicalEntry" name="search_text" type="text" class="form-control" placeholder="Search" />
-      <div class="input-group-append">
-          <span class="input-group-text loading_icon_append" id="basic-addon2">
-              <div class="spinner-border spinner-border-sm m-1" role="status" *ngIf="searchIconSpinner">
-                  <span class="sr-only">Loading...</span>
-              </div>
-          </span>
-      </div>
+  <div class="input-group col-md-12 mt-2 p-0">
+    <input formControlName="search_text" id="filterLexicalEntry" name="search_text" type="text" class="form-control" placeholder="Search" />
+    <div class="input-group-append">
+        <span class="input-group-text loading_icon_append" id="basic-addon2">
+            <div class="spinner-border spinner-border-sm m-1" role="status" *ngIf="searchIconSpinner">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </span>
     </div>
-    
-    <div id="buttons-container" class="input-group-append d-flex align-items-sm-stretch w-100">
-        <button class="btn rounded-left btn-sm btn-secondary btn-block filter-button" type="button" value="Filter" title="Filter"
+    <div id="buttons-container" class="input-group-append">
+        <button class="btn btn-sm btn-secondary btn-block filter-button" type="button" value="Filter" title="Filter"
             data-toggle="collapse" data-target="#metadataFilterCollapse" aria-expanded="false"
-            aria-controls="metadataFilterCollapse" style="height: 25px;"><i class="fa fa-filter"></i></button>
+            aria-controls="metadataFilterCollapse"><i class="fa fa-filter"></i></button>
         <button class="btn btn-sm btn-danger btn-block reset-button" type="button" value="Reset" title="Reset"
-            (click)="resetFields();" style="border-top-right-radius: .25rem; border-bottom-right-radius: .25rem;" style="height: 25px;"><i
+            (click)="resetFields();" style="border-top-right-radius: .25rem; border-bottom-right-radius: .25rem;"><i
                 class="fa fa-times"></i></button>
-        <button class="btn btn-block counter-button" type="button" style="height: 25px;"><span
+        <button class="btn btn-sm btn-block counter-button" type="button"><span
                 class="font-weight-bold font-italic text-muted">{{counter}}</span></button>
     </div>
   </div>
 
   <div class="d-flex flex-wrap mt-3">
-      <div class="col-md-6 col-sm-6">
+      <div class="col-md-6 col-sm-3">
           <div class="form-check">
               <input formControlName="search_mode" class="form-check-input" type="radio" name="search_mode"
                   id="startRadio" value="start">
@@ -35,7 +32,7 @@
               </label>
           </div>
       </div>
-      <div class="col-md-6 col-sm-6">
+      <div class="col-md-6 col-sm-3">
           <div class="form-check">
               <input formControlName="search_mode" class="form-check-input" type="radio" name="search_mode"
                   id="containsRadio" value="contains">

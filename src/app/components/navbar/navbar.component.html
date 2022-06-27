@@ -25,19 +25,23 @@
                     <i class="fa fa-home" aria-hidden="true"></i>
                 </a>
             </li> -->
-            <li class="nav-item" *ngIf="isAdmin">
+            <li class="nav-item d-flex align-items-center" *ngIf="isAdmin">
                 <a class="nav-link" routerLink="user" routerLinkActive="active">
                     <i class="fa fa-user"></i>
+                    <span class="d-flex-xs d-lg-none ml-2">User Admin</span>
                 </a>
+                
             </li>
             <li class="nav-item">
                 <a class="nav-link" routerLink="lexicon" routerLinkActive="active">
                     <i class="fa fa-edit"></i>
+                    <span class="d-flex-xs d-lg-none ml-2">Lexicon Editor</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link disabled" routerLink="search" routerLinkActive="active">
                     <i class="fa fa-search" aria-hidden="true"></i>
+                    <span class="d-flex-xs d-lg-none ml-2">Search Page</span>
                 </a>
             </li>
         </ul>
@@ -53,13 +57,6 @@
                     <a class="dropdown-item pointer" (click)="logout()"><i class="fa fa-power-off" aria-hidden="true"></i> Logout</a>
                 </div>
             </div>
-            <li class="nav-item">
-                <a class="nav-link"
-                    href="https://docs.google.com/document/d/1rTzEKBU7a_nvG3_paDKcyBitgIn06XW7von883NKnn0/edit"
-                    target="_blank">
-                    <i class="fa fa-info-circle" aria-hidden="true"></i>
-                </a>
-            </li>
         </ul>
     </div>
 </nav>

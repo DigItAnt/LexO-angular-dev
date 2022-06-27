@@ -33,13 +33,17 @@ a {
 }
 
 
-
 .epi_body,
 .file_body{
     
     margin-top: 20px;
     padding-top: 20px;
     
+    .card-body {
+        min-height: 21rem;
+        max-height: 21rem;
+        overflow: auto;
+    }
     
 }
 
@@ -83,4 +87,8 @@ a {
 .pointer {
     word-break: break-all;
     cursor: pointer;
+}
+
+table {
+    table-layout: fixed!important;
 }

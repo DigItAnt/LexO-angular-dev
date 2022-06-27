@@ -95,20 +95,37 @@ export class SameAsComponent implements OnInit {
         });
 
         //console.log(this.memorySameAs)
+        if(this.object.type != undefined){
+          if(typeof(this.object.type) != "string"){
+            let isCognate = this.object.type.find(element => element == 'Cognate');
+            if(isCognate){
+                this.sameAsForm.get('isCognate').setValue(true, {emitEvent: false})
+            }else{
+                this.sameAsForm.get('isCognate').setValue(false, {emitEvent: false})
+            }
+    
+            let isEtymon = this.object.type.find(element => element == 'Etymon');
+            if(isEtymon){
+                this.sameAsForm.get('isEtymon').setValue(true, {emitEvent: false})
+            }else{
+                this.sameAsForm.get('isEtymon').setValue(false, {emitEvent: false})
+            }
+          }else{
+            if(this.object.type == 'Cognate'){
+              this.sameAsForm.get('isCognate').setValue(true, {emitEvent: false})
+            }else{
+              this.sameAsForm.get('isCognate').setValue(false, {emitEvent: false})
+            }
 
-        let isCognate = this.object.type.find(element => element == 'Cognate');
-        if(isCognate){
-            this.sameAsForm.get('isCognate').setValue(true, {emitEvent: false})
-        }else{
-            this.sameAsForm.get('isCognate').setValue(false, {emitEvent: false})
+            if(this.object.type == 'Etymon'){
+              this.sameAsForm.get('isEtymon').setValue(true, {emitEvent: false})
+            }else{
+              this.sameAsForm.get('isEtymon').setValue(false, {emitEvent: false})
+            }
+          }
+          
         }
-
-        let isEtymon = this.object.type.find(element => element == 'Etymon');
-        if(isEtymon){
-            this.sameAsForm.get('isEtymon').setValue(true, {emitEvent: false})
-        }else{
-            this.sameAsForm.get('isEtymon').setValue(false, {emitEvent: false})
-        }
+        
 
         if(this.object.lexicalEntryInstanceName != undefined){
           this.isLexEntry = true;
@@ -356,9 +373,13 @@ export class SameAsComponent implements OnInit {
         const element = Array.from(this.sameAsList)[index];
 
         if(element!=undefined){
-          element.filter(this.object.label)
+          
           this.onSearchFilter({value: this.object.label, index: index})
         }
+
+        setTimeout(() => {
+          element.filter(this.object.label)
+        }, 100);
       }
       
       
