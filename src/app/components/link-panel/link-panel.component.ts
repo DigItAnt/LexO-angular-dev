@@ -29,6 +29,17 @@ export class LinkPanelComponent implements OnInit {
   constructor(private lexicalService: LexicalEntriesService) { }
 
   ngOnInit(): void {
+
+    this.lexicalService.refreshLinkCounter$.subscribe(
+      data=>{
+        console.log(data)
+        if(data!=null){
+          this.counterElement = eval(this.counterElement.toString()+data)
+        }
+      },error=>{
+
+      }
+    )
   }
 
   ngOnChanges(changes: SimpleChanges){
@@ -230,8 +241,6 @@ export class LinkPanelComponent implements OnInit {
     }
   }
 
-  refreshCounter(evt?){
-    this.counterElement = evt;
-  }
+  
 
 }

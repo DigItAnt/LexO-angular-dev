@@ -54,16 +54,28 @@
                                         <div class="col-xl-9">
                                             <div class="form-group row ml-2 mt-3 mr-2">
                                                 <div class="input-group" >
-                                                    <ng-select #etyLink [addTag]="createNewEtymon" (change)="onChangeEtylink(etyLink, i)" formControlName="lex_entity" name="lex_entity" [items]="searchResults" class="resizeNgSelect" bindLabel="label" bindValue="label" placeholder="Search entity" appendTo="body"
-                                                         *ngIf="!variable.external" (keyup)="triggerEtylink($event)" bindValue="label" class="resizeNgSelect" [items]="searchResults"
+                                                    <ng-select *ngIf="!etyLink.get('lila').value && !variable.external" #etyLink [addTag]="createNewEtymon" (change)="onChangeEtylink(etyLink, i)" formControlName="lex_entity" name="lex_entity" [items]="searchResults" class="resizeNgSelect" bindLabel="label" bindValue="label" placeholder="Search entity" appendTo="body"
+                                                         (keyup)="triggerEtylink($event, i)" bindValue="label" class="resizeNgSelect" [items]="searchResults"
+                                                        bindLabel="label" placeholder="Search entity" appendTo="body" (focus)="deleteData()">
+                                                    </ng-select>
+                                                    <ng-select *ngIf="etyLink.get('lila').value && !variable.external" #etyLink  [addTag]="false" (change)="onChangeEtylink(etyLink, i)" formControlName="lex_entity" name="lex_entity" [items]="searchResults" class="resizeNgSelect" bindLabel="label" bindValue="label" placeholder="Search entity" appendTo="body"
+                                                         (keyup)="triggerEtylink($event, i)" bindValue="label" class="resizeNgSelect" [items]="searchResults"
                                                         bindLabel="label" placeholder="Search entity" appendTo="body" (focus)="deleteData()">
                                                     </ng-select>
                                                     <input (keyup)="triggerEtylinkInput($event, i)" formControlName="lex_entity" name="lex_entity" type="text" class="form-control" id="inputDenotes" placeholder="Insert URI" *ngIf="variable.external">
-                                                    <div class="input-group-append ml-2">
+                                                    <!-- <div class="input-group-append ml-2">
                                                         <button type="button" class="btn btn-secondary" placement="top" ngbTooltip="Enable LiLa endpoint" title="Enable LiLa endpoint" data-toggle="button" aria-pressed="false" autocomplete="off">
                                                             <img src="../../../../../../../assets/images/graphql.png" alt="Avatar" class="image" style="height: 20px;">
                         
                                                           </button>
+                                                    </div> -->
+                                                    <div class="input-group-append ml-2" *ngIf="!variable.external ">
+                                                        <div class="btn-group-toggle" data-toggle="buttons" placement="top" ngbTooltip="Enable LiLa endpoint" title="Enable LiLa endpoint" >
+                                                            <label class="btn btn-secondary" >
+                                                              <input (click)="triggerLilaSearch(i)" type="checkbox" autocomplete="off" autocomplete="off" formControlName="lila" name="lila" style="border-radius: .3rem;" > 
+                                                                <img src="../../../../../../../assets/images/graphql.png" alt="Avatar" class="image" style="height: 20px;">
+                                                            </label>
+                                                        </div>
                                                     </div>
                                                     <div class="input-group-append ml-3 form-check">
                                                         <input class="form-check-input vartrans-tooltip" formControlName="external_iri" name="external_iri" type="checkbox" (change)="variable.external=!variable.external;" data-toggle="tooltip" data-placement="bottom" data-trigger="hover" title="Clicca per inserire un URI manualmente">

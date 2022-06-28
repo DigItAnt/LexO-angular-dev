@@ -2,7 +2,7 @@
 
 <div id="cardsAccordion" class="accordion" [hidden]="object == null"> <!-- [hidden]="object == null" -->
     <div class="card my-2">
-        <div class="card-header">
+        <div class="card-header p-0">
             <h5 class="mb-0 w-100 d-flex justify-content-between align-self-center">
                 <div>
                     <span class="btn" *ngIf="object != null"> <!-- *ngIf="object != null" -->
@@ -39,7 +39,7 @@
             <app-etymology-form [etymData]="etymologyData"></app-etymology-form>
 
         </div>
-        <div class="card-footer text-muted">
+        <div class="card-footer text-muted p-0">
             <div class="w-100 d-flex justify-content-between align-items-center">
                 <div > <!-- *ngIf="object != null" -->
                     <span>LAST UPDATE ON {{lastUpdateDate | date :'dd/MM/yyyy hh:mm:ss'}}</span>

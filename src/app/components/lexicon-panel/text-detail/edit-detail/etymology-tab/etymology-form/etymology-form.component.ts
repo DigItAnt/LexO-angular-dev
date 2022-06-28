@@ -10,12 +10,14 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit, QueryList, SimpleChanges, ViewChildren } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { NgSelectComponent } from '@ng-select/ng-select';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
+import { LilaService } from 'src/app/services/lila/lila.service';
 import { DataService, Person } from '../../core-tab/lexical-entry-core-form/data.service';
 
 @Component({
@@ -26,7 +28,7 @@ import { DataService, Person } from '../../core-tab/lexical-entry-core-form/data
 export class EtymologyFormComponent implements OnInit {
 
   @Input() etymData: any;
-
+  @ViewChildren('etyLink') etyLinkList: QueryList<NgSelectComponent>;
   switchInput = false;
   subscription: Subscription;
   object: any;
@@ -41,7 +43,9 @@ export class EtymologyFormComponent implements OnInit {
     author: new FormControl(''),
     confidence : new FormControl(null),
     etylink: new FormArray([this.createEtyLink()]),
-    cognates: new FormArray([this.createCognate()])
+    cognates: new FormArray([this.createCognate()]),
+    isEtymon: new FormControl(false),
+    isCognate: new FormControl(false)
   })
 
   etyLinkArray: FormArray;
@@ -53,12 +57,16 @@ export class EtymologyFormComponent implements OnInit {
   private subject_etylink_input: Subject<any> = new Subject();
   private etylink_note_subject : Subject<any> = new Subject();
   private etylink_label_subject : Subject<any> = new Subject();
-  searchResults: [];
+  searchResults = [];
   filterLoading = false;
 
   memoryLinks = [];
 
-  constructor(private dataService: DataService, private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder, private toastr: ToastrService) { }
+  constructor(private dataService: DataService, 
+              private lexicalService: LexicalEntriesService, 
+              private formBuilder: FormBuilder, 
+              private toastr: ToastrService,
+              private lilaService : LilaService) { }
 
   ngOnInit(): void {
 
@@ -68,6 +76,8 @@ export class EtymologyFormComponent implements OnInit {
       confidence : false,
       etylink: this.formBuilder.array([]),
       cognates : this.formBuilder.array([]),
+      isEtymon: false,
+      isCognate: false
     })
     this.onChanges();
     this.triggerTooltip();
@@ -149,6 +159,20 @@ export class EtymologyFormComponent implements OnInit {
           this.etyForm.get('confidence').setValue(true, { emitEvent: false });
         }else{
           this.etyForm.get('confidence').setValue(false, { emitEvent: false });
+        }
+
+        let isCognate = this.object.type.find(element => element == 'Cognate');
+        if(isCognate){
+            this.etyForm.get('isCognate').setValue(true, {emitEvent: false})
+        }else{
+            this.etyForm.get('isCognate').setValue(false, {emitEvent: false})
+        }
+
+        let isEtymon = this.object.type.find(element => element == 'Etymon');
+        if(isEtymon){
+            this.etyForm.get('isEtymon').setValue(true, {emitEvent: false})
+        }else{
+            this.etyForm.get('isEtymon').setValue(false, {emitEvent: false})
         }
         
         if(this.object.etyLinks != undefined){
@@ -662,7 +686,8 @@ export class EtymologyFormComponent implements OnInit {
         etySource : new FormControl(es),
         etyTarget : new FormControl(et),
         note: new FormControl(n),
-        external_iri : new FormControl(el)
+        external_iri : new FormControl(el),
+        lila: false
       })
     }else{
       return this.formBuilder.group({
@@ -672,7 +697,8 @@ export class EtymologyFormComponent implements OnInit {
         etySource : new FormControl(null),
         etyTarget : new FormControl(null),
         note : new FormControl(null),
-        external_iri : new FormControl(null)
+        external_iri : new FormControl(null),
+        lila: false
       })
     }
     
@@ -699,9 +725,9 @@ export class EtymologyFormComponent implements OnInit {
     }
   }
 
-  triggerEtylink(evt) {
+  triggerEtylink(evt, index) {
     if (evt.target != undefined) {
-      this.subject_cognates.next(evt.target.value)
+      this.subject_etylink.next({value : evt.target.value, index : index})
     }
   }
 
@@ -720,35 +746,83 @@ export class EtymologyFormComponent implements OnInit {
     console.log(data)
     this.filterLoading = true;
     this.searchResults = [];
-    let parameters = {
-      text: data,
-      searchMode: "startsWith",
-      type: "etymon",
-      pos: "",
-      formType: "entry",
-      author: "",
-      lang: "",
-      status: "",
-      offset: 0,
-      limit: 500
-    }
-    //console.log(data.length)
-    if (data != "" && data.length >= 3) {
+
+    let value = data.value;
+    let index = data.index;
+
+    this.etyLinkArray = this.etyForm.get('etylink') as FormArray;
+    let isLilaActived = this.etyLinkArray.at(index).get('lila').value;
+
+    if(!isLilaActived){
+      let parameters = {
+        text: value,
+        searchMode: "startsWith",
+        type: "etymon",
+        pos: "",
+        formType: "entry",
+        author: "",
+        lang: "",
+        status: "",
+        offset: 0,
+        limit: 500
+      }
+      //console.log(data.length)
+      
       this.lexicalService.getLexicalEntriesList(parameters).subscribe(
         data => {
           console.log(data)
           this.searchResults = data['list']
           this.filterLoading = false;
         }, error => {
-          //console.log(error)
+          console.log(error)
           this.filterLoading = false;
         }
       )
-    } else {
-      this.filterLoading = false;
+      
+    }else{
+      this.lilaService.queryEtymon(value).subscribe(
+        data=>{
+            console.log(data)
+            if(data.list.length > 0){
+                data.list.forEach(element => {
+                    this.searchResults.push(element)
+                });
+            }
+        },
+        error=>{
+            console.log(error)
+        }
+    )
     }
+
+    
     
 
+  }
+
+  triggerLilaSearch(index){
+
+    
+
+    setTimeout(() => {
+      this.etyLinkArray = this.etyForm.get('etylink') as FormArray;
+      let value = this.etyLinkArray.at(index).get('lila').value;
+      if(value){
+        const element = Array.from(this.etyLinkList)[index];
+
+        if(element!=undefined){
+          
+          //this.onSearchFilter({value: this.object.label, index: index})
+        }
+
+        setTimeout(() => {
+          element.filter(this.object.parentNodeLabel)
+        }, 100);
+      }
+      
+      
+
+    }, 250);
   }
 
 }

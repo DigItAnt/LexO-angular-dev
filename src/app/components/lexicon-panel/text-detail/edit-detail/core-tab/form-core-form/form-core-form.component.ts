@@ -530,7 +530,7 @@ export class FormCoreFormComponent implements OnInit {
               timeOut: 5000,
             });
           } else {
-            this.toastr.info('', 'Ok', {
+            this.toastr.success('Morphotrait changed correctly', 'Ok', {
               timeOut: 5000,
             });
           }

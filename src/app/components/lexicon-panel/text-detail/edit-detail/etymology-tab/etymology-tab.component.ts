@@ -35,7 +35,7 @@ import { debounceTime } from 'rxjs/operators';
   animations: [
     trigger('slideInOut', [
       state('in', style({
-        height: 'calc(100vh - 22rem)',
+        height: 'calc(100vh - 17rem)',
 
       })),
       state('out', style({
@@ -138,8 +138,8 @@ export class EtymologyTabComponent implements OnInit {
   
             if(!isEpigraphyExpanded){
               this.exp_trig = 'in';
-              this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(100vh - 22rem)')
-              this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(100vh - 22rem)')
+              this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(100vh - 17rem)')
+              this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(100vh - 17rem)')
             }else{
               this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12.5rem)');
               this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)');

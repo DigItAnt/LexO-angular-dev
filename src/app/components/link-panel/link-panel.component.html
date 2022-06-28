@@ -11,7 +11,7 @@
     </div>
     <div id="referenceCollapse" class="collapse" aria-labelledby="referenceHeading">
         <div class="card-body">
-            <app-see-also (countRefresh)="refreshCounter($event)" *ngIf="seeAlsoData != undefined" [seeAlsoData]="seeAlsoData"></app-see-also>
+            <app-see-also *ngIf="seeAlsoData != undefined" [seeAlsoData]="seeAlsoData"></app-see-also>
             <app-same-as *ngIf="sameAsData != undefined"  [sameAsData]="sameAsData"></app-same-as>
         </div>
     </div>

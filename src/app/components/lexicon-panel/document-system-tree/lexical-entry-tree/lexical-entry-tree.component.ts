@@ -391,15 +391,16 @@ export class LexicalEntryTreeComponent implements OnInit {
                 this.lexicalEntryTree.treeModel.update();
                 x.data.children.filter(element => {
                   if (element.label === lex.request) {
-                    console.log(data['creator'] == x.data.creator);
-                    console.log(data['creator'], x.data.creator)
+                    console.log(data['creator'], x.data.reator)
                     if (data['creator'] == x.data.creator) {
                       data['flagAuthor'] = false;
                     } else {
                       data['flagAuthor'] = true;
                     }
+                    
                     if (lex.request == 'sense') {
-                      data['definition'] = 'no definition'
+                      data['definition'] = 'no definition';
+                      data.label = 'no definintion'
                     }else if (lex.request == 'subterm') {
                       data.label = data.label;
                       data.children = null;
@@ -407,7 +408,6 @@ export class LexicalEntryTreeComponent implements OnInit {
                     }else{
                       data['label'] = data[instanceName];
                     }
-                    
 
                     if (lex.request == 'subterm') {
                       data.children == null;
@@ -816,6 +816,7 @@ export class LexicalEntryTreeComponent implements OnInit {
           this.selectedNodeId = $event.node.data.senseInstanceName;
           data['parentNodeLabel'] = $event.node.parent.parent.data.label;
           data['parentNodeInstanceName'] = $event.node.parent.parent.data.lexicalEntryInstanceName;
+          data['type'] = $event.node.parent.parent.data.type;
           console.log(data)
           this.lexicalService.sendToCoreTab(data)
           this.lexicalService.sendToEtymologyTab(null);
@@ -869,7 +870,7 @@ export class LexicalEntryTreeComponent implements OnInit {
           data['parentNodeLabel'] = $event.node.parent.parent.data.label;
           data['parentNodeInstanceName'] = $event.node.parent.parent.data.lexicalEntryInstanceName;
           console.log(data)
-
+          data['type'] = $event.node.parent.parent.data.type;
           this.lexicalService.sendToAttestationPanel(null);
           this.lexicalService.triggerAttestationPanel(false);
 

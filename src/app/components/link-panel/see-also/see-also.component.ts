@@ -26,7 +26,6 @@ import { ToastrService } from 'ngx-toastr';
 export class SeeAlsoComponent implements OnInit {
 
   @Input() seeAlsoData: any[] | any;
-  @Output() countRefresh = new EventEmitter<any>();
 
   private subject: Subject<any> = new Subject();
   private subject_input: Subject<any> = new Subject();
@@ -230,10 +229,12 @@ export class SeeAlsoComponent implements OnInit {
             this.toastr.success('SeeAlso updated', '', {
               timeOut: 5000,
             });
+            this.lexicalService.refreshLinkCounter('+1')
           }, error => {
            console.log(error);
            if(error.status == 200){
               this.memorySeeAlso[index] = selectedValues
+              this.lexicalService.refreshLinkCounter('+1')
               this.toastr.success('SeeAlso updated', '', {
                 timeOut: 5000,
               });
@@ -256,6 +257,7 @@ export class SeeAlsoComponent implements OnInit {
         this.lexicalService.updateGenericRelation(lexicalElementId, parameters).subscribe(
           data => {
             console.log(data)
+            this.lexicalService.refreshLinkCounter('+1')
             this.toastr.success('SeeAlso updated', '', {
               timeOut: 5000,
             });
@@ -263,6 +265,7 @@ export class SeeAlsoComponent implements OnInit {
             console.log(error)
             if(error.statusText == 'OK'){
               this.memorySeeAlso[index] = selectedValues
+              this.lexicalService.refreshLinkCounter('+1')
               this.toastr.success('SeeAlso updated', '', {
                 timeOut: 5000,
               });
@@ -316,11 +319,11 @@ export class SeeAlsoComponent implements OnInit {
       let lexId = this.object.parentInstanceName;
       let parameters = {
         text: data,
-        formType: "lemma",
-        lexicalEntry: lexId,
-        senseUris: "",
-        extendTo: "",
-        extensionDegree: 3
+        searchMode: "startsWith",
+        representationType: "writtenRep",
+        author: "",
+        offset: 0,
+        limit: 500
       }
       
       this.lexicalService.getFormList(parameters).subscribe(
@@ -348,7 +351,7 @@ export class SeeAlsoComponent implements OnInit {
         limit: 500
       }
 
-      this.lexicalService.getLexicalSensesList(parameters).subscribe(
+      /* this.lexicalService.getLexicalSensesList(parameters).subscribe(
         data => {
           //console.log(data)
           this.searchResults = data
@@ -357,13 +360,13 @@ export class SeeAlsoComponent implements OnInit {
           //console.log(error)
           this.filterLoading = false;
         }
-      )
+      ) */
     } else if (this.object.etymologyInstanceName != undefined) {
 
       let parameters = {
         text: data,
         searchMode: "startsWith",
-        type: "",
+        type: "etymon",
         pos: "",
         formType: "entry",
         author: "",
@@ -379,7 +382,7 @@ export class SeeAlsoComponent implements OnInit {
           this.searchResults = data['list']
           this.filterLoading = false;
         }, error => {
-          //console.log(error)
+          console.log(error)
           this.filterLoading = false;
         }
       )
@@ -437,7 +440,7 @@ export class SeeAlsoComponent implements OnInit {
       this.seeAlsoArray.push(this.createSeeAlsoEntry(e, i, le, lt));
     }
 
-    this.countRefresh.emit(this.seeAlsoArray.length);
+    
     this.triggerTooltip();
   }
 
@@ -469,11 +472,14 @@ export class SeeAlsoComponent implements OnInit {
           this.toastr.success('SeeAlso deleted', '', {
             timeOut: 5000,
           });
+          this.lexicalService.refreshLinkCounter('-11')
         }, error => {
           console.log(error)
           this.toastr.error(error.error, 'Error', {
             timeOut: 5000,
           });
+
+          this.lexicalService.refreshLinkCounter('-1')
         }
       )
     } else if (this.object.formInstanceName != undefined) {
@@ -489,6 +495,7 @@ export class SeeAlsoComponent implements OnInit {
       this.lexicalService.deleteLinguisticRelation(formId, parameters).subscribe(
         data => {
           //console.log(data)
+          this.lexicalService.refreshLinkCounter('-1')
           this.lexicalService.updateLexCard(this.object)
           this.toastr.success('SeeAlso updated', '', {
             timeOut: 5000,
@@ -515,6 +522,7 @@ export class SeeAlsoComponent implements OnInit {
       this.lexicalService.deleteLinguisticRelation(senseId, parameters).subscribe(
         data => {
           //console.log(data)
+          this.lexicalService.refreshLinkCounter('-1')
           this.lexicalService.updateLexCard(this.object)
           this.toastr.success('SeeAlso updated', '', {
             timeOut: 5000,
@@ -525,6 +533,7 @@ export class SeeAlsoComponent implements OnInit {
       )
     } else if (this.object.etymologyInstanceName != undefined) {
       let etymId = this.object.etymologyInstanceName;
+      this.lexicalService.refreshLinkCounter('-1')
 
       let parameters = {
         type: 'morphology',
@@ -537,6 +546,7 @@ export class SeeAlsoComponent implements OnInit {
       this.lexicalService.deleteLinguisticRelation(etymId, parameters).subscribe(
         data => {
           //console.log(data)
+          this.lexicalService.refreshLinkCounter('-1')
           this.lexicalService.updateLexCard(this.object)
           this.toastr.success('SeeAlso updated', '', {
             timeOut: 5000,
@@ -549,7 +559,6 @@ export class SeeAlsoComponent implements OnInit {
     this.memorySeeAlso.splice(index, 1)
     this.seeAlsoArray.removeAt(index);
 
-    this.countRefresh.emit(this.seeAlsoArray.length);
   }
 
 }

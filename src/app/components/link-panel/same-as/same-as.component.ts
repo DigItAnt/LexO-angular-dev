@@ -157,6 +157,8 @@ export class SameAsComponent implements OnInit {
         lexicalElementId = this.object.formInstanceName;
       } else if (this.object.senseInstanceName != undefined) {
         lexicalElementId = this.object.senseInstanceName;
+      } else if (this.object.etymologyInstanceName != undefined) {
+        lexicalElementId = this.object.etymologyInstanceName;
       }
   
       //console.log(this.memorySameAs[index])
@@ -169,12 +171,19 @@ export class SameAsComponent implements OnInit {
         //console.log(parameters)
         this.lexicalService.updateGenericRelation(lexicalElementId, parameters).subscribe(
           data => {
-            //console.log(data)
+            console.log(data)
           }, error => {
-            //console.log(error)
-            this.toastr.error(error.error, 'Error', {
-              timeOut: 5000,
-            });
+            console.log(error)
+            if(error.status == '200'){
+              this.toastr.success(error.error.text, '', {
+                timeOut: 5000,
+              });
+            }else{
+              this.toastr.error(error.error.text, 'Error', {
+                timeOut: 5000,
+              });
+            }
+            
           }
         )
   
@@ -190,12 +199,20 @@ export class SameAsComponent implements OnInit {
         //console.log(parameters)
         this.lexicalService.updateGenericRelation(lexicalElementId, parameters).subscribe(
           data => {
-            //console.log(data)
+            console.log(data)
+            
           }, error => {
-            //console.log(error)
-            this.toastr.error(error.error, 'Error', {
-              timeOut: 5000,
-            });
+            console.log(error)
+            if(error.status == '200'){
+              this.toastr.success('See Also updated', '', {
+                timeOut: 5000,
+              });
+            }else{
+              this.toastr.error(error.error.text, 'Error', {
+                timeOut: 5000,
+              });
+            }
+            
           }
         )
       }
@@ -267,13 +284,12 @@ export class SameAsComponent implements OnInit {
       }else if(this.object.formInstanceName != undefined){
           let lexId = this.object.parentInstanceName;
           let parameters = {
-            form: "pesca",
-            formType: "lemma",
-            lexicalEntry: lexId,
-            senseUris: "",
-            extendTo: "",
-            extensionDegree: 3
-          
+            text: data,
+            searchMode: "startsWith",
+            representationType: "writtenRep",
+            author: "",
+            offset: 0,
+            limit: 500
           }
           console.log(parameters);
           this.lexicalService.getFormList(parameters).subscribe(
@@ -440,6 +456,8 @@ export class SameAsComponent implements OnInit {
     }else{
       this.sameAsArray.push(this.createSameAsEntry(e, i));
     }
+
+    
     
     this.triggerTooltip();
 
@@ -465,6 +483,7 @@ export class SameAsComponent implements OnInit {
         data => {
           //console.log(data)
           this.lexicalService.updateLexCard(this.object)
+          this.lexicalService.refreshLinkCounter('-1')
         }, error => {
           //console.log(error)
           this.toastr.error(error.error, 'Error', {
@@ -486,6 +505,7 @@ export class SameAsComponent implements OnInit {
         data => {
           //console.log(data)
           this.lexicalService.updateLexCard(this.object)
+          this.lexicalService.refreshLinkCounter('-1')
         }, error => {
           //console.log(error)
         }
@@ -506,6 +526,7 @@ export class SameAsComponent implements OnInit {
         data => {
           //console.log(data)
           this.lexicalService.updateLexCard(this.object)
+          this.lexicalService.refreshLinkCounter('-1')
         }, error => {
           //console.log(error)
         }

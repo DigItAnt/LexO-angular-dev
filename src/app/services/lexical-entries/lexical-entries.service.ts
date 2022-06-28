@@ -38,6 +38,8 @@ export class LexicalEntriesService {
   private _triggerAttestationPanel : BehaviorSubject<boolean> = new BehaviorSubject(null);
   private _changeDecompLabel : BehaviorSubject<string> = new BehaviorSubject(null);
   private _decompData : BehaviorSubject<object> = new BehaviorSubject(null);
+  private _refreshLinkCounter: BehaviorSubject<string> = new BehaviorSubject(null);
+
 
   private baseUrl = "/LexO-backend-itant/service/"
   private key = "PRINitant19";
@@ -60,8 +62,13 @@ export class LexicalEntriesService {
   triggerNotePanel$ = this._triggerNotePanel.asObservable();
   triggerAttestationPanel$ = this._triggerAttestationPanel.asObservable();
   changeDecompLabel$ = this._changeDecompLabel.asObservable();
+  refreshLinkCounter$ = this._refreshLinkCounter.asObservable();
 
   constructor(private http: HttpClient, private auth: AuthService) { }
+
+  refreshLinkCounter(value:string){
+    this._refreshLinkCounter.next(value);
+  }
 
   sendToCoreTab(object: object) {
     this._coreFormData.next(object)

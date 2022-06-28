@@ -361,7 +361,12 @@ export class DocumentSystemTreeComponent implements OnInit {
         function (x) {
           if (x.data.senseInstanceName != undefined) {
             if (x.data.senseInstanceName == data['senseInstanceName']) {
-              x.data.label = data['new_definition'];
+              if(data['new_definition'] == ''){
+                x.data.label = 'no definition';
+              }else{
+                x.data.label = data['new_definition'];
+
+              }
               that.lexTree.lexicalEntryTree.treeModel.update();
               that.lexTree.updateTreeView();
               return true;

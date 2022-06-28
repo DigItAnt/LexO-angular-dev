@@ -508,7 +508,7 @@ export class SenseCoreFormComponent implements OnInit {
     const senseId = this.object.senseInstanceName;
     const parameters = { relation: trait, value: newValue }
 
-    if (trait != undefined && newValue != '') {
+    if (trait != undefined) {
 
       this.staticDef.push({ trait: trait, value: newValue });
       this.lexicalService.updateSense(senseId, parameters).pipe(debounceTime(1000)).subscribe(
