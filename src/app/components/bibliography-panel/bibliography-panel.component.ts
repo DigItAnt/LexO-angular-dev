@@ -27,8 +27,8 @@ import { Subject } from 'rxjs';
 export class BibliographyPanelComponent implements OnInit {
 
   @Input() biblioData: any[];
-  bibliographyData : any[];
-  object : any;
+  bibliographyData: any[];
+  object: any;
   countElement = 0;
   loadingSynchro = [];
   bibliographyForm = new FormGroup({
@@ -40,7 +40,7 @@ export class BibliographyPanelComponent implements OnInit {
 
   private subject: Subject<any> = new Subject();
 
-  constructor(private lexicalService : LexicalEntriesService, private biblioService : BibliographyService, private formBuilder: FormBuilder, private toastr: ToastrService) { }
+  constructor(private lexicalService: LexicalEntriesService, private biblioService: BibliographyService, private formBuilder: FormBuilder, private toastr: ToastrService) { }
 
   ngOnInit(): void {
     this.bibliographyForm = this.formBuilder.group({
@@ -49,20 +49,20 @@ export class BibliographyPanelComponent implements OnInit {
 
     this.biblioService.addBiblioReq$.subscribe(
       incomingBiblio => {
-        if(incomingBiblio != null){
-          
+        if (incomingBiblio != null) {
+
           let id = incomingBiblio.id != undefined ? incomingBiblio.id : '';
           let title = incomingBiblio.title != undefined ? incomingBiblio.title : '';
           let author = incomingBiblio.author != undefined ? incomingBiblio.author : '';
           let date = incomingBiblio.date != undefined ? incomingBiblio.date : '';
           let note = incomingBiblio.note != undefined ? incomingBiblio.note : '';
-          let textualReference = incomingBiblio.textualReference != undefined ? incomingBiblio.textualReference : '';          
+          let textualReference = incomingBiblio.textualReference != undefined ? incomingBiblio.textualReference : '';
           this.bibliographyData.push(incomingBiblio)
           this.addBibliographyElement(id, title, author, date, note, textualReference);
           this.memoryNote.push(note)
           this.memoryTextualRef.push(textualReference)
           this.countElement++;
-        }else{
+        } else {
           this.object = null;
           this.bibliographyData = null;
         }
@@ -75,11 +75,11 @@ export class BibliographyPanelComponent implements OnInit {
       }
     )
   }
-  
-  
-  ngOnChanges(changes: SimpleChanges){
 
-    if(changes.biblioData.currentValue != undefined){
+
+  ngOnChanges(changes: SimpleChanges) {
+
+    if (changes.biblioData.currentValue != undefined) {
       this.object = changes.biblioData.currentValue;
       this.bibliographyData = [];
       this.countElement = 0;
@@ -87,46 +87,46 @@ export class BibliographyPanelComponent implements OnInit {
       this.memoryTextualRef = [];
       this.biblioArray = this.bibliographyForm.get('bibliography') as FormArray;
       this.biblioArray.clear();
-      
-      if(this.object.lexicalEntryInstanceName != undefined){
+
+      if (this.object.lexicalEntryInstanceName != undefined) {
         let lexId = this.object.lexicalEntryInstanceName;
         this.lexicalService.getBibliographyData(lexId).subscribe(
-          data=>{
+          data => {
             console.log(data);
-            if(data != []){
+            if (data != []) {
               let count = 0;
               data.forEach(element => {
                 this.bibliographyData.push(element);
-  
+
                 this.addBibliographyElement(element.id, element.title, element.author, element.date, element.note, element.textualReference)
                 this.memoryNote[count] = element.note;
                 this.memoryTextualRef[count] = element.textualReference
                 count++;
                 this.countElement++;
               });
-              
+
               /* this.bibliographyData['parentNodeLabel']= this.object['lexicalEntry'];
               this.bibliographyData['lexicalEntryInstanceName']= this.object['lexicalEntryInstanceName']; */
             }
-            
-            
 
-          }, error=>{
-            
-            
+
+
+          }, error => {
+
+
             this.toastr.error(error.error, 'Error', {
               timeOut: 5000,
             });
-            
+
           }
         )
-                
-      }else if(this.object.formInstanceName != undefined){
+
+      } else if (this.object.formInstanceName != undefined) {
         let formId = this.object.formInstanceName;
         this.lexicalService.getBibliographyData(formId).subscribe(
-          data=>{
+          data => {
             console.log(data);
-            let count= 0;
+            let count = 0;
             data.forEach(element => {
               this.bibliographyData.push(element);
 
@@ -136,22 +136,22 @@ export class BibliographyPanelComponent implements OnInit {
               count++;
               this.countElement++;
             });
-            
-            this.bibliographyData['parentNodeLabel']= this.object['form'];
-            this.bibliographyData['formInstanceName']= this.object['formInstanceName'];
-          }, error=>{
+
+            this.bibliographyData['parentNodeLabel'] = this.object['form'];
+            this.bibliographyData['formInstanceName'] = this.object['formInstanceName'];
+          }, error => {
             this.toastr.error(error.error, 'Error', {
               timeOut: 5000,
             });
             console.log(error);
-            
+
           }
         )
-        
-      }else if(this.object.senseInstanceName != undefined){
+
+      } else if (this.object.senseInstanceName != undefined) {
         let senseId = this.object.senseInstanceName;
         this.lexicalService.getBibliographyData(senseId).subscribe(
-          data=>{
+          data => {
             console.log(data);
             let count = 0;
             data.forEach(element => {
@@ -163,21 +163,21 @@ export class BibliographyPanelComponent implements OnInit {
               count++;
               this.countElement++;
             });
-            
-            this.bibliographyData['parentNodeLabel']= this.object['sense'];
-            this.bibliographyData['senseInstanceName']= this.object['senseInstanceName'];
-          }, error=>{
+
+            this.bibliographyData['parentNodeLabel'] = this.object['sense'];
+            this.bibliographyData['senseInstanceName'] = this.object['senseInstanceName'];
+          }, error => {
             this.toastr.error(error.error, 'Error', {
               timeOut: 5000,
             });
             console.log(error);
-            
+
           }
         )
-      }else if(this.object.etymologyInstanceName != undefined){
+      } else if (this.object.etymologyInstanceName != undefined) {
         let etymId = this.object.etymologyInstanceName;
         this.lexicalService.getBibliographyData(etymId).subscribe(
-          data=>{
+          data => {
             console.log(data);
             let count = 0;
             data.forEach(element => {
@@ -189,19 +189,19 @@ export class BibliographyPanelComponent implements OnInit {
               count++;
               this.countElement++;
             });
-            
-            this.bibliographyData['parentNodeLabel']= this.object['etymology'];
-            this.bibliographyData['etymologyInstanceName']= this.object['etymologyInstanceName'];
-          }, error=>{
+
+            this.bibliographyData['parentNodeLabel'] = this.object['etymology'];
+            this.bibliographyData['etymologyInstanceName'] = this.object['etymologyInstanceName'];
+          }, error => {
             this.toastr.error(error.error, 'Error', {
               timeOut: 5000,
             });
             console.log(error);
-            
+
           }
         )
       }
-    }else{
+    } else {
       this.countElement = 0;
       this.bibliographyData = null;
     }
@@ -209,96 +209,90 @@ export class BibliographyPanelComponent implements OnInit {
 
   debounceKeyup(evt, index, field) {
     this.lexicalService.spinnerAction('on');
-    this.subject.next({ evt, index,  field})
+    this.subject.next({ evt, index, field })
   }
 
-  
-  onChanges(data){
+
+  onChanges(data) {
     let fieldType = '';
     console.log(data)
-    if(data != undefined){
-      
+    if (data != undefined) {
+
       let newValue = data.evt.target.value;
       let currentValue;
       let index = data?.index;
 
-      if(newValue.length > 2){
-        let oldValue = '';
-        fieldType = data['field']
-        if(fieldType == 'note'){
-          oldValue = this.memoryNote[index];
-        }else if(fieldType == 'label'){
-          oldValue = this.memoryTextualRef[index];
+      let oldValue = '';
+      fieldType = data['field']
+      if (fieldType == 'note') {
+        oldValue = this.memoryNote[index];
+      } else if (fieldType == 'label') {
+        oldValue = this.memoryTextualRef[index];
+      }
+
+      //this.biblioArray = this.bibliographyForm.get('bibliography') as FormArray;
+
+
+
+      let instanceName = this.bibliographyData[index].bibliographyInstanceName;
+
+
+      let parameters;
+
+      if (oldValue == '') {
+        parameters = {
+          type: "bibliography",
+          relation: fieldType,
+          value: newValue
         }
-        
-        //this.biblioArray = this.bibliographyForm.get('bibliography') as FormArray;
-
-        
-
-        let instanceName = this.bibliographyData[index].bibliographyInstanceName;
-        
-
-        let parameters;
-
-        if(oldValue == ''){
-          parameters = {
-            type: "bibliography",
-            relation: fieldType,
-            value : newValue
-          }
-        }else{
-          parameters = {
-            type: "bibliography",
-            relation: fieldType,
-            value : newValue,
-            currentValue : oldValue
-          }
+      } else {
+        parameters = {
+          type: "bibliography",
+          relation: fieldType,
+          value: newValue,
+          currentValue: oldValue
         }
-        
-        
-        
-        console.log(this.biblioArray.at(index))
-        console.log(parameters)
+      }
 
-        this.lexicalService.updateGenericRelation(instanceName, parameters).subscribe(
-          data=> {
-            console.log(data);
-            this.lexicalService.spinnerAction('off');
-            this.lexicalService.updateLexCard(this.object);
+
+
+      console.log(this.biblioArray.at(index))
+      console.log(parameters)
+
+      this.lexicalService.updateGenericRelation(instanceName, parameters).subscribe(
+        data => {
+          console.log(data);
+          this.lexicalService.spinnerAction('off');
+          this.lexicalService.updateLexCard(this.object);
+          this.toastr.success('Bibliography item updated', '', {
+            timeOut: 5000,
+          });
+        }, error => {
+          console.log(error);
+          this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+          this.lexicalService.spinnerAction('off');
+          if (error.status == 200) {
             this.toastr.success('Bibliography item updated', '', {
               timeOut: 5000,
             });
-          },error=> {
-            console.log(error);
-            this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
-            this.lexicalService.spinnerAction('off');
-            if(error.status == 200){
-              this.toastr.success('Bibliography item updated', '', {
-                timeOut: 5000,
-              });
-            }else{
-              this.toastr.error(error.error, 'Error', {
-                timeOut: 5000,
-              });
-            }
-            
+          } else {
+            this.toastr.error(error.error, 'Error', {
+              timeOut: 5000,
+            });
           }
-        )
 
-        
-        if(fieldType == 'note'){
-          this.memoryNote[index] = newValue;
-        }else if(fieldType == 'label'){
-          this.memoryTextualRef[index] = newValue;
         }
-        
-      }else{
-        this.lexicalService.spinnerAction('off');
-        this.toastr.error("Insert at leat 3 characters", 'Error', {
-          timeOut: 5000,
-        });
+      )
+
+
+      if (fieldType == 'note') {
+        this.memoryNote[index] = newValue;
+      } else if (fieldType == 'label') {
+        this.memoryTextualRef[index] = newValue;
       }
-      
+
+
+
     }
   }
 
@@ -324,35 +318,35 @@ export class BibliographyPanelComponent implements OnInit {
       }
     )
 
-  
+
     this.biblioArray.removeAt(index);
     this.bibliographyData.splice(index, 1);
     this.memoryNote.splice(index, 1)
     this.memoryTextualRef.splice(index, 1)
-    
-  }
-  
 
-  addBibliographyElement(i?, t?, a?, d?, n?, l?){
+  }
+
+
+  addBibliographyElement(i?, t?, a?, d?, n?, l?) {
     this.biblioArray = this.bibliographyForm.get('bibliography') as FormArray;
-    if(t == undefined){
+    if (t == undefined) {
       this.biblioArray.push(this.createBibliography());
-    }else{
+    } else {
       this.biblioArray.push(this.createBibliography(i, t, a, d, n, l));
     }
   }
 
-  createBibliography(i?, t?, a?, d?, n?, l?){
-    if(t == undefined){
+  createBibliography(i?, t?, a?, d?, n?, l?) {
+    if (t == undefined) {
       return this.formBuilder.group({
-        id : new FormControl(null),
+        id: new FormControl(null),
         title: new FormControl(null),
         author: new FormControl(null),
         date: new FormControl(null),
         note: new FormControl(null),
         textualReference: new FormControl(null)
       })
-    }else{
+    } else {
       return this.formBuilder.group({
         id: new FormControl(i),
         title: new FormControl(t),
@@ -364,21 +358,21 @@ export class BibliographyPanelComponent implements OnInit {
     }
   }
 
-  synchronizeBibliography(id, i){
+  synchronizeBibliography(id, i) {
     console.log(id)
     this.loadingSynchro[i] = true;
     let lexId = '';
-    if(this.object.lexicalEntryInstanceName != undefined
-      && this.object.senseInstanceName == undefined){
-        console.log(1)
-        lexId = this.object.lexicalEntryInstanceName;
-    }else if(this.object.formInstanceName != undefined){
+    if (this.object.lexicalEntryInstanceName != undefined
+      && this.object.senseInstanceName == undefined) {
+      console.log(1)
+      lexId = this.object.lexicalEntryInstanceName;
+    } else if (this.object.formInstanceName != undefined) {
       lexId = this.object.formInstanceName;
       console.log(2)
-    }else if(this.object.senseInstanceName != undefined){
+    } else if (this.object.senseInstanceName != undefined) {
       lexId = this.object.senseInstanceName;
       console.log(3)
-    }else if(this.object.etymologyInstanceName != undefined){
+    } else if (this.object.etymologyInstanceName != undefined) {
       lexId = this.object.etymologyInstanceName;
     }
 
@@ -386,15 +380,15 @@ export class BibliographyPanelComponent implements OnInit {
       data => {
         console.log(data);
         this.loadingSynchro[i] = false;
-      },error=>{
+      }, error => {
         console.log(error);
-        if(error.status == 200){
+        if (error.status == 200) {
           this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
-          this.toastr.success('Item n°'+id+' synchronized', '')
+          this.toastr.success('Item n°' + id + ' synchronized', '')
         }
         this.loadingSynchro[i] = false;
       }
-    );  
+    );
   }
 
 }

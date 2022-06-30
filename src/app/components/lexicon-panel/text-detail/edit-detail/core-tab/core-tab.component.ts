@@ -34,7 +34,7 @@ import { Subject } from 'rxjs';
   animations: [
     trigger('slideInOut', [
       state('in', style({
-        height: 'calc(100vh - 16rem)',
+        height: 'calc(100vh - 17rem)',
         
       })),
       state('out', style({
@@ -210,8 +210,8 @@ export class CoreTabComponent implements OnInit {
             
               if(!isEpigraphyExpanded){
                 this.exp_trig = 'in';
-                this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(100vh - 16rem)')
-                this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(100vh - 16rem)')
+                this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(100vh - 17rem)')
+                this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(100vh - 17rem)')
               }else{
                 this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 10rem)');
                 this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 10rem)');

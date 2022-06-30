@@ -255,7 +255,7 @@
                                     <div class="col-xl-8 col-lg-12 p-1">
                                         <span *ngFor="let sub of object?.discoveryYear| keyvalue">
                                             <p *ngIf="sub?.value != ''">
-                                                <b>{{sub?.key}}:</b>
+                                                <span class="text-italic">{{sub?.key}}:</span>
                                                 <span *ngIf="!isLink(sub?.value)">{{sub?.value}}</span>
                                                 <a [href]="sub?.value" target="_blank" *ngIf="isLink(sub?.value)">{{sub?.value}}</a>
                                             </p>
