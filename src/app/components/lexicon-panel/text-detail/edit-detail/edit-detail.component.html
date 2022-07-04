@@ -12,13 +12,13 @@
             <li class="nav-item">
                 <a class="nav-link" id="synsem-tab" data-toggle="tab" href="#synsem" role="tab" aria-controls="synsem" aria-selected="true">Synsem</a>
             </li> -->
-            <li class="nav-item">
+            <li class="nav-item" [hidden]="hideDecomp">
                 <a class="nav-link" id="decomposition-tab" data-toggle="tab" href="#decomposition" role="tab" aria-controls="decomposition" aria-selected="true">Decomposition</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" [hidden]="hideEtymology">
                 <a class="nav-link" id="etymology-tab" data-toggle="tab" href="#etymology" role="tab" aria-controls="etymology" aria-selected="true">Etymology</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" [hidden]="hideDictionary">
                 <a class="nav-link" id="dictionary-tab" data-toggle="tab" href="#dictionary" role="tab" aria-controls="dictionary" aria-selected="false">Dictionary</a>
             </li>
             <h5 class="ml-auto mb-0">

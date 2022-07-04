@@ -23,6 +23,9 @@ export class EditDetailComponent implements OnInit {
 
   object : any;
   showTrigger = false;
+  hideEtymology = true;
+  hideDecomp = true;
+  hideDictionary = true;
   @ViewChild('navtabs') navtabs: ElementRef; 
   @ViewChild('navcontent') navcontent: ElementRef; 
 
@@ -67,7 +70,9 @@ export class EditDetailComponent implements OnInit {
                 navTabLinks.forEach(element => {
                   /* //console.log(element) */
                   if(element.text == 'Core'){
-                    element.classList.add('active')
+                    element.classList.add('active');
+                    this.hideDecomp = true;
+                    this.hideEtymology = true;
                   }else{
                     element.classList.remove('active')
                     //console.log(element.id)
@@ -113,6 +118,8 @@ export class EditDetailComponent implements OnInit {
               /* //console.log(element) */
               if(element.text == 'Decomposition'){
                 element.classList.add('active')
+                this.hideDecomp = false;
+                this.hideEtymology = true;
               }else{
                 element.classList.remove('active')
                 //console.log(element.id)
@@ -157,8 +164,9 @@ export class EditDetailComponent implements OnInit {
               //console.log(element.text)
               if(element.text == 'Etymology'){
                 /* console.log("aggiungo active a:") */
-                element.classList.add('active')
-
+                element.classList.add('active');
+                this.hideEtymology = false;
+                this.hideDecomp = true;
               }else{
                 element.classList.remove('active')
                 /* console.log("tolgo active a:") */

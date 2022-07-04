@@ -452,32 +452,35 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
             }
           )
           //console.log(this.annotationArray)
-
-          this.object.forEach(element => {
-            if(element.id == data.node_id){
-              /* let position = element.position;
-
-              let elementHTML = document.getElementsByClassName('token-'+(position-1))[0]
-              this.renderer.removeClass(elementHTML, 'annotation'); */
-
-              let start = element.begin;
-              let end = element.end;
-
-              this.annotationArray.forEach(element => {
-                if(element.spans[0].start >= start  && element.spans[0].end <= end){
-                  localArray.push(element);
-                }
-              })
-
-              console.log(localArray, localArray.length);
-
-              if(localArray.length == 0){
-                let position = element.position;
+          
+          if(this.object != undefined){
+            this.object.forEach(element => {
+              if(element.id == data.node_id){
+                /* let position = element.position;
+  
                 let elementHTML = document.getElementsByClassName('token-'+(position-1))[0]
-                this.renderer.removeClass(elementHTML, 'annotation');
+                this.renderer.removeClass(elementHTML, 'annotation'); */
+  
+                let start = element.begin;
+                let end = element.end;
+  
+                this.annotationArray.forEach(element => {
+                  if(element.spans[0].start >= start  && element.spans[0].end <= end){
+                    localArray.push(element);
+                  }
+                })
+  
+                console.log(localArray, localArray.length);
+  
+                if(localArray.length == 0){
+                  let position = element.position;
+                  let elementHTML = document.getElementsByClassName('token-'+(position-1))[0]
+                  this.renderer.removeClass(elementHTML, 'annotation');
+                }
               }
-            }
-          });
+            });
+          }
+          
         }
       }
     )

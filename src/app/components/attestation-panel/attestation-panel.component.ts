@@ -69,7 +69,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
     )
     
 
-    this.update_biblio_anno_subject.pipe(debounceTime(100)).subscribe(
+    this.update_biblio_anno_subject.pipe(debounceTime(1000)).subscribe(
       data => {
         if(data != null){
           this.updateBiblioAnnotation(data)

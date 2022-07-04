@@ -874,7 +874,7 @@ export class LexicalEntryTreeComponent implements OnInit {
           this.lexicalService.sendToAttestationPanel(null);
           this.lexicalService.triggerAttestationPanel(false);
 
-          this.lexicalService.sendToCoreTab(null);
+          //this.lexicalService.sendToCoreTab(null);
           this.lexicalService.sendToEtymologyTab(data);
           this.lexicalService.sendToRightTab(data);
           this.lexicalService.updateLexCard({ lastUpdate: data['etymology']['lastUpdate'], creationDate: data['etymology']['creationDate'] })
