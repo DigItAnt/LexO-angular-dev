@@ -354,11 +354,26 @@ export class SameAsComponent implements OnInit {
                   if(data.list.length > 0){
 
                     
-                    const map = data.list.map(element => ({label: this.object.label, labelValue: element[0].value, pos : element[1].value}))
+                    const map = data.list.map(element => (
+                      {
+                        label: this.object.label, 
+                        labelValue: element[0].value, 
+                        pos : element[1].value
+                      })
+                    )
 
-                    /* map.forEach(element => {
-                      this.searchResults.push(element)
-                    }); */
+                    map.forEach(element => {
+                      let tmpLblVal = element.labelValue.split('/');
+                      let labelValue = tmpLblVal[tmpLblVal.length - 1];
+
+                      let tmpLblPos = element.pos.split('/');
+                      let pos = tmpLblPos[tmpLblPos.length - 1];
+
+
+                      element.labelElement = labelValue;
+                      element.labelPos = pos;
+
+                    });
 
                     
 

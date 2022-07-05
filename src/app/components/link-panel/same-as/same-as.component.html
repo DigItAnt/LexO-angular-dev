@@ -21,7 +21,19 @@
                                                 [hidden]="!sameAs.get('lila').value" [readonly]="inf.boolean">
                                                 <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                                            
-                                                    {{item.labelValue}}
+                                                    <div class="card-body p-0">
+                                                        <h6 class="card-title m-0" [ngOptionHighlight]="search">{{item.labelElement}}</h6>
+                                                        <small>
+                                                            <span>
+                                                                {{item.labelPos}} 
+                                                            </span>
+                                                        </small>
+                                                        <small class="card-text">
+                                                           
+                                        
+                                                        </small>
+                                                       
+                                                    </div>
                                         
                                                 </ng-template>
                                                 <!-- <ng-template ng-option-tmp let-item="item" let-search="searchTerm" *ngIf="!sameAsForm.get('isEtymon').value || !sameAsForm.get('isCognate').value">
