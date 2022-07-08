@@ -16,7 +16,7 @@
                 <h6 class="card-title m-0" [ngOptionHighlight]="search">{{item.label}}</h6>
                 <!-- <p class="card-subtitle mb-2 text-muted">{{item.type}}</p> -->
                 <small *ngFor="let sub of item.morphology">
-                    <span *ngIf="sub.trait == 'case' || sub.trait == 'gender' || sub.trait == 'number'">
+                    <span *ngIf="sub.trait == 'case' || sub.trait == 'gender' || sub.trait == 'number' || sub.trait == 'partOfSpeech'">
                         {{sub.trait}} : {{sub.value}} <br>
                     </span>
                 </small>
