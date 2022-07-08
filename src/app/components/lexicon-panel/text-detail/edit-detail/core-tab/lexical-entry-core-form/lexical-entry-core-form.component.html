@@ -236,7 +236,7 @@
         <div class="input-group col-lg-12">
             <div class="card">
                 <span class="text-id"><b>COGNATES</b></span>
-                <a class="pointer" (click)="addCognates()"><span class="collapse-icon"><i
+                <a class="pointer" (click)="addCognates()" [ngClass]="{no_pointer: disableAddCognates}"><span class="collapse-icon"><i
                             class="fa fa-plus-square"></i></span></a>
                 <div class="card-body">
                     <div class="form-group row m-2" formArrayName="cognates"
@@ -247,9 +247,26 @@
                                 [items]="searchResults" bindValue="label" (focus)="deleteData()" bindLabel="label"
                                 placeholder="Search cognates" appendTo="body"
                                 *ngIf="!variable.switch && cog.get('type').value != 'external'">
-                                <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                                <ng-template ng-option-tmp let-item="item" let-search="searchTerm" *ngIf="!cog.get('lila').value">
                                     <div>
                                         <span>{{item.label}} </span><span style="color: blue;">@{{item.language}}</span>
+                                    </div>
+
+                                </ng-template>
+
+                                <ng-template ng-option-tmp let-item="item" let-search="searchTerm" *ngIf="cog.get('lila').value">
+                                    <div class="card-body p-0">
+                                        <h6 class="card-title m-0" [ngOptionHighlight]="search">{{item.labelElement}}</h6>
+                                        <small>
+                                            <span>
+                                                {{item.labelPos}} 
+                                            </span>
+                                        </small>
+                                        <small class="card-text">
+                                           
+                        
+                                        </small>
+                                       
                                     </div>
 
                                 </ng-template>
@@ -265,14 +282,14 @@
                                     data-placement="bottom" data-trigger="hover"
                                     title="Clicca per inserire un URI manualmente">
                             </div>
-                            <!-- <div class="input-group-append ml-2">
+                            <div class="input-group-append ml-2">
                                 <div class="btn-group-toggle" data-toggle="buttons" placement="top" ngbTooltip="Enable LiLa endpoint" title="Enable LiLa endpoint" >
                                     <label class="btn btn-secondary" >
                                       <input type="checkbox" autocomplete="off" autocomplete="off" formControlName="lila" name="lila" style="border-radius: .3rem;" *ngIf="!variable.switch && cog.get('type').value != 'external'"> 
                                         <img src="../../../../../../../assets/images/graphql.png" alt="Avatar" class="image" style="height: 20px;">
                                     </label>
                                 </div>
-                            </div> -->
+                            </div>
                             <div class="input-group-append ml-2">
                                 <button (click)="removeCognates(i)" class="btn btn-danger" type="button"><i
                                         class="fa fa-trash-alt"></i></button>
