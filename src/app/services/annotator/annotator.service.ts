@@ -21,10 +21,14 @@ export class AnnotatorService {
   private baseUrl = "https://lari2.ilc.cnr.it/cash/api/v1/"
 
   constructor(private http: HttpClient) { }
-
+  
   private _triggerSearch: BehaviorSubject<any> = new BehaviorSubject(null);
   private _deleteAnnoRequest: BehaviorSubject<any> = new BehaviorSubject(null);
   private _getIdText: BehaviorSubject<any> = new BehaviorSubject(null);
+
+  private arrayPanelFormsData = {};
+
+
   triggerSearch$ = this._triggerSearch.asObservable();
   deleteAnnoReq$ = this._deleteAnnoRequest.asObservable();
   getIdText$ = this._getIdText.asObservable();
@@ -39,6 +43,25 @@ export class AnnotatorService {
 
   getIdText(object: any){
     this._getIdText.next(object);
+  }
+
+  getPanelForm(id_annotation) : object{
+    return this.arrayPanelFormsData[id_annotation];
+  }
+
+  getAllPanelForms() : object {
+    return this.arrayPanelFormsData;
+  }
+
+  closePanelForm(id_annotation) : void {
+    this.arrayPanelFormsData[id_annotation] = undefined;
+  }
+
+  newPanelForm(id_annotation) : void {
+    this.arrayPanelFormsData[id_annotation] = {};
+    this.arrayPanelFormsData[id_annotation].data = undefined;
+    this.arrayPanelFormsData[id_annotation].isOpen = undefined;
+
   }
 
   getTokens(id: number) : Observable<any> {
