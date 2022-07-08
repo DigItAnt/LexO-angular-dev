@@ -43,7 +43,7 @@ export class LexiconPageComponent implements OnInit, OnDestroy {
             if(boolean){
               let a_link = this.accordion.nativeElement.querySelectorAll('a[data-target="#noteCollapse"]');
               let collapse_container = this.accordion.nativeElement.querySelectorAll('div[aria-labelledby="noteHeading"]');
-              let item_collapse = this.accordion.nativeElement.querySelectorAll('[id^="collapse-"');
+              let item_collapse = this.accordion.nativeElement.querySelectorAll('[id^="collapse-"]');
               a_link.forEach(element => {
                 if(element.classList.contains("collapsed")){
                   element.classList.remove('collapsed')

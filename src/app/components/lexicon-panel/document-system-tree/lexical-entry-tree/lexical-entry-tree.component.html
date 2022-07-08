@@ -3,7 +3,7 @@
 <form [formGroup]="filterForm">
     <div class="input-group col-md-12 mt-1 p-0">
         <input formControlName="text" id="filterLexicalEntry" name="text" type="text" class="form-control"
-            placeholder="Search" />
+            placeholder="Search" [value]="filterForm.get('text').value"/>
         <div class="input-group-append">
             <span class="input-group-text loading_icon_append" id="basic-addon2">
                 <div class="spinner-border spinner-border-sm m-1" role="status" *ngIf="searchIconSpinner">

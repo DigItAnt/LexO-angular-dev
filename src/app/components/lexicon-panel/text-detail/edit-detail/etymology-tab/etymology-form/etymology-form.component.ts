@@ -226,7 +226,7 @@ export class EtymologyFormComponent implements OnInit {
               /* data['request'] = 0;
               data['new_label'] = confidence_value
               this.lexicalService.refreshAfterEdit(data); */
-              this.lexicalService.updateLexCard(data)
+              //this.lexicalService.updateLexCard(data)
               this.lexicalService.spinnerAction('off');
           },
           error => {
@@ -236,7 +236,7 @@ export class EtymologyFormComponent implements OnInit {
               data['new_label'] = confidence_value;
               this.lexicalService.refreshAfterEdit(data); */
               this.lexicalService.spinnerAction('off');
-              this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+              //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
               if(error.status == 200){
                 this.toastr.success('Label updated', '', {timeOut: 5000})
 
@@ -266,7 +266,7 @@ export class EtymologyFormComponent implements OnInit {
                 data['new_label'] = updatedLabel
                 this.lexicalService.refreshAfterEdit(data);
                 this.lexicalService.spinnerAction('off');
-                this.lexicalService.updateLexCard(data)
+                //this.lexicalService.updateLexCard(data)
                 this.toastr.success('Label updated', '', {timeOut: 5000})
             },
             error => {
@@ -276,7 +276,7 @@ export class EtymologyFormComponent implements OnInit {
                 data['new_label'] = updatedLabel;
                 this.lexicalService.refreshAfterEdit(data);
                 this.lexicalService.spinnerAction('off');
-                this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+                //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
                 if(error.status == 200){
                   this.toastr.success('Label updated', '', {timeOut: 5000})
 
@@ -306,7 +306,7 @@ export class EtymologyFormComponent implements OnInit {
               data['new_label'] = updateAuthor
               this.lexicalService.refreshAfterEdit(data); */
               this.lexicalService.spinnerAction('off');
-              this.lexicalService.updateLexCard(data)
+              //this.lexicalService.updateLexCard(data)
               this.toastr.success('Author updated', '', {timeOut: 5000})
           },
           error => {
@@ -316,7 +316,7 @@ export class EtymologyFormComponent implements OnInit {
               data['new_label'] = updateAuthor;
               this.lexicalService.refreshAfterEdit(data); */
               this.lexicalService.spinnerAction('off');
-              this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+              //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
               if(error.status == 200){
                 this.toastr.success('Label updated', '', {timeOut: 5000})
 
@@ -356,12 +356,12 @@ export class EtymologyFormComponent implements OnInit {
         data=> {
           console.log(data);
           this.lexicalService.spinnerAction('off');
-          this.lexicalService.updateLexCard(this.object)
+          //this.lexicalService.updateLexCard(this.object)
           this.memoryLinks[index].note = newValue
           this.toastr.success('EtyLink note updated', '', {timeOut: 5000})
         },error=> {
           console.log(error);
-          this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+          //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
           this.memoryLinks[index].note = newValue
           if(error.status == 200){
@@ -402,13 +402,13 @@ export class EtymologyFormComponent implements OnInit {
         data=> {
           console.log(data);
           this.lexicalService.spinnerAction('off');
-          this.lexicalService.updateLexCard(this.object)
+          //this.lexicalService.updateLexCard(this.object)
           this.memoryLinks[index].note = newValue
           this.toastr.success('EtyLink label updated', '', {timeOut: 5000})
 
         },error=> {
           console.log(error);
-          this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+          //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
           this.memoryLinks[index].note = newValue
           this.toastr.error(error.error, 'Error', {timeOut: 5000})
@@ -443,7 +443,7 @@ export class EtymologyFormComponent implements OnInit {
           console.log(error)
           if(error.status == 200){
             this.toastr.success('Etylink type updated', '', {timeOut: 5000})
-            this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+            //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
           }else{
             this.toastr.error(error.error, 'Error', {timeOut: 5000})
           }
@@ -495,7 +495,7 @@ export class EtymologyFormComponent implements OnInit {
             this.memoryLinks[index]['etySourceLabel'] = etySourceLabel;
             this.etyLinkArray.at(index).patchValue({ label: etySourceLabel});
             this.etyLinkArray.at(index).patchValue({ etySource: instanceName});
-            this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+            //this.lexicalService.updateLexCard({ lastUpdate: error.error.text }) TODO: inserire updater per decomposition e etymology
             this.toastr.success('Etylink source updated', '', {timeOut: 5000})
           }else{
             this.toastr.error(error.error, 'Error', {timeOut: 5000})
@@ -563,7 +563,7 @@ export class EtymologyFormComponent implements OnInit {
                           console.log(error)
                           if(error.statusText == 'OK'){
                             this.toastr.success('New etymon created', '', {timeOut: 5000})
-                            this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+                            ////this.lexicalService.updateLexCard({ lastUpdate: error.error.text }) TODO: inserire updater per decomposition e etymology
                           }
                         }
                       )
@@ -650,14 +650,14 @@ export class EtymologyFormComponent implements OnInit {
     this.lexicalService.deleteEtylink(etyLinkId).subscribe(
       data =>{
         console.log(data)
-        //this.lexicalService.updateLexCard(this.object)
+        ////this.lexicalService.updateLexCard(this.object)
         this.toastr.success('Etylink removed', '', {timeOut: 5000})
 
       },
       error =>{
         console.log(error)
         this.toastr.error(error.error, 'Error', {timeOut: 5000})
-        //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+        ////this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
       }
     )
     this.etyLinkArray.removeAt(index);
@@ -810,14 +810,14 @@ export class EtymologyFormComponent implements OnInit {
       if(value){
         const element = Array.from(this.etyLinkList)[index];
 
-        if(element!=undefined){
+        /* if(element!=undefined){
           
           //this.onSearchFilter({value: this.object.label, index: index})
-        }
+        } */
 
-        setTimeout(() => {
+        /* setTimeout(() => {
           element.filter(this.object.parentNodeLabel)
-        }, 100);
+        }, 100); */
       }
       
       

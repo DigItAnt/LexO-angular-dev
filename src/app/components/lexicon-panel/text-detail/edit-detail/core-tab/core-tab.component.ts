@@ -61,6 +61,8 @@ export class CoreTabComponent implements OnInit {
   bibliography = [];
   selectedItem;
 
+  selectedLexicalElement;
+
   lexicalEntryData : any;
   formData : any;
   senseData : any;
@@ -121,7 +123,7 @@ export class CoreTabComponent implements OnInit {
           this.creator = this.object.creator;
           this.revisor = this.object.revisor;
           
-          if(this.object.lexicalEntry != undefined && this.object.sense == undefined){
+          if(this.object.lexicalEntry != undefined && this.object.sense == undefined && this.object.form == undefined){
             this.isLexicalEntry = true;
             this.isForm = false;
             this.isSense = false;
@@ -250,7 +252,7 @@ export class CoreTabComponent implements OnInit {
       }
     );
 
-    this.lexicalService.updateLexCardReq$.subscribe(
+    this.lexicalService.updateCoreCardReq$.subscribe(
       data => {
         console.log(data)
         if(data != null){
@@ -340,7 +342,7 @@ export class CoreTabComponent implements OnInit {
           data => {
             this.searchIconSpinner = false;
             data['request'] = 0;
-            this.lexicalService.updateLexCard(data)
+            this.lexicalService.updateCoreCard(data)
             this.lexicalService.refreshAfterEdit(data);
             setTimeout(() => {
               //@ts-ignore
@@ -352,7 +354,7 @@ export class CoreTabComponent implements OnInit {
             const data = this.object;
             data['request'] = 0;
             this.lexicalService.refreshAfterEdit(data);
-            this.lexicalService.updateLexCard({lastUpdate : error.error.text})
+            this.lexicalService.updateCoreCard({lastUpdate : error.error.text})
             setTimeout(() => {
               //@ts-ignore
               $('.locked-tooltip').tooltip('disable');
@@ -370,7 +372,7 @@ export class CoreTabComponent implements OnInit {
 
             this.searchIconSpinner = false;
             data['request'] = 0;
-            this.lexicalService.updateLexCard(data)
+            this.lexicalService.updateCoreCard(data)
             this.lexicalService.refreshAfterEdit(data);
             setTimeout(() => {
               //@ts-ignore
@@ -382,7 +384,7 @@ export class CoreTabComponent implements OnInit {
             const data = this.object;
             data['request'] = 0;
             this.lexicalService.refreshAfterEdit(data);
-            this.lexicalService.updateLexCard({lastUpdate : error.error.text})
+            this.lexicalService.updateCoreCard({lastUpdate : error.error.text})
             setTimeout(() => {
               //@ts-ignore
               $('.locked-tooltip').tooltip('disable');
@@ -399,7 +401,7 @@ export class CoreTabComponent implements OnInit {
           data => {
             this.searchIconSpinner = false;
             data['request'] = 0;
-            this.lexicalService.updateLexCard(data)
+            this.lexicalService.updateCoreCard(data)
             this.lexicalService.refreshAfterEdit(data);
             setTimeout(() => {
               //@ts-ignore
@@ -416,7 +418,7 @@ export class CoreTabComponent implements OnInit {
             const data = this.object;
             data['request'] = 0;
             this.lexicalService.refreshAfterEdit(data);
-            this.lexicalService.updateLexCard({lastUpdate : error.error.text})
+            this.lexicalService.updateCoreCard({lastUpdate : error.error.text})
             setTimeout(() => {
               //@ts-ignore
               $('.locked-tooltip').tooltip('enable');

@@ -468,7 +468,7 @@ export class SeeAlsoComponent implements OnInit {
       this.lexicalService.deleteLinguisticRelation(lexId, parameters).subscribe(
         data => {
           //console.log(data)
-          this.lexicalService.updateLexCard(this.object)
+          this.lexicalService.updateCoreCard(this.object)
           this.toastr.success('SeeAlso deleted', '', {
             timeOut: 5000,
           });
@@ -496,7 +496,7 @@ export class SeeAlsoComponent implements OnInit {
         data => {
           //console.log(data)
           this.lexicalService.refreshLinkCounter('-1')
-          this.lexicalService.updateLexCard(this.object)
+          this.lexicalService.updateCoreCard(this.object)
           this.toastr.success('SeeAlso updated', '', {
             timeOut: 5000,
           });
@@ -523,7 +523,7 @@ export class SeeAlsoComponent implements OnInit {
         data => {
           //console.log(data)
           this.lexicalService.refreshLinkCounter('-1')
-          this.lexicalService.updateLexCard(this.object)
+          this.lexicalService.updateCoreCard(this.object)
           this.toastr.success('SeeAlso updated', '', {
             timeOut: 5000,
           });
@@ -547,7 +547,7 @@ export class SeeAlsoComponent implements OnInit {
         data => {
           //console.log(data)
           this.lexicalService.refreshLinkCounter('-1')
-          this.lexicalService.updateLexCard(this.object)
+          this.lexicalService.updateCoreCard(this.object)
           this.toastr.success('SeeAlso updated', '', {
             timeOut: 5000,
           });

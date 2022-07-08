@@ -403,14 +403,14 @@ export class SameAsComponent implements OnInit {
       if(this.sameAsArray.at(index).get('lila').value){
         const element = Array.from(this.sameAsList)[index];
 
-        if(element!=undefined){
+        /* if(element!=undefined){
           
           this.onSearchFilter({value: this.object.label, index: index})
-        }
+        } */
 
-        setTimeout(() => {
+        /* setTimeout(() => {
           element.filter(this.object.label)
-        }, 100);
+        }, 100); */
       }
       
       
@@ -497,7 +497,7 @@ export class SameAsComponent implements OnInit {
       this.lexicalService.deleteLinguisticRelation(lexId, parameters).subscribe(
         data => {
           //console.log(data)
-          this.lexicalService.updateLexCard(this.object)
+          this.lexicalService.updateCoreCard(this.object)
           this.lexicalService.refreshLinkCounter('-1')
         }, error => {
           //console.log(error)
@@ -519,7 +519,7 @@ export class SameAsComponent implements OnInit {
       this.lexicalService.deleteLinguisticRelation(formId, parameters).subscribe(
         data => {
           //console.log(data)
-          this.lexicalService.updateLexCard(this.object)
+          this.lexicalService.updateCoreCard(this.object)
           this.lexicalService.refreshLinkCounter('-1')
         }, error => {
           //console.log(error)
@@ -540,7 +540,7 @@ export class SameAsComponent implements OnInit {
       this.lexicalService.deleteLinguisticRelation(senseId, parameters).subscribe(
         data => {
           //console.log(data)
-          this.lexicalService.updateLexCard(this.object)
+          this.lexicalService.updateCoreCard(this.object)
           this.lexicalService.refreshLinkCounter('-1')
         }, error => {
           //console.log(error)

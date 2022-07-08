@@ -134,7 +134,7 @@ export class NotePanelComponent implements OnInit, OnChanges {
                 data['request'] = 0;
                 data['new_note'] = newNote;
                 this.lexicalService.refreshAfterEdit(data);
-                this.lexicalService.updateLexCard({lastUpdate : error.error.text})
+                this.lexicalService.updateCoreCard({lastUpdate : error.error.text})
                 this.lexicalService.spinnerAction('off');
                 this.toastr.success('Note updated', '', {
                   timeOut: 5000,
@@ -164,7 +164,7 @@ export class NotePanelComponent implements OnInit, OnChanges {
                 data['request'] = 0;
                 data['new_note'] = newNote;
                 this.lexicalService.refreshAfterEdit(data);
-                this.lexicalService.updateLexCard({lastUpdate : error.error.text})
+                this.lexicalService.updateCoreCard({lastUpdate : error.error.text})
                 this.lexicalService.spinnerAction('off');
                 this.toastr.success('Note updated', '', {
                   timeOut: 5000,
@@ -194,7 +194,7 @@ export class NotePanelComponent implements OnInit, OnChanges {
                 data['request'] = 0;
                 data['new_note'] = newNote;
                 this.lexicalService.refreshAfterEdit(data);
-                this.lexicalService.updateLexCard({lastUpdate : error.error.text})
+                this.lexicalService.updateCoreCard({lastUpdate : error.error.text})
                 this.lexicalService.spinnerAction('off');
                 this.toastr.success('Note updated', '', {
                   timeOut: 5000,
@@ -224,7 +224,7 @@ export class NotePanelComponent implements OnInit, OnChanges {
                 data['request'] = 0;
                 data['new_note'] = newNote;
                 this.lexicalService.refreshAfterEdit(data);
-                this.lexicalService.updateLexCard({lastUpdate : error.error.text})
+                this.lexicalService.updateCoreCard({lastUpdate : error.error.text})
                 this.lexicalService.spinnerAction('off');
                 this.toastr.success('Note updated', '', {
                   timeOut: 5000,

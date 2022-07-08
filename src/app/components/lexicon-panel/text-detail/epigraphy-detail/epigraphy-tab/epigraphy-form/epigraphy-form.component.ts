@@ -529,7 +529,6 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
             console.log("FILE NON VUOTO")
           }
   
-          //TODO: popolare array form con tokens
           //console.log(this.object)
           
           this.annotatorService.getAnnotation(element_id).subscribe(
@@ -843,7 +842,6 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
         let classNames = parentNode.className;
         let matchTest = /(^|\s)(multiword-span-\d)(\s|$)/.test(classNames)
         if (matchTest) {
-          //TODO: highlight su div che contiene multiword
           
         } else {
           this.object[i]['selected'] = true;

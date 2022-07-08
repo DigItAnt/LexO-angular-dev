@@ -263,13 +263,13 @@ export class BibliographyPanelComponent implements OnInit {
         data => {
           console.log(data);
           this.lexicalService.spinnerAction('off');
-          this.lexicalService.updateLexCard(this.object);
+          this.lexicalService.updateCoreCard(this.object);
           this.toastr.success('Bibliography item updated', '', {
             timeOut: 5000,
           });
         }, error => {
           console.log(error);
-          this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+          this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
           if (error.status == 200) {
             this.toastr.success('Bibliography item updated', '', {
@@ -305,13 +305,13 @@ export class BibliographyPanelComponent implements OnInit {
     this.lexicalService.removeBibliographyItem(instanceName).subscribe(
       data => {
         console.log(data)
-        this.lexicalService.updateLexCard(this.object);
+        this.lexicalService.updateCoreCard(this.object);
         this.toastr.success('Element removed', '', {
           timeOut: 5000,
         });
       }, error => {
         //console.log(error)
-        this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+        this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
         this.toastr.error(error.error, 'Error', {
           timeOut: 5000,
         });
@@ -383,7 +383,7 @@ export class BibliographyPanelComponent implements OnInit {
       }, error => {
         console.log(error);
         if (error.status == 200) {
-          this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+          this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
           this.toastr.success('Item n°' + id + ' synchronized', '')
         }
         this.loadingSynchro[i] = false;

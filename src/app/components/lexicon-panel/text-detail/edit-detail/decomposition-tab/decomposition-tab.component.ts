@@ -117,6 +117,10 @@ export class DecompositionTabComponent implements OnInit {
       }
     );
 
+    /* 
+
+    TODO: inserire updater per decomposition e etymology
+    
     this.lexicalService.updateLexCardReq$.subscribe(
       data => {
         console.log(data)
@@ -127,7 +131,7 @@ export class DecompositionTabComponent implements OnInit {
           }
         }
       }
-    )
+    ) */
 
     this.expand.expEdit$.subscribe(
       trigger => {

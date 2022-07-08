@@ -176,7 +176,7 @@ export class EtymologyTabComponent implements OnInit {
       }
     );
 
-    this.lexicalService.updateLexCardReq$.subscribe(
+    /* this.lexicalService.updateLexCardReq$.subscribe(
       data => {
         console.log(data)
         if (data != null) {
@@ -186,7 +186,7 @@ export class EtymologyTabComponent implements OnInit {
           }
         }
       }
-    )
+    ) */
 
     this.lexicalService.spinnerAction$.subscribe(
       data => {

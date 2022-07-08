@@ -640,7 +640,7 @@ export class LexicalEntryTreeComponent implements OnInit {
         this.searchIconSpinner = false;
       },
       error => {
-
+        console.log(error)
       }
     )
   }
@@ -660,6 +660,7 @@ export class LexicalEntryTreeComponent implements OnInit {
 
   resetFields() {
     this.initialValues.text = '';
+    this.parameters.text = '';
     this.offset = 0;
     this.filterForm.reset(this.initialValues, { emitEvent: false });
     setTimeout(() => {
@@ -705,10 +706,10 @@ export class LexicalEntryTreeComponent implements OnInit {
           this.lexicalService.sendToCoreTab(data);
           this.lexicalService.sendToRightTab(data);
           this.lexicalService.sendToEtymologyTab(null);
-          this.lexicalService.updateLexCard({ lastUpdate: data['lastUpdate'], creationDate: data['creationDate'] });
+          this.lexicalService.updateCoreCard({ lastUpdate: data['lastUpdate'], creationDate: data['creationDate'] });
 
-          this.lexicalService.sendToAttestationPanel(null);
-          this.lexicalService.triggerAttestationPanel(false);
+          //this.lexicalService.sendToAttestationPanel(null);
+          //this.lexicalService.triggerAttestationPanel(false);
 
 
           /* if(this.expander.isEpigraphyTabExpanded() && !this.expander.isEditTabExpanded()){
@@ -767,7 +768,7 @@ export class LexicalEntryTreeComponent implements OnInit {
           this.lexicalService.sendToCoreTab(data)
           this.lexicalService.sendToEtymologyTab(null);
           this.lexicalService.sendToRightTab(data);
-          this.lexicalService.updateLexCard({ lastUpdate: data['lastUpdate'], creationDate: data['creationDate'] })
+          this.lexicalService.updateCoreCard({ lastUpdate: data['lastUpdate'], creationDate: data['creationDate'] })
           //@ts-ignore
           $("#coreTabModal").modal("show");
           $('.modal-backdrop').appendTo('.core-tab-body');
@@ -776,8 +777,8 @@ export class LexicalEntryTreeComponent implements OnInit {
           $('body').removeClass("modal-open")
           $('body').css("padding-right", "");
 
-          this.lexicalService.sendToAttestationPanel(null);
-          this.lexicalService.triggerAttestationPanel(false);
+          // this.lexicalService.sendToAttestationPanel(null);
+          // this.lexicalService.triggerAttestationPanel(false);
 
           if (!this.expander.isEditTabOpen() && !this.expander.isEpigraphyTabOpen()) {
             if (!this.expander.isEditTabExpanded() && !this.expander.isEpigraphyTabExpanded()) {
@@ -821,10 +822,10 @@ export class LexicalEntryTreeComponent implements OnInit {
           this.lexicalService.sendToCoreTab(data)
           this.lexicalService.sendToEtymologyTab(null);
           this.lexicalService.sendToRightTab(data);
-          this.lexicalService.updateLexCard({ lastUpdate: data['lastUpdate'], creationDate: data['creationDate'] })
+          this.lexicalService.updateCoreCard({ lastUpdate: data['lastUpdate'], creationDate: data['creationDate'] })
 
-          this.lexicalService.sendToAttestationPanel(null);
-          this.lexicalService.triggerAttestationPanel(false);
+          // this.lexicalService.sendToAttestationPanel(null);
+          // this.lexicalService.triggerAttestationPanel(false);
           //@ts-ignore
           $("#coreTabModal").modal("show");
           $('.modal-backdrop').appendTo('.core-tab-body');
@@ -871,13 +872,13 @@ export class LexicalEntryTreeComponent implements OnInit {
           data['parentNodeInstanceName'] = $event.node.parent.parent.data.lexicalEntryInstanceName;
           console.log(data)
           data['type'] = $event.node.parent.parent.data.type;
-          this.lexicalService.sendToAttestationPanel(null);
-          this.lexicalService.triggerAttestationPanel(false);
+          // this.lexicalService.sendToAttestationPanel(null);
+          // this.lexicalService.triggerAttestationPanel(false);
 
           //this.lexicalService.sendToCoreTab(null);
           this.lexicalService.sendToEtymologyTab(data);
           this.lexicalService.sendToRightTab(data);
-          this.lexicalService.updateLexCard({ lastUpdate: data['etymology']['lastUpdate'], creationDate: data['etymology']['creationDate'] })
+          this.lexicalService.updateCoreCard({ lastUpdate: data['etymology']['lastUpdate'], creationDate: data['etymology']['creationDate'] })
           //@ts-ignore
           $("#etymologyTabModal").modal("show");
           $('.modal-backdrop').appendTo('.etym-tab-body');
@@ -928,9 +929,9 @@ export class LexicalEntryTreeComponent implements OnInit {
           //this.lexicalService.sendToEtymologyTab(data);
           //this.lexicalService.sendToDecompTab(data);
           this.lexicalService.sendToRightTab(data);
-          this.lexicalService.sendToAttestationPanel(null);
-          this.lexicalService.triggerAttestationPanel(false);
-          this.lexicalService.updateLexCard({ lastUpdate: data['lastUpdate'], creationDate: data['creationDate'] })
+          // this.lexicalService.sendToAttestationPanel(null);
+          // this.lexicalService.triggerAttestationPanel(false);
+          this.lexicalService.updateCoreCard({ lastUpdate: data['lastUpdate'], creationDate: data['creationDate'] })
           //@ts-ignore
           $("#etymologyTabModal").modal("show");
           $('.modal-backdrop').appendTo('.etym-tab-body');

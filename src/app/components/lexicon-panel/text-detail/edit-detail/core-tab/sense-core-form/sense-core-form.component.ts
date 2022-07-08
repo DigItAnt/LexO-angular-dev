@@ -163,11 +163,11 @@ export class SenseCoreFormComponent implements OnInit {
           console.log(data)
           this.lexicalService.spinnerAction('off');
           //this.lexicalService.refreshLexEntryTree();
-          this.lexicalService.updateLexCard(this.object)
+          this.lexicalService.updateCoreCard(this.object)
         }, error => {
           console.log(error)
           //this.lexicalService.refreshLexEntryTree();
-          this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+          this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
           if (error.status != 200) {
             this.toastr.error(error.error, 'Error', {
@@ -218,7 +218,7 @@ export class SenseCoreFormComponent implements OnInit {
         data => {
           console.log(data);
 
-          this.lexicalService.updateLexCard(data)
+          this.lexicalService.updateCoreCard(data)
           this.lexicalService.spinnerAction('off');
         },
         error => {
@@ -228,7 +228,7 @@ export class SenseCoreFormComponent implements OnInit {
 
           if (error.status == 200) {
             this.toastr.success('Confidence updated', '', { timeOut: 5000 })
-            this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+            this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
             this.senseCore.get('confidence').setValue(newValue, { emitEvent: false });
             this.object.confidence = newValue;
           } else {
@@ -252,7 +252,7 @@ export class SenseCoreFormComponent implements OnInit {
             console.log(data)
             this.lexicalService.spinnerAction('off');
             //this.lexicalService.refreshLexEntryTree();
-            this.lexicalService.updateLexCard(this.object)
+            this.lexicalService.updateCoreCard(this.object)
             this.toastr.success('Sense topic changed', '', {
               timeOut: 5000,
             });
@@ -260,7 +260,7 @@ export class SenseCoreFormComponent implements OnInit {
           }, error => {
             console.log(error)
             //this.lexicalService.refreshLexEntryTree();
-            this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+            this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
             this.lexicalService.spinnerAction('off');
             if (typeof (error.error) != 'object') {
               this.toastr.error(error.error, 'Error', {
@@ -288,11 +288,11 @@ export class SenseCoreFormComponent implements OnInit {
           console.log(data)
           this.lexicalService.spinnerAction('off');
           //this.lexicalService.refreshLexEntryTree();
-          this.lexicalService.updateLexCard(this.object)
+          this.lexicalService.updateCoreCard(this.object)
         }, error => {
           console.log(error)
           //this.lexicalService.refreshLexEntryTree();
-          this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+          this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
           if (error.status != 200) {
             this.toastr.error(error.error, 'Error', {
@@ -323,7 +323,7 @@ export class SenseCoreFormComponent implements OnInit {
         /* data['request'] = 0;
         data['new_label'] = confidence_value
         this.lexicalService.refreshAfterEdit(data); */
-        this.lexicalService.updateLexCard(data)
+        this.lexicalService.updateCoreCard(data)
         this.lexicalService.spinnerAction('off');
         this.senseCore.get('confidence').setValue(-1, { emitEvent: false });
         this.object.confidence = -1;
@@ -335,7 +335,7 @@ export class SenseCoreFormComponent implements OnInit {
         data['new_label'] = confidence_value;
         this.lexicalService.refreshAfterEdit(data); */
         this.lexicalService.spinnerAction('off');
-        this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+        this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
         if (error.status == 200) {
           this.toastr.success('Confidence updated', '', { timeOut: 5000 })
           this.senseCore.get('confidence').setValue(-1, { emitEvent: false });
@@ -402,7 +402,7 @@ export class SenseCoreFormComponent implements OnInit {
       this.lexicalService.deleteLinguisticRelation(senseId, parameters).subscribe(
         data => {
           console.log(data)
-          this.lexicalService.updateLexCard(this.object)
+          this.lexicalService.updateCoreCard(this.object)
 
           this.toastr.success('Sense definition deleted', '', {
             timeOut: 5000,
@@ -410,7 +410,7 @@ export class SenseCoreFormComponent implements OnInit {
 
         }, error => {
           console.log(error);
-          this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+          this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
           if (typeof (error.error) != 'object') {
             this.toastr.error(error.error, 'Error', {
               timeOut: 5000,
@@ -470,7 +470,7 @@ export class SenseCoreFormComponent implements OnInit {
           if (trait == 'definition') {
 
           }
-          this.lexicalService.updateLexCard(data)
+          this.lexicalService.updateCoreCard(data)
         }, error => {
           console.log(error);
           //this.lexicalService.refreshLexEntryTree();
@@ -481,7 +481,7 @@ export class SenseCoreFormComponent implements OnInit {
             data['request'] = 6;
             this.lexicalService.refreshAfterEdit(data);
           }
-          this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+          this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
           if (error.status != 200) {
             this.toastr.error(error.error, 'Error', {
@@ -516,7 +516,7 @@ export class SenseCoreFormComponent implements OnInit {
           console.log(data)
           this.lexicalService.spinnerAction('off');
           //this.lexicalService.refreshLexEntryTree();
-          this.lexicalService.updateLexCard(data)
+          this.lexicalService.updateCoreCard(data)
           this.disableAddDef = false;
         }, error => {
           console.log(error);
@@ -539,7 +539,7 @@ export class SenseCoreFormComponent implements OnInit {
               });
             }
           }
-          this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+          this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
         }
       )

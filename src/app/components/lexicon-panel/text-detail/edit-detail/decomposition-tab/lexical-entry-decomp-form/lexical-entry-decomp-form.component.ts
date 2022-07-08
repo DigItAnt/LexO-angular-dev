@@ -151,7 +151,6 @@ export class LexicalEntryDecompFormComponent implements OnInit {
       if (this.object != null) {
         this.decompForm.get('label').setValue(this.object.label, { emitEvent: false });
 
-        //TODO: get subterm inserire memory subterm
         if (this.object.lexicalEntryInstanceName != undefined && this.object.sense == undefined) {
           this.lexicalService.getSubTerms(this.object.lexicalEntryInstanceName).subscribe(
             data => {
@@ -170,7 +169,6 @@ export class LexicalEntryDecompFormComponent implements OnInit {
           )
         }
 
-        //TODO: get constituents inserire memory components
         if (this.object.lexicalEntryInstanceName != undefined && this.object.sense == undefined) {
           this.lexicalService.getConstituents(this.object.lexicalEntryInstanceName).subscribe(
             data => {
@@ -204,7 +202,6 @@ export class LexicalEntryDecompFormComponent implements OnInit {
           )
         }
 
-        //TODO: all'interno dei constituents caricare i dati morfologici
 
 
       }
@@ -288,7 +285,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
         data => {
           console.log(data);
           this.lexicalService.spinnerAction('off');
-          this.lexicalService.updateLexCard(this.object);
+          //this.lexicalService.updateLexCard(this.object);
           this.toastr.success('Component updated', '', {
             timeOut: 5000,
           });
@@ -302,7 +299,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
           }
         }, error => {
           console.log(error);
-          this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+          //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
           if (error.status == 200) {
             this.toastr.success('Component item updated', '', {
@@ -354,7 +351,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
         /* data['request'] = 0;
         data['new_label'] = confidence_value
         this.lexicalService.refreshAfterEdit(data); */
-        this.lexicalService.updateLexCard(data)
+        //this.lexicalService.updateLexCard(data)
         this.lexicalService.spinnerAction('off');
         (<FormArray>this.decompForm.controls['component']).at(i).get('confidence').setValue(-1, { emitEvent: false });
         this.object.confidence = -1;
@@ -367,7 +364,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
         data['new_label'] = confidence_value;
         this.lexicalService.refreshAfterEdit(data); */
         this.lexicalService.spinnerAction('off');
-        this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+        //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
         if (error.status == 200) {
           this.toastr.success('Confidence updated', '', { timeOut: 5000 })
           this.decompForm.get('confidence').setValue(-1, { emitEvent: false });
@@ -423,7 +420,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
                 this.lexicalService.refreshAfterEdit(data);
                 this.lexicalService.spinnerAction('off');
                 this.lexicalService.refreshFilter({ request: true })
-                this.lexicalService.updateLexCard(data)
+                //this.lexicalService.updateLexCard(data)
 
                 this.memoryComponent[i].morphology[j] = trait
                 control.at(j).patchValue({ trait: trait, value: value })
@@ -460,7 +457,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
                 this.lexicalService.refreshAfterEdit({ request: 0, label: this.object.label });
                 this.lexicalService.spinnerAction('off');
                 this.lexicalService.refreshFilter({ request: true })
-                this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+                //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
 
                 this.memoryComponent[i].morphology[j] = trait
                 control.at(j).patchValue({ trait: trait, value: value })
@@ -522,7 +519,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
             this.lexicalService.refreshAfterEdit(data);
             this.lexicalService.spinnerAction('off');
             this.lexicalService.refreshFilter({ request: true })
-            this.lexicalService.updateLexCard(data)
+            //this.lexicalService.updateLexCard(data)
 
             this.memoryComponent[i].morphology[j] = trait
             control.at(j).patchValue({ trait: trait, value: value })
@@ -559,7 +556,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
             this.lexicalService.refreshAfterEdit({ request: 0, label: this.object.label });
             this.lexicalService.spinnerAction('off');
             this.lexicalService.refreshFilter({ request: true })
-            this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+            //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
 
             this.memoryComponent[i].morphology[j] = trait
             control.at(j).patchValue({ trait: trait, value: value })
@@ -612,7 +609,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
             this.lexicalService.refreshAfterEdit(data);
             this.lexicalService.spinnerAction('off');
             this.lexicalService.refreshFilter({ request: true })
-            this.lexicalService.updateLexCard(data)
+            //this.lexicalService.updateLexCard(data)
 
             this.memoryComponent[i].morphology[j] = trait
             control.at(j).patchValue({ trait: trait, value: value })
@@ -649,7 +646,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
             this.lexicalService.refreshAfterEdit({ request: 0, label: this.object.label });
             this.lexicalService.spinnerAction('off');
             this.lexicalService.refreshFilter({ request: true })
-            this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+            //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
 
             this.memoryComponent[i].morphology[j] = trait
             control.at(j).patchValue({ trait: trait, value: value })
@@ -769,7 +766,6 @@ export class LexicalEntryDecompFormComponent implements OnInit {
         data => {
           console.log(data)
 
-          //TODO: assegnare id a componente
           let compId = data.componentInstanceName;
           let componentURI = data.component;
           let creator = data.creator;
@@ -974,7 +970,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
       this.lexicalService.deleteLinguisticRelation(compId, parameters).subscribe(
         data => {
           //console.log(data)
-          this.lexicalService.updateLexCard(this.object)
+          //this.lexicalService.updateLexCard(this.object)
           this.lexicalService.refreshAfterEdit({ request: 0, label: this.object.label });
           this.lexicalService.spinnerAction('off');
           this.lexicalService.refreshFilter({ request: true })
@@ -983,7 +979,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
           this.lexicalService.refreshAfterEdit({ request: 0, label: this.object.label });
           this.lexicalService.spinnerAction('off');
           this.lexicalService.refreshFilter({ request: true })
-          this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+          //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
           if (typeof (error.error) != 'object') {
             this.toastr.error(error.error, 'Error', {
               timeOut: 5000,
@@ -1203,12 +1199,11 @@ export class LexicalEntryDecompFormComponent implements OnInit {
           this.lexicalService.spinnerAction('off');
           /* data['request'] = 0;
           this.lexicalService.refreshAfterEdit(data); */
-          this.lexicalService.updateLexCard(data)
+          //this.lexicalService.updateLexCard(data) TODO: inserire updater per decomp qua
           this.memorySubterm[index] = data;
 
           this.subtermArray.at(index).patchValue({ entity: data.object.label, label: data['label'], language: data['language'] })
           this.subtermDisabled = false;
-          //TODO: metodo per popolare dinamicamente albero
 
           this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': data });
         }, error => {
@@ -1227,7 +1222,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
             data['request'] = 'subterm';
             this.subtermArray.at(index).patchValue({ entity: newValue, label: data.object.label, language: data.object.language })
             this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': data['object'] });
-            this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+            //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
 
           } else {
             this.toastr.error(error.error, 'Error', {
@@ -1256,7 +1251,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
         data => {
           console.log(data);
           this.lexicalService.spinnerAction('off');
-          this.lexicalService.updateLexCard(data)
+          ////this.lexicalService.updateLexCard(data)
           data['request'] = 0;
           this.lexicalService.refreshAfterEdit(data);
         }, error => {
@@ -1264,10 +1259,9 @@ export class LexicalEntryDecompFormComponent implements OnInit {
           const data = this.object;
           data['request'] = 0;
 
-          //TODO: metodo per modificare dinamicamente subterm albero sx
 
           //this.lexicalService.refreshAfterEdit(data);
-          this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+          ////this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
           if (error.status == 200) {
             this.toastr.success('Label changed correctly for ' + lexId, '', {
@@ -1305,14 +1299,14 @@ export class LexicalEntryDecompFormComponent implements OnInit {
           this.lexicalService.spinnerAction('off');
           /* data['request'] = 0;
           this.lexicalService.refreshAfterEdit(data); */
-          this.lexicalService.updateLexCard(data)
+          //this.lexicalService.updateLexCard(data)
         }, error => {
           console.log(error)
 
           /* this.toastr.error(error.error, 'Error', {
               timeOut: 5000,
           }); */
-          this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+          //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
           if (error.status == 200) {
             this.toastr.success('CorrespondsTo changed correctly for ' + compId, '', {
@@ -1346,7 +1340,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
         data => {
           console.log(data);
           this.lexicalService.spinnerAction('off');
-          this.lexicalService.updateLexCard(data)
+          //this.lexicalService.updateLexCard(data)
           data['request'] = 0;
           this.lexicalService.refreshAfterEdit(data);
         }, error => {
@@ -1355,7 +1349,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
           data['request'] = 0; */
 
           //this.lexicalService.refreshAfterEdit(data);
-          this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+          //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
           if (error.status == 200) {
             this.toastr.success('Label changed correctly for ' + compId, '', {
