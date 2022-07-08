@@ -156,11 +156,15 @@ export class FormCoreFormComponent implements OnInit {
         this.memoryLabel = [];
         this.labelData = [];
 
-        for (var i = 0; i < this.object.inheritedMorphology.length; i++) {
-          const trait = this.object.inheritedMorphology[i]['trait'];
-          const value = this.object.inheritedMorphology[i]['value'];
-          this.addInheritance(trait, value);
+        if(this.object.inheritedMorphology != undefined){
+          for (var i = 0; i < this.object.inheritedMorphology.length; i++) {
+            const trait = this.object.inheritedMorphology[i]['trait'];
+            const value = this.object.inheritedMorphology[i]['value'];
+            this.addInheritance(trait, value);
+          }
         }
+
+        
 
         this.formCore.get('confidence').setValue(this.object.confidence, { emitEvent : false});
         this.formCore.get('type').setValue(this.object.type, { emitEvent: false });
@@ -279,7 +283,7 @@ export class FormCoreFormComponent implements OnInit {
         data => {
           console.log(data);
 
-          this.lexicalService.updateLexCard(data)
+          this.lexicalService.updateCoreCard(data)
           this.lexicalService.spinnerAction('off');
         },
         error => {
@@ -289,7 +293,7 @@ export class FormCoreFormComponent implements OnInit {
 
           if (error.status == 200) {
             this.toastr.success('Confidence updated', '', { timeOut: 5000 })
-            this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+            this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
             this.formCore.get('confidence').setValue(newValue, { emitEvent: false });
             this.object.confidence = newValue;
           } else {
@@ -316,7 +320,7 @@ export class FormCoreFormComponent implements OnInit {
         /* data['request'] = 0;
         data['new_label'] = confidence_value
         this.lexicalService.refreshAfterEdit(data); */
-        this.lexicalService.updateLexCard(data)
+        this.lexicalService.updateCoreCard(data)
         this.lexicalService.spinnerAction('off');
         this.formCore.get('confidence').setValue(-1, { emitEvent: false });
         this.object.confidence = -1;
@@ -328,7 +332,7 @@ export class FormCoreFormComponent implements OnInit {
         data['new_label'] = confidence_value;
         this.lexicalService.refreshAfterEdit(data); */
         this.lexicalService.spinnerAction('off');
-        this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+        this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
         if (error.status == 200) {
           this.toastr.success('Confidence updated', '', { timeOut: 5000 })
           this.formCore.get('confidence').setValue(-1, { emitEvent: false });
@@ -354,7 +358,7 @@ export class FormCoreFormComponent implements OnInit {
         data['request'] = 5;
         data['new_type'] = newType;
         this.lexicalService.refreshAfterEdit(data);
-        this.lexicalService.updateLexCard(this.object)
+        this.lexicalService.updateCoreCard(this.object)
 
         setTimeout(() => {
           let type = this.formCore.get('type').value;
@@ -377,7 +381,7 @@ export class FormCoreFormComponent implements OnInit {
         data['request'] = 5;
         data['new_type'] = newType;
         this.lexicalService.refreshAfterEdit(data);
-        this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+        this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
         this.lexicalService.spinnerAction('off');
 
         if (typeof (error.error) != 'object') {
@@ -444,13 +448,13 @@ export class FormCoreFormComponent implements OnInit {
         data => {
           console.log(data)
           //this.lexicalService.refreshAfterEdit(data);
-          this.lexicalService.updateLexCard(data)
+          this.lexicalService.updateCoreCard(data)
           this.lexicalService.spinnerAction('off');
         },
         error => {
           console.log(error)
           //this.lexicalService.refreshAfterEdit({ label: this.object.label });
-          this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+          this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
           if (error.status != 200) {
             this.toastr.error(error.error, 'Error', {
@@ -508,7 +512,7 @@ export class FormCoreFormComponent implements OnInit {
         data => {
           console.log(data)
           this.lexicalService.spinnerAction('off');
-          this.lexicalService.updateLexCard(this.object)
+          this.lexicalService.updateCoreCard(this.object)
           this.disableAddMorpho = false;
           setTimeout(() => {
 
@@ -522,7 +526,7 @@ export class FormCoreFormComponent implements OnInit {
         },
         error => {
           console.log(error)
-          this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+          this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
           this.disableAddMorpho = false;
           if (typeof (error.error) != 'object') {
@@ -645,12 +649,12 @@ export class FormCoreFormComponent implements OnInit {
           console.log(data)
           this.lexicalService.spinnerAction('off');
           //this.lexicalService.refreshLexEntryTree();
-          this.lexicalService.updateLexCard(data)
+          this.lexicalService.updateCoreCard(data)
         }, error => {
           console.log(error);
           //this.lexicalService.refreshLexEntryTree();
 
-          this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+          this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
 
           if (typeof (error.error) != 'object') {
@@ -696,13 +700,13 @@ export class FormCoreFormComponent implements OnInit {
           console.log(data)
           this.lexicalService.spinnerAction('off');
           /* this.lexicalService.refreshAfterEdit(data); */
-          this.lexicalService.updateLexCard(data)
+          this.lexicalService.updateCoreCard(data)
           this.disableAddOther = false;
         }, error => {
           console.log(error);
           this.disableAddOther = false;
 
-          this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+          this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
         }
       )
@@ -799,7 +803,7 @@ export class FormCoreFormComponent implements OnInit {
           this.toastr.success('Element removed', '', {
             timeOut: 5000,
           });
-          this.lexicalService.updateLexCard(this.object)
+          this.lexicalService.updateCoreCard(this.object)
         }, error => {
           console.log(error)
           if (error.status != 200) {
@@ -841,7 +845,7 @@ export class FormCoreFormComponent implements OnInit {
       this.lexicalService.deleteLinguisticRelation(formId, parameters).subscribe(
         data => {
           console.log(data)
-          this.lexicalService.updateLexCard(this.object)
+          this.lexicalService.updateCoreCard(this.object)
         }, error => {
           console.log(error)
         }

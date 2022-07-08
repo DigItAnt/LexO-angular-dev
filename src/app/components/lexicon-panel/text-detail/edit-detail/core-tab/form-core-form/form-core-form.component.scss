@@ -4,22 +4,21 @@
 @import "../../../../../../../../node_modules/bootstrap/scss/mixins";
 
 .row {
-    align-items: center;
+    align-items: center !important;
 }
 
 .btn{
     height: 38px;
-    border-radius: .25rem;
+    // height: 32px; 
+
+    font-size: 12px !important;
+    border-radius: .25rem !important;
 }
 
-.form-control {
-    font-size: 12px;
+.form-control, .col-form-label {
+    font-size: 12px !important;
 }
 
-.btn {
-    font-size: 12px;
-    height: 32px;
-}
 
 .form-check-input {
     margin-top: 0;

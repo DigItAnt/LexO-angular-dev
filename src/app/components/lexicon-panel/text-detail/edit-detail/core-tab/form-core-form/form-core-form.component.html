@@ -8,10 +8,10 @@
                 <div class="card-body">
                     <div class="d-flex my-2" formArrayName="inheritance"
                         *ngFor="let inher of formCore.get('inheritance')['controls']; let i = index">
-                        <div class="col-md-3" [formGroupName]="i">
+                        <div class="col-lg-3" [formGroupName]="i">
                             <span class="col-form-label">{{inher.value['trait']}}</span>
                         </div>
-                        <div class="input-group col-md-7" [formGroupName]="i">
+                        <div class="input-group col-lg-7 col-md-12" [formGroupName]="i">
 
                             <input formControlName="value" name="value" type="text" class="form-control" placeholder=""
                                 [value]="inher.value['value']" readonly>
@@ -39,7 +39,7 @@
     
     <div class="form-group row ml-2 mt-3 mr-2" *ngIf="{confidence : formCore.get('confidence').value >= 0}; let variable">
         <div class="col-lg-3">
-            <label for="uncertainBox">Uncertain</label>
+            <span class="col-form-label">Uncertain</span>
         </div>
         <div class="col-lg-3 input-group">
             <input *ngIf="variable.confidence" id="attributes"  step="0.1" formControlName="confidence" name="confidence" type="number" min="0" max="1" class="form-control" placeholder="No info" [value]="formCore.get('confidence').value">
