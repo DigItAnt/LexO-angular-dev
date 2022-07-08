@@ -10,7 +10,7 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { ToastrService } from 'ngx-toastr';
 import { DocumentSystemService } from 'src/app/services/document-system/document-system.service';
@@ -29,6 +29,8 @@ export class DocumentSystemTreeComponent implements OnInit {
   @ViewChild('lexTree') lexTree: any;
   @ViewChild('textTree') textTree: any;
   @ViewChild('conceptTree') conceptTree: any;
+  @ViewChild('accordion') accordion: ElementRef; 
+
 
 
   constructor(private exp: ExpanderService, private lexicalService: LexicalEntriesService, private toastr: ToastrService, private renderer: Renderer2, private documentService: DocumentSystemService) { }
@@ -37,6 +39,90 @@ export class DocumentSystemTreeComponent implements OnInit {
     this.lexicalService.refreshAfterEdit$.subscribe(
       data => {
         this.refreshAfterEdit(data);
+      }
+    )
+
+
+    this.lexicalService.triggerLexicalEntryTree$.subscribe(
+      (data:any)=> {
+        setTimeout(() => {
+          if(data != null){
+            if(data.request){
+
+              this.updateTreeParent();
+              
+              let lex = {
+                request : 'form',
+                lexicalEntryInstanceName : data.data.lexicalEntryInstanceName,
+
+              }
+              
+              this.lexTree.parameters['text'] = data.data.lexicalEntryLabel;
+              this.lexTree.lexicalEntriesFilter(this.lexTree.parameters);
+              
+
+              setTimeout(() => {
+                this.lexicalService.addSubElementRequest({'lex' : lex, 'data' : data.data});
+
+              }, 500);
+
+              let a_link = this.accordion.nativeElement.querySelectorAll('button[data-target="#lexicalCollapse"]');
+              let collapse_container = this.accordion.nativeElement.querySelectorAll('div[aria-labelledby="lexicalHeading"]');
+              a_link.forEach(element => {
+                if(element.classList.contains("collapsed")){
+                  element.classList.remove('collapsed')
+                }else{
+                  //element.classList.add('collapsed')
+                }
+              })
+  
+              collapse_container.forEach(element => {
+                if(element.classList.contains("show")){
+                  //element.classList.remove('collapsed')
+                }else{
+                  element.classList.add('show')
+                }
+              })
+
+              let a_link_epigraphy = this.accordion.nativeElement.querySelectorAll('button[data-target="#epigraphyCollapse"]');
+              let collapse_container_epigraphy = this.accordion.nativeElement.querySelectorAll('div[aria-labelledby="epigraphyHeading"]');
+              a_link.forEach(element => {
+                if(!element.classList.contains("collapse")){
+                  element.classList.add('collapsed')
+                }
+              })
+  
+              collapse_container_epigraphy.forEach(element => {
+                if(element.classList.contains("show")){
+                  element.classList.remove('show')
+                }else{
+                  //element.classList.add('show')
+                }
+              })
+  
+              
+            }else{
+              setTimeout(() => {
+                let a_link = this.accordion.nativeElement.querySelectorAll('a[data-target="#lexicalCollapse"]');
+                a_link.forEach(element => {
+                  element.classList.add('collapsed')
+                  
+                })
+  
+                let collapse_container = this.accordion.nativeElement.querySelectorAll('div[aria-labelledby="lexicalHeading"]');
+                collapse_container.forEach(element => {
+                  console.log(element)
+                  if(element.classList.contains("show")){
+                    element.classList.remove('show')
+                  }
+                })
+              }, 100);
+              
+            }
+          }
+        }, 100);
+      },error=> {
+        console.log(error)
       }
     )
   }
@@ -488,7 +574,7 @@ export class DocumentSystemTreeComponent implements OnInit {
         }, 200);
       },
       error => {
-        //console.log(error);
+        console.log(error);
         this.toastr.error(error.error, 'Error', {
           timeOut: 5000,
         });
@@ -653,6 +739,10 @@ export class DocumentSystemTreeComponent implements OnInit {
         });
       }
     )
+
+  }
+
+  exportLexicon(){
 
   }
 }

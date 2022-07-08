@@ -26,8 +26,8 @@ $font-size-btn: 12px;
     font-size: $font-size-btn;
 }
 
-#entrate-lessicali > .card-body,
-#text > .card-body,
+#lexicalCollapse > .card-body,
+#epigraphyCollapse > .card-body,
 #ontologia > .card-body {
     height: calc(100vh - 11rem);
     max-height: calc(100vh - 11rem) !important;

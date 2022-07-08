@@ -28,7 +28,7 @@ export class LexicalEntriesService {
   private _rightPanelData: BehaviorSubject<object> = new BehaviorSubject(null);
   private _deleteLexicalEntryReq: BehaviorSubject<any> = new BehaviorSubject(null);
   private _addSubElementReq: BehaviorSubject<any> = new BehaviorSubject(null);
-  private _updateLexCardReq: BehaviorSubject<object> = new BehaviorSubject(null);
+  private _updateCoreCardReq: BehaviorSubject<object> = new BehaviorSubject(null);
   private _spinnerAction: BehaviorSubject<string> = new BehaviorSubject(null);
   private _refreshLanguageTable: BehaviorSubject<object> = new BehaviorSubject(null);
   private _refreshAfterEdit : BehaviorSubject<object> = new BehaviorSubject(null);
@@ -39,6 +39,7 @@ export class LexicalEntriesService {
   private _changeDecompLabel : BehaviorSubject<string> = new BehaviorSubject(null);
   private _decompData : BehaviorSubject<object> = new BehaviorSubject(null);
   private _refreshLinkCounter: BehaviorSubject<string> = new BehaviorSubject(null);
+  private _triggerLexicalEntryTree : BehaviorSubject<object> = new BehaviorSubject(null);
 
 
   private baseUrl = "/LexO-backend-itant/service/"
@@ -53,7 +54,7 @@ export class LexicalEntriesService {
   rightPanelData$ = this._rightPanelData.asObservable();
   deleteReq$ = this._deleteLexicalEntryReq.asObservable();
   addSubReq$ = this._addSubElementReq.asObservable();
-  updateLexCardReq$ = this._updateLexCardReq.asObservable();
+  updateCoreCardReq$ = this._updateCoreCardReq.asObservable();
   spinnerAction$ = this._spinnerAction.asObservable();
   refreshLangTable$ = this._refreshLanguageTable.asObservable();
   refreshAfterEdit$ = this._refreshAfterEdit.asObservable();
@@ -63,6 +64,7 @@ export class LexicalEntriesService {
   triggerAttestationPanel$ = this._triggerAttestationPanel.asObservable();
   changeDecompLabel$ = this._changeDecompLabel.asObservable();
   refreshLinkCounter$ = this._refreshLinkCounter.asObservable();
+  triggerLexicalEntryTree$ = this._triggerLexicalEntryTree.asObservable();
 
   constructor(private http: HttpClient, private auth: AuthService) { }
 
@@ -106,8 +108,8 @@ export class LexicalEntriesService {
     this._addSubElementReq.next(request);
   }
 
-  updateLexCard(object: object) {
-    this._updateLexCardReq.next(object)
+  updateCoreCard(object: object) {
+    this._updateCoreCardReq.next(object)
   }
 
   spinnerAction(string: string) {
@@ -136,6 +138,10 @@ export class LexicalEntriesService {
 
   triggerAttestationPanel(bool: boolean){
     this._triggerAttestationPanel.next(bool);
+  }
+
+  triggerLexicalEntryTree(object : object){
+    this._triggerLexicalEntryTree.next(object);
   }
 
   //POST: /lexicon/lexicalEntries ---> get lexical entries list
@@ -404,4 +410,8 @@ export class LexicalEntriesService {
   getCorrespondsTo(compId: string) : Observable<any>{
     return this.http.get(this.baseUrl + "lexicon/data/"+compId+"/correspondsTo?key="+this.key);
   }
+
+  exportLexicon(body : object) : Observable<any> {
+    return this.http.post(this.baseUrl + "export/lexicon", body);
+  } 
 }
