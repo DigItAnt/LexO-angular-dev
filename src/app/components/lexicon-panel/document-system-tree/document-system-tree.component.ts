@@ -16,6 +16,8 @@ import { ToastrService } from 'ngx-toastr';
 import { DocumentSystemService } from 'src/app/services/document-system/document-system.service';
 import { TreeNode } from '@circlon/angular-tree-component';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
+import {saveAs as importedSaveAs} from "file-saver";
+
 
 @Component({
   selector: 'app-document-system-tree',
@@ -743,6 +745,30 @@ export class DocumentSystemTreeComponent implements OnInit {
   }
 
   exportLexicon(){
+    let parameters = {
+      "fileName": "export",
+      "format": "turtle",
+      "inferred": false
+    }
 
+    this.lexicalService.exportLexicon(parameters).subscribe(
+      data=> {
+        console.log(data);
+        var blob = new Blob([data], { type: 'text/turtle' });
+        var url = window.URL.createObjectURL(blob);
+        importedSaveAs(blob,"file_name.txt");
+       // window.open(url); 
+        
+      }, error=> {
+        console.log(error);
+        
+      }
+    )
   }
+
+  /* downloadFile(data: any) {
+    const blob = new Blob([data], { type: 'text/turtle' });
+    const url= window.URL.createObjectURL(blob);
+    window.open(url);
+  } */
 }

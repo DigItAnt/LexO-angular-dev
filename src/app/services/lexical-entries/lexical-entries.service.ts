@@ -412,6 +412,6 @@ export class LexicalEntriesService {
   }
 
   exportLexicon(body : object) : Observable<any> {
-    return this.http.post(this.baseUrl + "export/lexicon", body);
+    return this.http.post(this.baseUrl + "export/lexicon", body, { responseType: 'text'});
   } 
 }
