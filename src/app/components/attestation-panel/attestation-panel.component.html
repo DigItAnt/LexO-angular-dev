@@ -9,17 +9,23 @@
             </a>
         </h5>
     </div>
-    <div id="attestationCollapse" class="collapse" aria-labelledby="attestationHeading">
+    <div id="attestationCollapse" class="collapse" aria-labelledby="attestationHeading" #accordion>
         <div class="card-body">
             <div *ngIf="formData != null">
                 <div class="card mb-4 pt-4" *ngFor="let item of formData; let i = index">
                     <a class="attestationCollapse" data-toggle="collapse" [attr.data-target]="'#attestation_collapse-'+i"
-                        aria-expanded="true" [attr.aria-controls]="'#attestation_collapse-'+i"><span class="text-id pointer"><b
+                        aria-expanded="true" [attr.aria-controls]="'#attestation_collapse-'+i" (click)="getForm(item?.attributes.form_id, i)"><span class="text-id pointer"><b
                                 class="badge badge-primary">{{fileId}} - {{item?.attributes.label != undefined ? item?.attributes.label : ''}}</b></span></a>
                    
-                    <a (click)="getForm(item?.attributes.form_id)" class="pointer"><span class="external-icon"><i class="fa fa-external-link-alt"></i></span></a>
+                    <a (click)="loadFormData(item?.id, item?.attributes.form_id, fileId); " class="pointer"><span class="external-icon"><i class="fa fa-external-link-alt"></i></span></a>
                     <a (click)="cancelAttestation(i, item?.id, item?.attributes.node_id)" class="pointer"><span class="trash-icon"><i class="fa fa-trash"></i></span></a>
-    
+                    
+
+
+                    
+
+
+
                     <div [id]="'attestation_collapse-'+i" class="collapse" >
                         <div class="card-body" style="max-height: 15rem;  overflow: auto;  ">
                             <!-- <div class="form-group row ml-2 mr-2 mb-0">
@@ -153,6 +159,8 @@
     </div>
 
 </div>
+
+
 
 
 <!-- ################ BIBLIO MODAL ################# -->
@@ -567,3 +575,5 @@
     <ng-container class="app-modal-footer">
     </ng-container>
 </app-modal>
+
+<ng-template #formPanel></ng-template>

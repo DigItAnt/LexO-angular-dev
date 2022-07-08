@@ -10,7 +10,7 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ComponentFactoryResolver, ElementRef, Input, OnChanges, OnInit, QueryList, SimpleChanges, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
 import { ModalComponent } from 'ng-modal-lib';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
@@ -19,6 +19,7 @@ import { AnnotatorService } from 'src/app/services/annotator/annotator.service';
 import { BibliographyService } from 'src/app/services/bibliography-service/bibliography.service';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
+import { FormPanelComponent } from './form-panel/form-panel.component';
 
 @Component({
   selector: 'app-attestation-panel',
@@ -30,7 +31,13 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
   @Input() attestationData: any;
   @ViewChild('addBibliographyAttestation', {static: false}) modal: ModalComponent;
   @ViewChild('table_body') tableBody: ElementRef;
+  @ViewChild('accordion') accordion: ElementRef; 
+  @ViewChild('formPanel', {read: ViewContainerRef}) vc: ViewContainerRef;
+
+
+
   bibliography = [];
+  typesData = [];
   private update_anno_subject: Subject<any> = new Subject();
   private update_biblio_anno_subject: Subject<any> = new Subject();
   private searchSubject : Subject<any> = new Subject();
@@ -45,11 +52,33 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
   selectedAnnotation;
   fileId;
 
-  constructor(private toastr: ToastrService, private biblioService : BibliographyService, private expander: ExpanderService, private annotatorService : AnnotatorService, private lexicalService : LexicalEntriesService) { }
+  arrayPanelFormsData = {};
+  arrayComponents = [];
+  typeDesc = '';
+  staticOtherDef = [];
+  labelData = [];
+  bind = this;
+
+  constructor(private toastr: ToastrService, 
+              private biblioService : BibliographyService, 
+              private expander: ExpanderService, 
+              private annotatorService : AnnotatorService, 
+              private lexicalService : LexicalEntriesService,
+              private factory: ComponentFactoryResolver) { }
   
   
   formData = [];
   ngOnInit(): void {
+
+    this.lexicalService.getFormTypes().subscribe(
+      data => {
+        this.typesData = data;
+        //console.log(this.typesData)
+      },
+      error => {
+        //console.log(error)
+      }
+    )
 
     this.annotatorService.getIdText$.subscribe(
       data=>{
@@ -112,19 +141,35 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
 
         if(changes.attestationData.currentValue != this.formData){
           this.formData = [];
+          //this.arrayPanelFormsData = {}
           this.selectedItem = null;
           this.selectedAnnotation = null;
+          this.typeDesc = '';
+          this.staticOtherDef = [];
+          this.labelData = [];
         }
         this.formData = changes.attestationData.currentValue;
         console.log(this.formData)
         if(this.formData.length == 0){
-          this.lexicalService.triggerAttestationPanel(false)
+          this.lexicalService.triggerAttestationPanel(false);
+          this.typeDesc = '';
+          this.staticOtherDef = [];
+          this.labelData = [];
+        }else{
+         /*  this.formData.forEach(element => {
+            this.arrayPanelFormsData[element.id] = {};
+            this.arrayPanelFormsData[element.id].data = undefined;
+            this.arrayPanelFormsData[element.id].isOpen = false;
+          }); */
         }
         
       }, 10);
       
     }else{
       this.formData = [];
+      this.typeDesc = '';
+      this.staticOtherDef = [];
+      this.labelData = [];
       this.selectedItem = null;
       this.selectedAnnotation = null;
     }
@@ -133,12 +178,24 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
   cancelAttestation(index, id, node_id){
     this.formData.splice(index,1);
     this.annotatorService.deleteAnnotationRequest(id, node_id);
+    
     this.annotatorService.deleteAnnotation(id).subscribe(
       data=> {
         console.log(data);
         this.toastr.success('Attestation deleted correctly', 'Info', {
           timeOut : 5000
         })
+        this.annotatorService.closePanelForm(id);
+        if(this.arrayComponents.length > 0){
+          this.arrayComponents.forEach(instanceComponent => {
+            if(instanceComponent.instance.id == id){
+    
+              setTimeout(() => {
+                instanceComponent.instance.formPanelModal.hide();
+              }, 100);
+            }
+          })
+        }
       },error => {
         console.log(error);
         this.toastr.error('Error on deleting attestation', 'Error', {
@@ -155,6 +212,8 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
       this.expander.openCollapseEpigraphy(true);
       this.expander.expandCollapseEpigraphy(true); */
     }
+
+    
   }
 
   triggerUpdateAttestation(evt, newValue, propKey, annotation){
@@ -227,34 +286,47 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
     }
   }
 
-  getForm(formId){
-    
-    this.lexicalService.getFormData(formId, 'core').subscribe(
-      data=>{
-        console.log(data);
-        this.lexicalService.sendToCoreTab(data)
-        this.lexicalService.sendToEtymologyTab(null);
-        this.lexicalService.sendToRightTab(data);
-        this.lexicalService.updateLexCard({lastUpdate : data['lastUpdate'], creationDate : data['creationDate']});
-        
-        if(this.expander.isEpigraphyTabOpen() && !this.expander.isEditTabOpen()){
-          if(this.expander.isEpigraphyTabExpanded() && !this.expander.isEditTabExpanded()){
-            this.expander.openCollapseEdit(true);
-            this.expander.expandCollapseEpigraphy(false)
+  getForm(formId, index){
+
+    setTimeout(() => {
+      console.log('#attestation_collapse-'+index+'')
+      let item_collapse = this.accordion.nativeElement.querySelectorAll('#attestation_collapse-'+index)[0];
+      if(item_collapse.classList.contains('show')){
+        this.lexicalService.getFormData(formId, 'core').subscribe(
+          data=>{
+            console.log(data);
+            this.lexicalService.triggerLexicalEntryTree({request: true, data: data})
+            
+            //this.lexicalService.sendToCoreTab(data)
+            this.lexicalService.sendToEtymologyTab(null);
+            this.lexicalService.sendToRightTab(data);
+            //this.lexicalService.updateCoreCard({lastUpdate : data['lastUpdate'], creationDate : data['creationDate']});
+            
+            if(this.expander.isEpigraphyTabOpen() && !this.expander.isEditTabOpen()){
+              if(this.expander.isEpigraphyTabExpanded() && !this.expander.isEditTabExpanded()){
+                this.expander.openCollapseEdit(true);
+                this.expander.expandCollapseEpigraphy(false)
+              }
+            }
+            
+            var text_detail = document.querySelectorAll('#text-dettaglio');
+            text_detail.forEach(element => {
+              if(!element.classList.contains('show')){
+                element.classList.add('show')
+              }
+            })
+          },
+          error=>{
+            console.log(error)
           }
-        }
-        
-        var text_detail = document.querySelectorAll('#text-dettaglio');
-        text_detail.forEach(element => {
-          if(!element.classList.contains('show')){
-            element.classList.add('show')
-          }
-        })
-      },
-      error=>{
-        console.log(error)
+        )
+      }else{
+        console.log("non fai partire ricerca")
       }
-    )
+      console.log(item_collapse)
+    }, 500);
+    
+    
   }
 
   showBiblioModal(item){
@@ -613,5 +685,36 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
         }
       )
     }
+  }158
+
+  
+
+  loadFormData(idAnnotation, formId, label){
+    console.log(idAnnotation)
+    let panel = this.annotatorService.getPanelForm(idAnnotation);
+    if(panel == undefined){
+      this.lexicalService.getFormData(formId, 'core').subscribe(
+        data=> {
+          console.log(data);
+          if(data != undefined){
+            this.annotatorService.newPanelForm(idAnnotation);
+            const factory = this.factory.resolveComponentFactory(FormPanelComponent);
+            const componentRef = this.vc.createComponent(factory);
+            this.arrayComponents.push(componentRef);
+            (<FormPanelComponent>componentRef.instance).label = label + " - " + data.label[0].propertyValue;
+            (<FormPanelComponent>componentRef.instance).formId = formId;
+            (<FormPanelComponent>componentRef.instance).id = idAnnotation;
+            (<FormPanelComponent>componentRef.instance).formData = data;
+            (<FormPanelComponent>componentRef.instance).triggerFormPanel();
+          }
+        }, error=> {
+          console.log(error)
+        }
+      )
+      
+    }else{
+
+    }
+
   }
 }

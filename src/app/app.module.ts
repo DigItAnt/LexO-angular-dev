@@ -77,7 +77,8 @@ import { AuthService } from './services/auth/auth.service';;
 import { UnauthorizedPageComponent } from './views/unauthorized-page/unauthorized-page/unauthorized-page.component'
 ;
 import { ConceptTreeComponent } from './components/lexicon-panel/document-system-tree/concept-tree/concept-tree.component'
-
+;
+import { FormPanelComponent } from './components/attestation-panel/form-panel/form-panel.component'
 @NgModule({
   declarations: [
     AppComponent,
@@ -122,10 +123,10 @@ import { ConceptTreeComponent } from './components/lexicon-panel/document-system
     EtymologyFormComponent,
     MetadataPanelComponent,
     EpigraphyFormComponent,
-    SearchFormComponent
-,
+    SearchFormComponent,
     UnauthorizedPageComponent ,
-    ConceptTreeComponent ],
+    ConceptTreeComponent ,
+    FormPanelComponent],
   imports: [
     ContextMenuModule.forRoot({useBootstrap4: true}),
     BrowserModule,

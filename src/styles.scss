@@ -251,3 +251,26 @@ tree-node-content {
     max-height: 32rem !important;
     overflow: auto !important;
 }
+
+.panelFormData > .ui-modal{
+    width: 40rem;
+    //height: 20rem;
+    // top: 25%;
+    max-height: calc(100vh - 15rem);
+    max-width: 45rem;
+    min-width: 35rem;
+    .ui-modal-body{
+        padding: 0;
+        height: 12rem;
+        max-height: calc(100vh - 19rem);
+    };
+
+    .ui-modal-footer{
+        display: none;
+    };
+
+    .ui-titlebar {
+        font-size: 16px;
+        font-weight: 500;
+    }
+}
