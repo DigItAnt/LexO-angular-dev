@@ -1446,7 +1446,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
     }
 
     addCognates(e?, t?) {
-        this.disableAddCognates = true;
+        
         setTimeout(() => {
             //@ts-ignore
             $('.cognates-tooltip').tooltip({
@@ -1457,6 +1457,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
         if (e != undefined) {
             this.cognatesArray.push(this.createCognates(e, t));
         } else {
+            this.disableAddCognates = true;
             this.cognatesArray.push(this.createCognates());
         }
 

@@ -138,8 +138,8 @@ export class SeeAlsoComponent implements OnInit {
         lexicalElementId = this.object.formInstanceName;
       } else if (this.object.senseInstanceName != undefined) {
         lexicalElementId = this.object.senseInstanceName;
-      }else if (this.object.etymology.etymologyInstanceName != undefined) {
-        lexicalElementId = this.object.etymology.etymologyInstanceName;
+      }else if (this.object.etymologyInstanceName != undefined) {
+        lexicalElementId = this.object.etymologyInstanceName;
       }
 
       console.log(this.object)
@@ -394,7 +394,7 @@ export class SeeAlsoComponent implements OnInit {
   }
 
   triggerSeeAlsoInput(evt, i) {
-    if (evt.target != undefined) {
+    if (evt.key != 'Control' && evt.key != 'Shift' && evt.key != 'Alt') {
       let value = evt.target.value;
       this.subject_input.next({ value, i })
     }
