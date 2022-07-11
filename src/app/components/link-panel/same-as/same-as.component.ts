@@ -335,9 +335,19 @@ export class SameAsComponent implements OnInit {
               data=>{
                   console.log(data)
                   if(data.list.length > 0){
-                      data.list.forEach(element => {
-                          this.searchResults.push(element)
-                      });
+                    const map = data.list.map(element => (
+                      {
+                        label: this.object.label, 
+                        labelValue: element[2]?.value, 
+                        language : element[1]?.value
+                      })
+                    )
+
+                    
+                    
+
+                    this.searchResults = map;
+                    console.log(this.searchResults)
                   }
               },
               error=>{

@@ -22,12 +22,8 @@
                                                 <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                                            
                                                     <div class="card-body p-0">
-                                                        <h6 class="card-title m-0" [ngOptionHighlight]="search">{{item.labelElement}}</h6>
-                                                        <small>
-                                                            <span>
-                                                                {{item.labelPos}} 
-                                                            </span>
-                                                        </small>
+                                                        <span class="card-title m-0" [ngOptionHighlight]="search">{{item.labelValue}}</span>
+                                                        <span style="color: blue;">@{{item.language}}</span>
                                                         <small class="card-text">
                                                            
                                         
