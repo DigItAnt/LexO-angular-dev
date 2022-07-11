@@ -29,6 +29,16 @@ export class LilaService {
   }
 
   queryEtymon(label: string): Observable<any> {
-    return this.http.post(this.baseUrl_document+'?sparqlQuery='+encodeURIComponent('PREFIX lime: <http://www.w3.org/ns/lemon/lime#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX lemonEty: <http://lari-datasets.ilc.cnr.it/lemonEty#> SELECT  ?etymon ?language WHERE { ?etymon a lemonEty:Etymon ; lime:language ?language . FILTER regex(?label, "\^'+label+'", "i") }')+'&endpoint='+this.endpoint, null)
+    return this.http.post(this.baseUrl_document+'?sparqlQuery='+encodeURIComponent(`
+    PREFIX lime: <http://www.w3.org/ns/lemon/lime#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX lemonEty: <http://lari-datasets.ilc.cnr.it/lemonEty#>
+    PREFIX igvll: <http://lila-erc.eu/data/lexicalResources/IGVLL/>
+    SELECT  ?etymon ?language ?label ?comment WHERE
+    { ?etymon a lemonEty:Etymon ;
+      rdfs:label ?label ;
+      rdfs:comment ?comment ;
+      lime:language ?language .
+    FILTER regex(?label, "^\\\\*`+label+`", "i")}`)+'&endpoint='+this.endpoint, null)
   }
 }
