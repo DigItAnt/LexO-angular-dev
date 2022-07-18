@@ -18,7 +18,6 @@ import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { LilaService } from 'src/app/services/lila/lila.service';
-import { DataService, Person } from '../../core-tab/lexical-entry-core-form/data.service';
 
 @Component({
   selector: 'app-etymology-form',
@@ -32,7 +31,6 @@ export class EtymologyFormComponent implements OnInit {
   switchInput = false;
   subscription: Subscription;
   object: any;
-  people: Person[] = [];
   peopleLoading = false;
   counter = 0;
   componentRef: any;
@@ -62,8 +60,7 @@ export class EtymologyFormComponent implements OnInit {
 
   memoryLinks = [];
 
-  constructor(private dataService: DataService, 
-              private lexicalService: LexicalEntriesService, 
+  constructor(private lexicalService: LexicalEntriesService, 
               private formBuilder: FormBuilder, 
               private toastr: ToastrService,
               private lilaService : LilaService) { }
@@ -152,6 +149,7 @@ export class EtymologyFormComponent implements OnInit {
         }
       }
       this.object = changes.etymData.currentValue;
+      console.log(this.object)
       if (this.object != null) {
         this.etyForm.get('label').setValue(this.object.etymology.label, { emitEvent: false });
         this.etyForm.get('author').setValue(this.object.etymology.hypothesisOf, { emitEvent: false });
@@ -457,17 +455,25 @@ export class EtymologyFormComponent implements OnInit {
     console.log(etyLink.selectedItems)
     this.etyLinkArray = this.etyForm.get('etylink') as FormArray;
     let selectedValues, etymId, etySourceLabel, instanceName;
-    if(etyLink.selectedItems != undefined){
-      if (etyLink.selectedItems.length != 0) {
-        selectedValues = etyLink.selectedItems[0].value.lexicalEntryInstanceName;
-        etySourceLabel = etyLink.selectedItems[0].value.label;
-        instanceName = etyLink.selectedItems[0].value.lexicalEntry;
+
+    if(!this.etyLinkArray.at(index).get('lila').value){
+      if(etyLink.selectedItems != undefined){
+        if (etyLink.selectedItems.length != 0) {
+          selectedValues = etyLink.selectedItems[0].value.lexicalEntryInstanceName;
+          etySourceLabel = etyLink.selectedItems[0].value.label;
+          instanceName = etyLink.selectedItems[0].value.lexicalEntry;
+        }
+      }else if(etyLink != ""){
+        selectedValues = etyLink;
+        etySourceLabel = '';
+        instanceName = etyLink;
       }
-    }else if(etyLink != ""){
-      selectedValues = etyLink;
-      etySourceLabel = '';
-      instanceName = etyLink;
+    }else{
+      selectedValues = etyLink.selectedItems[0].value.lexicalEntry;
+      etySourceLabel = etyLink.selectedItems[0].value.label;
+      instanceName = etyLink.selectedItems[0].value.lexicalEntry;
     }
+    
     
     //console.log(index);
     //console.log(this.object.etyLinks[index])
@@ -475,114 +481,144 @@ export class EtymologyFormComponent implements OnInit {
       etymId = this.object.etyLinks[index].etymologicalLinkInstanceName;
     }
 
-    if(selectedValues != null && etyLink.selectedItems[0].value.new_etymon == undefined){
+    if(typeof(etyLink) != 'string'){
+      if(selectedValues != null && etyLink?.selectedItems[0]?.value.new_etymon == undefined){
       
-      let oldValue = this.memoryLinks[index].etySource;
-      let parameters = {
-        type: "etyLink",
-        relation: "etySource",
-        value: selectedValues,
-        currentValue: oldValue
-      }
-
-      console.log(parameters)
-      this.lexicalService.updateLinguisticRelation(etymId, parameters).subscribe(
-        data => {
-          console.log(data)
-        }, error => {
-          console.log(error)
-          if(error.status == 200){
-            this.memoryLinks[index]['etySourceLabel'] = etySourceLabel;
-            this.etyLinkArray.at(index).patchValue({ label: etySourceLabel});
-            this.etyLinkArray.at(index).patchValue({ etySource: instanceName});
-            //this.lexicalService.updateLexCard({ lastUpdate: error.error.text }) TODO: inserire updater per decomposition e etymology
-            this.toastr.success('Etylink source updated', '', {timeOut: 5000})
-          }else{
-            this.toastr.error(error.error, 'Error', {timeOut: 5000})
-          }
+        let oldValue = this.memoryLinks[index].etySource;
+        let parameters = {
+          type: "etyLink",
+          relation: "etySource",
+          value: selectedValues,
+          currentValue: oldValue
         }
-      )
-      
-    }else if(etyLink.selectedItems[0].value.new_etymon){
-      
-      let label_new_lexical_entry = etyLink.selectedItems[0].value.name;
-      this.lexicalService.newLexicalEntry().subscribe(
-        data=> {
-          console.log(data);
-          let lexical_entry = data.lexicalEntry;
-          let lexical_entry_in = data.lexicalEntryInstanceName;
-          this.memoryLinks[index]['etySourceLabel'] = etySourceLabel;
-          this.etyLinkArray.at(index).patchValue({ lex_entity: label_new_lexical_entry});
-          this.etyLinkArray.at(index).patchValue({ etySource: lexical_entry});
-
-          
-          let parameters = {
-            relation: 'label',
-            value: label_new_lexical_entry
-          }
-          console.log(parameters)
-          this.lexicalService.updateLexicalEntry(lexical_entry_in, parameters).subscribe(
-            data => {
-                console.log(data);
-                
-            },
-            error => {
-                //console.log(error);
-                this.lexicalService.spinnerAction('off');
-                this.lexicalService.spinnerAction('off');
-
-                parameters = {
-                  relation: 'type',
-                  value: 'Etymon'
-                }
-
-                this.lexicalService.updateLexicalEntry(lexical_entry_in, parameters).subscribe(
-                  data => {
-                      console.log(data);
-                      this.lexicalService.spinnerAction('off');
-                      this.lexicalService.refreshLangTable();
-                      this.lexicalService.refreshFilter({ request: true })
-                      
-                  },
-                  error => {
-                      console.log(error);
-                      let oldValue = this.memoryLinks[index].etySource;
-                      let parameters = {
-                        type: "etyLink",
-                        relation: "etySource",
-                        value: lexical_entry_in,
-                        currentValue: oldValue
-                      }
-                      this.lexicalService.refreshFilter({ request: true })
-                      console.log(parameters)
-                      console.log
-                      this.lexicalService.updateLinguisticRelation(etymId, parameters).subscribe(
-                        data => {
-                          console.log(data)
-                        }, error => {
-                          console.log(error)
-                          if(error.statusText == 'OK'){
-                            this.toastr.success('New etymon created', '', {timeOut: 5000})
-                            ////this.lexicalService.updateLexCard({ lastUpdate: error.error.text }) TODO: inserire updater per decomposition e etymology
-                          }
-                        }
-                      )
-                      this.lexicalService.spinnerAction('off');
-
-                  }
-              )
+  
+        console.log(parameters)
+        this.lexicalService.updateLinguisticRelation(etymId, parameters).subscribe(
+          data => {
+            console.log(data)
+          }, error => {
+            console.log(error)
+            if(error.status == 200){
+              this.memoryLinks[index]['etySourceLabel'] = etySourceLabel;
+              this.etyLinkArray.at(index).patchValue({ label: etySourceLabel});
+              this.etyLinkArray.at(index).patchValue({ etySource: instanceName});
+              //this.lexicalService.updateLexCard({ lastUpdate: error.error.text }) TODO: inserire updater per decomposition e etymology
+              this.toastr.success('Etylink source updated', '', {timeOut: 5000})
+            }else{
+              this.toastr.error(error.error, 'Error', {timeOut: 5000})
             }
-          )
-
-
-          
-        },error => {
-          console.log(error)
+          }
+        )
+        
+      }else if(etyLink.selectedItems[0].value.new_etymon){
+        
+        let label_new_lexical_entry = etyLink.selectedItems[0].value.name;
+        this.lexicalService.newLexicalEntry().subscribe(
+          data=> {
+            console.log(data);
+            let lexical_entry = data.lexicalEntry;
+            let lexical_entry_in = data.lexicalEntryInstanceName;
+            this.memoryLinks[index]['etySourceLabel'] = etySourceLabel;
+            this.etyLinkArray.at(index).patchValue({ lex_entity: label_new_lexical_entry});
+            this.etyLinkArray.at(index).patchValue({ etySource: lexical_entry});
+  
+            
+            let parameters = {
+              relation: 'label',
+              value: label_new_lexical_entry
+            }
+            console.log(parameters)
+            this.lexicalService.updateLexicalEntry(lexical_entry_in, parameters).subscribe(
+              data => {
+                  console.log(data);
+                  
+              },
+              error => {
+                  //console.log(error);
+                  this.lexicalService.spinnerAction('off');
+                  this.lexicalService.spinnerAction('off');
+  
+                  parameters = {
+                    relation: 'type',
+                    value: 'Etymon'
+                  }
+  
+                  this.lexicalService.updateLexicalEntry(lexical_entry_in, parameters).subscribe(
+                    data => {
+                        console.log(data);
+                        this.lexicalService.spinnerAction('off');
+                        this.lexicalService.refreshLangTable();
+                        this.lexicalService.refreshFilter({ request: true })
+                        
+                    },
+                    error => {
+                        console.log(error);
+                        let oldValue = this.memoryLinks[index].etySource;
+                        let parameters = {
+                          type: "etyLink",
+                          relation: "etySource",
+                          value: lexical_entry_in,
+                          currentValue: oldValue
+                        }
+                        this.lexicalService.refreshFilter({ request: true })
+                        console.log(parameters)
+                        console.log
+                        this.lexicalService.updateLinguisticRelation(etymId, parameters).subscribe(
+                          data => {
+                            console.log(data)
+                          }, error => {
+                            console.log(error)
+                            if(error.statusText == 'OK'){
+                              this.toastr.success('New etymon created', '', {timeOut: 5000})
+                              ////this.lexicalService.updateLexCard({ lastUpdate: error.error.text }) TODO: inserire updater per decomposition e etymology
+                            }
+                          }
+                        )
+                        this.lexicalService.spinnerAction('off');
+  
+                    }
+                )
+              }
+            )
+  
+  
+            
+          },error => {
+            console.log(error)
+          }
+        )
+        //      cambiare tipo lexical entry in etymon
+        //      cambiare label lexical entry
+      }
+    }else{
+      let oldValue = this.memoryLinks[index].etySource;
+        let parameters = {
+          type: "etyLink",
+          relation: "etySource",
+          value: selectedValues,
+          currentValue: oldValue
         }
-      )
-      //      cambiare tipo lexical entry in etymon
-      //      cambiare label lexical entry
+  
+        console.log(parameters)
+        this.lexicalService.updateLinguisticRelation(etymId, parameters).subscribe(
+          data => {
+            console.log(data)
+          }, error => {
+            console.log(error)
+            if(error.status == 200){
+              this.memoryLinks[index]['etySourceLabel'] = etySourceLabel;
+              this.etyLinkArray.at(index).patchValue({ label: etySourceLabel});
+              this.etyLinkArray.at(index).patchValue({ etySource: instanceName});
+              //this.lexicalService.updateLexCard({ lastUpdate: error.error.text }) TODO: inserire updater per decomposition e etymology
+              this.toastr.success('Etylink source updated', '', {timeOut: 5000})
+            }else{
+              this.toastr.error(error.error, 'Error', {timeOut: 5000})
+            }
+          }
+        )
     }
+
+    
   }
 
   createNewEtymon(name){
@@ -766,7 +802,7 @@ export class EtymologyFormComponent implements OnInit {
         offset: 0,
         limit: 500
       }
-      //console.log(data.length)
+      console.log(parameters)
       
       this.lexicalService.getLexicalEntriesList(parameters).subscribe(
         data => {
@@ -784,9 +820,19 @@ export class EtymologyFormComponent implements OnInit {
         data=>{
             console.log(data)
             if(data.list.length > 0){
-                data.list.forEach(element => {
-                    this.searchResults.push(element)
-                });
+              const map = data.list.map(element => (
+                {
+                  label: element[2]?.value, 
+                  language : element[1]?.value,
+                  lexicalEntry : element[0]?.value
+                })
+              )
+
+              
+              
+
+              this.searchResults = map;
+              console.log(this.searchResults)
             }
         },
         error=>{

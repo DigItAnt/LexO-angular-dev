@@ -15,14 +15,14 @@
                                     <div class="form-group row ml-2  mr-2 w-100" *ngIf="{switch : false}; let variable">
                                         <div class="input-group" *ngIf="{boolean : sameAs.get('inferred').value}; let inf">
                                             <ng-select [isOpen]="dropdown" #sameAsSelect formControlName="entity" name="entity"
-                                                (change)="onChangeSameAs(sameAs, i)" (focus)="deleteData()"
+                                                (change)="onChangeSameAs(sameAsSelect, i)" (focus)="deleteData()"
                                                 (keyup)="triggerSameAs($event, i)" bindValue="label" class="resizeNgSelect" [items]="searchResults"
                                                 bindLabel="label" placeholder="Search entity" appendTo="body"
                                                 [hidden]="!sameAs.get('lila').value" [readonly]="inf.boolean">
                                                 <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                                            
                                                     <div class="card-body p-0">
-                                                        <span class="card-title m-0" [ngOptionHighlight]="search">{{item.labelValue}}</span>
+                                                        <span class="card-title m-0" [ngOptionHighlight]="search">{{item.label}}</span>
                                                         <span style="color: blue;">@{{item.language}}</span>
                                                         <small class="card-text">
                                                            
@@ -32,46 +32,14 @@
                                                     </div>
                                         
                                                 </ng-template>
-                                                <!-- <ng-template ng-option-tmp let-item="item" let-search="searchTerm" *ngIf="!sameAsForm.get('isEtymon').value || !sameAsForm.get('isCognate').value">
-                                           
-                                                    <div class="card-body p-0">
-                                                        <h6 class="card-title m-0" [ngOptionHighlight]="search">{{item.label}}</h6>
-                                                        <small *ngFor="let sub of item.morphology">
-                                                            <span *ngIf="sub.trait == 'case' || sub.trait == 'gender' || sub.trait == 'number' || sub.trait == 'partOfSpeech'">
-                                                                {{sub.trait}} : {{sub.value}} <br>
-                                                            </span>
-                                                        </small>
-                                                        <small class="card-text">
-                                                           
-                                        
-                                                        </small>
-                                                       
-                                                    </div>
-                                        
-                                                </ng-template>
-
-                                                <ng-template ng-option-tmp let-item="item" let-search="searchTerm" *ngIf="sameAsForm.get('isEtymon').value || sameAsForm.get('isCognate').value">
-                                           
-                                                    <div class="card-body p-0">
-                                                        <h6 class="card-title m-0" [ngOptionHighlight]="search">{{item.label}}</h6>
-                                                        <small >
-                                                            {{item.pos}}
-                                                        </small>
-                                                        <small class="card-text">
-                                                           
-                                        
-                                                        </small>
-                                                       
-                                                    </div>
-                                        
-                                                </ng-template> -->
+                                               
                                             </ng-select>
                                             
                                             <input formControlName="entity" name="entity" type="text"
                                                 class="form-control " (keyup)="triggerSameAsInput($event, i)"
                                                 placeholder="Insert URI" [hidden]="sameAs.get('lila').value">
 
-                                            <div class="input-group-append" *ngIf="!inf.boolean">
+                                            <div class="input-group-append">
                                                <!--  <div class="input-group-append ml-2 form-check">
                                                     <input class="form-check-input same-as-tooltip" type="checkbox"
                                                         (change)="variable.switch=!variable.switch"
@@ -81,13 +49,17 @@
                                                     <label class="form-check-label" for="extCheck"></label>
                                                 </div> -->
                                                 
-                                                <div class="input-group-append ml-2" *ngIf="sameAsForm.get('isCognate').value || sameAsForm.get('isEtymon').value">
+                                                <div class="input-group-append ml-2" *ngIf="(sameAsForm.get('isCognate').value || sameAsForm.get('isEtymon').value) && (!inf.boolean && !sameAs.get('inferred').value)">
                                                     <div class="btn-group-toggle" data-toggle="buttons" placement="top" ngbTooltip="Enable LiLa endpoint" title="Enable LiLa endpoint" >
                                                         <label class="btn btn-secondary" >
                                                           <input (click)="triggerLilaSearch(i)" type="checkbox" autocomplete="off" autocomplete="off" formControlName="lila" name="lila" style="border-radius: .3rem;" > 
-                                                            <img src="../../../../../../../assets/images/graphql.png" alt="Avatar" class="image" style="height: 20px;">
+                                                            <img src="../../../../../../../assets/images/graphql.png" alt="Avatar" class="image" style="height: 20px;" />
                                                         </label>
                                                     </div>
+                                                </div>
+                                                <div class="input-group-append ml-2" *ngIf="inf.boolean">
+                                                    <a [href]="sameAs.get('entity').value" target="_blank"  class="btn btn-primary"
+                                                        type="button"><i class="fas fa-external-link-alt"></i></a>
                                                 </div>
                                                 <div class="input-group-append ml-2">
                                                     <button (click)="removeElement(i)" class="btn btn-danger"

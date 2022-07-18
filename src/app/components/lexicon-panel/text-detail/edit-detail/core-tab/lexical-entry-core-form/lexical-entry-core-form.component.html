@@ -41,8 +41,8 @@
             </div>
             <div class="col-lg-3 input-group uncertain">
                 <input *ngIf="variable.confidence" id="attributes"  step="0.1" formControlName="confidence" name="confidence" type="number" min="0" max="1" class="form-control" placeholder="No info" [value]="coreForm.get('confidence').value">
-                <button type="button" class="btn btn-secondary btn-sm rounded-circle" *ngIf="!variable.confidence" (click)="variable.confidence = !variable.confidence"><i class="fas fa-plus"></i></button>
-                <button type="button" class="btn btn-secondary btn-sm rounded-circle" *ngIf="variable.confidence" (click)="variable.confidence = !variable.confidence; applyUncertain()"><i class="fas fa-minus"></i></button>
+                <button type="button" class="btn btn-secondary btn-sm" *ngIf="!variable.confidence" (click)="variable.confidence = !variable.confidence"><i class="fas fa-plus"></i></button>
+                <button type="button" class="btn btn-secondary btn-sm" *ngIf="variable.confidence" (click)="variable.confidence = !variable.confidence; applyUncertain()"><i class="fas fa-minus"></i></button>
             </div>
         </div>
 
@@ -218,8 +218,8 @@
                                
                                 (keyup)="handleDenotes($event, i)">
                             <div class="input-group-append ml-2">
-                                <button class="btn btn-primary" type="button"><i
-                                        class="fa fa-external-link-alt"></i></button>
+                                <a [href]="den.get('entity').value" target="_blank" class="btn btn-primary" type="button"><i
+                                        class="fa fa-external-link-alt"></i></a>
                             </div>
                             <div class="input-group-append ml-2">
                                 <button (click)="removeDenotes(i)" class="btn btn-danger" type="button"><i
@@ -242,10 +242,10 @@
                     <div class="form-group row m-2" formArrayName="cognates"
                         *ngFor="let cog of coreForm.get('cognates')['controls']; let i = index">
                         <div class="input-group col-xl-12"  [formGroupName]="i" *ngIf="{switch : false}; let variable">
-                            <ng-select #select_cognates formControlName="entity" name="entity" [dropdownPosition]="'top'"
+                            <ng-select #select_cognates formControlName="label" name="label" [dropdownPosition]="'top'"
                                 (keyup)="triggerCognates($event, i)" (change)="handleCognates(select_cognates, i)"
                                 [items]="searchResults" bindValue="label" (focus)="deleteData()" bindLabel="label"
-                                placeholder="Search cognates" appendTo="body"
+                                placeholder="Search cognates" appendTo="body" 
                                 *ngIf="!variable.switch && cog.get('type').value != 'external'">
                                 <ng-template ng-option-tmp let-item="item" let-search="searchTerm" *ngIf="!cog.get('lila').value">
                                     <div>
@@ -275,12 +275,19 @@
                                 class="form-control" placeholder="Insert URI"
                                 *ngIf="variable.switch || cog.get('type').value == 'external'"
                                 (keyup)="handleCognates($event, i)">
-                            <div class="input-group-append ml-3 form-check" style="align-items: center;"
-                                [hidden]="cog.get('type').value == 'external'">
+                            <div class="input-group-append ml-3 form-check" style="align-items: center;">
                                 <input class="form-check-input cognates-tooltip" type="checkbox"
                                     (change)="variable.switch=!variable.switch" data-toggle="tooltip"
                                     data-placement="bottom" data-trigger="hover"
                                     title="Clicca per inserire un URI manualmente">
+                            </div>
+                            <div class="input-group-append ml-2" *ngIf="cog.get('type').value == 'external' && cog.get('entity').value != ''" container="body" placement="top" ngbTooltip="Open in Lila Page">
+                                <a  [href]="cog.get('entity').value" target="_blank"  class="btn btn-info"
+                                    type="button"><i class="fas fa-globe-europe"></i></a>
+                            </div>
+                            <div class="input-group-append ml-2" *ngIf="cog.get('type').value == 'internal' && cog.get('entity').value != ''" container="body" placement="top" ngbTooltip="Open in new panel">
+                                <a  (click)="loadCognateData(cog.get('instanceName').value, cog.get('lexicalEntryInstanceName').value, cog.get('label').value); "  class="btn btn-primary"
+                                    type="button"><i class="fas fa-external-link-alt"></i></a>
                             </div>
                             <div class="input-group-append ml-2">
                                 <div class="btn-group-toggle" data-toggle="buttons" placement="top" ngbTooltip="Enable LiLa endpoint" title="Enable LiLa endpoint" >
@@ -304,3 +311,5 @@
 </form>
 
 <!-- {{coreForm.value | json}} -->
+
+<ng-template #cognatePanel></ng-template>

@@ -215,19 +215,69 @@ export class TextTreeComponent implements OnInit {
       this.documentService.getContent(this.selectedNodeId).subscribe(
         data=>{
 
+          //console.log("XML", data)
           let text = data.text;
           let object = {
             xmlString : text
           }
 
+          let xmlDom = new DOMParser().parseFromString(text, "text/xml");
+
+          this.annotatorService.getTokens(this.selectedNodeId).subscribe(
+            data => {
+    
+              console.log(data)
+              let element_id = this.selectedNodeId;
+              let tokens = data.tokens;
+
+
+              this.documentService.sendToEpigraphyTab({
+                tokens : tokens,
+                element_id : element_id,
+                epidoc_id : this.selectedEpidocId,
+                xmlDoc : xmlDom
+              })
+
+    
+              if(!this.expander.isEditTabOpen() && !this.expander.isEpigraphyTabOpen()){
+                if(!this.expander.isEditTabExpanded() && !this.expander.isEpigraphyTabExpanded()){
+                  
+                  this.expander.expandCollapseEpigraphy(true);
+                  this.expander.openCollapseEpigraphy(true);
+                }
+              }else if(this.expander.isEditTabOpen() && !this.expander.isEpigraphyTabOpen()){
+                if(this.expander.isEditTabExpanded() && !this.expander.isEpigraphyTabExpanded()){
+                  this.expander.openCollapseEpigraphy(true);
+                  this.expander.expandCollapseEdit(false);
+                }
+              }
+    
+              let metadata = $event.node.data.metadata;
+              metadata['path'] = $event.node.data.path;
+              metadata['element-id'] = $event.node.data['element-id'];
+              if(metadata != undefined && Object.keys(metadata).length > 5){
+                this.documentService.sendToMetadataPanel(metadata);
+                this.documentService.triggerMetadataPanel(true)
+              }else{
+                this.documentService.sendToMetadataPanel(null);
+                this.documentService.triggerMetadataPanel(false)
+              }
+            },
+            error => {
+              console.log(error)
+            }
+          );
+
           this.documentService.sendLeidenToEpigraphyTab(null);
           this.documentService.testConvert(object).subscribe(
             data=>{
-              // console.log("TEST", data);
+              //console.log("TEST", data);
               
               if(data != undefined){
                 try {
                   let raw = data.xml;
+                  let HTML =  new DOMParser().parseFromString(raw, "text/html");
+                  console.log(HTML)
                   let childNodes = new DOMParser().parseFromString(raw, "text/html").querySelectorAll('#edition .textpart')[0].childNodes[0].childNodes;
                   let leidenLines = []; 
 
@@ -298,46 +348,7 @@ export class TextTreeComponent implements OnInit {
         }
       )
 
-      this.annotatorService.getTokens(this.selectedNodeId).subscribe(
-        data => {
-
-          console.log(data)
-          let element_id = this.selectedNodeId;
-          let tokens = data.tokens;
-          this.documentService.sendToEpigraphyTab({
-            tokens : tokens,
-            element_id : element_id,
-            epidoc_id : this.selectedEpidocId
-          })
-
-          if(!this.expander.isEditTabOpen() && !this.expander.isEpigraphyTabOpen()){
-            if(!this.expander.isEditTabExpanded() && !this.expander.isEpigraphyTabExpanded()){
-              
-              this.expander.expandCollapseEpigraphy(true);
-              this.expander.openCollapseEpigraphy(true);
-            }
-          }else if(this.expander.isEditTabOpen() && !this.expander.isEpigraphyTabOpen()){
-            if(this.expander.isEditTabExpanded() && !this.expander.isEpigraphyTabExpanded()){
-              this.expander.openCollapseEpigraphy(true);
-              this.expander.expandCollapseEdit(false);
-            }
-          }
-
-          let metadata = $event.node.data.metadata;
-          metadata['path'] = $event.node.data.path;
-          metadata['element-id'] = $event.node.data['element-id'];
-          if(metadata != undefined && Object.keys(metadata).length > 5){
-            this.documentService.sendToMetadataPanel(metadata);
-            this.documentService.triggerMetadataPanel(true)
-          }else{
-            this.documentService.sendToMetadataPanel(null);
-            this.documentService.triggerMetadataPanel(false)
-          }
-        },
-        error => {
-          console.log(error)
-        }
-      );
+      
       
       
       

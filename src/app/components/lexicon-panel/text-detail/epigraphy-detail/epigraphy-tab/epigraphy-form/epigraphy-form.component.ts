@@ -518,6 +518,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
         this.object = changes.epiData.currentValue['tokens'];
         let element_id = changes.epiData.currentValue['element_id']
         this.fileId = changes.epiData.currentValue['epidoc_id']
+        let xmlDoc = changes.epiData.currentValue['xmlDoc']
         console.log(this.object)
         if (this.object != null) {
 
@@ -553,7 +554,6 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
                       Array.from(element.attributes['bibliography']).forEach(element => { 
                         
                         if(element['note'] == undefined){
-                          console.log("cusa")
                           element['note'] = "";
                         } 
                         
@@ -570,8 +570,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
                 //this.annotationArray = data.annotations;
                 if(this.annotationArray.length > 0){
                   
-                  this.lexicalService.triggerAttestationPanel(true);
-                  this.lexicalService.sendToAttestationPanel(this.annotationArray);
+            
 
                   var that2 = this;
                   var timer_object = setInterval((val)=>{
@@ -589,6 +588,21 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
                                 let positionElement = element.position;
                                 let elementHTML = document.getElementsByClassName('token-'+(positionElement-1))[0]
                                 var that = this;
+
+                                let xmlNode = xmlDoc.querySelectorAll('[*|id=\''+element.xmlid+'\']')[0].outerHTML;
+                                let object = {
+                                  xmlString : xmlNode
+                                }
+                                this.documentService.testConvert(object).subscribe(
+                                  data=> {
+                                    console.log(data);
+                                    let raw = data.xml;
+                                    let leidenToken = new DOMParser().parseFromString(raw, "text/html").body.innerHTML.replace('\n', '');
+                                    annotation.attributes['leiden'] = leidenToken;
+                                  }, error=> {
+                                    console.log(error)
+                                  }
+                                )
                                 var timer = setInterval((val)=>{                
                                     
                                     try{
@@ -610,6 +624,10 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
                           });
                           
                         });
+                        setTimeout(() => {
+                          this.lexicalService.triggerAttestationPanel(true);
+                          this.lexicalService.sendToAttestationPanel(this.annotationArray);
+                        }, 1000);
                         clearInterval(timer_object)
                       }
                       
@@ -1409,7 +1427,6 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
       
 
 
-      //TODO: inserire gestione di selezione per le multiword
       let parentNode = evt.target.parentElement;
       let classNames = parentNode.className;
 

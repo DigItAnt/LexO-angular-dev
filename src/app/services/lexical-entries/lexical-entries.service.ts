@@ -21,6 +21,8 @@ import { AuthService } from '../auth/auth.service';
 })
 export class LexicalEntriesService {
 
+  private arrayPanelFormsData = {};
+
   private _coreFormData: BehaviorSubject<object> = new BehaviorSubject(null);
   private _attestationPanelData: BehaviorSubject<object> = new BehaviorSubject(null);
   /* private _vartransData: BehaviorSubject<object> = new BehaviorSubject(null); */
@@ -40,6 +42,7 @@ export class LexicalEntriesService {
   private _decompData : BehaviorSubject<object> = new BehaviorSubject(null);
   private _refreshLinkCounter: BehaviorSubject<string> = new BehaviorSubject(null);
   private _triggerLexicalEntryTree : BehaviorSubject<object> = new BehaviorSubject(null);
+  private _triggerSameAs : BehaviorSubject<object> = new BehaviorSubject(null);
 
 
   private baseUrl = "/LexO-backend-itant/service/"
@@ -65,6 +68,7 @@ export class LexicalEntriesService {
   changeDecompLabel$ = this._changeDecompLabel.asObservable();
   refreshLinkCounter$ = this._refreshLinkCounter.asObservable();
   triggerLexicalEntryTree$ = this._triggerLexicalEntryTree.asObservable();
+  triggerSameAs$ = this._triggerSameAs.asObservable();
 
   constructor(private http: HttpClient, private auth: AuthService) { }
 
@@ -142,6 +146,10 @@ export class LexicalEntriesService {
 
   triggerLexicalEntryTree(object : object){
     this._triggerLexicalEntryTree.next(object);
+  }
+
+  triggerSameAs(object : object){
+    this._triggerSameAs.next(object);
   }
 
   //POST: /lexicon/lexicalEntries ---> get lexical entries list
@@ -414,4 +422,23 @@ export class LexicalEntriesService {
   exportLexicon(body : object) : Observable<any> {
     return this.http.post(this.baseUrl + "export/lexicon", body, { responseType: 'text'});
   } 
+
+  getPanelCognate(cogInstanceName, lexInstanceName) : object{
+    return this.arrayPanelFormsData[cogInstanceName+'-'+lexInstanceName];
+  }
+
+  newPanelForm(cogInstanceName, lexInstanceName) : void {
+    this.arrayPanelFormsData[cogInstanceName+'-'+lexInstanceName] = {};
+    this.arrayPanelFormsData[cogInstanceName+'-'+lexInstanceName].data = undefined;
+    this.arrayPanelFormsData[cogInstanceName+'-'+lexInstanceName].isOpen = undefined;
+
+  }
+
+  closePanelForm(cogInstanceName, lexInstanceName) : void {
+    this.arrayPanelFormsData[cogInstanceName+'-'+lexInstanceName] = undefined;
+  }
+
+  getAllPanelForms() : object {
+    return this.arrayPanelFormsData;
+  }
 }

@@ -70,6 +70,44 @@ export class SameAsComponent implements OnInit {
       }
     )
 
+    this.lexicalService.triggerSameAs$.subscribe(
+      data=> {
+        console.log(data);
+        if((data != undefined || data != null) && this.object != undefined){
+          this.object.type = data;
+          if(typeof(this.object.type) != "string"){
+            let isCognate = this.object.type.find(element => element == 'Cognate');
+            if(isCognate){
+                this.sameAsForm.get('isCognate').setValue(true, {emitEvent: false})
+            }else{
+                this.sameAsForm.get('isCognate').setValue(false, {emitEvent: false})
+            }
+    
+            let isEtymon = this.object.type.find(element => element == 'Etymon');
+            if(isEtymon){
+                this.sameAsForm.get('isEtymon').setValue(true, {emitEvent: false})
+            }else{
+                this.sameAsForm.get('isEtymon').setValue(false, {emitEvent: false})
+            }
+          }else{
+            if(this.object.type == 'Cognate'){
+              this.sameAsForm.get('isCognate').setValue(true, {emitEvent: false})
+            }else{
+              this.sameAsForm.get('isCognate').setValue(false, {emitEvent: false})
+            }
+
+            if(this.object.type == 'Etymon'){
+              this.sameAsForm.get('isEtymon').setValue(true, {emitEvent: false})
+            }else{
+              this.sameAsForm.get('isEtymon').setValue(false, {emitEvent: false})
+            }
+          }
+        }
+      },error=> {
+        console.log(error)
+      }
+    )
+
     this.subject_input.pipe(debounceTime(1000)).subscribe(
       data => {        
         this.onChangeSameAsByInput(data['value'], data['i'])
@@ -90,7 +128,7 @@ export class SameAsComponent implements OnInit {
         console.log(this.object)
   
         this.object.array.forEach(element => {
-          this.addSameAsEntry(element.lexicalEntity, element.inferred)
+          this.addSameAsEntry(element.lexicalEntity, element.linkType == 'external')
           this.memorySameAs.push(element.lexicalEntity);
         });
 
@@ -151,6 +189,7 @@ export class SameAsComponent implements OnInit {
     if(value.trim() != ''){
       var selectedValues = value;
       var lexicalElementId = '';
+      let parameters =  {};
       if (this.object.lexicalEntryInstanceName != undefined) {
         lexicalElementId = this.object.lexicalEntryInstanceName;
       } else if (this.object.formInstanceName != undefined) {
@@ -162,60 +201,46 @@ export class SameAsComponent implements OnInit {
       }
   
       //console.log(this.memorySameAs[index])
-      if (this.memorySameAs[index] == "") {
-        let parameters = {
+      if (this.memorySameAs[index] == undefined ||  this.memorySameAs[index]  == "") {
+        parameters = {
           type: "reference",
           relation: "sameAs",
           value: selectedValues
         }
-        //console.log(parameters)
-        this.lexicalService.updateGenericRelation(lexicalElementId, parameters).subscribe(
-          data => {
-            console.log(data)
-          }, error => {
-            console.log(error)
-            if(error.status == '200'){
-              this.toastr.success(error.error.text, '', {
-                timeOut: 5000,
-              });
-            }else{
-              this.toastr.error(error.error.text, 'Error', {
-                timeOut: 5000,
-              });
-            }
-            
-          }
-        )
+       
   
         this.memorySameAs[index] = selectedValues;
       } else {
         let oldValue = this.memorySameAs[index];
-        let parameters = {
+        parameters = {
           type: "reference",
           relation: "sameAs",
           value: selectedValues,
           currentValue: oldValue
         }
-        //console.log(parameters)
-        this.lexicalService.updateGenericRelation(lexicalElementId, parameters).subscribe(
-          data => {
-            console.log(data)
-            
-          }, error => {
-            console.log(error)
-            if(error.status == '200'){
-              this.toastr.success('See Also updated', '', {
-                timeOut: 5000,
-              });
-            }else{
-              this.toastr.error(error.error.text, 'Error', {
-                timeOut: 5000,
-              });
-            }
-            
-          }
-        )
+       
       }
+
+      this.lexicalService.updateGenericRelation(lexicalElementId, parameters).subscribe(
+        data => {
+          console.log(data)
+        }, error => {
+          console.log(error)
+          if(error.status == '200'){
+            this.toastr.success("SameAs Changed", '', {
+              timeOut: 5000,
+            });
+
+            this.sameAsArray = this.sameAsForm.get('sameAsArray') as FormArray;
+            this.sameAsArray.at(index).get('inferred').setValue(true,{emitEvent: false} )
+          }else{
+            this.toastr.error(error.error.text, 'Error', {
+              timeOut: 5000,
+            });
+          }
+          
+        }
+      )
     }
     
   }
@@ -223,20 +248,49 @@ export class SameAsComponent implements OnInit {
   onChangeSameAs(sameAs, index){
     console.log(sameAs.selectedItems)
     if(sameAs.selectedItems.length != 0){
+      let parameters = {};
       var selectedValues = sameAs.selectedItems[0].value.lexicalEntry;
+
+      if(selectedValues == undefined){
+        sameAs.selectedItems[0].value.lexicalEntry;
+      }
+
       let lexId = this.object.lexicalEntryInstanceName;
     
-      let parameters = {
-        type : "reference",
-        relation : "sameAs",
-        value : selectedValues
+      if (this.memorySameAs[index] == undefined ||  this.memorySameAs[index]  == "") {
+        parameters = {
+          type: "reference",
+          relation: "sameAs",
+          value: selectedValues
+        }
+       
+  
+        this.memorySameAs[index] = selectedValues;
+      } else {
+        let oldValue = this.memorySameAs[index];
+        parameters = {
+          type: "reference",
+          relation: "sameAs",
+          value: selectedValues,
+          currentValue: oldValue
+        }
+       
       }
       console.log(parameters)
       this.lexicalService.updateGenericRelation(lexId, parameters).subscribe(
         data=>{
           console.log(data)
+          this.sameAsArray.at(index).get('inferred').setValue(true,{emitEvent: false} )
         }, error=>{
           console.log(error)
+          if(error.status == 200){
+            this.toastr.success('SameAs Changed', '', {timeOut : 5000})
+            this.sameAsArray.at(index).get('inferred').setValue(true,{emitEvent: false} )
+          }else{
+            if(error.status == 200){
+              this.toastr.error(error.error.text, '', {timeOut : 5000})
+            }
+          }
         }
       )
     }
@@ -337,9 +391,9 @@ export class SameAsComponent implements OnInit {
                   if(data.list.length > 0){
                     const map = data.list.map(element => (
                       {
-                        label: this.object.label, 
-                        labelValue: element[2]?.value, 
-                        language : element[1]?.value
+                        label: element[2]?.value, 
+                        language : element[1]?.value,
+                        lexicalEntry : element[0]?.value
                       })
                     )
 
@@ -506,14 +560,24 @@ export class SameAsComponent implements OnInit {
 
       this.lexicalService.deleteLinguisticRelation(lexId, parameters).subscribe(
         data => {
-          //console.log(data)
+          console.log(data)
           this.lexicalService.updateCoreCard(this.object)
           this.lexicalService.refreshLinkCounter('-1')
-        }, error => {
-          //console.log(error)
-          this.toastr.error(error.error, 'Error', {
+          this.toastr.success("SameAs Removed", 'Error', {
             timeOut: 5000,
           });
+        }, error => {
+          console.log(error)
+          if(error.status == 200){
+            this.toastr.success("SameAs Removed", 'Error', {
+              timeOut: 5000,
+            });
+          }else{
+            this.toastr.error(error.error.text, 'Error', {
+              timeOut: 5000,
+            });
+          }
+          
         }
       )
     } else if (this.object.formInstanceName != undefined) {

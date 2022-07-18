@@ -249,7 +249,7 @@ export class LexiconPageComponent implements OnInit, OnDestroy {
   
                 let collapse_container = this.accordion.nativeElement.querySelectorAll('div[aria-labelledby="metadataHeading"]');
                 collapse_container.forEach(element => {
-                  console.log(element)
+//                  console.log(element)
                   if(element.classList.contains("show")){
                     element.classList.remove('show')
                   }

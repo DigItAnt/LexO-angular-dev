@@ -13,7 +13,6 @@ You should have received a copy of the GNU General Public License along with Epi
 import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
-import { DataService, Person } from '../../core-tab/lexical-entry-core-form/data.service';
 
 import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
 import { debounceTime } from 'rxjs/operators';
@@ -27,7 +26,6 @@ export class LexicalConceptFormComponent implements OnInit {
   switchInput = false;
   subscription: Subscription;
   object: any;
-  people: Person[] = [];
   peopleLoading = false;
   counter = 0;
   componentRef: any;
@@ -46,7 +44,7 @@ export class LexicalConceptFormComponent implements OnInit {
   scheme: FormArray;
   conceptReference: FormArray;
 
-  constructor(private dataService: DataService, private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder) {
+  constructor(private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder) {
   }
 
   ngOnInit() {
@@ -92,10 +90,10 @@ export class LexicalConceptFormComponent implements OnInit {
 
   private loadPeople() {
     this.peopleLoading = true;
-    this.dataService.getPeople().subscribe(x => {
+    /* this.dataService.getPeople().subscribe(x => {
       this.people = x;
       this.peopleLoading = false;
-    });
+    }); */
   }
 
   onChanges(): void {

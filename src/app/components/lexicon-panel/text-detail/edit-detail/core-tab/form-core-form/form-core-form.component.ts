@@ -15,7 +15,6 @@ import { Form, FormArray, FormBuilder, FormControl, FormGroup, Validators } from
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, pairwise, startWith } from 'rxjs/operators';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
-import { DataService, Person } from '../lexical-entry-core-form/data.service';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -33,7 +32,6 @@ export class FormCoreFormComponent implements OnInit {
   switchInput = false;
   subscription: Subscription;
   object: any;
-  people: Person[] = [];
   peopleLoading = false;
   counter = 0;
   typesData = [];
@@ -65,7 +63,7 @@ export class FormCoreFormComponent implements OnInit {
   disableAddOther = false;
   disableAddMorpho = false;
 
-  constructor(private dataService: DataService, private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder, private toastr: ToastrService) { }
+  constructor( private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder, private toastr: ToastrService) { }
 
   ngOnInit() {
     this.lexicalService.getMorphologyData().subscribe(
@@ -126,10 +124,10 @@ export class FormCoreFormComponent implements OnInit {
 
   private loadPeople() {
     this.peopleLoading = true;
-    this.dataService.getPeople().subscribe(x => {
+    /* this.dataService.getPeople().subscribe(x => {
       this.people = x;
       this.peopleLoading = false;
-    });
+    }); */
   }
 
   ngOnChanges(changes: SimpleChanges) {

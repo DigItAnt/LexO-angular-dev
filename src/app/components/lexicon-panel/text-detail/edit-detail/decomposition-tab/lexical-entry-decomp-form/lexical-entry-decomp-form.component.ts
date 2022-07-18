@@ -17,7 +17,6 @@ import { ToastrService } from 'ngx-toastr';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
-import { DataService, Person } from '../../core-tab/lexical-entry-core-form/data.service';
 
 @Component({
   selector: 'app-lexical-entry-decomp-form',
@@ -34,7 +33,6 @@ export class LexicalEntryDecompFormComponent implements OnInit {
   switchInput = false;
   subscription: Subscription;
   object: any;
-  people: Person[] = [];
   searchResults = [];
   peopleLoading = false;
   counter = 0;
@@ -60,7 +58,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
 
   disableAddTraits = [];
 
-  constructor(private dataService: DataService, private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder, private toastr: ToastrService) { }
+  constructor( private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder, private toastr: ToastrService) { }
 
   ngOnInit(): void {
 

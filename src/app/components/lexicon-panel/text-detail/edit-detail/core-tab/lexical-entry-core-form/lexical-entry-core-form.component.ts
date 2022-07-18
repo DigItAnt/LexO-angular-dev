@@ -10,8 +10,7 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ChangeDetectorRef, Component, Input, OnInit, SimpleChanges } from '@angular/core';
-import { DataService, Person } from './data.service';
+import { ChangeDetectorRef, Component, ComponentFactoryResolver, Input, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { LexicalEntriesService } from '../../../../../../services/lexical-entries/lexical-entries.service';
 import { Subject, Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
@@ -21,6 +20,7 @@ import { FormBuilder, FormGroup, FormArray, FormControl, Validators, Form } from
 import { debounceTime, pairwise, startWith } from 'rxjs/operators';
 import { NgSelectComponent } from '@ng-select/ng-select';
 import { LilaService } from 'src/app/services/lila/lila.service';
+import { CognatePanelComponent } from './cognate-panel/cognate-panel.component';
 
 
 @Component({
@@ -31,12 +31,13 @@ import { LilaService } from 'src/app/services/lila/lila.service';
 export class LexicalEntryCoreFormComponent implements OnInit {
 
     @Input() lexData: any;
+    @ViewChild('cognatePanel', {read: ViewContainerRef}) vc: ViewContainerRef;
+
 
     private subject: Subject<any> = new Subject();
     switchInput = false;
     subscription: Subscription;
     object: any;
-    people: Person[] = [];
     peopleLoading = false;
     counter = 0;
     lexEntryTypesData = [];
@@ -94,11 +95,13 @@ export class LexicalEntryCoreFormComponent implements OnInit {
     denotesArray: FormArray;
     cognatesArray: FormArray;
     disableAddCognates = false;
+    arrayComponents = [];
 
     constructor(private lexicalService: LexicalEntriesService, 
                 private formBuilder: FormBuilder, 
                 private toastr: ToastrService,
-                private lilaService : LilaService) {
+                private lilaService : LilaService,
+                private factory: ComponentFactoryResolver) {
 
     }
 
@@ -219,7 +222,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
         
         if (this.object.lexicalEntryInstanceName != undefined && !this.cognatesArray.at(index).get('lila').value) {
             let parameters = {
-                text: data,
+                text: value,
                 searchMode: "startsWith",
                 type: "",
                 pos: "",
@@ -376,6 +379,10 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                 this.evokesArray = this.coreForm.get('evokes') as FormArray;
                 this.evokesArray.clear();
 
+                this.disableAddCognates = false;
+                this.disableAddCognates = false;
+
+
                 this.memoryPos = '';
 
                 this.staticMorpho = []
@@ -526,9 +533,12 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                     data => {
                         console.log(data)
                         for (var i = 0; i < data.length; i++) {
+                            let label = data[i].label;
+                            let instanceName = data[i]['lexicalEntityInstanceName']
                             let entity = data[i]['lexicalEntity'];
                             let type = data[i]['linkType'];
-                            this.addCognates(entity, type);
+                            let lexicalEntryInstanceName = this.object.lexicalEntryInstanceName;
+                            this.addCognates(label, instanceName, lexicalEntryInstanceName, entity, type);
                             this.memoryCognates.push(data[i])
                         }
                     }, error => {
@@ -1197,15 +1207,21 @@ export class LexicalEntryCoreFormComponent implements OnInit {
         }
     }
 
-    createCognates(e?, t?): FormGroup {
+    createCognates(l?, iName?, lexName?, e?, t?): FormGroup {
         if (e != undefined) {
             return this.formBuilder.group({
+                label : new FormControl(l, [Validators.required]),
+                instanceName: new FormControl(iName, [Validators.required]),
+                lexicalEntryInstanceName: new FormControl(lexName, [Validators.required]),
                 entity: new FormControl(e, [Validators.required, Validators.pattern(this.urlRegex)]),
                 type: t,
                 lila: false
             })
         } else {
             return this.formBuilder.group({
+                label: new FormControl(null, [Validators.required]),
+                instanceName: new FormControl(null, [Validators.required]),
+                lexicalEntryInstanceName: new FormControl(null, [Validators.required]),
                 entity: new FormControl(null, [Validators.required, Validators.pattern(this.urlRegex)]),
                 type: null,
                 lila: false
@@ -1232,7 +1248,12 @@ export class LexicalEntryCoreFormComponent implements OnInit {
         if (evt instanceof NgSelectComponent) {
             if (evt.selectedItems.length > 0) {
                 console.log(evt.selectedItems[0])
-                let label = evt.selectedItems[0]['value']['lexicalEntryInstanceName'];
+                let label = "";
+                if(evt.selectedItems[0]['value']['lexicalEntryInstanceName'] == undefined){
+                    label = evt.selectedItems[0]['value']['labelValue'];
+                }else{
+                    label = evt.selectedItems[0]['value']['lexicalEntryInstanceName'];
+                }
                 this.onChangeCognates({ name: label, i: i })
             }
         } else {
@@ -1255,13 +1276,13 @@ export class LexicalEntryCoreFormComponent implements OnInit {
             let lexId = this.object.lexicalEntryInstanceName;
             this.lexicalService.updateLinguisticRelation(lexId, parameters).subscribe(
                 data => {
-                    //console.log(data);
+                    console.log(data);
                     this.lexicalService.spinnerAction('off');
                     data['request'] = 0;
                     this.lexicalService.refreshAfterEdit(data);
                     this.lexicalService.updateCoreCard(data)
                 }, error => {
-                    //console.log(error)
+                    console.log(error)
 
                     /* this.toastr.error(error.error, 'Error', {
                         timeOut: 5000,
@@ -1298,13 +1319,13 @@ export class LexicalEntryCoreFormComponent implements OnInit {
             //console.log(parameters)
             this.lexicalService.updateLinguisticRelation(lexId, parameters).subscribe(
                 data => {
-                    //console.log(data);
+                    console.log(data);
                     this.lexicalService.spinnerAction('off');
                     this.lexicalService.updateCoreCard(data)
                     data['request'] = 0;
                     this.lexicalService.refreshAfterEdit(data);
                 }, error => {
-                    //console.log(error)
+                    console.log(error)
                     const data = this.object;
                     data['request'] = 0;
                     this.toastr.error(error.error, 'Error', {
@@ -1349,7 +1370,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                     data['request'] = 0;
                     this.lexicalService.refreshAfterEdit(data);
                     this.lexicalService.updateCoreCard(data)
-
+                    //TODO: memorizzare nel form i dati aggiornati dei cognate
                     this.disableAddCognates = false;
                 }, error => {
                     console.log(error)
@@ -1445,7 +1466,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
 
     }
 
-    addCognates(e?, t?) {
+    addCognates(l?, iName?, lexIn?, e?, t?) {
         
         setTimeout(() => {
             //@ts-ignore
@@ -1455,7 +1476,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
         }, 1000);
         this.cognatesArray = this.coreForm.get("cognates") as FormArray;
         if (e != undefined) {
-            this.cognatesArray.push(this.createCognates(e, t));
+            this.cognatesArray.push(this.createCognates(l, iName, lexIn, e, t));
         } else {
             this.disableAddCognates = true;
             this.cognatesArray.push(this.createCognates());
@@ -1551,6 +1572,9 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                 data => {
                     console.log(data)
                     this.lexicalService.updateCoreCard(this.object);
+                    this.toastr.success("Denotes removed", '', {
+                        timeOut: 5000,
+                    });
                     
                 }, error => {
                     console.log(error)
@@ -1586,6 +1610,17 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                 data => {
                     console.log(data)
                     this.lexicalService.updateCoreCard(this.object);
+                    /* this.annotatorService.closePanelForm(id);
+                    if(this.arrayComponents.length > 0){
+                    this.arrayComponents.forEach(instanceComponent => {
+                        if(instanceComponent.instance.id == id){
+                
+                        setTimeout(() => {
+                            instanceComponent.instance.formPanelModal.hide();
+                        }, 100);
+                        }
+                    })
+                    } */
                     this.toastr.success("Cognate deleted successfully", '', {
                         timeOut: 5000,
                     });
@@ -1622,10 +1657,23 @@ export class LexicalEntryCoreFormComponent implements OnInit {
             value = 'Etymon'
             this.coreForm.get('type').setValue('Etymon', { emitEvent: false });
             this.coreForm.get('type').disable({onlySelf: true, emitEvent: false})
+            if(typeof(this.object.type != 'string')){
+                this.object.type.push('Etymon');
+            } else {
+                this.object.type = 'Etymon'
+            }
         }else{
             value = 'LexicalEntry'
             this.coreForm.get('type').setValue('LexicalEntry', { emitEvent: false });
             this.coreForm.get('type').enable({onlySelf: true, emitEvent: false})
+            if(typeof(this.object.type != 'string')){
+                this.object.type.splice(this.object.type.indexOf('Etymon'), 1);
+                if(this.object.type.length == 0){
+                    this.object.type.push(value);
+                }
+            } else {
+                this.object.type = 'LexicalEntry';
+            }
         }
 
         let parameters = {
@@ -1633,22 +1681,66 @@ export class LexicalEntryCoreFormComponent implements OnInit {
             value: value
         }
 
+        
+
         this.lexicalService.updateLexicalEntry(lexId, parameters).subscribe(
             data => {
-                //console.log(data);
+                console.log(data);
                 this.lexicalService.spinnerAction('off');
                 this.lexicalService.updateCoreCard(data)
                 this.lexicalService.refreshFilter({ request: true })
 
-               
+               this.lexicalService.triggerSameAs(this.object.type)
             },
             error => {
-                //console.log(error);
+                console.log(error);
                 const data = this.object;
                 this.lexicalService.spinnerAction('off');
-                this.lexicalService.refreshFilter({ request: true })
-                this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
+                
+
+                if(error.status == '200'){
+                    this.lexicalService.refreshFilter({ request: true })
+                    this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
+
+                    this.toastr.success('Lexical Entry updated', '', {
+                        timeOut: 5000
+                    })
+                    this.lexicalService.triggerSameAs(this.object.type)
+                }else{
+                    this.toastr.error(error.error.text, '', { timeOut: 5000})
+                }
+
+
             }
         )
     } 
+
+    loadCognateData(cognateInstanceName, lexInstanceName, label){
+        let panel = this.lexicalService.getPanelCognate(cognateInstanceName, lexInstanceName);
+        if(panel == undefined){
+          this.lexicalService.getLexEntryData(cognateInstanceName).subscribe(
+            data=> {
+              console.log(data);
+              if(data != undefined){
+                this.lexicalService.newPanelForm(cognateInstanceName, lexInstanceName);
+                const factory = this.factory.resolveComponentFactory(CognatePanelComponent);
+                const componentRef = this.vc.createComponent(factory);
+                this.arrayComponents.push(componentRef);
+                (<CognatePanelComponent>componentRef.instance).label = label;
+                (<CognatePanelComponent>componentRef.instance).lexicalEntryId = lexInstanceName;
+                (<CognatePanelComponent>componentRef.instance).cogInstanceName = cognateInstanceName;
+                //(<CognatePanelComponent>componentRef.instance).id = idAnnotation;
+                (<CognatePanelComponent>componentRef.instance).lexicalEntryData = data;
+                (<CognatePanelComponent>componentRef.instance).triggerCognatePanel();
+              }
+            }, error=> {
+              console.log(error)
+            }
+          )
+          
+        }else{
+    
+        }
+    
+      }
 }

@@ -15,7 +15,6 @@ import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@ang
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, pairwise, startWith } from 'rxjs/operators';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
-import { DataService, Person } from '../lexical-entry-core-form/data.service';
 import { ToastrService } from 'ngx-toastr';
 
 
@@ -34,7 +33,6 @@ export class SenseCoreFormComponent implements OnInit {
   switchInput = false;
   subscription: Subscription;
   object: any;
-  people: Person[] = [];
   peopleLoading = false;
   counter = 0;
 
@@ -58,7 +56,7 @@ export class SenseCoreFormComponent implements OnInit {
   definitionArray: FormArray;
   lexicalConceptArray: FormArray;
 
-  constructor(private dataService: DataService, private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder, private toastr: ToastrService) { }
+  constructor(private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder, private toastr: ToastrService) { }
 
   ngOnInit() {
     setTimeout(() => {
@@ -96,11 +94,11 @@ export class SenseCoreFormComponent implements OnInit {
   }
 
   private loadPeople() {
-    this.peopleLoading = true;
+    /* this.peopleLoading = true;
     this.dataService.getPeople().subscribe(x => {
       this.people = x;
       this.peopleLoading = false;
-    });
+    }); */
   }
 
   ngOnChanges(changes: SimpleChanges) {

@@ -15,7 +15,6 @@ import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
-import { DataService, Person } from '../../lexicon-panel/text-detail/edit-detail/core-tab/lexical-entry-core-form/data.service';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -32,7 +31,6 @@ export class SeeAlsoComponent implements OnInit {
 
   subscription: Subscription;
   object: any;
-  people: Person[] = [];
   peopleLoading = false;
 
   isSense;
