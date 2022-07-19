@@ -278,7 +278,23 @@ export class TextTreeComponent implements OnInit {
                   let raw = data.xml;
                   let HTML =  new DOMParser().parseFromString(raw, "text/html");
                   console.log(HTML)
-                  let childNodes = new DOMParser().parseFromString(raw, "text/html").querySelectorAll('#edition .textpart')[0].childNodes[0].childNodes;
+
+                  let domNodes = new DOMParser().parseFromString(raw, "text/html").querySelectorAll('#edition .textpart');
+                  let childNodes = [];
+                  if(Array.from(domNodes).length > 1){
+                    Array.from(domNodes).forEach(childNode=> {
+                      Array.from(childNode.childNodes).forEach(subChild => {
+                        Array.from(subChild.childNodes).forEach(x => {
+                          childNodes.push(x)
+                        })
+                      })
+                    })
+                  }else{
+                    childNodes = Array.from(new DOMParser().parseFromString(raw, "text/html").querySelectorAll('#edition .textpart')[0].childNodes[0].childNodes);
+                  }
+                  
+                  
+                  
                   let leidenLines = []; 
 
                   for(var i = 0; i < childNodes.length; i++){
@@ -302,10 +318,15 @@ export class TextTreeComponent implements OnInit {
                           }
 
                           //console.log(textNode.nodeValue)
-                        }else if(textNode.nodeName == 'BR' && i != j){
+                        }else if((textNode.nodeName == 'BR' || textNode?.id?.toLowerCase().includes('face'))&& i != j){
                           leidenLines.push(string)
                           
                           i = j-1;
+                          break;
+                        }
+
+                        if(j == childNodes.length-1 && string != ''){
+                          leidenLines.push(string);
                           break;
                         }
                       }
