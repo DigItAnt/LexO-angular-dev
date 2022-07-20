@@ -481,7 +481,9 @@ export class EtymologyFormComponent implements OnInit {
       etymId = this.object.etyLinks[index].etymologicalLinkInstanceName;
     }
 
-    if(typeof(etyLink) != 'string'){
+    let existOrNot = this.memoryLinks.some(element => element.etySource == instanceName);
+
+    if(typeof(etyLink) != 'string' && !existOrNot){
       if(selectedValues != null && etyLink?.selectedItems[0]?.value.new_etymon == undefined){
       
         let oldValue = this.memoryLinks[index].etySource;
@@ -590,7 +592,7 @@ export class EtymologyFormComponent implements OnInit {
         //      cambiare tipo lexical entry in etymon
         //      cambiare label lexical entry
       }
-    }else{
+    }else if(typeof(etyLink) == 'string' && !existOrNot){
       let oldValue = this.memoryLinks[index].etySource;
         let parameters = {
           type: "etyLink",
@@ -616,6 +618,10 @@ export class EtymologyFormComponent implements OnInit {
             }
           }
         )
+    }else if(existOrNot){
+      this.toastr.error('This etymon already exist, please choose an another etymon', 'Error', {
+        timeOut: 5000
+      })
     }
 
     

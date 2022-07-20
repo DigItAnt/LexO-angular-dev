@@ -1354,7 +1354,10 @@ export class LexicalEntryCoreFormComponent implements OnInit {
     onChangeCognates(data) {
         var index = data['i'];
         this.cognatesArray = this.coreForm.get("cognates") as FormArray;
-        if (this.memoryCognates[index] == undefined) {
+
+        let existOrNot = this.memoryCognates.some(element => element?.lexicalEntityInstanceName == data.name || element?.name == data.name) 
+
+        if (this.memoryCognates[index] == undefined && !existOrNot) {
             const newValue = data['name']
             const parameters = {
                 type: "lexicalRel",
@@ -1396,7 +1399,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
             this.memoryCognates[index] = data;
 
 
-        } else {
+        } else if(this.memoryCognates[index] != undefined && !existOrNot) {
             const oldValue = this.memoryCognates[index]['lexicalEntity']
             const newValue = data['name']
             const parameters = {
@@ -1435,6 +1438,10 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                 }
             )
             this.memoryCognates[index] = data;
+        }else if(existOrNot){
+            this.toastr.error('This cognates already exist in this lexical entry', 'Error', {
+                timeOut: 5000
+            })
         }
 
 
