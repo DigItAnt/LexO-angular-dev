@@ -19,7 +19,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 })
 export class DocumentSystemService {
 
-  private baseUrl_document = "https://lari2.ilc.cnr.it/cash/"
+  private baseUrl_document = "/cash/"
+  //private baseUrl_document = "https://lari2.ilc.cnr.it/cash/"
 
   private _epigraphyData: BehaviorSubject<object> = new BehaviorSubject(null);
   private _epigraphyTextData: BehaviorSubject<string> = new BehaviorSubject(null);
@@ -144,6 +145,6 @@ export class DocumentSystemService {
 
 
   testConvert(parameters) : Observable<any> {
-    return this.http.post("https://lari2.ilc.cnr.it/" + 'leiden', parameters);
+    return this.http.post('/leiden/', parameters);
   }
 }
