@@ -454,7 +454,7 @@ export class LexicalEntryTreeComponent implements OnInit {
     setTimeout(() => {
 
       this.lexicalEntryTree.treeModel.getNodeBy(x => {
-        if (signal.lexicalEntryInstanceName != undefined) {
+        if (signal.lexicalEntryInstanceName != undefined && signal.formInstanceName == undefined) {
           if (x.data.lexicalEntryInstanceName === signal.lexicalEntryInstanceName) {
 
             x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
