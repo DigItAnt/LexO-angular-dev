@@ -488,6 +488,9 @@ export class CoreTabComponent implements OnInit {
         console.log(error)
         this.searchIconSpinner = false;
         this.lexicalService.deleteRequest(this.object);
+        if(error.status != 200){
+          this.toastr.error(error.message, 'Error', {timeOut: 5000})
+        }
       }
     )
   }
