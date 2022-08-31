@@ -538,6 +538,11 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                             let entity = data[i]['lexicalEntity'];
                             let type = data[i]['linkType'];
                             let lexicalEntryInstanceName = this.object.lexicalEntryInstanceName;
+
+                            if(label == ""){
+                                let tmp = entity.split('/');
+                                label = tmp[tmp.length-1]
+                            }
                             this.addCognates(label, instanceName, lexicalEntryInstanceName, entity, type);
                             this.memoryCognates.push(data[i])
                         }
@@ -1207,7 +1212,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
         }
     }
 
-    createCognates(l?, iName?, lexName?, e?, t?): FormGroup {
+    createCognates(l?, iName?, lexName?, e?, t?, lila?): FormGroup {
         if (e != undefined) {
             return this.formBuilder.group({
                 label : new FormControl(l, [Validators.required]),
@@ -1215,7 +1220,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                 lexicalEntryInstanceName: new FormControl(lexName, [Validators.required]),
                 entity: new FormControl(e, [Validators.required, Validators.pattern(this.urlRegex)]),
                 type: t,
-                lila: false
+                lila: lila
             })
         } else {
             return this.formBuilder.group({
@@ -1483,7 +1488,11 @@ export class LexicalEntryCoreFormComponent implements OnInit {
         }, 1000);
         this.cognatesArray = this.coreForm.get("cognates") as FormArray;
         if (e != undefined) {
-            this.cognatesArray.push(this.createCognates(l, iName, lexIn, e, t));
+            let lila = false;
+            if(e.includes('lila')){
+                lila = true;
+            }
+            this.cognatesArray.push(this.createCognates(l, iName, lexIn, e, t, lila));
         } else {
             this.disableAddCognates = true;
             this.cognatesArray.push(this.createCognates());

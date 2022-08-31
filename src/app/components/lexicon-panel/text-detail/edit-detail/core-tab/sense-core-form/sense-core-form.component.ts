@@ -325,6 +325,8 @@ export class SenseCoreFormComponent implements OnInit {
         this.lexicalService.spinnerAction('off');
         this.senseCore.get('confidence').setValue(-1, { emitEvent: false });
         this.object.confidence = -1;
+
+        this.toastr.success('Confidence updated', 'Success', {timeOut: 5000});
       },
       error => {
         console.log(error);
@@ -527,15 +529,17 @@ export class SenseCoreFormComponent implements OnInit {
             data['request'] = 6;
 
             this.lexicalService.refreshAfterEdit(data);
-            if (error.status != 200) {
-              this.toastr.error(error.error, 'Error', {
-                timeOut: 5000,
-              });
-            } else {
-              this.toastr.success('Sense ' + trait + ' changed', '', {
-                timeOut: 5000,
-              });
-            }
+            
+          }
+
+          if (error.status != 200) {
+            this.toastr.error(error.error, 'Error', {
+              timeOut: 5000,
+            });
+          } else {
+            this.toastr.success('Sense ' + trait + ' changed', '', {
+              timeOut: 5000,
+            });
           }
           this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');

@@ -41,8 +41,8 @@
             </div>
             <div class="col-lg-3 input-group uncertain">
                 <input *ngIf="variable.confidence" id="attributes"  step="0.1" formControlName="confidence" name="confidence" type="number" min="0" max="1" class="form-control" placeholder="No info" [value]="coreForm.get('confidence').value">
-                <button type="button" class="btn btn-secondary btn-sm" *ngIf="!variable.confidence" (click)="variable.confidence = !variable.confidence"><i class="fas fa-plus"></i></button>
-                <button type="button" class="btn btn-secondary btn-sm" *ngIf="variable.confidence" (click)="variable.confidence = !variable.confidence; applyUncertain()"><i class="fas fa-minus"></i></button>
+                <button type="button" class="btn btn-secondary btn-sm ml-2" *ngIf="!variable.confidence" (click)="variable.confidence = !variable.confidence"><i class="fas fa-plus"></i></button>
+                <button type="button" class="btn btn-secondary btn-sm ml-2" *ngIf="variable.confidence" (click)="variable.confidence = !variable.confidence; applyUncertain()"><i class="fas fa-minus"></i></button>
             </div>
         </div>
 
@@ -242,11 +242,13 @@
                     <div class="form-group row m-2" formArrayName="cognates"
                         *ngFor="let cog of coreForm.get('cognates')['controls']; let i = index">
                         <div class="input-group col-xl-12"  [formGroupName]="i" *ngIf="{switch : false}; let variable">
+                            <!-- {{variable.switch}}
+                            {{cog.get('lila').value}} -->
                             <ng-select #select_cognates formControlName="label" name="label" [dropdownPosition]="'top'"
                                 (keyup)="triggerCognates($event, i)" (change)="handleCognates(select_cognates, i)"
                                 [items]="searchResults" bindValue="label" (focus)="deleteData()" bindLabel="label"
                                 placeholder="Search cognates" appendTo="body" 
-                                *ngIf="!variable.switch && cog.get('type').value != 'external'">
+                                *ngIf="!variable.switch || cog.get('lila').value">
                                 <ng-template ng-option-tmp let-item="item" let-search="searchTerm" *ngIf="!cog.get('lila').value">
                                     <div>
                                         <span>{{item.label}} </span><span style="color: blue;">@{{item.language}}</span>
@@ -273,7 +275,7 @@
                             </ng-select>
                             <input formControlName="entity" name="entity" type="text" [value]="cog.get('entity').value"
                                 class="form-control" placeholder="Insert URI"
-                                *ngIf="variable.switch || cog.get('type').value == 'external'"
+                                *ngIf="variable.switch && cog.get('type').value == 'external' && !cog.get('lila').value"
                                 (keyup)="handleCognates($event, i)">
                             <div class="input-group-append ml-3 form-check" style="align-items: center;">
                                 <input class="form-check-input cognates-tooltip" type="checkbox"
@@ -289,10 +291,10 @@
                                 <a  (click)="loadCognateData(cog.get('instanceName').value, cog.get('lexicalEntryInstanceName').value, cog.get('label').value); "  class="btn btn-primary"
                                     type="button"><i class="fas fa-external-link-alt"></i></a>
                             </div>
-                            <div class="input-group-append ml-2">
+                            <div class="input-group-append ml-2" *ngIf="!variable.switch">
                                 <div class="btn-group-toggle" data-toggle="buttons" placement="top" ngbTooltip="Enable LiLa endpoint" title="Enable LiLa endpoint" >
                                     <label class="btn btn-secondary" >
-                                      <input type="checkbox" autocomplete="off" autocomplete="off" formControlName="lila" name="lila" style="border-radius: .3rem;" *ngIf="!variable.switch && cog.get('type').value != 'external'"> 
+                                      <input type="checkbox" autocomplete="off" formControlName="lila" name="lila" style="border-radius: .3rem;"> 
                                         <img src="../../../../../../../assets/images/graphql.png" alt="Avatar" class="image" style="height: 20px;">
                                     </label>
                                 </div>

@@ -706,6 +706,12 @@ export class FormCoreFormComponent implements OnInit {
 
           this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
+
+          if(error.status == 200){
+            this.toastr.success('Label updated', 'Success', {timeOut: 5000})
+          }else{
+            this.toastr.error(error.message, 'Error', {timeOut: 5000})
+          }
         }
       )
     } else {
@@ -843,9 +849,14 @@ export class FormCoreFormComponent implements OnInit {
       this.lexicalService.deleteLinguisticRelation(formId, parameters).subscribe(
         data => {
           console.log(data)
+
+          this.toastr.success('Label removed', 'Ok', {timeOut: 5000})
           this.lexicalService.updateCoreCard(this.object)
         }, error => {
           console.log(error)
+          if(error.status != 200){
+            this.toastr.error(error.message, 'Error', {timeOut: 5000})
+          }
         }
       )
     } else {
