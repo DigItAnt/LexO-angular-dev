@@ -79,7 +79,8 @@ import { UnauthorizedPageComponent } from './views/unauthorized-page/unauthorize
 import { ConceptTreeComponent } from './components/lexicon-panel/document-system-tree/concept-tree/concept-tree.component'
 ;
 import { FormPanelComponent } from './components/attestation-panel/form-panel/form-panel.component'
-import { CognatePanelComponent } from './components/lexicon-panel/text-detail/edit-detail/core-tab/lexical-entry-core-form/cognate-panel/cognate-panel.component';
+import { CognatePanelComponent } from './components/lexicon-panel/text-detail/edit-detail/core-tab/lexical-entry-core-form/cognate-panel/cognate-panel.component';;
+import { SkosTreeComponent } from './components/lexicon-panel/document-system-tree/skos-tree/skos-tree.component'
 @NgModule({
   declarations: [
     AppComponent,
@@ -128,7 +129,9 @@ import { CognatePanelComponent } from './components/lexicon-panel/text-detail/ed
     UnauthorizedPageComponent ,
     ConceptTreeComponent ,
     FormPanelComponent,
-    CognatePanelComponent],
+    CognatePanelComponent,
+    SkosTreeComponent
+  ],
   imports: [
     ContextMenuModule.forRoot({useBootstrap4: true}),
     BrowserModule,

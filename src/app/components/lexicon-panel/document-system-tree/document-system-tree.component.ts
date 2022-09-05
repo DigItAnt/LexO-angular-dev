@@ -31,6 +31,7 @@ export class DocumentSystemTreeComponent implements OnInit {
   @ViewChild('lexTree') lexTree: any;
   @ViewChild('textTree') textTree: any;
   @ViewChild('conceptTree') conceptTree: any;
+  @ViewChild('skosTree') skosTree: any;
   @ViewChild('accordion') accordion: ElementRef; 
 
 

@@ -94,4 +94,27 @@
             </div>
         </div>
     </div>
+
+    <!-- SKOS -->
+    <div class="card">
+        <div class="card-header" id="headingSkos">
+            <h5 class="mb-0 d-flex flex-wrap justify-content-between align-items-center">
+                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#skos"
+                    aria-expanded="false" aria-controls="skos">
+                    <i class="fa"></i> SKOS
+                </button>
+                <!-- <div class="icons-container">
+                    <button class="btn btn-link"><i class="fa fa-plus"></i></button>
+                    <button class="btn btn-link"><i class="fa fa-file-import"></i></button>
+                    <button class="btn btn-link"><i class="fa fa-download"></i></button>
+                    <button class="btn btn-link" title="Language"><i class="fa fa-globe-americas"></i></button>
+                </div> -->
+            </h5>
+        </div>
+        <div id="skos" class="collapse" aria-labelledby="headingSkos" data-parent="#tree-accordion">
+            <div class="card-body">
+                <app-skos-tree #skosTree></app-skos-tree>
+            </div>
+        </div>
+    </div>
 </div>
