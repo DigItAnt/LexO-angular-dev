@@ -275,7 +275,7 @@
                             </ng-select>
                             <input formControlName="entity" name="entity" type="text" [value]="cog.get('entity').value"
                                 class="form-control" placeholder="Insert URI"
-                                *ngIf="variable.switch && cog.get('type').value == 'external' && !cog.get('lila').value"
+                                *ngIf="variable.switch  && !cog.get('lila').value"
                                 (keyup)="handleCognates($event, i)">
                             <div class="input-group-append ml-3 form-check" style="align-items: center;">
                                 <input class="form-check-input cognates-tooltip" type="checkbox"

@@ -1027,6 +1027,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                     relation : 'stemType',
                     value: updateStem
                 }
+                console.log(parameters)
                 this.lexicalService.updateGenericRelation(lexId, parameters).subscribe(
                     data => {
                         console.log(data);
@@ -1148,6 +1149,8 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                 this.lexicalService.spinnerAction('off');
                 this.coreForm.get('confidence').setValue(-1, { emitEvent: false });
                 this.object.confidence = -1;
+
+                this.toastr.success('Uncertain applied', 'Ok', {timeOut: 5000})
             },
             error => {
                 console.log(error);
