@@ -28,9 +28,12 @@ export class NavbarComponent implements OnInit {
   constructor(private route: ActivatedRoute, private router: Router, private keycloakService: KeycloakService, private auth : AuthService) { }
 
   ngOnInit(): void {
-    if(this.auth.getLoggedUser()['preferred_username'] != undefined){
-      this.username = this.auth.getLoggedUser()['preferred_username'];
+    if(this.auth.getLoggedUser() != undefined){
+      if(this.auth.getLoggedUser()['preferred_username'] != undefined){
+        this.username = this.auth.getLoggedUser()['preferred_username'];
+      }
     }
+    
     
     this.userRoles = this.auth.getCurrentUserRole();
 
