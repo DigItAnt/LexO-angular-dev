@@ -257,8 +257,9 @@
                                 </ng-template>
 
                                 <ng-template ng-option-tmp let-item="item" let-search="searchTerm" *ngIf="cog.get('lila').value">
+                                    
                                     <div class="card-body p-0">
-                                        <h6 class="card-title m-0" [ngOptionHighlight]="search">{{item.labelElement}}</h6>
+                                        <h6 class="card-title m-0" [ngOptionHighlight]="search">{{item.label}}</h6>
                                         <small>
                                             <span>
                                                 {{item.labelPos}} 

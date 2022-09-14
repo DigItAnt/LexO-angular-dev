@@ -267,7 +267,7 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                         
                         const map = data.list.map(element => (
                         {
-                            label: value, 
+                            label: element[2].value, 
                             labelValue: element[0].value, 
                             pos : element[1].value
                         })

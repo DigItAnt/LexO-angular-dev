@@ -25,7 +25,17 @@ export class LilaService {
   constructor(private http: HttpClient) { }
 
   queryCognate(label: string): Observable<any> {
-    return this.http.post(this.baseUrl_document+'?sparqlQuery='+encodeURIComponent('prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>  prefix ontolex: <http://www.w3.org/ns/lemon/ontolex#>  prefix lila: <http://lila-erc.eu/ontologies/lila/>  SELECT ?lemma ?pos  WHERE {  ?lemma a lila:Lemma ;  ontolex:writtenRep \''+label+'\';  lila:hasPOS ?pos  }')+'&endpoint='+this.endpoint, null)
+    return this.http.post(this.baseUrl_document+'?sparqlQuery='+encodeURIComponent(`
+    prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    prefix ontolex: <http://www.w3.org/ns/lemon/ontolex#>
+    prefix lila: <http://lila-erc.eu/ontologies/lila/>
+    prefix lb: <http://lila-erc.eu/data/id/lemma/LemmaBank>
+    SELECT ?lemma ?pos ?label 
+    WHERE {
+      ?lemma a lila:Lemma ;
+      ontolex:writtenRep '`+label+`' ;
+      lila:hasPOS ?pos ;
+      ontolex:writtenRep ?label }`)+'&endpoint='+this.endpoint, null)
   }
 
   queryEtymon(label: string): Observable<any> {
