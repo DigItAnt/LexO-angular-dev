@@ -7,7 +7,7 @@
     <div class="card">
         <div class="card-header" id="epigraphyHeading">
             <h5 class="mb-0 d-flex justify-content-between align-items-center">
-                <button class="btn btn-link" data-toggle="collapse" data-target="#epigraphyCollapse" aria-expanded="true"
+                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#epigraphyCollapse" aria-expanded="false"
                     aria-controls="epigraphyCollapse">
                     <i class="fa"></i> Text
                 </button>
@@ -27,7 +27,7 @@
                
             </h5>
         </div>
-        <div id="epigraphyCollapse" class="collapse show" aria-labelledby="epigraphyHeading" data-parent="#tree-accordion">
+        <div id="epigraphyCollapse" class="collapse" aria-labelledby="epigraphyHeading" data-parent="#tree-accordion">
             <div class="card-body">
                 <app-text-tree #textTree></app-text-tree>
             </div>
@@ -38,8 +38,8 @@
     <div class="card">
         <div class="card-header" id="lexicalHeading">
             <h5 class="mb-0 d-flex flex-wrap justify-content-between align-items-center">
-                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#lexicalCollapse"
-                    aria-expanded="false" aria-controls="lexicalCollapse" (click)="updateTreeParent()">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#lexicalCollapse"
+                    aria-expanded="true" aria-controls="lexicalCollapse" (click)="updateTreeParent()">
                     <i class="fa"></i> Lessico
                 </button>
                 <div class="icons-container">
@@ -65,7 +65,7 @@
                 </div>
             </h5>
         </div>
-        <div id="lexicalCollapse" class="collapse" aria-labelledby="lexicalHeading" data-parent="#tree-accordion">
+        <div id="lexicalCollapse" class="collapse show" aria-labelledby="lexicalHeading" data-parent="#tree-accordion">
             <div class="card-body">
                 <app-lexical-entry-tree #lexTree></app-lexical-entry-tree>
             </div>
