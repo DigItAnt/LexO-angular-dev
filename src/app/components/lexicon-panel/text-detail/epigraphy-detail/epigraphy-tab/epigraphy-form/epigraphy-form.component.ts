@@ -597,8 +597,24 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
                                   data=> {
                                     console.log(data);
                                     let raw = data.xml;
-                                    let leidenToken = new DOMParser().parseFromString(raw, "text/html").body.innerHTML.replace('\n', '');
-                                    annotation.attributes['leiden'] = leidenToken;
+                                    let bodyResponse = new DOMParser().parseFromString(raw, "text/html").body;
+                                    let leidenToken = '';
+                                    bodyResponse.childNodes.forEach(
+                                      x=>{
+                                        if(x.nodeName != undefined){
+                                          if(x.nodeName == '#text'){
+                                            leidenToken += x.nodeValue.replace('\n', '');
+                                          }
+                                        }
+                                      }
+                                    )
+                                    //let leidenToken = new DOMParser().parseFromString(raw, "text/html").body.textContent.replace('\n', '');
+                                    if(leidenToken != ''){
+                                      annotation.attributes['leiden'] = leidenToken;
+                                    }else{
+                                      annotation.attributes['leiden'] = 'no info';
+                                    }
+                                    
                                   }, error=> {
                                     console.log(error)
                                   }
