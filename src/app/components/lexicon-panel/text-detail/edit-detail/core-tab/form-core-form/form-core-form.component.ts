@@ -164,7 +164,11 @@ export class FormCoreFormComponent implements OnInit {
 
         
 
-        this.formCore.get('confidence').setValue(this.object.confidence, { emitEvent : false});
+        if(this.object.confidence == 0){
+          this.formCore.get('confidence').setValue(true, { emitEvent: false });
+        }else{
+          this.formCore.get('confidence').setValue(false, { emitEvent: false });
+      }
         this.formCore.get('type').setValue(this.object.type, { emitEvent: false });
 
         for (var i = 0; i < this.object.label.length; i++) {
@@ -245,104 +249,56 @@ export class FormCoreFormComponent implements OnInit {
 
   onChanges(): void {
 
-    this.formCore.controls['confidence'].valueChanges.pipe(startWith(undefined), debounceTime(1000), pairwise()).subscribe(newConfidence => {
-      console.log('Old value: ', newConfidence[0]);
-      console.log('New value: ', newConfidence[1]);
+    this.formCore.get('confidence').valueChanges.pipe(debounceTime(100)).subscribe(newConfidence => {
+      let confidence_value = null;
+      console.log(newConfidence)
+      if(newConfidence == false){
+        confidence_value = -1
+        this.formCore.get('confidence').setValue(false, { emitEvent: false });
+      }else{
+        confidence_value = 0
+        this.formCore.get('confidence').setValue(true, { emitEvent: false });
+      }
+
       this.lexicalService.spinnerAction('on');
-      let parameters = {};
-      let lexId = this.object.formInstanceName;
-      let oldValue = newConfidence[0];
-      let newValue = newConfidence[1];
-
-      if (oldValue == undefined) {
-        parameters = {
+      let formId = this.object.formInstanceName;
+      let parameters = {
           type: "confidence",
           relation: 'confidence',
-          value: newValue
-        }
-      } else if (oldValue != undefined && this.object.confidence == -1) {
-        parameters = {
-          type: "confidence",
-          relation: 'confidence',
-          value: newValue,
-          currentValue: -1
-        }
-      } else {
-        parameters = {
-          type: "confidence",
-          relation: 'confidence',
-          value: newValue,
-          currentValue: oldValue
-        }
+          value: confidence_value
       }
-
       console.log(parameters)
-      this.lexicalService.updateGenericRelation(lexId, parameters).subscribe(
-        data => {
-          console.log(data);
+      this.lexicalService.updateGenericRelation(formId, parameters).subscribe(
+          data => {
+              console.log(data);
+              /* data['request'] = 0;
+              data['new_label'] = confidence_value
+              this.lexicalService.refreshAfterEdit(data); */
+              //this.lexicalService.updateLexCard(data)
+              this.lexicalService.spinnerAction('off');
+          },
+          error => {
+              console.log(error);
+              /*  const data = this.object.etymology;
+              data['request'] = 0;
+              data['new_label'] = confidence_value;
+              this.lexicalService.refreshAfterEdit(data); */
+              this.lexicalService.spinnerAction('off');
+              //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+              if(error.status == 200){
+                this.toastr.success('Label updated', '', {timeOut: 5000})
 
-          this.lexicalService.updateCoreCard(data)
-          this.lexicalService.spinnerAction('off');
-        },
-        error => {
-          console.log(error);
+              }else{
+                this.toastr.error(error.error, 'Error', {timeOut: 5000})
 
-          this.lexicalService.spinnerAction('off');
-
-          if (error.status == 200) {
-            this.toastr.success('Confidence updated', '', { timeOut: 5000 })
-            this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
-            this.formCore.get('confidence').setValue(newValue, { emitEvent: false });
-            this.object.confidence = newValue;
-          } else {
-            this.toastr.error(error.error, 'Error', { timeOut: 5000 })
-
+              }
           }
-        }
       )
-    })
+
+    });
   }
 
-  applyUncertain() {
-    this.lexicalService.spinnerAction('on');
-    let oldValue = this.formCore.get('confidence').value;
-    let lexId = this.object.formInstanceName;
-    let parameters = {
-      relation: 'confidence',
-      value: 0
-    }
-    console.log(parameters)
-    this.lexicalService.deleteLinguisticRelation(lexId, parameters).subscribe(
-      data => {
-        console.log(data);
-        /* data['request'] = 0;
-        data['new_label'] = confidence_value
-        this.lexicalService.refreshAfterEdit(data); */
-        this.lexicalService.updateCoreCard(data)
-        this.lexicalService.spinnerAction('off');
-        this.formCore.get('confidence').setValue(-1, { emitEvent: false });
-        this.object.confidence = -1;
-      },
-      error => {
-        console.log(error);
-        /*  const data = this.object.etymology;
-        data['request'] = 0;
-        data['new_label'] = confidence_value;
-        this.lexicalService.refreshAfterEdit(data); */
-        this.lexicalService.spinnerAction('off');
-        this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
-        if (error.status == 200) {
-          this.toastr.success('Confidence updated', '', { timeOut: 5000 })
-          this.formCore.get('confidence').setValue(-1, { emitEvent: false });
-          this.object.confidence = -1;
-
-        } else {
-          this.toastr.error(error.error, 'Error', { timeOut: 5000 })
-
-        }
-      }
-    )
-  }
+  
 
   onChangeType(evt) {
     this.lexicalService.spinnerAction('on');

@@ -50,10 +50,10 @@
                                                   subprop?.key != 'validity' &&
                                                   subprop?.key != 'leiden'" 
                                                   (keyup)="triggerUpdateAttestation($event, sub_property.value, subprop?.key, item)" id="attributes" name="attributes" type="text" class="form-control" placeholder="No info" [value]="subprop?.value">
-                                    
+                                    <input #confidence (change)="triggerUpdateAttestation($event, confidence.value, subprop?.key, item)" type="checkbox" *ngIf="subprop?.key == 'confidence'" [checked]="subprop?.value >= 0" >
                                     <input #leiden (keyup)="triggerUpdateAttestation($event, leiden.value, subprop?.key, item)" type="text" *ngIf="item.empty_file && subprop?.key == 'leiden'" class="form-control" placeholder="No info" [value]="subprop?.value">
-                                    <input #confidence *ngIf="subprop?.key == 'confidence'" (keyup)="triggerUpdateAttestation($event, confidence.value, subprop?.key, item)" (change)="triggerUpdateAttestation($event, confidence.value, subprop?.key, item)" id="attributes" name="attributes" type="number" min="0" max="1" step="0.1" class="form-control" placeholder="No info" [value]="subprop?.value">
-                                    <!-- <span class="font-italic overflow-auto p-1" *ngIf="subprop?.key == 'timestamp'">{{subprop?.value | date: 'dd/MM/yyyy HH:mm:ss'}}</span> -->
+<!--                                     <input #confidence *ngIf="subprop?.key == 'confidence'" (keyup)="triggerUpdateAttestation($event, confidence.value, subprop?.key, item)" (change)="triggerUpdateAttestation($event, confidence.value, subprop?.key, item)" id="attributes" name="attributes" type="number" min="0" max="1" step="0.1" class="form-control" placeholder="No info" [value]="subprop?.value">
+ -->                                    <!-- <span class="font-italic overflow-auto p-1" *ngIf="subprop?.key == 'timestamp'">{{subprop?.value | date: 'dd/MM/yyyy HH:mm:ss'}}</span> -->
                                     <textarea #text_area (keyup)="triggerUpdateAttestation($event, text_area.value, subprop?.key, item)" *ngIf="subprop?.key == 'note'" id="attributes" name="attributes" type="text" class="form-control" placeholder="No info" style="resize: none;">{{subprop?.value}}</textarea>
                                 </div>
                             </div>

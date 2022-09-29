@@ -1071,13 +1071,15 @@ export class LexicalEntryTreeComponent implements OnInit {
               newNodes[i]['flagAuthor'] = true
             }
           }
+        },error=>{
+          console.log(error)
         }
       )
     } else if (node.data.label == "sense") {
       let parentInstance = node.parent.data.lexicalEntryInstanceName;
       this.lexicalService.getSensesList(parentInstance).subscribe(
         data => {
-          /* //console.log(data) */
+          console.log(data)
           newNodes = data.map((c) => Object.assign({}, c));
           for (var i = 0; i < newNodes.length; i++) {
             newNodes[i]['hasChildren'] = null;
@@ -1088,7 +1090,7 @@ export class LexicalEntryTreeComponent implements OnInit {
             }
           }
         }, error => {
-          //console.log(error)
+          console.log(error)
         }
       )
     } else if (node.data.label == "etymology") {
@@ -1106,7 +1108,7 @@ export class LexicalEntryTreeComponent implements OnInit {
             }
           }
         }, error => {
-          //console.log(error)
+          console.log(error)
         }
       )
 

@@ -232,7 +232,14 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
 
       let annotation = data?.annotation; 
 
-      annotation.attributes[property] = newValue;
+      if(property == 'confidence' && newValue == 'true'){
+        annotation.attributes.confidence = 0; 
+      }else if(property == 'confidence' && newValue == 'false'){
+        annotation.attributes.confidence = -1; 
+      }else{
+        annotation.attributes[property] = newValue;
+      }
+
 
       this.annotatorService.updateAnnotation(annotation).subscribe(
         data=> {

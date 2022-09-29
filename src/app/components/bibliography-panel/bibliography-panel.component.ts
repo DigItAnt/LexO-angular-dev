@@ -88,7 +88,7 @@ export class BibliographyPanelComponent implements OnInit {
       this.biblioArray = this.bibliographyForm.get('bibliography') as FormArray;
       this.biblioArray.clear();
 
-      if (this.object.lexicalEntryInstanceName != undefined) {
+      if (this.object.lexicalEntryInstanceName != undefined && this.object.formInstanceName == undefined) {
         let lexId = this.object.lexicalEntryInstanceName;
         this.lexicalService.getBibliographyData(lexId).subscribe(
           data => {

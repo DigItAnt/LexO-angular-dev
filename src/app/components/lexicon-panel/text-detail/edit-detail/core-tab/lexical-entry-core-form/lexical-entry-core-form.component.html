@@ -40,9 +40,10 @@
                 <label for="uncertainBox">Uncertain</label>
             </div>
             <div class="col-lg-3 input-group uncertain">
-                <input *ngIf="variable.confidence" id="attributes"  step="0.1" formControlName="confidence" name="confidence" type="number" min="0" max="1" class="form-control" placeholder="No info" [value]="coreForm.get('confidence').value">
+                <input formControlName="confidence" name="confidence" type="checkbox" >
+                <!-- <input *ngIf="variable.confidence" id="attributes"  step="0.1" formControlName="confidence" name="confidence" type="number" min="0" max="1" class="form-control" placeholder="No info" [value]="coreForm.get('confidence').value">
                 <button type="button" class="btn btn-secondary btn-sm ml-2" *ngIf="!variable.confidence" (click)="variable.confidence = !variable.confidence"><i class="fas fa-plus"></i></button>
-                <button type="button" class="btn btn-secondary btn-sm ml-2" *ngIf="variable.confidence" (click)="variable.confidence = !variable.confidence; applyUncertain()"><i class="fas fa-minus"></i></button>
+                <button type="button" class="btn btn-secondary btn-sm ml-2" *ngIf="variable.confidence" (click)="variable.confidence = !variable.confidence; applyUncertain()"><i class="fas fa-minus"></i></button> -->
             </div>
         </div>
 
