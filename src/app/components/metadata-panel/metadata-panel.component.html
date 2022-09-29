@@ -7,7 +7,6 @@
             </a>
         </h5>
     </div>
-    <!-- {{object | json}} -->
     <div id="metadataCollapse" class="collapse" aria-labelledby="metadataHeading">
         <div class="card-body">
             <ul class="nav nav-tabs" id="myTab" role="tablist" *ngIf="object != null">
@@ -28,9 +27,9 @@
                 <div class="tab-pane fade show active" id="edition" role="tabpanel" aria-labelledby="file-tab">
                     <div class="card epi_body">
                         <span class="text-id">EDITION</span>
-                       
+
                         <div class="card-body">
-                            
+
                             <div class="container">
                                 <div class="row" *ngIf="object.title != undefined || object?.title != ''">
                                     <div class="col-xl-4 col-lg-12 p-1">
@@ -40,7 +39,8 @@
                                         <span>{{object.title}}</span>
                                     </div>
                                 </div>
-                                <div class="row" *ngIf="object['element-id'] != undefined || object['element-id'] != ''">
+                                <div class="row"
+                                    *ngIf="object['element-id'] != undefined || object['element-id'] != ''">
                                     <div class="col-xl-4 col-lg-12 p-1">
                                         <b>Id:</b>
                                     </div>
@@ -70,24 +70,25 @@
                                     </div>
                                     <div class="col-xl-8 col-lg-12 p-1">
                                         <div class="col-12 p-0" *ngFor="let subprop of object.license | keyvalue">
-                                            <a [href]="subprop?.value"  target="_blank" *ngIf="isLink(subprop?.value)">{{subprop?.value}}</a>
+                                            <a [href]="subprop?.value" target="_blank"
+                                                *ngIf="isLink(subprop?.value)">{{subprop?.value}}</a>
                                             <span *ngIf="!isLink(subprop?.value)">{{subprop?.value}}</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                           
+
                         </div>
                     </div>
-                    
+
                 </div>
 
                 <div class="tab-pane fade" id="epigraphy_metadata" role="tabpanel" aria-labelledby="epigraphy-tab">
                     <div class="card epi_body">
                         <span class="text-id">EPIGRAPHY</span>
-                      
+
                         <div class="card-body">
-                           
+
 
                             <div class="container">
                                 <div class="row" *ngIf="object?.itAnt_ID != undefined && object?.itAnt_ID != ''">
@@ -98,8 +99,9 @@
                                         <span>{{object.itAnt_ID}}</span>
                                     </div>
                                 </div>
-                                
-                                <div class="row" *ngIf="object?.inscriptionTitle != undefined && object?.inscriptionTitle != ''">
+
+                                <div class="row"
+                                    *ngIf="object?.inscriptionTitle != undefined && object?.inscriptionTitle != ''">
                                     <div class="col-xl-4 col-lg-12 p-1">
                                         <b>Inscription Title:</b>
                                     </div>
@@ -107,7 +109,8 @@
                                         <span>{{object.inscriptionTitle}}</span>
                                     </div>
                                 </div>
-                                <div class="row" *ngIf="object?.inscriptionType != undefined && object?.inscriptionType != ''">
+                                <div class="row"
+                                    *ngIf="object?.inscriptionType != undefined && object?.inscriptionType != ''">
                                     <div class="col-xl-4 col-lg-12 p-1">
                                         <b>Inscription Type:</b>
                                     </div>
@@ -133,19 +136,28 @@
                                         </a>
                                     </div>
                                 </div>
-                                <div class="row" *ngIf="object?.traditionalIDs != undefined && object?.traditionalIDs != ''">
+                                <div class="row"
+                                    *ngIf="object?.traditionalIDs != undefined && object?.traditionalIDs != ''">
                                     <div class="col-xl-4 col-lg-12 p-1">
                                         <b>Traditional IDs:</b>
                                     </div>
-                                    <div class="col-xl-8 col-lg-12 p-1">
+                                    <div class="col-xl-8 col-lg-12 p-1" *ngIf="isArray(object?.traditionalIDs)">
                                         <p class="m-0" *ngFor="let other_id of object.traditionalIDs">
                                             <a target="_blank" [href]="other_id.traditionalID_URL">
                                                 {{other_id.traditionalID}}
                                             </a>
                                         </p>
                                     </div>
+                                    <div class="col-xl-8 col-lg-12 p-1" *ngIf="isObject(object?.traditionalIDs)">
+                                        <p class="m-0" *ngFor="let sub of object?.traditionalIDs| keyvalue">
+                                            <a target="_blank" [href]="sub.traditionalID_URL">
+                                                {{sub.traditionalID}}
+                                            </a>
+                                        </p>
+                                    </div>
                                 </div>
-                                <div class="row" *ngIf="object?.originalPlace != undefined && object?.originalPlace != ''">
+                                <div class="row"
+                                    *ngIf="object?.originalPlace != undefined && object?.originalPlace != ''">
                                     <div class="col-xl-4 col-lg-12 p-1">
                                         <b>Original Place:</b>
                                     </div>
@@ -153,22 +165,24 @@
                                         <a *ngIf="object?.originalPlace?.ancientNameUrl != ''" target="_blank"
                                             [href]="object?.originalPlace?.ancientNameUrl">
                                             {{object?.originalPlace?.ancientName}}
-                                        </a> 
+                                        </a>
                                         <span *ngIf="object?.originalPlace?.ancientNameUrl == ''">
                                             {{object?.originalPlace?.ancientName}}
                                         </span>
                                     </div>
                                 </div>
-                                <div class="row" *ngIf="object?.support?.objectType_conceptUrl != undefined && object?.support?.objectType_conceptUrl != ''">
+                                <div class="row"
+                                    *ngIf="object?.support?.objectType_conceptUrl != undefined && object?.support?.objectType_conceptUrl != ''">
                                     <div class="col-xl-4 col-lg-12 p-1">
                                         <b>Original Type:</b>
                                     </div>
                                     <div class="col-xl-8 col-lg-12 p-1">
                                         <a *ngIf="object?.support?.objectType_conceptUrl != ''" target="_blank"
                                             [href]="object?.support?.objectType_conceptUrl">
-                                                    {{object?.support?.objectType}}
-                                        </a> 
-                                        <span *ngIf="object?.support?.objectType_conceptUrl == ''">{{object?.support?.objectType}}</span>
+                                            {{object?.support?.objectType}}
+                                        </a>
+                                        <span
+                                            *ngIf="object?.support?.objectType_conceptUrl == ''">{{object?.support?.objectType}}</span>
                                     </div>
                                 </div>
                                 <div class="row" *ngIf="object?.condition != undefined && object?.condition != ''">
@@ -179,21 +193,23 @@
                                         <span>{{object.condition}}</span>
                                     </div>
                                 </div>
-                                <div class="row" *ngIf="object?.conservationInstitution != undefined && object?.conservationInstitution != ''">
+                                <div class="row"
+                                    *ngIf="object?.conservationInstitution != undefined && object?.conservationInstitution != ''">
                                     <div class="col-xl-4 col-lg-12 p-1">
                                         <b>Conservation Institution:</b>
                                     </div>
                                     <div class="col-xl-8 col-lg-12 p-1">
                                         <a *ngIf="object?.conservationInstitution?.URL != ''" target="_blank"
-                                        [href]="object?.conservationInstitution?.URL">
-                                        {{object?.conservationInstitution?.name}}</a> 
+                                            [href]="object?.conservationInstitution?.URL">
+                                            {{object?.conservationInstitution?.name}}</a>
                                         <span *ngIf="object?.conservationInstitution?.URL == ''">
                                             {{object?.conservationInstitution?.name}}
                                         </span>
                                     </div>
                                 </div>
 
-                                <div class="row" *ngIf="object?.dateOfOrigin != undefined && object?.dateOfOrigin != ''">
+                                <div class="row"
+                                    *ngIf="object?.dateOfOrigin != undefined && object?.dateOfOrigin != ''">
                                     <div class="col-xl-4 col-lg-12 p-1">
                                         <b>Date of Origin:</b>
                                     </div>
@@ -202,7 +218,8 @@
                                     </div>
                                 </div>
 
-                                <div class="row" *ngIf="object?.dateOfOriginNotBefore != undefined && object?.dateOfOriginNotBefore != ''">
+                                <div class="row"
+                                    *ngIf="object?.dateOfOriginNotBefore != undefined && object?.dateOfOriginNotBefore != ''">
                                     <div class="col-xl-4 col-lg-12 p-1">
                                         <b>Date of Origin not Before:</b>
                                     </div>
@@ -211,7 +228,8 @@
                                     </div>
                                 </div>
 
-                                <div class="row" *ngIf="object?.dateOfOriginNotAfter != undefined && object?.dateOfOriginNotAfter != ''">
+                                <div class="row"
+                                    *ngIf="object?.dateOfOriginNotAfter != undefined && object?.dateOfOriginNotAfter != ''">
                                     <div class="col-xl-4 col-lg-12 p-1">
                                         <b>Date of Origin not After:</b>
                                     </div>
@@ -220,7 +238,8 @@
                                     </div>
                                 </div>
 
-                                <div class="row" *ngIf="object?.datingCertainty != undefined && object?.datingCertainty != ''">
+                                <div class="row"
+                                    *ngIf="object?.datingCertainty != undefined && object?.datingCertainty != ''">
                                     <div class="col-xl-4 col-lg-12 p-1">
                                         <b>Dating Certainty:</b>
                                     </div>
@@ -229,7 +248,7 @@
                                     </div>
                                 </div>
 
-                                
+
                                 <div class="row" *ngIf="object?.decoration != undefined && object?.decoration != ''">
                                     <div class="col-xl-4 col-lg-12 p-1">
                                         <b>Decoration:</b>
@@ -239,7 +258,8 @@
                                     </div>
                                 </div>
 
-                                <div class="row" *ngIf="object?.detailedFindSpot != undefined && object?.detailedFindSpot != ''">
+                                <div class="row"
+                                    *ngIf="object?.detailedFindSpot != undefined && object?.detailedFindSpot != ''">
                                     <div class="col-xl-4 col-lg-12 p-1">
                                         <b>Detailed Find Spot:</b>
                                     </div>
@@ -247,7 +267,7 @@
                                         <span>{{object.detailedFindSpot}}</span>
                                     </div>
                                 </div>
-                                
+
                                 <div class="row" *ngIf="object?.discoveryYear != undefined">
                                     <div class="col-xl-4 col-lg-12 p-1">
                                         <b>Discovery Year:</b>
@@ -257,7 +277,8 @@
                                             <p *ngIf="sub?.value != ''">
                                                 <span class="text-italic">{{sub?.key}}:</span>
                                                 <span *ngIf="!isLink(sub?.value)">{{sub?.value}}</span>
-                                                <a [href]="sub?.value" target="_blank" *ngIf="isLink(sub?.value)">{{sub?.value}}</a>
+                                                <a [href]="sub?.value" target="_blank"
+                                                    *ngIf="isLink(sub?.value)">{{sub?.value}}</a>
                                             </p>
                                         </span>
                                     </div>
@@ -280,15 +301,16 @@
                                     </div>
                                     <div class="col-xl-8 col-lg-12 p-1">
                                         <a *ngIf="object?.modernFindSpotName?.URL != ''" target="_blank"
-                                        [href]="object?.modernFindSpotNameUri">
-                                        {{object?.modernFindSpotName}}</a> 
+                                            [href]="object?.modernFindSpotNameUri">
+                                            {{object?.modernFindSpotName}}</a>
                                         <span *ngIf="object?.modernFindSpotName == ''">
                                             {{object?.modernFindSpotName?.name}}
                                         </span>
                                     </div>
                                 </div>
-                                
-                                <div class="row" *ngIf="object?.opistography != undefined && object?.opistography != ''">
+
+                                <div class="row"
+                                    *ngIf="object?.opistography != undefined && object?.opistography != ''">
                                     <div class="col-xl-4 col-lg-12 p-1">
                                         <b>Opistography:</b>
                                     </div>
@@ -297,7 +319,8 @@
                                     </div>
                                 </div>
 
-                                <div class="row" *ngIf="object?.paleographicNotes != undefined && object?.paleographicNotes != ''">
+                                <div class="row"
+                                    *ngIf="object?.paleographicNotes != undefined && object?.paleographicNotes != ''">
                                     <div class="col-xl-4 col-lg-12 p-1">
                                         <b>Paleographic Notes:</b>
                                     </div>
@@ -312,24 +335,24 @@
                                     </div>
                                     <div class="col-xl-8 col-lg-12 p-1">
                                         <a *ngIf="object?.settlement?.placeOfConservationExternalReference != ''"
-                                        target="_blank"
-                                        [href]="object?.settlement?.placeOfConservationExternalReference">
-                                        {{object?.settlement?.placeOfConservation}}</a> 
+                                            target="_blank"
+                                            [href]="object?.settlement?.placeOfConservationExternalReference">
+                                            {{object?.settlement?.placeOfConservation}}</a>
                                         <span *ngIf="object?.settlement?.placeOfConservationExternalReference == ''">
                                             {{object?.settlement?.placeOfConservation}}
                                         </span>
                                     </div>
                                 </div>
-                                
-                                <div class="row" *ngIf="object?.support?.material_conceptUrl != undefined && object?.support?.material_conceptUrl != ''">
+
+                                <div class="row"
+                                    *ngIf="object?.support?.material_conceptUrl != undefined && object?.support?.material_conceptUrl != ''">
                                     <div class="col-xl-4 col-lg-12 p-1">
                                         <b>Material:</b>
                                     </div>
                                     <div class="col-xl-8 col-lg-12 p-1">
-                                        <a *ngIf="object?.support?.material_conceptUrl != ''"
-                                        target="_blank"
-                                        [href]="object?.support?.material_conceptUrl">
-                                        {{object?.support?.material}}</a> 
+                                        <a *ngIf="object?.support?.material_conceptUrl != ''" target="_blank"
+                                            [href]="object?.support?.material_conceptUrl">
+                                            {{object?.support?.material}}</a>
                                         <span *ngIf="object?.support?.material_conceptUrl == ''">
                                             {{object?.support?.material}}
                                         </span>
@@ -342,12 +365,9 @@
                 <div class="tab-pane fade" id="other_metadata" role="tabpanel" aria-labelledby="other-tab">
                     <div class="card epi_body">
                         <span class="text-id">TEXT</span>
-                        <!-- <a href="#a"><span class="edit-icon"><i class="fa fa-edit"></i></span></a>
-                        <a href="#b"><span class="trash-icon"><i class="fa fa-trash"></i></span></a> -->
+                       
                         <div class="card-body">
-                            <!-- <div class="d-flex">
-                                <span class="badge badge-primary">Form</span>
-                            </div> -->
+                           
                             <div class="container">
                                 <div class="row" *ngIf="object?.autopsy != undefined && object?.autopsy != ''">
                                     <div class="col-xl-4 col-lg-12 p-1">
@@ -358,7 +378,8 @@
                                     </div>
                                 </div>
 
-                                <div class="row" *ngIf="object?.autopsyAuthor != undefined && object?.autopsyAuthor != ''">
+                                <div class="row"
+                                    *ngIf="object?.autopsyAuthor != undefined && object?.autopsyAuthor != ''">
                                     <div class="col-xl-4 col-lg-12 p-1">
                                         <b>Autopsy Author:</b>
                                     </div>
@@ -374,13 +395,15 @@
                                     <div class="col-xl-8 col-lg-12 p-1">
                                         <span *ngFor="let sub of object?.language">
                                             <p *ngIf="sub?.source != ''">
-                                                <a [href]="sub?.source" target="_blank" *ngIf="isLink(sub?.source)">{{sub?.ident}}</a>
+                                                <a [href]="sub?.source" target="_blank"
+                                                    *ngIf="isLink(sub?.source)">{{sub?.ident}}</a>
                                             </p>
                                         </span>
                                     </div>
                                 </div>
 
-                                <div class="row" *ngIf="object?.bodytextpart?.ductus != undefined && object?.bodytextpart?.ductus != ''">
+                                <div class="row"
+                                    *ngIf="object?.bodytextpart?.ductus != undefined && object?.bodytextpart?.ductus != ''">
                                     <div class="col-xl-4 col-lg-12 p-1">
                                         <b>Ductus:</b>
                                     </div>
@@ -389,7 +412,8 @@
                                     </div>
                                 </div>
 
-                                <div class="row" *ngIf="object?.wordDivisionType != undefined && object?.wordDivisionType != ''">
+                                <div class="row"
+                                    *ngIf="object?.wordDivisionType != undefined && object?.wordDivisionType != ''">
                                     <div class="col-xl-4 col-lg-12 p-1">
                                         <b>Word Division Type:</b>
                                     </div>
@@ -398,7 +422,8 @@
                                     </div>
                                 </div>
 
-                                <div class="row" *ngIf="object?.writingSystem != undefined && object?.writingSystem != ''">
+                                <div class="row"
+                                    *ngIf="object?.writingSystem != undefined && object?.writingSystem != ''">
                                     <div class="col-xl-4 col-lg-12 p-1">
                                         <b>Writing System:</b>
                                     </div>
