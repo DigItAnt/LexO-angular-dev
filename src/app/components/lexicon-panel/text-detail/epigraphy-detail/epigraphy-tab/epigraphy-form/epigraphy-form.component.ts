@@ -562,6 +562,15 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
                         } 
                       });
                     }
+
+                    if(this.isEmptyFile){
+                      element['empty_file'] = this.isEmptyFile;
+                      if(element.attributes.leiden == undefined){
+                        element.attributes.leiden = '';
+                      }
+                    }else{
+                      element['empty_file'] = this.isEmptyFile;
+                    }
                     this.annotationArray.push(element);
                   }else if(element.layer == 'epidoc'){
                     this.epidoc_annotation_array.push(element);
@@ -612,7 +621,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
                                     if(leidenToken != ''){
                                       annotation.attributes['leiden'] = leidenToken;
                                     }else{
-                                      annotation.attributes['leiden'] = 'no info';
+                                      annotation.attributes['leiden'] = '';
                                     }
                                     
                                   }, error=> {

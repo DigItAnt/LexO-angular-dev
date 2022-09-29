@@ -210,6 +210,13 @@ export class TextTreeComponent implements OnInit {
       $('body').css("padding-right", "");
 
 
+      if(this.selectedEpidocId == undefined){
+        if($event.node.data.name != undefined || $event.node.data.name != ''){
+          this.selectedEpidocId = $event.node.data.name;
+        }else{
+          this.selectedEpidocId = 'Unnamed'
+        }
+      }
       this.annotatorService.getIdText(this.selectedEpidocId);
 
       this.documentService.getContent(this.selectedNodeId).subscribe(
