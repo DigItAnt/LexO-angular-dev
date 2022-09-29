@@ -30,12 +30,12 @@ export class LilaService {
     prefix ontolex: <http://www.w3.org/ns/lemon/ontolex#>
     prefix lila: <http://lila-erc.eu/ontologies/lila/>
     prefix lb: <http://lila-erc.eu/data/id/lemma/LemmaBank>
-    SELECT ?lemma ?pos ?label 
+    SELECT ?lemma ?pos ?wr 
     WHERE {
       ?lemma a lila:Lemma ;
-      ontolex:writtenRep '`+label+`' ;
-      lila:hasPOS ?pos ;
-      ontolex:writtenRep ?label }`)+'&endpoint='+this.endpoint, null)
+      ontolex:writtenRep ?wr ;
+      lila:hasPOS ?pos .
+      FILTER regex(?wr, "^`+label+`", "i") }`)+'&endpoint='+this.endpoint, null)
   }
 
   queryEtymon(label: string): Observable<any> {
