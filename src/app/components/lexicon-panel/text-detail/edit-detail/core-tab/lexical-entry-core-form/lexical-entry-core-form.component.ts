@@ -1212,12 +1212,15 @@ export class LexicalEntryCoreFormComponent implements OnInit {
             if (evt.selectedItems.length > 0) {
                 console.log(evt.selectedItems[0])
                 let label = "";
+                let instanceName = '';
                 if(evt.selectedItems[0]['value']['lexicalEntryInstanceName'] == undefined){
-                    label = evt.selectedItems[0]['value']['labelValue'];
+                    label = evt.selectedItems[0]['value']['label'];
+                    instanceName = evt.selectedItems[0]['value']['labelValue'];
                 }else{
                     label = evt.selectedItems[0]['value']['lexicalEntryInstanceName'];
+                    instanceName = evt.selectedItems[0]['value']['lexicalEntry'];
                 }
-                this.onChangeCognates({ name: label, i: i })
+                this.onChangeCognates({ name: label, i: i, instance_name : instanceName})
             }
         } else {
             let label = evt.target.value;
@@ -1321,7 +1324,15 @@ export class LexicalEntryCoreFormComponent implements OnInit {
         let existOrNot = this.memoryCognates.some(element => element?.lexicalEntityInstanceName == data.name || element?.name == data.name) 
 
         if (this.memoryCognates[index] == undefined && !existOrNot) {
-            const newValue = data['name']
+            let  newValue = ''
+            if(this.cognatesArray.at(index).get('lila').value){
+                newValue = data.instanceName
+
+            }else{
+                newValue = data.name
+
+            }
+
             const parameters = {
                 type: "lexicalRel",
                 relation: "cognate",
@@ -1357,6 +1368,19 @@ export class LexicalEntryCoreFormComponent implements OnInit {
                           });
                         
                     }
+
+                    if(this.cognatesArray.at(index).get('lila').value){
+                        this.cognatesArray.at(index).get('entity').setValue(data.instanceName, {emitEvent : false});
+                        this.cognatesArray.at(index).get('type').setValue('external', {emitEvent : false});
+                        this.cognatesArray.at(index).get('lila').setValue(true, {emitEvent : false});
+                    }else{
+                        this.cognatesArray.at(index).get('lexicalEntryInstanceName').setValue(data.instanceName, {emitEvent : false});
+                        //this.cognatesArray.at(index).get('entity').setValue(data.instanceName, {emitEvent : false});
+                        this.cognatesArray.at(index).get('type').setValue('internal', {emitEvent : false});
+                        this.cognatesArray.at(index).get('lila').setValue(false, {emitEvent : false});
+
+                    }
+
                 }
             )
             this.memoryCognates[index] = data;

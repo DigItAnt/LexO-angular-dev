@@ -32,8 +32,9 @@
                             
                             
                             <div class="form-group row ml-2 mr-2 mb-0" *ngFor="let subprop of item?.attributes | keyvalue">
-                                <label for="inputLabel" class="col-lg-4 pl-0 pr-0 col-form-label" *ngIf="subprop?.key != 'bibliography' && subprop?.key != 'validity' && subprop?.key != 'node_id' && subprop?.key != 'form_id' && subprop?.key != 'creator' && subprop?.key != 'timestamp' && subprop?.key != 'label'">{{subprop?.key}}:</label>
+                                <label for="inputLabel" class="col-lg-4 pl-0 pr-0 col-form-label" *ngIf="subprop?.key != 'bibliography' && subprop?.key != 'validity' && subprop?.key != 'node_id' && subprop?.key != 'form_id' && subprop?.key != 'creator' && subprop?.key != 'timestamp' && subprop?.key != 'label' && subprop?.key != 'confidence'">{{subprop?.key}}:</label>
                                 <label for="inputLabel" class="col-lg-4 pl-0 pr-0 col-form-label" *ngIf="subprop?.key == 'label'">form:</label>
+                                <label for="inputLabel" class="col-lg-4 pl-0 pr-0 col-form-label" *ngIf="subprop?.key == 'confidence'">uncertain:</label>
 
                                 
                                 <div class="input-group col-lg-8 pl-0 pr-0">

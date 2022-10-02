@@ -501,6 +501,7 @@ export class CoreTabComponent implements OnInit {
     
     this.lexicalService.deleteSense(lexicalId).subscribe(
       data=>{
+        console.log(data)
         this.searchIconSpinner = false;
         this.lexicalService.deleteRequest(this.object);
         this.isSense = false;
@@ -509,6 +510,7 @@ export class CoreTabComponent implements OnInit {
           timeOut: 5000,
         });
       },error=> {
+        console.log(error)
         this.searchIconSpinner = false;
         this.lexicalService.deleteRequest(this.object);
       }
@@ -730,7 +732,8 @@ export class CoreTabComponent implements OnInit {
 
     let instance = '';
     if(this.object.lexicalEntryInstanceName != undefined
-      && this.object.lexicalEntryInstanceName.senseInstanceName == undefined){
+      && this.object.senseInstanceName == undefined
+      && this.object.formInstanceName == undefined){
         instance = this.object.lexicalEntryInstanceName;
     }else if(this.object.formInstanceName != undefined){
       instance = this.object.formInstanceName;

@@ -138,7 +138,11 @@ export class SenseCoreFormComponent implements OnInit {
           }
         }
         //console.log(this.object)
-        this.senseCore.get('confidence').setValue(this.object.confidence, { emitEvent: false })
+        if(this.object.confidence == 0){
+          this.senseCore.get('confidence').setValue(true, { emitEvent: false });
+        }else{
+          this.senseCore.get('confidence').setValue(false, { emitEvent: false });
+        }
         this.senseCore.get('topic').setValue(this.object.topic, { emitEvent: false })
         this.senseCore.get('usage').setValue(this.object.usage, { emitEvent: false });
         this.addLexicalConcept(this.object.concept);
@@ -180,62 +184,53 @@ export class SenseCoreFormComponent implements OnInit {
       )
     })
 
-    this.senseCore.controls['confidence'].valueChanges.pipe(startWith(undefined), debounceTime(1000), pairwise()).subscribe(newConfidence => {
-      console.log('Old value: ', newConfidence[0]);
-      console.log('New value: ', newConfidence[1]);
-      this.lexicalService.spinnerAction('on');
-      let parameters = {};
-      let senseId = this.object.senseInstanceName;
-      let oldValue = newConfidence[0];
-      let newValue = newConfidence[1];
-
-      if (oldValue == undefined) {
-        parameters = {
-          type: "confidence",
-          relation: 'confidence',
-          value: newValue
-        }
-      } else if (oldValue != undefined && this.object.confidence == -1) {
-        parameters = {
-          type: "confidence",
-          relation: 'confidence',
-          value: newValue,
-          currentValue: -1
-        }
-      } else {
-        parameters = {
-          type: "confidence",
-          relation: 'confidence',
-          value: newValue,
-          currentValue: oldValue
-        }
+    this.senseCore.get('confidence').valueChanges.pipe(debounceTime(100)).subscribe(newConfidence => {
+      let confidence_value = null;
+      console.log(newConfidence)
+      if(newConfidence == false){
+        confidence_value = -1
+        this.senseCore.get('confidence').setValue(false, { emitEvent: false });
+      }else{
+        confidence_value = 0
+        this.senseCore.get('confidence').setValue(true, { emitEvent: false });
       }
 
+      this.lexicalService.spinnerAction('on');
+      let senseId = this.object.senseInstanceName;
+      let parameters = {
+          type: "confidence",
+          relation: 'confidence',
+          value: confidence_value
+      }
       console.log(parameters)
       this.lexicalService.updateGenericRelation(senseId, parameters).subscribe(
-        data => {
-          console.log(data);
+          data => {
+              console.log(data);
+              /* data['request'] = 0;
+              data['new_label'] = confidence_value
+              this.lexicalService.refreshAfterEdit(data); */
+              //this.lexicalService.updateLexCard(data)
+              this.lexicalService.spinnerAction('off');
+          },
+          error => {
+              console.log(error);
+              /*  const data = this.object.etymology;
+              data['request'] = 0;
+              data['new_label'] = confidence_value;
+              this.lexicalService.refreshAfterEdit(data); */
+              this.lexicalService.spinnerAction('off');
+              //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+              if(error.status == 200){
+                this.toastr.success('Label updated', '', {timeOut: 5000})
 
-          this.lexicalService.updateCoreCard(data)
-          this.lexicalService.spinnerAction('off');
-        },
-        error => {
-          console.log(error);
+              }else{
+                this.toastr.error(error.error, 'Error', {timeOut: 5000})
 
-          this.lexicalService.spinnerAction('off');
-
-          if (error.status == 200) {
-            this.toastr.success('Confidence updated', '', { timeOut: 5000 })
-            this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
-            this.senseCore.get('confidence').setValue(newValue, { emitEvent: false });
-            this.object.confidence = newValue;
-          } else {
-            this.toastr.error(error.error, 'Error', { timeOut: 5000 })
-
+              }
           }
-        }
       )
-    })
+
+    });
 
     this.senseCore.get('topic').valueChanges.pipe(debounceTime(1000)).subscribe(newTopic => {
       if (newTopic.trim() != '') {
