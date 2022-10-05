@@ -201,7 +201,7 @@ export class LexicalEntriesService {
   }
 
   //GET /lexicon/data/{id}/senses --> get list of senses of a lexical entry
-  getSensesList(instance: string): Observable<any> {
+  getSensesList(instance: any): Observable<any> {
     return this.http.get(this.baseUrl + "lexicon/data/" + instance + "/senses");
   }
 
