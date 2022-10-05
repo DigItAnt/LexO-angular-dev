@@ -67,8 +67,8 @@
   
   
   <div class="col-md-12 mt-3 rounded border border-secondary tree-view" infiniteScroll [infiniteScrollDistance]="0.4"
-    [infiniteScrollThrottle]="150" [infiniteScrollContainer]="'.search-results'" [fromRoot]="true"
-    (scrolled)="onScrollDown(skosConcept.treeModel)">
+    [infiniteScrollThrottle]="150"  [fromRoot]="true"
+    (scrolled)="onScrollDown(skosConcept.treeModel)"> <!-- [infiniteScrollContainer]="'.search-results'" -->
     <p *ngIf="show">Nessun risultato</p>
   
     <tree-root #skosConcept [nodes]="nodes" [(state)]="state" [options]="options" [focused]="true"

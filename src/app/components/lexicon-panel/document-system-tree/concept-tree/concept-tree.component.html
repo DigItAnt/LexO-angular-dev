@@ -67,8 +67,8 @@
 
 
 <div class="col-md-12 mt-3 rounded border border-secondary tree-view" infiniteScroll [infiniteScrollDistance]="0.4"
-  [infiniteScrollThrottle]="150" [infiniteScrollContainer]="'.search-results'" [fromRoot]="true"
-  (scrolled)="onScrollDown(treeConcept.treeModel)">
+  [infiniteScrollThrottle]="150"  [fromRoot]="true"
+  (scrolled)="onScrollDownConceptTree(treeConcept.treeModel)"> <!-- [infiniteScrollContainer]="'.search-results'" -->
   <p *ngIf="show">Nessun risultato</p>
 
   <tree-root #treeConcept [nodes]="nodes" [(state)]="state" [options]="options" [focused]="true"

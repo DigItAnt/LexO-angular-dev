@@ -1,87 +1,79 @@
-﻿
-
-<form [formGroup]="textFilterForm">
+﻿<form [formGroup]="textFilterForm">
   <div class="input-group col-md-12 mt-2 p-0">
-    <input formControlName="search_text" id="filterLexicalEntry" name="search_text" type="text" class="form-control" placeholder="Search" />
+    <input formControlName="search_text" id="filterLexicalEntry" name="search_text" type="text" class="form-control"
+      placeholder="Search" />
     <div class="input-group-append">
-        <span class="input-group-text loading_icon_append" id="basic-addon2">
-            <div class="spinner-border spinner-border-sm m-1" role="status" *ngIf="searchIconSpinner">
-                <span class="sr-only">Loading...</span>
-            </div>
-        </span>
+      <span class="input-group-text loading_icon_append" id="basic-addon2">
+        <div class="spinner-border spinner-border-sm m-1" role="status" *ngIf="searchIconSpinner">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </span>
     </div>
     <div id="buttons-container" class="input-group-append">
-        <button class="btn btn-sm btn-secondary btn-block filter-button" type="button" value="Filter" title="Filter"
-            data-toggle="collapse" data-target="#metadataFilterCollapse" aria-expanded="false"
-            aria-controls="metadataFilterCollapse"><i class="fa fa-filter"></i></button>
-        <button class="btn btn-sm btn-danger btn-block reset-button" type="button" value="Reset" title="Reset"
-            (click)="resetFields();" style="border-top-right-radius: .25rem; border-bottom-right-radius: .25rem;"><i
-                class="fa fa-times"></i></button>
-        <button class="btn btn-sm btn-block counter-button" type="button"><span
-                class="font-weight-bold font-italic text-muted">{{counter}}</span></button>
+      <button class="btn btn-sm btn-secondary btn-block filter-button" type="button" value="Filter" title="Filter"
+        data-toggle="collapse" data-target="#metadataFilterCollapse" aria-expanded="false"
+        aria-controls="metadataFilterCollapse"><i class="fa fa-filter"></i></button>
+      <button class="btn btn-sm btn-danger btn-block reset-button" type="button" value="Reset" title="Reset"
+        (click)="resetFields();" style="border-top-right-radius: .25rem; border-bottom-right-radius: .25rem;"><i
+          class="fa fa-times"></i></button>
+      <button class="btn btn-sm btn-block counter-button" type="button"><span
+          class="font-weight-bold font-italic text-muted">{{counter}}</span></button>
     </div>
   </div>
 
   <div class="d-flex flex-wrap mt-3">
-      <div class="col-md-6 col-sm-3">
-          <div class="form-check">
-              <input formControlName="search_mode" class="form-check-input" type="radio" name="search_mode"
-                  id="startRadio" value="start">
-              <label class="form-check-label" for="startRadio">
-                  Starts
-              </label>
-          </div>
+    <div class="col-md-6 col-sm-3">
+      <div class="form-check">
+        <input formControlName="search_mode" class="form-check-input" type="radio" name="search_mode" id="startRadio"
+          value="start">
+        <label class="form-check-label" for="startRadio">
+          Starts
+        </label>
       </div>
-      <div class="col-md-6 col-sm-3">
-          <div class="form-check">
-              <input formControlName="search_mode" class="form-check-input" type="radio" name="search_mode"
-                  id="containsRadio" value="contains">
-              <label class="form-check-label" for="containsRadio">
-                  Contains
-              </label>
-          </div>
+    </div>
+    <div class="col-md-6 col-sm-3">
+      <div class="form-check">
+        <input formControlName="search_mode" class="form-check-input" type="radio" name="search_mode" id="containsRadio"
+          value="contains">
+        <label class="form-check-label" for="containsRadio">
+          Contains
+        </label>
       </div>
+    </div>
   </div>
 
   <div class="collapse multi-collapse" id="metadataFilterCollapse">
-  
-      <div class="d-flex flex-wrap mt-3">
-        <div class="col-md-12">
-          <div class="form-group row">
-            <label for="inputEmail3" class="col-sm-4 col-form-label">Date mode:</label>
-            <div class="col-sm-8">
-              <select formControlName="date_mode" class="form-control" name="date_mode">
-                <option value="exact">Exact</option>
-                <option value="from">From</option>
-                <option value="until">Until</option>
-            </select>
-            </div>
-          </div>
-        </div> 
-      </div>
-      
-      <div class="d-flex flex-wrap">
-        <div class="col-md-12">
-          <input formControlName="import_date" type="datetime-local" class="form-control"
-                name="import_date" value="date"
-                min="2018-06-07T00:00" [max]="date">
-        </div>
-      </div>
 
-      <div class="d-flex flex-wrap mt-3">
-        <div class="col-md-12">
-          <ng-select #metadata_tags 
-            [items]="[]"
-            [addTag]="true"
-            [multiple]="true"
-            [selectOnTab]="true"
-            placeholder="Insert metadata tags"
-            (change)="triggerMetadata()"
-            [isOpen]="false">
-          </ng-select>
-          
+    <div class="d-flex flex-wrap mt-3">
+      <div class="col-md-12">
+        <div class="form-group row">
+          <label for="inputEmail3" class="col-sm-4 col-form-label">Date mode:</label>
+          <div class="col-sm-8">
+            <select formControlName="date_mode" class="form-control" name="date_mode">
+              <option value="exact">Exact</option>
+              <option value="from">From</option>
+              <option value="until">Until</option>
+            </select>
+          </div>
         </div>
       </div>
+    </div>
+
+    <div class="d-flex flex-wrap">
+      <div class="col-md-12">
+        <input formControlName="import_date" type="datetime-local" class="form-control" name="import_date" value="date"
+          min="2018-06-07T00:00" [max]="date">
+      </div>
+    </div>
+
+    <div class="d-flex flex-wrap mt-3">
+      <div class="col-md-12">
+        <ng-select #metadata_tags [items]="[]" [addTag]="true" [multiple]="true" [selectOnTab]="true"
+          placeholder="Insert metadata tags" (change)="triggerMetadata()" [isOpen]="false">
+        </ng-select>
+
+      </div>
+    </div>
   </div>
 </form>
 
@@ -91,18 +83,20 @@
   <tree-root #treeText [nodes]="nodes" [options]="options" [focused]="true" (activate)="onEvent($event)"
     (moveNode)="onMoveNode($event)">
     <ng-template #treeNodeTemplate let-node let-index="index">
-      
+
       <div *ngIf="node.data.rename_mode" class="input-group">
-        <input autofocus #renameNodeInput class="form-control" type="text" [value]="node.data.name" (keyup)="onRenamingNode($event, node, renameNodeInput.value)" style="height: 22px; border-right: transparent;" />
-        <div class="input-group-append input-tooltip"  data-toggle="tooltip"
-        data-placement="top" data-html="true" title="Click enter to rename; Click ESC to exit">
+        <input autofocus #renameNodeInput class="form-control" type="text" [value]="node.data.name"
+          (keyup)="onRenamingNode($event, node, renameNodeInput.value)"
+          style="height: 22px; border-right: transparent;" />
+        <div class="input-group-append input-tooltip" data-toggle="tooltip" data-placement="top" data-html="true"
+          title="Click enter to rename; Click ESC to exit">
           <span class="input-group-text"><i class="fas fa-question"></i></span>
         </div>
         <div class="input-group-append">
           <span class="input-group-text loading_icon_append">
-              <div class="spinner-border spinner-border-sm m-1" role="status" *ngIf="searchIconSpinner_input">
-                  <span class="sr-only">Loading...</span>
-              </div>
+            <div class="spinner-border spinner-border-sm m-1" role="status" *ngIf="searchIconSpinner_input">
+              <span class="sr-only">Loading...</span>
+            </div>
           </span>
         </div>
       </div>
@@ -114,7 +108,7 @@
           {{ node.data.name }}
         </span>
       </div>
-      
+
     </ng-template>
   </tree-root>
   <context-menu>
@@ -131,12 +125,12 @@
     <ng-template contextMenuItem let-item [visible]="isFolder " (execute)="addFolder($event.item)">
       Add Folder
     </ng-template>
-    <ng-template contextMenuItem let-item [visible]="isFolder " [enabled]="noRoot" (execute)="removeFolder($event.item)">
+    <ng-template contextMenuItem let-item [visible]="isFolder " [enabled]="noRoot"
+      (execute)="removeFolder($event.item)">
       Delete Folder
     </ng-template>
-    <ng-template contextMenuItem let-item [visible]="isFolder " [enabled]="noRoot"
-      (execute)="renameNode($event.item)">
-      <span >Rename Folder</span> <!-- (click)="renameFolderModel.show();" -->
+    <ng-template contextMenuItem let-item [visible]="isFolder " [enabled]="noRoot" (execute)="renameNode($event.item)">
+      <span>Rename Folder</span> <!-- (click)="renameFolderModel.show();" -->
     </ng-template>
 
     <ng-template contextMenuItem let-item [visible]="multipleSelection" (execute)="copyElements()">
@@ -149,9 +143,9 @@
     <ng-template contextMenuItem let-item [visible]="multipleSelection" (execute)="removeElements()">
       Delete Elements
     </ng-template>
-    
 
-<!--     <ng-template contextMenuItem divider="multipleSelection" [visible]="multipleSelection"></ng-template>
+
+    <!--     <ng-template contextMenuItem divider="multipleSelection" [visible]="multipleSelection"></ng-template>
  -->
     <!-- FILE CONTEXT MENU -->
     <ng-template contextMenuItem let-item [visible]="isFile" (execute)="copyFile($event.item)">
@@ -162,9 +156,10 @@
       Paste File
     </ng-template>
     <ng-template contextMenuItem let-item [visible]="isFile" (execute)="renameNode($event.item)">
-      <span >Rename File</span> <!-- (click)="renameFileModel.show();" -->
+      <span>Rename File</span> <!-- (click)="renameFileModel.show();" -->
     </ng-template>
-    <ng-template contextMenuItem let-item [visible]="isFile" (execute)="removeFile($event.item)">
+    <ng-template contextMenuItem let-item [visible]="isFile"
+      (execute)="removeTextModal.show('ciao'); storeTempDeleteFile($event.item)">
       Delete File
     </ng-template>
     <ng-template contextMenuItem divider="isFile" [visible]="isFile"></ng-template>
@@ -183,7 +178,34 @@
   </context-menu>
 </div>
 
-<input #uploadFile type="file" accept=".xml" hidden (change)="addFile($event)" multiple>
+<app-modal #removeTextModal class="languages_modal">
+  <ng-container class="app-modal-header">Language Manager</ng-container>
+  <ng-container class="app-modal-body">
+    <div class="card">
+      <div class="card-body">
+        <div class="form-group row ml-2 mt-3 mr-2">
+          <label for="inputLabel" class="col-lg-12 col-form-label" style="font-size: 12px; text-align: center">If you delete this text you will lose ALL linked annotations. Are you sure to delete this file?
+          </label>
+        </div>
+        <div class="form-group row ml-2 mt-3 mr-2 justify-content-md-center">
+          <div class="input-group col-lg-5 justify-content-md-center" style="align-items: center; text-align: center;">
+            <div class="input-group-append ml-2">
+              <button class="btn btn-success" type="button" (click)="removeFile(); removeTextModal.hide()"><i
+                  class="fas fa-check"></i></button>
+            </div>
+            <div class="input-group-append ml-2">
+              <button class="btn btn-danger" type="button" (click)="deleteTempData(); removeTextModal.hide()"><i
+                  class="fas fa-times"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+
+  </ng-container>
+</app-modal>
+<input #uploadFile type="file" onclick="this.value = null" accept=".xml" hidden (change)="addFile($event)" multiple>
 
 <!-- <app-modal #renameFolderModel class="add_languages_modal">
   <ng-container class="app-modal-header"></ng-container>
@@ -248,15 +270,16 @@
           <div formArrayName="metadata_array">
             <div *ngFor="let metadata_item of metadataForm.get('metadata_array')['controls']; let i = index">
               <div [formGroupName]="i">
-                
+
 
 
                 <div class="d-flex my-2">
                   <div class="col-md-5">
                     <input formControlName="key" name="key" type="text" class="form-control"
                       placeholder="Insert metadata key">
-                    <div class="invalid-feedback" [hidden]="!metadata_item.get('key').invalid" style="display: block; font-size: 9px;">
-                      
+                    <div class="invalid-feedback" [hidden]="!metadata_item.get('key').invalid"
+                      style="display: block; font-size: 9px;">
+
                       <span *ngIf="!metadata_item.get('key').hasError('duplicate')">
                         Invalid field
                       </span>
@@ -268,15 +291,17 @@
                   <div class="input-group col-md-7">
                     <input formControlName="value" name="value" type="text" class="form-control"
                       placeholder="Insert metadata value">
-                   
+
                     <div class="input-group-append ml-2">
-                      <button class="btn btn-danger" type="button" (click)="removeMetadataItem(i)" style="border-radius: 0.25rem;">
+                      <button class="btn btn-danger" type="button" (click)="removeMetadataItem(i)"
+                        style="border-radius: 0.25rem;">
                         <i class="fa fa-trash"></i>
                       </button>
                     </div>
-                    <div class="invalid-feedback" [hidden]="!metadata_item.get('value').invalid" style="display: block; font-size: 9px;">
+                    <div class="invalid-feedback" [hidden]="!metadata_item.get('value').invalid"
+                      style="display: block; font-size: 9px;">
                       Invalid field
-                  </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -297,27 +322,29 @@
   </ng-container>
 </app-modal>
 
-<app-modal #removeMetadataModal class="remove_languages_modal" [inViewport]="true" (closeModal)="onCloseRemoveMetadata()">
+<app-modal #removeMetadataModal class="remove_languages_modal" [inViewport]="true"
+  (closeModal)="onCloseRemoveMetadata()">
   <ng-container class="app-modal-header"></ng-container>
   <ng-container class="app-modal-body">
-      <div class="card">
-          <div class="card-body">
-              <div class="form-group row ml-2 mt-3 mr-2">
-                  <label for="inputLabel" class="col-lg-12 col-form-label" style="font-size: 12px; text-align: center">Are you sure to delete the metadata of {{selectedFileToCopy?.name}}?</label>
-              </div>
-              <div class="form-group row ml-2 mt-3 mr-2 justify-content-md-center">
-                  <div class="input-group col-lg-5 justify-content-md-center" style="align-items: center; text-align: center;">
-                      <div class="input-group-append ml-2">
-                          <button class="btn btn-success" type="button" (click)="deleteMetadata(); removeMetadataModal.hide()"><i
-                                  class="fas fa-check"></i></button>
-                      </div>
-                      <div class="input-group-append ml-2">
-                          <button class="btn btn-danger" type="button" (click)="removeMetadataModal.hide()"><i
-                                  class="fas fa-times"></i></button>
-                      </div>
-                  </div>
-              </div>
+    <div class="card">
+      <div class="card-body">
+        <div class="form-group row ml-2 mt-3 mr-2">
+          <label for="inputLabel" class="col-lg-12 col-form-label" style="font-size: 12px; text-align: center">Are you
+            sure to delete the metadata of {{selectedFileToCopy?.name}}?</label>
+        </div>
+        <div class="form-group row ml-2 mt-3 mr-2 justify-content-md-center">
+          <div class="input-group col-lg-5 justify-content-md-center" style="align-items: center; text-align: center;">
+            <div class="input-group-append ml-2">
+              <button class="btn btn-success" type="button" (click)="deleteMetadata(); removeMetadataModal.hide()"><i
+                  class="fas fa-check"></i></button>
+            </div>
+            <div class="input-group-append ml-2">
+              <button class="btn btn-danger" type="button" (click)="removeMetadataModal.hide()"><i
+                  class="fas fa-times"></i></button>
+            </div>
           </div>
+        </div>
       </div>
+    </div>
   </ng-container>
 </app-modal>
