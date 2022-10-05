@@ -10,9 +10,10 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { KeycloakEventType, KeycloakService } from 'keycloak-angular';
+import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
@@ -20,10 +21,12 @@ import { AuthService } from 'src/app/services/auth/auth.service';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent implements OnInit, OnDestroy {
  
   username : string;
   userRoles;
+
+  kc_subscriber : Subscription;
 
   constructor(private route: ActivatedRoute, private router: Router, private keycloakService: KeycloakService, private auth : AuthService) { }
 
@@ -37,7 +40,7 @@ export class NavbarComponent implements OnInit {
     
     this.userRoles = this.auth.getCurrentUserRole();
 
-    this.keycloakService.keycloakEvents$.subscribe({
+    this.kc_subscriber = this.keycloakService.keycloakEvents$.subscribe({
       next: (e) => {
         // console.log(e)
         if (e.type == KeycloakEventType.OnTokenExpired) {
@@ -57,4 +60,7 @@ export class NavbarComponent implements OnInit {
     console.log(this.userRoles.some(admin))
   }
 
+  ngOnDestroy(): void {
+      this.kc_subscriber.unsubscribe();
+  }
 }

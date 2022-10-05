@@ -10,7 +10,7 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 
@@ -21,6 +21,7 @@ import {
   trigger,
   state
 } from "@angular/animations";
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-synsem-tab',
@@ -40,7 +41,7 @@ import {
     ])
   ]
 })
-export class SynsemTabComponent implements OnInit {
+export class SynsemTabComponent implements OnInit, OnDestroy {
 
   lock = 0;
   object: any;
@@ -48,12 +49,15 @@ export class SynsemTabComponent implements OnInit {
   lexicalEntryData : any;
   isLexicalEntry = false;
 
+  expander_epigraphy_subscription : Subscription;
+  expander_edit_subscription : Subscription;
+
   @ViewChild('expander') expander_body: ElementRef;
 
   constructor(private lexicalService: LexicalEntriesService, private expand: ExpanderService, private rend : Renderer2) { }
 
   ngOnInit(): void {
-    this.lexicalService.coreData$.subscribe(
+   /*  this.lexicalService.coreData$.subscribe(
       object => {
         if(this.object != object){
           this.lexicalEntryData = null;
@@ -75,9 +79,9 @@ export class SynsemTabComponent implements OnInit {
           }
         }
       }
-    );
+    ); */
     
-    this.expand.expEdit$.subscribe(
+    this.expander_edit_subscription = this.expand.expEdit$.subscribe(
       trigger => {
         if(trigger){
           let isEditExpanded = this.expand.isEditTabExpanded();
@@ -103,7 +107,7 @@ export class SynsemTabComponent implements OnInit {
       }
     );
 
-    this.expand.expEpigraphy$.subscribe(
+    this.expander_epigraphy_subscription = this.expand.expEpigraphy$.subscribe(
       trigger => {
         setTimeout(() => {
           if(trigger){
@@ -134,6 +138,11 @@ export class SynsemTabComponent implements OnInit {
         trigger: 'hover'
       });
     }, 10);
+  }
+
+  ngOnDestroy(): void {
+      this.expander_edit_subscription.unsubscribe();
+      this.expander_epigraphy_subscription.unsubscribe();
   }
 
 }

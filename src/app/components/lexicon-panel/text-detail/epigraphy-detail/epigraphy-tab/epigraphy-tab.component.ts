@@ -45,6 +45,8 @@ export class EpigraphyTabComponent implements OnInit, OnDestroy {
   epigraphyData: any;
 
   subscription: Subscription;
+  expand_epi_subscription : Subscription;
+  expand_edit_subscription : Subscription;
   @ViewChild('expanderEpigraphy') expander_body: ElementRef;
 
   constructor(private documentService: DocumentSystemService, private expand : ExpanderService, private rend: Renderer2) { }
@@ -81,9 +83,7 @@ export class EpigraphyTabComponent implements OnInit, OnDestroy {
                 }    
               }, 10)
             }, 500);
-            /* this.name = this.object.name; */
-  /*           this.revisor = this.object.revisor;
-   */          
+             
             
           }
         }else{
@@ -94,50 +94,9 @@ export class EpigraphyTabComponent implements OnInit, OnDestroy {
      
     );
     
-    /* console.log('My Content: ' + document.getElementById('pippo'));
+   
 
-    var r = Recogito.init({
-      content: document.getElementById('pippo'), // Element id or DOM node to attach to
-      locale: 'auto',
-      widgets: [
-        //I intend to include this plugin this way.
-        //{ widget: Recogito.CommentsMention, userSuggestions: users },
-        { widget: 'COMMENT' },
-        { widget: 'TAG', vocabulary: ['Place', 'Person', 'Event', 'Organization', 'Animal'] }
-      ],
-      //relationVocabulary: ['isRelated', 'isPartOf', 'isSameAs ']
-    });
-
-    // Add an event handler  
-    r.on('createAnnotation', function (annotation) {
-      console.log('Annotation Added: ' + JSON.stringify(annotation))
-    });
-
-    r.on('selectAnnotation', function(a) {
-      console.log('selected', a);
-    });
-
-    r.on('updateAnnotation', function(annotation, previous) {
-      console.log('updated', previous, 'with', annotation);
-    });
-
-    // Switch annotation mode (annotation/relationships)
-    var annotationMode = 'ANNOTATION'; // or 'RELATIONS'
-
-    var toggleModeBtn = document.getElementById('toggle-mode');
-    toggleModeBtn.addEventListener('click', function() {
-      if (annotationMode === 'ANNOTATION') {
-        toggleModeBtn.innerHTML = 'MODE: RELATIONS';
-        annotationMode = 'RELATIONS';
-      } else  {
-        toggleModeBtn.innerHTML = 'MODE: ANNOTATION';
-        annotationMode = 'ANNOTATION';
-      }
-
-      r.setMode(annotationMode);
-    }); */
-
-    this.expand.expEpigraphy$.subscribe(
+    this.expand_epi_subscription = this.expand.expEpigraphy$.subscribe(
       trigger => {
         setTimeout(() => {
          // console.log("trigger epigraphy-tab: ", trigger)
@@ -172,7 +131,7 @@ export class EpigraphyTabComponent implements OnInit, OnDestroy {
       }
     );
 
-    this.expand.expEdit$.subscribe(
+    this.expand_edit_subscription = this.expand.expEdit$.subscribe(
       trigger => {
         setTimeout(() => {
           if(trigger){
@@ -193,6 +152,8 @@ export class EpigraphyTabComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
+    this.expand_edit_subscription.unsubscribe();
+    this.expand_epi_subscription.unsubscribe();
   }
 
 }

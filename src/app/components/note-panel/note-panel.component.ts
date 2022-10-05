@@ -10,10 +10,10 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, HostListener, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, HostListener, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { ToastrService } from 'ngx-toastr';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 
@@ -22,11 +22,17 @@ import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-
   templateUrl: './note-panel.component.html',
   styleUrls: ['./note-panel.component.scss']
 })
-export class NotePanelComponent implements OnInit, OnChanges {
+export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() noteData: string;
   object : any;
   private subject : Subject<string> = new Subject();
+
+  note_subscription : Subscription;
+  lex_entry_update_subscription : Subscription;
+  form_update_subscription : Subscription;
+  sense_update_subscription : Subscription;
+  etymology_update_subscription : Subscription;
   
   @HostListener('window:keyup', ['$event'])
   keyEvent(event: KeyboardEvent) {
@@ -105,7 +111,7 @@ export class NotePanelComponent implements OnInit, OnChanges {
     this.editorConfig.editable = false;
 
 
-    this.subject.pipe(debounceTime(1000)).subscribe(
+    this.note_subscription = this.subject.pipe(debounceTime(1000)).subscribe(
       newNote => {
         if(this.noteData != null){
           this.lexicalService.spinnerAction('on');
@@ -117,7 +123,7 @@ export class NotePanelComponent implements OnInit, OnChanges {
               relation : "note",
               value : newNote
             }
-            this.lexicalService.updateLexicalEntry(lexId, parameters).subscribe(
+            this.lex_entry_update_subscription = this.lexicalService.updateLexicalEntry(lexId, parameters).subscribe(
               data => {
                 //console.log(data);
                 data['request'] = 0;
@@ -147,7 +153,7 @@ export class NotePanelComponent implements OnInit, OnChanges {
               relation : "note",
               value : newNote
             }
-            this.lexicalService.updateForm(formId, parameters).subscribe(
+            this.form_update_subscription = this.lexicalService.updateForm(formId, parameters).subscribe(
               data => {
                 //console.log(data);
                 data['request'] = 0;
@@ -177,7 +183,7 @@ export class NotePanelComponent implements OnInit, OnChanges {
               relation : "note",
               value : newNote
             }
-            this.lexicalService.updateSense(senseId, parameters).subscribe(
+            this.sense_update_subscription = this.lexicalService.updateSense(senseId, parameters).subscribe(
               data => {
                 //console.log(data);
                 data['request'] = 0;
@@ -207,7 +213,7 @@ export class NotePanelComponent implements OnInit, OnChanges {
               relation : "note",
               value : newNote
             }
-            this.lexicalService.updateEtymology(etymId, parameters).subscribe(
+            this.etymology_update_subscription = this.lexicalService.updateEtymology(etymId, parameters).subscribe(
               data => {
                 //console.log(data);
                 data['request'] = 0;
@@ -266,6 +272,14 @@ export class NotePanelComponent implements OnInit, OnChanges {
       this.subject.next(this.noteData);
     }
     
+  }
+
+  ngOnDestroy(): void {
+      this.note_subscription.unsubscribe();
+      this.lex_entry_update_subscription.unsubscribe();
+      this.form_update_subscription.unsubscribe();
+      this.sense_update_subscription.unsubscribe();
+      this.etymology_update_subscription.unsubscribe();
   }
 
 }

@@ -10,7 +10,7 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { LexicalEntriesService } from '../../../../../services/lexical-entries/lexical-entries.service';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
 
@@ -22,6 +22,8 @@ import {
   state
 } from "@angular/animations";
 import { ToastrService } from 'ngx-toastr';
+import { Subscription } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 
 @Component({
@@ -42,7 +44,7 @@ import { ToastrService } from 'ngx-toastr';
     ])
   ]
 })
-export class DecompositionTabComponent implements OnInit {
+export class DecompositionTabComponent implements OnInit, OnDestroy {
 
   lock = 0;
   object: any;
@@ -56,12 +58,17 @@ export class DecompositionTabComponent implements OnInit {
 
   decompData : any;
 
+  core_data_subscription : Subscription;
+  decomp_data_subscription : Subscription;
+  expand_edit_subscription : Subscription;
+  expand_epigraphy_subscription : Subscription;
+
   @ViewChild('expander') expander_body: ElementRef;
   
   constructor(private toastr: ToastrService, private lexicalService: LexicalEntriesService, private expand: ExpanderService, private rend: Renderer2) { }
 
   ngOnInit(): void {
-    this.lexicalService.coreData$.subscribe(
+    /* this.core_data_subscription = this.lexicalService.coreData$.subscribe(
       object => {
         this.object = null;
         if(this.object != object){
@@ -87,9 +94,9 @@ export class DecompositionTabComponent implements OnInit {
           }
         }
       }
-    );
+    ); */
 
-    this.lexicalService.decompData$.subscribe(
+    this.decomp_data_subscription = this.lexicalService.decompData$.subscribe(
       object => {
         this.object = null;
         if(this.object != object){
@@ -133,7 +140,7 @@ export class DecompositionTabComponent implements OnInit {
       }
     ) */
 
-    this.expand.expEdit$.subscribe(
+    this.expand_edit_subscription = this.expand.expEdit$.subscribe(
       trigger => {
         setTimeout(() => {
           if(trigger){
@@ -162,7 +169,7 @@ export class DecompositionTabComponent implements OnInit {
       }
     );
 
-    this.expand.expEpigraphy$.subscribe(
+    this.expand_epigraphy_subscription = this.expand.expEpigraphy$.subscribe(
       trigger => {
         setTimeout(() => {
           if(trigger){
@@ -210,7 +217,7 @@ export class DecompositionTabComponent implements OnInit {
     this.object['request'] = 'form'
     if(this.isLexicalEntry){
       let lexicalId = this.object.lexicalEntryInstanceName;
-      this.lexicalService.createNewForm(lexicalId).subscribe(
+      this.lexicalService.createNewForm(lexicalId).pipe(take(1)).subscribe(
         data=>{
           this.toastr.success('Form added correctly', '', {
             timeOut: 5000,
@@ -231,56 +238,7 @@ export class DecompositionTabComponent implements OnInit {
           this.searchIconSpinner = false;
         }
       )
-    }/* else if(this.isForm){
-      let parentNodeInstanceName = this.object.parentNodeInstanceName;
-      //console.log(this.object);
-      this.object['request'] = 'form';
-      this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
-      this.lexicalService.createNewForm(parentNodeInstanceName).subscribe(
-        data=>{
-          if(data['creator'] == this.object.creator){
-            data['flagAuthor'] = false;
-          }else{
-            data['flagAuthor'] = true;
-          }
-          this.lexicalService.addSubElementRequest({'lex' : this.object, 'data' : data});
-          this.searchIconSpinner = false;
-          this.toastr.success('Form added correctly', '', {
-            timeOut: 5000,
-          });
-        },error=> {
-          //console.log(error)
-          this.searchIconSpinner = false;
-          this.toastr.error(error.error, 'Error', {
-            timeOut: 5000,
-          });
-        }
-      )
-    }else if(this.isSense){
-      let parentNodeInstanceName = this.object.parentNodeInstanceName;
-      this.object['request'] = 'form';
-      this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
-      //console.log(this.object);
-      this.lexicalService.createNewForm(parentNodeInstanceName).subscribe(
-        data=>{
-          if(data['creator'] == this.object.creator){
-            data['flagAuthor'] = false;
-          }else{
-            data['flagAuthor'] = true;
-          }
-          this.lexicalService.addSubElementRequest({'lex' : this.object, 'data' : data});
-          this.searchIconSpinner = false;
-          this.toastr.success('Form added correctly', '', {
-            timeOut: 5000,
-          });
-        },error=> {
-          this.toastr.error(error.error, 'Error', {
-            timeOut: 5000,
-          });
-          this.searchIconSpinner = false;
-        }
-      )
-    } */
+    }
     
   }
 
@@ -289,7 +247,7 @@ export class DecompositionTabComponent implements OnInit {
     this.object['request'] = 'sense'
     if(this.isLexicalEntry){
       let lexicalId = this.object.lexicalEntryInstanceName;
-      this.lexicalService.createNewSense(lexicalId).subscribe(
+      this.lexicalService.createNewSense(lexicalId).pipe(take(1)).subscribe(
         data=>{
           if(data['creator'] == this.object.creator){
             data['flagAuthor'] = false;
@@ -382,7 +340,7 @@ export class DecompositionTabComponent implements OnInit {
     } */
 
     console.log(parentNodeInstanceName)
-    this.lexicalService.createNewEtymology(parentNodeInstanceName).subscribe(
+    this.lexicalService.createNewEtymology(parentNodeInstanceName).pipe(take(1)).subscribe(
       data=>{
         console.log(data)
         if(data['creator'] == this.object.creator){
@@ -401,5 +359,11 @@ export class DecompositionTabComponent implements OnInit {
     )
 
   }
+
+  ngOnDestroy(): void {
+      this.core_data_subscription.unsubscribe();
+      this.expand_edit_subscription.unsubscribe();
+      this.expand_epigraphy_subscription.unsubscribe();
+    }
 
 }

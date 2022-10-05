@@ -10,7 +10,7 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ApplicationRef, Component, ElementRef, Input, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { ApplicationRef, Component, ElementRef, Input, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { TreeNode, TreeModel, TREE_ACTIONS, KEYS, IActionMapping, ITreeOptions, ITreeState } from '@circlon/angular-tree-component';
 import { formTypeEnum, LexicalEntryRequest, searchModeEnum, typeEnum } from './interfaces/lexical-entry-interface'
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
@@ -21,10 +21,11 @@ import * as _ from 'underscore';
 declare var $: JQueryStatic;
 
 
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, take } from 'rxjs/operators';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 
 
 const actionMapping: IActionMapping = {
@@ -54,7 +55,7 @@ const actionMapping: IActionMapping = {
   styleUrls: ['./lexical-entry-tree.component.scss']
 })
 
-export class LexicalEntryTreeComponent implements OnInit {
+export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
   state!: ITreeState;
   show = false;
   modalShow = false;
@@ -122,6 +123,17 @@ export class LexicalEntryTreeComponent implements OnInit {
 
   copySubject: Subject<string> = new Subject();
 
+  delete_req_subscription : Subscription;
+  add_sub_subscription : Subscription;
+  copy_subject_subscription : Subscription;
+  refresh_filter_subscription : Subscription;
+  get_lex_entry_list_subscription : Subscription;
+  get_languages_subscription : Subscription;
+  get_types_subscription : Subscription;
+  get_authors_subscription : Subscription;
+  get_pos_subscription : Subscription;
+  get_status_subscription : Subscription;
+
   constructor(private expander: ExpanderService, private renderer: Renderer2, private element: ElementRef, private lexicalService: LexicalEntriesService, private toastr: ToastrService) {
 
     var refreshTooltip = setInterval((val) => {
@@ -144,7 +156,7 @@ export class LexicalEntryTreeComponent implements OnInit {
 
     this.onChanges();
 
-    this.lexicalService.deleteReq$.subscribe(
+    this.delete_req_subscription = this.lexicalService.deleteReq$.subscribe(
       signal => {
 
         ////console.log("richiesta eliminazione lexical entry");
@@ -155,7 +167,7 @@ export class LexicalEntryTreeComponent implements OnInit {
       }
     )
 
-    this.lexicalService.addSubReq$.subscribe(
+    this.add_sub_subscription = this.lexicalService.addSubReq$.subscribe(
       signal => {
 
         if (signal != null) {
@@ -164,7 +176,7 @@ export class LexicalEntryTreeComponent implements OnInit {
       }
     )
 
-    this.copySubject.pipe(debounceTime(500)).subscribe(v => {
+    this.copy_subject_subscription = this.copySubject.pipe(debounceTime(500)).subscribe(v => {
       let selBox = document.createElement('textarea');
       selBox.style.position = 'fixed';
       selBox.style.left = '0';
@@ -182,12 +194,12 @@ export class LexicalEntryTreeComponent implements OnInit {
       });
     })
 
-    this.lexicalService.refreshFilter$.subscribe(
+    this.refresh_filter_subscription = this.lexicalService.refreshFilter$.subscribe(
       signal => {
 
         if (signal != null) {
 
-          this.lexicalService.getLexicalEntriesList(this.parameters).subscribe(
+          this.get_lex_entry_list_subscription = this.lexicalService.getLexicalEntriesList(this.parameters).pipe(take(1)).subscribe(
             data => {
               this.counter = data['totalHits'];
             },
@@ -197,32 +209,32 @@ export class LexicalEntryTreeComponent implements OnInit {
           );
 
 
-          this.lexicalService.getLanguages().subscribe(
+          this.get_languages_subscription = this.lexicalService.getLanguages().pipe(take(1)).subscribe(
             data => {
 
               this.languages = data;
             }
           );
 
-          this.lexicalService.getTypes().subscribe(
+          this.get_types_subscription = this.lexicalService.getTypes().pipe(take(1)).subscribe(
             data => {
               this.types = data;
             }
           );
 
-          this.lexicalService.getAuthors().subscribe(
+          this.get_authors_subscription = this.lexicalService.getAuthors().pipe(take(1)).subscribe(
             data => {
               this.authors = data;
             }
           );
 
-          this.lexicalService.getPos().subscribe(
+          this.get_pos_subscription = this.lexicalService.getPos().pipe(take(1)).subscribe(
             data => {
               this.partOfSpeech = data;
             }
           )
 
-          this.lexicalService.getStatus().subscribe(
+          this.get_status_subscription = this.lexicalService.getStatus().pipe(take(1)).subscribe(
             data => {
               this.status = data;
             }
@@ -234,7 +246,7 @@ export class LexicalEntryTreeComponent implements OnInit {
     )
 
     /* //console.log(this.parameters) */
-    this.lexicalService.getLexicalEntriesList(this.parameters).subscribe(
+    this.get_lex_entry_list_subscription = this.lexicalService.getLexicalEntriesList(this.parameters).pipe(take(1)).subscribe(
       data => {
         this.nodes = data['list'];
         this.counter = data['totalHits'];
@@ -244,31 +256,31 @@ export class LexicalEntryTreeComponent implements OnInit {
       }
     );
 
-    this.lexicalService.getLanguages().subscribe(
+    this.get_languages_subscription = this.lexicalService.getLanguages().subscribe(
       data => {
         this.languages = data;
       }
     );
 
-    this.lexicalService.getTypes().subscribe(
+    this.get_types_subscription = this.lexicalService.getTypes().subscribe(
       data => {
         this.types = data;
       }
     );
 
-    this.lexicalService.getAuthors().subscribe(
+    this.get_authors_subscription = this.lexicalService.getAuthors().subscribe(
       data => {
         this.authors = data;
       }
     );
 
-    this.lexicalService.getPos().subscribe(
+    this.get_pos_subscription = this.lexicalService.getPos().subscribe(
       data => {
         this.partOfSpeech = data;
       }
     )
 
-    this.lexicalService.getStatus().subscribe(
+    this.get_status_subscription = this.lexicalService.getStatus().subscribe(
       data => {
         this.status = data;
       }
@@ -397,15 +409,15 @@ export class LexicalEntryTreeComponent implements OnInit {
                     } else {
                       data['flagAuthor'] = true;
                     }
-                    
+
                     if (lex.request == 'sense') {
                       data['definition'] = 'no definition';
                       data.label = 'no definintion'
-                    }else if (lex.request == 'subterm') {
+                    } else if (lex.request == 'subterm') {
                       data.label = data.label;
                       data.children = null;
                       data.hasChildren = false;
-                    }else{
+                    } else {
                       data['label'] = data[instanceName];
                     }
 
@@ -424,7 +436,7 @@ export class LexicalEntryTreeComponent implements OnInit {
                     element.children.push(data);
                     this.lexicalEntryTree.treeModel.update();
                     this.lexicalEntryTree.treeModel.getNodeBy(y => {
-                      if (y.data.label === data['label']  && lex.request != 'subterm') { /* && lex.request != 'subterm' */
+                      if (y.data.label === data['label'] && lex.request != 'subterm') { /* && lex.request != 'subterm' */
                         y.setActiveAndVisible();
                       }
                     })
@@ -565,16 +577,16 @@ export class LexicalEntryTreeComponent implements OnInit {
           } else {
             return false;
           }
-        } else if(signal.subtermInstanceName != undefined){
+        } else if (signal.subtermInstanceName != undefined) {
           let parent = signal.parentNodeInstanceName;
-          if(x.data.lexicalEntryInstanceName == signal.parentNodeInstanceName ){
+          if (x.data.lexicalEntryInstanceName == signal.parentNodeInstanceName) {
             console.log(x)
             let children = x.data.children;
 
-            if(children.length >= 1){
-              Array.from(children).forEach((y : any) => {
-                if(y.lexicalEntryInstanceName == signal.subtermInstanceName){
-                
+            if (children.length >= 1) {
+              Array.from(children).forEach((y: any) => {
+                if (y.lexicalEntryInstanceName == signal.subtermInstanceName) {
+
                   console.log(y, x)
 
                   x.data.children.splice(x.data.children.indexOf(y), 1);
@@ -588,23 +600,23 @@ export class LexicalEntryTreeComponent implements OnInit {
                   if (this.nodes.length == 0) {
                     this.lexicalEntriesFilter(this.parameters);
                   }
-      
-      
-      
+
+
+
                   if (countSubterm == 0) {
                     x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1)
                   }
 
                   this.lexicalEntryTree.treeModel.update()
                   return true
-                  
-                }else{
+
+                } else {
                   return false
                 }
               })
             }
           }
-        }else {
+        } else {
           return false;
         }
         return false;
@@ -625,7 +637,7 @@ export class LexicalEntryTreeComponent implements OnInit {
     parameters['offset'] = this.offset;
     parameters['limit'] = this.limit;
     console.log(parameters)
-    this.lexicalService.getLexicalEntriesList(newPar).subscribe(
+    this.lexicalService.getLexicalEntriesList(newPar).pipe(take(1)).subscribe(
       data => {
         console.log(data)
         if (data['list'].length > 0) {
@@ -698,7 +710,7 @@ export class LexicalEntryTreeComponent implements OnInit {
       && $event.node.data.lexicalEntryInstanceName != this.selectedNodeId) {
       //this.lexicalService.sendToCoreTab($event.node.data);
       let idLexicalEntry = $event.node.data.lexicalEntryInstanceName;
-      this.lexicalService.getLexEntryData(idLexicalEntry).subscribe(
+      this.lexicalService.getLexEntryData(idLexicalEntry).pipe(take(1)).subscribe(
         data => {
 
           console.log(data);
@@ -759,7 +771,7 @@ export class LexicalEntryTreeComponent implements OnInit {
 
       let formId = $event.node.data.formInstanceName;
 
-      this.lexicalService.getFormData(formId, 'core').subscribe(
+      this.lexicalService.getFormData(formId, 'core').pipe(take(1)).subscribe(
         data => {
           console.log(data)
           this.selectedNodeId = $event.node.data.formInstanceName;
@@ -812,7 +824,7 @@ export class LexicalEntryTreeComponent implements OnInit {
 
       let senseId = $event.node.data.senseInstanceName;
 
-      this.lexicalService.getSenseData(senseId, 'core').subscribe(
+      this.lexicalService.getSenseData(senseId, 'core').pipe(take(1)).subscribe(
         data => {
           this.selectedNodeId = $event.node.data.senseInstanceName;
           data['parentNodeLabel'] = $event.node.parent.parent.data.label;
@@ -865,7 +877,7 @@ export class LexicalEntryTreeComponent implements OnInit {
 
       let etymologyId = $event.node.data.etymologyInstanceName;
 
-      this.lexicalService.getEtymologyData(etymologyId).subscribe(
+      this.lexicalService.getEtymologyData(etymologyId).pipe(take(1)).subscribe(
         data => {
           this.selectedNodeId = $event.node.data.etymologyInstanceName;
           data['parentNodeLabel'] = $event.node.parent.parent.data.label;
@@ -920,10 +932,10 @@ export class LexicalEntryTreeComponent implements OnInit {
       let parentInstanceLabel = $event.node.parent.parent.data.label;
       let parentInstanceName = $event.node.parent.parent.data.lexicalEntryInstanceName;
 
-      this.lexicalService.getLexEntryData(parentInstanceName).subscribe(
+      this.lexicalService.getLexEntryData(parentInstanceName).pipe(take(1)).subscribe(
         data => {
           this.selectedNodeId = $event.node.data.parentNodeInstanceName;
-          
+
           console.log(data)
           //this.lexicalService.sendToCoreTab(data);
           //this.lexicalService.sendToEtymologyTab(data);
@@ -981,7 +993,7 @@ export class LexicalEntryTreeComponent implements OnInit {
     }, 5);
   };
 
-  onScrollDown(treeModel: TreeModel) {
+  async onScrollDown(treeModel: TreeModel) {
 
     this.offset += 500;
     this.modalShow = true;
@@ -996,174 +1008,99 @@ export class LexicalEntryTreeComponent implements OnInit {
     parameters['offset'] = this.offset;
     parameters['limit'] = this.limit;
 
-    this.lexicalService.getLexicalEntriesList(parameters).pipe(debounceTime(200)).subscribe(
-      data => {
+    try {
+      let get_entry_list = await this.lexicalService.getLexicalEntriesList(parameters).toPromise();
+      //@ts-ignore
+      $('#lazyLoadingModal').modal('hide');
+      $('.modal-backdrop').remove();
+      for (var i = 0; i < get_entry_list['list'].length; i++) {
+        this.nodes.push(get_entry_list['list'][i]);
+      };
+      //this.counter = this.nodes.length;
+      this.lexicalEntryTree.treeModel.update();
+      this.updateTreeView();
+      this.modalShow = false;
+
+      setTimeout(() => {
         //@ts-ignore
         $('#lazyLoadingModal').modal('hide');
         $('.modal-backdrop').remove();
-        for (var i = 0; i < data['list'].length; i++) {
-          this.nodes.push(data['list'][i]);
-        };
-        //this.counter = this.nodes.length;
-        this.lexicalEntryTree.treeModel.update();
-        this.updateTreeView();
-        this.modalShow = false;
-
-        setTimeout(() => {
-          //@ts-ignore
-          $('#lazyLoadingModal').modal('hide');
-          $('.modal-backdrop').remove();
-        }, 300);
-      },
-      error => {
-
-      }
-    )
+      }, 300);
+    } catch (error) {
+      console.log(error)
+      
+    }
   }
 
-  getChildren(node: any) {
-
+  async getChildren(node: any) {
+    //TODO: chiamare tutti i figli in una sola botta e pusharglierli tutti in una volta 
     let newNodes: any;
     if (node.data.lexicalEntryInstanceName != undefined) {
-      let instance = node.data.lexicalEntryInstanceName;
-      this.lexicalService.getLexEntryElements(instance).subscribe(
-        data => {
-          console.log(data['elements'])
-          data["elements"] = data["elements"].filter(function (obj) {
-            return obj.count != 0;
-          })
-          newNodes = data["elements"].map((c) => Object.assign({}, c));
 
-          newNodes.forEach(element => {
-            setTimeout(() => {
-              try {
-                const someNode = this.lexicalEntryTree.treeModel.getNodeById(element.id);
+      try {
+        let instance = node.data.lexicalEntryInstanceName;
+        let data = await this.lexicalService.getLexEntryElements(instance).toPromise();
+        console.log(data['elements'])
+        data["elements"] = data["elements"].filter(function (obj) {
+          return obj.count != 0;
+        })
+        newNodes = data["elements"].map((c) => Object.assign({}, c));
 
-                someNode.expand();
-                //console.log(someNode)
-                var that = this;
-                /* this.interval = setInterval((val)=>{                
-                               
-                  
-                }, 2000) */
-              } catch (e) {
-                console.log(e)
-              }
+        if (Object.keys(newNodes).length > 0) {
 
-            }, 1000);
+          for (const element of newNodes) {
 
-          });
+            if (element.label == 'form') {
+              let form_data = await this.lexicalService.getLexEntryForms(instance).toPromise();
+              element.isExpanded = true;
+              element.children = [];
 
-        },
-        error => {
-
-        }
-      );
-    } else if (node.data.label == "form") {
-      let parentInstance = node.parent.data.lexicalEntryInstanceName;
-      this.lexicalService.getLexEntryForms(parentInstance).subscribe(
-        data => {
-          newNodes = data.map((c) => Object.assign({}, c));
-          for (var i = 0; i < newNodes.length; i++) {
-            if (newNodes[i].creator == node.parent.data.creator) {
-              newNodes[i]['flagAuthor'] = false
-            } else {
-              newNodes[i]['flagAuthor'] = true
+              form_data.forEach(form => {
+                element.children.push(form);
+              });
+            } else if (element.label == 'sense') {
+              let sense_data = await this.lexicalService.getSensesList(instance).toPromise();
+              element.isExpanded = true;
+              element.children = [];
+              sense_data.forEach(sense => {
+                element.children.push(sense);
+              });
+            } else if (element.label == 'etymology') {
+              let etymology_data = await this.lexicalService.getEtymologies(instance).toPromise();
+              element.isExpanded = true;
+              element.children = [];
+              etymology_data.forEach(etym => {
+                element.children.push(etym);
+              });
             }
-          }
-        },error=>{
-          console.log(error)
-        }
-      )
-    } else if (node.data.label == "sense") {
-      let parentInstance = node.parent.data.lexicalEntryInstanceName;
-      this.lexicalService.getSensesList(parentInstance).subscribe(
-        data => {
-          console.log(data)
-          newNodes = data.map((c) => Object.assign({}, c));
-          for (var i = 0; i < newNodes.length; i++) {
-            newNodes[i]['hasChildren'] = null;
-            if (newNodes[i].creator == node.parent.data.creator) {
-              newNodes[i]['flagAuthor'] = false
-            } else {
-              newNodes[i]['flagAuthor'] = true
-            }
-          }
-        }, error => {
-          console.log(error)
-        }
-      )
-    } else if (node.data.label == "etymology") {
-      let parentInstance = node.parent.data.lexicalEntryInstanceName;
-      this.lexicalService.getEtymologies(parentInstance).subscribe(
-        data => {
-          console.log(data)
-          newNodes = data.map((c) => Object.assign({}, c));
-          for (var i = 0; i < newNodes.length; i++) {
-            newNodes[i]['hasChildren'] = null;
-            if (newNodes[i].creator == node.parent.data.creator) {
-              newNodes[i]['flagAuthor'] = false
-            } else {
-              newNodes[i]['flagAuthor'] = true
-            }
-          }
-        }, error => {
-          console.log(error)
-        }
-      )
 
-    } else if (node.data.label == "constituent") {
-      let parentInstance = node.parent.data.lexicalEntryInstanceName;
-      this.lexicalService.getConstituents(parentInstance).subscribe(
-        data => {
-          console.log(data)
-          newNodes = data.map((c) => Object.assign({}, c));
-          for (var i = 0; i < newNodes.length; i++) {
-            newNodes[i]['hasChildren'] = null;
-            /* if (newNodes[i].creator == node.parent.data.creator) {
-              newNodes[i]['flagAuthor'] = false
-            } else {
-              newNodes[i]['flagAuthor'] = true
-            } */
           }
-        }, error => {
-          //console.log(error)
+          return newNodes;
+        } else {
+          this.toastr.info('No childs for this node', 'Info', { timeOut: 5000 });
+          return newNodes;
         }
-      )
+        
+      } catch (error) {
+        console.log(error)
+        if(error.status != 200){
+          this.toastr.error("Something went wrong, please check the log", "Error", {timeOut: 5000})
+        }
+      }
+      
 
-    } else if (node.data.label == "subterm") {
-      let parentInstance = node.parent.data.lexicalEntryInstanceName;
-      this.lexicalService.getSubTerms(parentInstance).subscribe(
-        data => {
-          console.log(data)
-          newNodes = data.map((c) => Object.assign({}, c));
-          for (var i = 0; i < newNodes.length; i++) {
-            newNodes[i]['hasChildren'] = null;
-            /* if (newNodes[i].creator == node.parent.data.creator) {
-              newNodes[i]['flagAuthor'] = false
-            } else {
-              newNodes[i]['flagAuthor'] = true
-            } */
-          }
-        }, error => {
-          //console.log(error)
-        }
-      )
 
     }
 
-    return new Promise((resolve, reject) => {
-      setTimeout(() => resolve(newNodes), 1000);
-    });
   }
 
 
   /* To copy any Text */
-  copyText(val: string) {
+  copyText(val: object) {
     console.log(val)
 
     let value = '';
-    if (val['lexicalEntry'] != undefined && val['sense'] == undefined && val['etymology'] == undefined) {
+    if (val['lexicalEntry'] != undefined && val['sense'] == undefined && val['etymology'] == undefined && val['form'] == undefined) {
       value = val['lexicalEntry']
     } else if (val['form'] != undefined) {
       value = val['form']
@@ -1173,5 +1110,18 @@ export class LexicalEntryTreeComponent implements OnInit {
       value = val['etymology']
     }
     this.copySubject.next(value);
+  }
+
+  ngOnDestroy(): void {
+    this.delete_req_subscription.unsubscribe();
+    this.add_sub_subscription.unsubscribe();
+    this.copy_subject_subscription.unsubscribe();
+    this.refresh_filter_subscription.unsubscribe();
+    this.get_lex_entry_list_subscription.unsubscribe();
+    this.get_languages_subscription.unsubscribe();
+    this.get_types_subscription.unsubscribe();
+    this.get_authors_subscription.unsubscribe();
+    this.get_pos_subscription.unsubscribe();
+    this.get_status_subscription.unsubscribe();
   }
 }

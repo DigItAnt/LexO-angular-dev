@@ -34,9 +34,18 @@ export class LexiconPageComponent implements OnInit, OnDestroy {
   bibliography = [];
   attestation : any;
   metadata : any;
+
+  note_panel_subscription : Subscription;
+  trigger_att_panel_subscription : Subscription;
+  trigger_biblio_panel_subscription : Subscription;
+  attestation_panel_subscription : Subscription;
+  medatata_panel_subscription : Subscription;
+  trigger_metatada_panel_subscription : Subscription;
+  right_panel_subscription : Subscription;
+
   ngOnInit(): void {
 
-    this.lexicalService.triggerNotePanel$.subscribe(
+    this.note_panel_subscription = this.lexicalService.triggerNotePanel$.subscribe(
       boolean => {
         setTimeout(() => {
           if(boolean != null){
@@ -91,7 +100,7 @@ export class LexiconPageComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.lexicalService.triggerAttestationPanel$.subscribe(
+    this.trigger_att_panel_subscription = this.lexicalService.triggerAttestationPanel$.subscribe(
       boolean => {
         setTimeout(() => {
           if(boolean != undefined){
@@ -147,7 +156,7 @@ export class LexiconPageComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.biblioService.triggerPanel$.subscribe(
+    this.trigger_biblio_panel_subscription = this.biblioService.triggerPanel$.subscribe(
       object => {
         if(object != undefined){
           let a_link = this.accordion.nativeElement.querySelectorAll('a[data-target="#bibliographyCollapse"]');
@@ -181,7 +190,7 @@ export class LexiconPageComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.lexicalService.attestationPanelData$.subscribe(
+    this.attestation_panel_subscription = this.lexicalService.attestationPanelData$.subscribe(
       data => {
        // console.log(data)
         if(data != null){
@@ -196,7 +205,7 @@ export class LexiconPageComponent implements OnInit, OnDestroy {
       }
     );
 
-    this.documentService.metadataData$.subscribe(
+    this.medatata_panel_subscription = this.documentService.metadataData$.subscribe(
       data => {
         console.log(data);
         if(data != null){
@@ -207,7 +216,7 @@ export class LexiconPageComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.metadata_subscr = this.documentService.triggerMetadataPanel$.subscribe(
+    this.trigger_metatada_panel_subscription = this.documentService.triggerMetadataPanel$.subscribe(
       boolean => {
         setTimeout(() => {
           console.log(boolean)
@@ -263,7 +272,7 @@ export class LexiconPageComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.lexicalService.rightPanelData$.subscribe(
+    this.right_panel_subscription = this.lexicalService.rightPanelData$.subscribe(
       object => {
         this.object = object;
         /* console.log(this.object) */
@@ -287,6 +296,13 @@ export class LexiconPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.metadata_subscr.unsubscribe();
+    this.medatata_panel_subscription.unsubscribe();
+    this.note_panel_subscription.unsubscribe();
+    this.trigger_biblio_panel_subscription.unsubscribe();
+    this.trigger_att_panel_subscription.unsubscribe();
+    this.medatata_panel_subscription.unsubscribe();
+    this.attestation_panel_subscription.unsubscribe();
+    this.trigger_metatada_panel_subscription.unsubscribe();
+    this.right_panel_subscription.unsubscribe();
   }
 }

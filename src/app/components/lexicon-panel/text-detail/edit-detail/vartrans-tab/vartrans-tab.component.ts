@@ -10,7 +10,7 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 
@@ -21,6 +21,7 @@ import {
   trigger,
   state
 } from "@angular/animations";
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-vartrans-tab',
@@ -40,7 +41,7 @@ import {
     ])
   ]
 })
-export class VartransTabComponent implements OnInit {
+export class VartransTabComponent implements OnInit, OnDestroy {
 
   lock = 0;
   object: any;
@@ -52,40 +53,16 @@ export class VartransTabComponent implements OnInit {
   isLexicalEntry = false;
   isSense = false;
 
+  expand_edit_subscription : Subscription; 
+  expand_epi_subscription : Subscription;
   @ViewChild('expander') expander_body: ElementRef;
 
   constructor(private lexicalService: LexicalEntriesService, private expand: ExpanderService, private rend : Renderer2) { }
 
   ngOnInit(): void {
-    this.lexicalService.coreData$.subscribe(
-      object => {
-        if(this.object != object){
-          this.lexicalEntryData = null;
-          this.senseData = null;
-        }
-        this.object = object
-        
-        if(this.object != null){
-          if(this.object.lexicalEntry != undefined && this.object.sense == undefined){
-            this.isLexicalEntry = true;
-            this.isSense = false;
-            this.lexicalEntryData = object;
-          }else if(this.object.sense != undefined){
-            this.isLexicalEntry = false;
-            this.isSense = true;
-            this.senseData = object;
-            this.lexicalEntryData = null;
-          }else if(this.object.form != undefined){
-            this.isLexicalEntry = false;
-            this.isSense = false;
-            this.lexicalEntryData = null;
-            this.object = null;
-          }
-        }
-      }
-    );
+   
     
-    this.expand.expEdit$.subscribe(
+    this.expand_edit_subscription = this.expand.expEdit$.subscribe(
       trigger => {
         if(trigger){
           let isEditExpanded = this.expand.isEditTabExpanded();
@@ -111,7 +88,7 @@ export class VartransTabComponent implements OnInit {
       }
     );
 
-    this.expand.expEpigraphy$.subscribe(
+    this.expand_epi_subscription = this.expand.expEpigraphy$.subscribe(
       trigger => {
         setTimeout(() => {
           if(trigger){
@@ -142,6 +119,11 @@ export class VartransTabComponent implements OnInit {
         trigger: 'hover'
       });
     }, 10);
+  }
+
+  ngOnDestroy(): void {
+    this.expand_edit_subscription.unsubscribe();
+    this.expand_epi_subscription.unsubscribe();
   }
 
 }

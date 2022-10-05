@@ -10,7 +10,7 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, ElementRef, Input, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, NgZone, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { LexicalEntriesService } from '../../../../../services/lexical-entries/lexical-entries.service';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
 
@@ -25,7 +25,7 @@ import {
 import { ToastrService } from 'ngx-toastr';
 import { BibliographyService } from 'src/app/services/bibliography-service/bibliography.service';
 import { ModalComponent } from 'ng-modal-lib';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
 @Component({
@@ -46,7 +46,7 @@ import { debounceTime } from 'rxjs/operators';
     ])
   ]
 })
-export class EtymologyTabComponent implements OnInit {
+export class EtymologyTabComponent implements OnInit, OnDestroy {
 
   lock = 0;
   object: any;
@@ -88,11 +88,17 @@ export class EtymologyTabComponent implements OnInit {
   @ViewChild('addBibliography', { static: false }) modal: ModalComponent;
   @ViewChild('table_body') tableBody: ElementRef;
 
+  etymology_data_subscription : Subscription;
+  expand_edit_subscription : Subscription;
+  expand_epigraphy_subscription : Subscription;
+  spinner_subscription : Subscription;
+  search_subject_subscription : Subscription;
+  bootstrap_bibliography_subscription : Subscription;
   constructor(private lexicalService: LexicalEntriesService, private biblioService: BibliographyService, private expand: ExpanderService, private rend: Renderer2, private toastr: ToastrService) { }
 
   ngOnInit(): void {
 
-    this.lexicalService.etymologyData$.subscribe(
+    this.etymology_data_subscription = this.lexicalService.etymologyData$.subscribe(
       object => {
         if (this.object != object) {
           this.etymologyData = null;
@@ -129,7 +135,7 @@ export class EtymologyTabComponent implements OnInit {
       }
     );
 
-    this.expand.expEdit$.subscribe(
+    this.expand_edit_subscription = this.expand.expEdit$.subscribe(
       trigger => {
         setTimeout(() => {
           if(trigger){
@@ -158,7 +164,7 @@ export class EtymologyTabComponent implements OnInit {
       }
     );
 
-    this.expand.expEpigraphy$.subscribe(
+    this.expand_epigraphy_subscription = this.expand.expEpigraphy$.subscribe(
       trigger => {
         setTimeout(() => {
           if(trigger){
@@ -188,7 +194,7 @@ export class EtymologyTabComponent implements OnInit {
       }
     ) */
 
-    this.lexicalService.spinnerAction$.subscribe(
+    this.spinner_subscription = this.lexicalService.spinnerAction$.subscribe(
       data => {
         if (data == 'on') {
           this.searchIconSpinner = true;
@@ -201,7 +207,7 @@ export class EtymologyTabComponent implements OnInit {
       }
     )
 
-    this.searchSubject.pipe(debounceTime(1000)).subscribe(
+    this.search_subject_subscription = this.searchSubject.pipe(debounceTime(1000)).subscribe(
       data => {
         this.queryTitle = data.query;
         data.queryMode ? this.queryMode = 'everything' : this.queryMode = 'titleCreatorYear';
@@ -219,7 +225,7 @@ export class EtymologyTabComponent implements OnInit {
     $('body').removeClass("modal-open")
     $('body').css("padding-right", "");
 
-    this.biblioService.bootstrapData(this.start, this.sortField, this.direction).subscribe(
+    this.bootstrap_bibliography_subscription = this.biblioService.bootstrapData(this.start, this.sortField, this.direction).subscribe(
       data => {
         this.memorySort = { field: this.sortField, direction: this.direction }
         this.bibliography = data;
@@ -237,68 +243,58 @@ export class EtymologyTabComponent implements OnInit {
     )
   }
 
-
-
-  deleteEtymology() {
+  async deleteEtymology() {
     this.searchIconSpinner = true;
-    let etymId = this.object.etymology.etymologyInstanceName
-    this.lexicalService.deleteEtymology(etymId).subscribe(
-      data => {
-        this.searchIconSpinner = false;
-        this.lexicalService.deleteRequest(this.object);
-        this.lexicalEntryData = null;
-        this.isLexicalEntry = false;
-        this.object = null;
-        this.lexicalService.refreshLangTable();
-        this.lexicalService.refreshFilter({ request: true })
-        this.lexicalService.sendToCoreTab(null);
-        this.lexicalService.sendToRightTab(null);
-        this.biblioService.sendDataToBibliographyPanel(null);
-        this.toastr.success(etymId + ' deleted correctly', '', {
-          timeOut: 5000,
-        });
-      }, error => {
-        this.searchIconSpinner = false;
-        //this.lexicalService.deleteRequest(this.object);
-        //this.lexicalService.refreshLangTable();
-        //this.lexicalService.refreshFilter({request : true})
-        this.toastr.error(error.error, 'Error', {
-          timeOut: 5000,
-        });
-      }
-    )
+    let etymId = this.object.etymology.etymologyInstanceName;
+
+    try {
+      let delete_etym_req = await this.lexicalService.deleteEtymology(etymId).toPromise();
+      this.searchIconSpinner = false;
+      this.lexicalService.deleteRequest(this.object);
+      this.lexicalEntryData = null;
+      this.isLexicalEntry = false;
+      this.object = null;
+      this.lexicalService.refreshLangTable();
+      this.lexicalService.refreshFilter({ request: true })
+      this.lexicalService.sendToCoreTab(null);
+      this.lexicalService.sendToRightTab(null);
+      this.biblioService.sendDataToBibliographyPanel(null);
+      this.toastr.success(etymId + ' deleted correctly', '', {
+        timeOut: 5000,
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
-  addNewEtymology() {
+  async addNewEtymology() {
     this.searchIconSpinner = true;
     this.object['request'] = 'etymology'
-
 
     let parentNodeInstanceName = this.object.parentNodeInstanceName;
     this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
     this.object['request'] = 'etymology'
 
-    console.log(this.object, parentNodeInstanceName)
-    this.lexicalService.createNewEtymology(parentNodeInstanceName).subscribe(
-      data => {
-        console.log(data)
-        data['label'] = 'Etymology of: ' + this.object['parentNodeLabel'];
-        if (data['creator'] == this.object.creator) {
-          data['flagAuthor'] = false;
-        } else {
-          data['flagAuthor'] = true;
-        }
-        this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': data });
-        this.searchIconSpinner = false;
-        this.toastr.success(data['etymologyInstanceName'] + ' added correctly', '', {
-          timeOut: 5000,
-        });
-      }, error => {
-        console.log(error)
-        this.searchIconSpinner = false;
-      }
-    )
+    console.log(this.object, parentNodeInstanceName);
 
+    try {
+      let create_etymon_req = await this.lexicalService.createNewEtymology(parentNodeInstanceName).toPromise();
+      create_etymon_req['label'] = 'Etymology of: ' + this.object['parentNodeLabel'];
+      if (create_etymon_req['creator'] == this.object.creator) {
+        create_etymon_req['flagAuthor'] = false;
+      } else {
+        create_etymon_req['flagAuthor'] = true;
+      }
+      this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': create_etymon_req });
+      this.searchIconSpinner = false;
+      this.toastr.success(create_etymon_req['etymologyInstanceName'] + ' added correctly', '', {
+        timeOut: 5000,
+      });
+    } catch (error) {
+      console.log(error)
+      this.searchIconSpinner = false;
+    }
+ 
   }
 
   showBiblioModal() {
@@ -309,7 +305,7 @@ export class EtymologyTabComponent implements OnInit {
     return item.some(element => element.creatorType === 'author')
   }
 
-  searchBibliography(query?: string, queryMode?: any) {
+  async searchBibliography(query?: string, queryMode?: any) {
     this.start = 0;
     this.selectedItem = null;
     //@ts-ignore
@@ -322,40 +318,38 @@ export class EtymologyTabComponent implements OnInit {
     console.log(query, queryMode)
     this.tableBody.nativeElement.scrollTop = 0;
     if (this.queryTitle != '') {
-      this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).subscribe(
-        data => {
-          console.log(data);
-          this.bibliography = [];
-          data.forEach(element => {
-            this.bibliography.push(element)
-          });
-          setTimeout(() => {
-            //@ts-ignore
-            $('#biblioModalEtym').modal('hide');
-            $('.modal-backdrop').remove();
-          }, 100);
 
-        },
-        error => {
-          console.log(error)
-        }
-      )
-    } else {
-      this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).subscribe(
-        data => {
-          console.log(data);
-          this.bibliography = [];
-          data.forEach(element => {
-            this.bibliography.push(element)
-          });
+      try {
+        let filter_bibliography_req = await this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).toPromise();
+        console.log(filter_bibliography_req);
+        this.bibliography = [];
+        filter_bibliography_req.forEach(element => {
+          this.bibliography.push(element)
+        });
+        setTimeout(() => {
           //@ts-ignore
           $('#biblioModalEtym').modal('hide');
           $('.modal-backdrop').remove();
-        },
-        error => {
-          console.log(error)
-        }
-      )
+        }, 100);
+      } catch (error) {
+        console.log(error)
+      }
+      
+    } else {
+
+      try {
+        let filter_bibliography_req = await this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).toPromise();
+        console.log(filter_bibliography_req);
+        this.bibliography = [];
+        filter_bibliography_req.forEach(element => {
+          this.bibliography.push(element)
+        });
+        //@ts-ignore
+        $('#biblioModalEtym').modal('hide');
+        $('.modal-backdrop').remove();
+      } catch (error) {
+        console.log(error)
+      }
     }
   }
 
@@ -365,7 +359,7 @@ export class EtymologyTabComponent implements OnInit {
     }
   }
 
-  onScrollDown() {
+  async onScrollDown() {
     //@ts-ignore
     $("#biblioModalEtym").modal("show");
     $('.modal-backdrop').appendTo('.table-body');
@@ -378,34 +372,32 @@ export class EtymologyTabComponent implements OnInit {
     this.start += 25;
 
     if (this.queryTitle != '') {
-      this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).subscribe(
-        data => {
-          console.log(data)
-          //@ts-ignore
-          $('#biblioModalEtym').modal('hide');
-          $('.modal-backdrop').remove();
-          data.forEach(element => {
-            this.bibliography.push(element)
-          });
-        }, error => {
-          console.log(error)
-        }
-      )
+      try {
+        let filter_bibliography_req = await this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).toPromise();
+        console.log(filter_bibliography_req)
+        //@ts-ignore
+        $('#biblioModalEtym').modal('hide');
+        $('.modal-backdrop').remove();
+        filter_bibliography_req.forEach(element => {
+          this.bibliography.push(element)
+        });
+      } catch (error) {
+        console.log(error)
+      }
+      
     } else {
-      this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).subscribe(
-        data => {
+      try {
+        let filter_bibliography_req = await this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).toPromise();
+        filter_bibliography_req.forEach(element => {
+          this.bibliography.push(element)
+        });
 
-          data.forEach(element => {
-            this.bibliography.push(element)
-          });
-
-          //@ts-ignore
-          $('#biblioModalEtym').modal('hide');
-          $('.modal-backdrop').remove();
-        }, error => {
-          console.log(error)
-        }
-      );
+        //@ts-ignore
+        $('#biblioModalEtym').modal('hide');
+        $('.modal-backdrop').remove();
+      } catch (error) {
+        console.log(error)
+      }
     }
 
 
@@ -429,7 +421,7 @@ export class EtymologyTabComponent implements OnInit {
 
   }
 
-  sortBibliography(evt?, val?) {
+  async sortBibliography(evt?, val?) {
 
 
     if (this.memorySort.field == val) {
@@ -457,24 +449,22 @@ export class EtymologyTabComponent implements OnInit {
     this.start = 0;
     this.tableBody.nativeElement.scrollTop = 0;
 
-    this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).subscribe(
-      data => {
-        console.log(data)
-        this.bibliography = [];
-        //@ts-ignore
-        $('#biblioModalEtym').modal('hide');
-        $('.modal-backdrop').remove();
-        data.forEach(element => {
-          this.bibliography.push(element)
-        });
-      }, error => {
-        console.log(error)
-      }
-    )
+    try {
+      let filter_bibliography_req = await this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).toPromise();
+      filter_bibliography_req.forEach(element => {
+        this.bibliography.push(element)
+      });
+
+      //@ts-ignore
+      $('#biblioModalEtym').modal('hide');
+      $('.modal-backdrop').remove();
+    } catch (error) {
+      console.log(error)
+    }
 
   }
 
-  addNewForm() {
+  async addNewForm() {
     this.searchIconSpinner = true;
     /* console.log(this.object) */
     this.object['request'] = 'form'
@@ -483,30 +473,31 @@ export class EtymologyTabComponent implements OnInit {
     this.object['request'] = 'form';
     this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
     //console.log(this.object);
-    this.lexicalService.createNewForm(parentNodeInstanceName).subscribe(
-      data => {
-        if (data['creator'] == this.object.creator) {
-          data['flagAuthor'] = false;
-        } else {
-          data['flagAuthor'] = true;
-        }
-        this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': data });
-        this.searchIconSpinner = false;
-        this.toastr.success(data['formInstanceName'] + ' added correctly', '', {
-          timeOut: 5000,
-        });
-      }, error => {
+
+    try {
+      let create_new_form_req = await this.lexicalService.createNewForm(parentNodeInstanceName).toPromise();
+      if (create_new_form_req['creator'] == this.object.creator) {
+        create_new_form_req['flagAuthor'] = false;
+      } else {
+        create_new_form_req['flagAuthor'] = true;
+      }
+      this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': create_new_form_req });
+      this.searchIconSpinner = false;
+      this.toastr.success(create_new_form_req['formInstanceName'] + ' added correctly', '', {
+        timeOut: 5000,
+      });
+    } catch (error) {
+      console.log(error);
+      if(error.status != 200){
         this.searchIconSpinner = false;
         this.toastr.error('Something goes wrong', 'Error', {
           timeOut: 5000,
         });
       }
-    )
-
-
+    }
   }
 
-  addNewSense() {
+  async addNewSense() {
     this.searchIconSpinner = true;
     this.object['request'] = 'sense'
 
@@ -514,31 +505,33 @@ export class EtymologyTabComponent implements OnInit {
     this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
     this.object['request'] = 'sense'
     console.log(this.object);
-    this.lexicalService.createNewSense(parentNodeInstanceName).subscribe(
-      data => {
-        if (data['creator'] == this.object.creator) {
-          data['flagAuthor'] = false;
-        } else {
-          data['flagAuthor'] = true;
-        }
-        this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': data });
-        this.searchIconSpinner = false;
-        this.toastr.success(data['senseInstanceName'] + ' added correctly', '', {
-          timeOut: 5000,
-        });
-        //this.lexicalService.refreshLexEntryTree();
-      }, error => {
+
+    try {
+      let create_new_sense = await this.lexicalService.createNewSense(parentNodeInstanceName).toPromise();
+      if (create_new_sense['creator'] == this.object.creator) {
+        create_new_sense['flagAuthor'] = false;
+      } else {
+        create_new_sense['flagAuthor'] = true;
+      }
+      this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': create_new_sense });
+      this.searchIconSpinner = false;
+      this.toastr.success(create_new_sense['senseInstanceName'] + ' added correctly', '', {
+        timeOut: 5000,
+      });
+    } catch (error) {
+      console.log(error);
+      if(error.status != 200){
         this.searchIconSpinner = false;
         //this.lexicalService.refreshLexEntryTree();
         this.toastr.error(error.error, 'Error', {
           timeOut: 5000,
         });
       }
-    )
+    }
 
   }
 
-  addBibliographyItem(item?) {
+  async addBibliographyItem(item?) {
     //@ts-ignore
     $("#biblioModalEtym").modal("show");
     $('.modal-backdrop').appendTo('.ui-modal');
@@ -579,25 +572,25 @@ export class EtymologyTabComponent implements OnInit {
         url: url,
         seeAlsoLink: seeAlsoLink
       }
-      console.log(instance, parameters)
-      this.lexicalService.addBibliographyData(instance, parameters).subscribe(
-        data => {
-          //console.log(data);
+      console.log(instance, parameters);
 
+      try {
+        let add_biblio_data = await this.lexicalService.addBibliographyData(instance, parameters).toPromise();
+        setTimeout(() => {
+          //@ts-ignore
+          $('#biblioModalEtym').modal('hide');
+          $('.modal-backdrop').remove();
+          this.toastr.success('Item added, check bibliography panel', '', {
+            timeOut: 5000,
+          });
+          this.biblioService.triggerPanel(add_biblio_data)
           setTimeout(() => {
-            //@ts-ignore
-            $('#biblioModalEtym').modal('hide');
-            $('.modal-backdrop').remove();
-            this.toastr.success('Item added, check bibliography panel', '', {
-              timeOut: 5000,
-            });
-            this.biblioService.triggerPanel(data)
-            setTimeout(() => {
-              this.modal.hide();
-            }, 10);
-          }, 300);
-          this.biblioService.sendDataToBibliographyPanel(data);
-        }, error => {
+            this.modal.hide();
+          }, 10);
+        }, 300);
+        this.biblioService.sendDataToBibliographyPanel(add_biblio_data);
+      } catch (error) {
+        if(error.status != 200){
           console.log(error)
           this.toastr.error(error.error, 'Error', {
             timeOut: 5000,
@@ -607,9 +600,9 @@ export class EtymologyTabComponent implements OnInit {
             $('#biblioModalEtym').modal('hide');
             $('.modal-backdrop').remove();
           }, 300);
-
         }
-      )
+      }
+      
     }
 
   }
@@ -633,5 +626,14 @@ export class EtymologyTabComponent implements OnInit {
         console.log(error)
       }
     );
+  }
+
+  ngOnDestroy(): void {
+      this.etymology_data_subscription.unsubscribe();
+      this.expand_edit_subscription.unsubscribe();
+      this.expand_epigraphy_subscription.unsubscribe();
+      this.spinner_subscription.unsubscribe();
+      this.search_subject_subscription.unsubscribe();
+      this.bootstrap_bibliography_subscription.unsubscribe();
   }
 }

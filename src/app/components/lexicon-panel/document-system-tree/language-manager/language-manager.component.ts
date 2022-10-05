@@ -10,10 +10,10 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime, take } from 'rxjs/operators';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { ToastrService } from 'ngx-toastr';
 
@@ -22,7 +22,7 @@ import { ToastrService } from 'ngx-toastr';
   templateUrl: './language-manager.component.html',
   styleUrls: ['./language-manager.component.scss']
 })
-export class LanguageManagerComponent implements OnInit {
+export class LanguageManagerComponent implements OnInit, OnDestroy {
 
   languageList = [];
   editLangArray = [];
@@ -38,6 +38,10 @@ export class LanguageManagerComponent implements OnInit {
     lexvo : new FormControl('', [Validators.required, Validators.minLength(3)]),
     label: new FormControl('', [Validators.required, Validators.minLength(2), Validators.maxLength(3)])
   })
+
+  refresh_lang_table_subscription : Subscription;
+  subject_subscription : Subscription;
+
   constructor(private lexicalService: LexicalEntriesService, private toastr: ToastrService) { }
 
 
@@ -46,7 +50,7 @@ export class LanguageManagerComponent implements OnInit {
     /* this.loadLangData(); */
 
     /*  this.onChanges(); */
-    this.lexicalService.refreshLangTable$.subscribe(
+    this.refresh_lang_table_subscription = this.lexicalService.refreshLangTable$.subscribe(
       data => {
         /* //console.log("refresh"); */
         this.loadLangData();
@@ -55,7 +59,7 @@ export class LanguageManagerComponent implements OnInit {
       }
     )
 
-    this.subject.pipe(debounceTime(1000)).subscribe(
+    this.subject_subscription = this.subject.pipe(debounceTime(1000)).subscribe(
       data => {
         this.onEditLanguage(data)
       }
@@ -64,7 +68,7 @@ export class LanguageManagerComponent implements OnInit {
 
 
   loadLangData() {
-    this.lexicalService.getLexiconLanguages().subscribe(
+    this.lexicalService.getLexiconLanguages().pipe(take(1)).subscribe(
       data => {
         /* //console.log(data) */
         this.languageList = data;
@@ -80,7 +84,7 @@ export class LanguageManagerComponent implements OnInit {
       this.isValid = true;
       this.loadingService = true;
       
-      this.lexicalService.createNewLanguage(inputValue).subscribe(
+      this.lexicalService.createNewLanguage(inputValue).pipe(take(1)).subscribe(
         data => {
           console.log(data)
           this.loadingService = false;
@@ -118,7 +122,7 @@ export class LanguageManagerComponent implements OnInit {
           value: data['v']
         }
   
-        this.lexicalService.updateLanguage(langId, parameters).subscribe(
+        this.lexicalService.updateLanguage(langId, parameters).pipe(take(1)).subscribe(
           data => {
             console.log(data)
             this.lexicalService.refreshLangTable();
@@ -146,7 +150,7 @@ export class LanguageManagerComponent implements OnInit {
           value: data['v']
         }
   
-        this.lexicalService.updateLanguage(langId, parameters).subscribe(
+        this.lexicalService.updateLanguage(langId, parameters).pipe(take(1)).subscribe(
           data => {
             console.log(data)
             this.lexicalService.refreshLangTable();
@@ -174,7 +178,7 @@ export class LanguageManagerComponent implements OnInit {
             value: data['v']
           }
     
-          this.lexicalService.updateLanguage(langId, parameters).subscribe(
+          this.lexicalService.updateLanguage(langId, parameters).pipe(take(1)).subscribe(
             data => {
               console.log(data)
               this.lexicalService.refreshLangTable();
@@ -225,7 +229,7 @@ export class LanguageManagerComponent implements OnInit {
 
   deleteLangRequest(){
     let langId = this.removeMessage;
-    this.lexicalService.deleteLanguage(langId).subscribe(
+    this.lexicalService.deleteLanguage(langId).pipe(take(1)).subscribe(
       data=>{
         console.log(data);
         this.lexicalService.refreshLangTable();
@@ -244,5 +248,9 @@ export class LanguageManagerComponent implements OnInit {
     )
   }
 
+  ngOnDestroy(): void {
+      this.refresh_lang_table_subscription.unsubscribe();
+      this.subject_subscription.unsubscribe();
+  }
 
 }

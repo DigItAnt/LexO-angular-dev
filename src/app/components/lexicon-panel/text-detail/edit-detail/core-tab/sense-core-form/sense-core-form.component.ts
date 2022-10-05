@@ -10,10 +10,10 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Subject, Subscription } from 'rxjs';
-import { debounceTime, pairwise, startWith } from 'rxjs/operators';
+import { debounceTime, pairwise, startWith, take } from 'rxjs/operators';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { ToastrService } from 'ngx-toastr';
 
@@ -23,7 +23,7 @@ import { ToastrService } from 'ngx-toastr';
   templateUrl: './sense-core-form.component.html',
   styleUrls: ['./sense-core-form.component.scss']
 })
-export class SenseCoreFormComponent implements OnInit {
+export class SenseCoreFormComponent implements OnInit, OnDestroy {
 
   @Input() senseData: any;
 
@@ -56,6 +56,8 @@ export class SenseCoreFormComponent implements OnInit {
   definitionArray: FormArray;
   lexicalConceptArray: FormArray;
 
+  subject_def_subscription : Subscription;  
+  subject_ex_def_subscription : Subscription;
   constructor(private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder, private toastr: ToastrService) { }
 
   ngOnInit() {
@@ -67,13 +69,13 @@ export class SenseCoreFormComponent implements OnInit {
     }, 1000);
     this.loadPeople();
 
-    this.subject_def.pipe(debounceTime(1000)).subscribe(
+    this.subject_def_subscription = this.subject_def.pipe(debounceTime(1000)).subscribe(
       data => {
         this.onChangeDefinition(data)
       }
     )
 
-    this.subject_ex_def.pipe(debounceTime(1000)).subscribe(
+    this.subject_ex_def_subscription = this.subject_ex_def.pipe(debounceTime(1000)).subscribe(
       data => {
         this.onChangeExistingDefinition(data['evt'], data['i'])
       }
@@ -160,7 +162,7 @@ export class SenseCoreFormComponent implements OnInit {
         relation: "usage",
         value: newDef
       }
-      this.lexicalService.updateSense(senseId, parameters).subscribe(
+      this.lexicalService.updateSense(senseId, parameters).pipe(take(1)).subscribe(
         data => {
           console.log(data)
           this.lexicalService.spinnerAction('off');
@@ -203,7 +205,7 @@ export class SenseCoreFormComponent implements OnInit {
           value: confidence_value
       }
       console.log(parameters)
-      this.lexicalService.updateGenericRelation(senseId, parameters).subscribe(
+      this.lexicalService.updateGenericRelation(senseId, parameters).pipe(take(1)).subscribe(
           data => {
               console.log(data);
               /* data['request'] = 0;
@@ -240,7 +242,7 @@ export class SenseCoreFormComponent implements OnInit {
           relation: "subject",
           value: newTopic
         }
-        this.lexicalService.updateSense(senseId, parameters).subscribe(
+        this.lexicalService.updateSense(senseId, parameters).pipe(take(1)).subscribe(
           data => {
             console.log(data)
             this.lexicalService.spinnerAction('off');
@@ -276,7 +278,7 @@ export class SenseCoreFormComponent implements OnInit {
       }
       //console.log(senseId)
       console.log(parameters);
-      this.lexicalService.updateSense(senseId, parameters).subscribe(
+      this.lexicalService.updateSense(senseId, parameters).pipe(take(1)).subscribe(
         data => {
           console.log(data)
           this.lexicalService.spinnerAction('off');
@@ -310,7 +312,7 @@ export class SenseCoreFormComponent implements OnInit {
       value: 0
     }
     console.log(parameters)
-    this.lexicalService.deleteLinguisticRelation(senseId, parameters).subscribe(
+    this.lexicalService.deleteLinguisticRelation(senseId, parameters).pipe(take(1)).subscribe(
       data => {
         console.log(data);
         /* data['request'] = 0;
@@ -394,7 +396,7 @@ export class SenseCoreFormComponent implements OnInit {
         value: value
       }
 
-      this.lexicalService.deleteLinguisticRelation(senseId, parameters).subscribe(
+      this.lexicalService.deleteLinguisticRelation(senseId, parameters).pipe(take(1)).subscribe(
         data => {
           console.log(data)
           this.lexicalService.updateCoreCard(this.object)
@@ -457,7 +459,7 @@ export class SenseCoreFormComponent implements OnInit {
     if (trait != undefined && newValue != '') {
 
       this.staticDef[i] = { trait: trait, value: newValue };
-      this.lexicalService.updateSense(senseId, parameters).pipe(debounceTime(1000)).subscribe(
+      this.lexicalService.updateSense(senseId, parameters).pipe(take(1)).subscribe(
         data => {
           console.log(data)
           this.lexicalService.spinnerAction('off');
@@ -506,7 +508,7 @@ export class SenseCoreFormComponent implements OnInit {
     if (trait != undefined) {
 
       this.staticDef.push({ trait: trait, value: newValue });
-      this.lexicalService.updateSense(senseId, parameters).pipe(debounceTime(1000)).subscribe(
+      this.lexicalService.updateSense(senseId, parameters).pipe(take(1)).subscribe(
         data => {
           console.log(data)
           this.lexicalService.spinnerAction('off');
@@ -576,5 +578,10 @@ export class SenseCoreFormComponent implements OnInit {
   removeLexicalConcept(index) {
     this.lexicalConceptArray = this.senseCore.get('lexical_concept') as FormArray;
     this.lexicalConceptArray.removeAt(index);
+  }
+
+  ngOnDestroy(): void {
+      this.subject_def_subscription.unsubscribe();
+      this.subject_ex_def_subscription.unsubscribe();
   }
 }

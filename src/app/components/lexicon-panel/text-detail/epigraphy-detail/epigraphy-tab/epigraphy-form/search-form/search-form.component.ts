@@ -10,13 +10,13 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, Input, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent } from '@ng-select/ng-select';
 import { data } from 'jquery';
 import { ToastrService } from 'ngx-toastr';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { AnnotatorService } from 'src/app/services/annotator/annotator.service';
 import { AuthService } from 'src/app/services/auth/auth.service';
@@ -28,7 +28,7 @@ import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-
   templateUrl: './search-form.component.html',
   styleUrls: ['./search-form.component.scss']
 })
-export class SearchFormComponent implements OnInit {
+export class SearchFormComponent implements OnInit, OnDestroy {
   private search_subject: Subject<any> = new Subject();
   private search_lex_entries_subject: Subject<any> = new Subject();
   searchResults: any[];
@@ -40,6 +40,12 @@ export class SearchFormComponent implements OnInit {
   addTagFormText: any;
   creator : any;
 
+
+  search_subscription : Subscription;
+  get_languages_subscription : Subscription;
+  get_morphology_subscription : Subscription;
+  get_lex_entry_type_subscription : Subscription;
+  get_form_type_subscription : Subscription;
 
   constructor(private formBuilder: FormBuilder, private modalService: NgbModal, private toastr: ToastrService, private annotatorService: AnnotatorService, private lexicalService: LexicalEntriesService, private expander: ExpanderService, private renderer: Renderer2, private auth : AuthService) { }
 
@@ -92,7 +98,7 @@ export class SearchFormComponent implements OnInit {
       this.creator = this.auth.getLoggedUser()['preferred_username'];
     }
 
-    this.search_lex_entries_subject.pipe(debounceTime(1000)).subscribe(
+    this.search_subscription = this.search_lex_entries_subject.pipe(debounceTime(1000)).subscribe(
       data => {
         this.onSearchLexicalEntriesFilter(data)
       }
@@ -103,8 +109,8 @@ export class SearchFormComponent implements OnInit {
         this.onSearchFilter(data)
       }
     )
-
-    this.lexicalService.getLexiconLanguages().subscribe(
+    
+    this.get_languages_subscription = this.lexicalService.getLexiconLanguages().subscribe(
       data => {
         this.languages = [];
         for (var i = 0; i < data.length; i++) {
@@ -113,7 +119,7 @@ export class SearchFormComponent implements OnInit {
       }
     );
 
-    this.lexicalService.getMorphologyData().subscribe(
+    this.get_morphology_subscription = this.lexicalService.getMorphologyData().subscribe(
       data => {
         /* this.morphologyData = data; */
 
@@ -131,7 +137,7 @@ export class SearchFormComponent implements OnInit {
       }
     )
 
-    this.lexicalService.getLexEntryTypes().subscribe(
+    this.get_lex_entry_type_subscription = this.lexicalService.getLexEntryTypes().subscribe(
       data => {
         //console.log(data)
         this.lexEntryTypesData = data;
@@ -139,7 +145,7 @@ export class SearchFormComponent implements OnInit {
       }
     )
 
-    this.lexicalService.getFormTypes().subscribe(
+    this.get_form_type_subscription = this.lexicalService.getFormTypes().subscribe(
       data => {
         this.typesData = data;
         //console.log(this.typesData)
@@ -211,7 +217,7 @@ export class SearchFormComponent implements OnInit {
     }
   }
 
-  onSearchFilter(data) {
+  async onSearchFilter(data) {
     this.searchResults = [];
     /* console.log(data) */
     let parameters = {
@@ -225,21 +231,20 @@ export class SearchFormComponent implements OnInit {
     console.log(parameters)
     if (data != undefined) { /* && data.length >= 3 */
 
-      this.lexicalService.getFormList(parameters).subscribe(
-        data => {
-          console.log(data)
-          this.searchResults = data['list'];
-          this.loader = false;
-        }, error => {
-          console.log(error)
-          this.loader = false;
-        }
-      )
+      try {
+        let form_list = await this.lexicalService.getFormList(parameters).toPromise();
+        this.searchResults = form_list['list'];
+        this.loader = false;
+
+      } catch (error) {
+        console.log(error)
+        this.loader = false;
+      }
     }
 
   }
 
-  onSearchLexicalEntriesFilter(data) {
+  async onSearchLexicalEntriesFilter(data) {
     this.searchResults = [];
     /* console.log(data) */
     let parameters = {
@@ -258,15 +263,14 @@ export class SearchFormComponent implements OnInit {
     console.log(parameters)
     if (data != "") { /* && data.length >= 3 */
 
-      this.lexicalService.getLexicalEntriesList(parameters).subscribe(
-        data => {
-          console.log(data)
-          this.lex_searchResuts = data['list'];
-          this.loader = false;
-        }, error => {
-          //console.log(error)
-        }
-      )
+      try {
+        let lex_list = await this.lexicalService.getLexicalEntriesList(parameters).toPromise();
+        this.lex_searchResuts = lex_list['list'];
+        this.loader = false;
+      } catch (error) {
+        console.log(error)
+      }
+      
     }
 
   }
@@ -312,7 +316,7 @@ export class SearchFormComponent implements OnInit {
   }
 
 
-  onChangeForm(data) {
+  async onChangeForm(data) {
 
 
 
@@ -433,21 +437,21 @@ export class SearchFormComponent implements OnInit {
       identifier = element_id
     }
 
-    this.annotatorService.addAnnotation(parameters, identifier).subscribe(
-      data => {
-        console.log(data);
-        this.bind.annotationArray.push(data.annotation);
+    try {
+      let add_annotation_request = await this.annotatorService.addAnnotation(parameters, identifier).toPromise()
+      console.log(data);
+      this.bind.annotationArray.push(add_annotation_request.annotation);
 
         if (!this.bind.isEmptyFile) {
           this.bind.populateLocalAnnotation(tokenData);
         } else {
-          this.bind.populateLocalAnnotation(data.annotation)
+          this.bind.populateLocalAnnotation(add_annotation_request.annotation)
         }
 
 
         if (!this.bind.isEmptyFile) {
           this.bind.object.forEach(element => {
-            if (data.annotation.attributes.node_id == element.id) {
+            if (add_annotation_request.annotation.attributes.node_id == element.id) {
               let positionElement = element.position;
               let elementHTML = document.getElementsByClassName('token-' + (positionElement - 1))[0]
               this.renderer.addClass(elementHTML, 'annotation');
@@ -459,17 +463,13 @@ export class SearchFormComponent implements OnInit {
         this.toastr.success('New attestation created', 'Info', {
           timeOut: 5000
         })
-
-      },
-      error => {
-        console.log(error);
+    } catch (error) {
+      if(error.status != 200){
         this.toastr.error('Error on create new attestation', 'Error', {
           timeOut: 5000
         })
       }
-    )
-
-
+    }
   }
 
   addNewForm = (form: string) => {
@@ -630,232 +630,219 @@ export class SearchFormComponent implements OnInit {
     }
   }
 
-  wizardFactory() {
+  async wizardFactory() {
 
     //nuova lexical entry
     if (this.stepThreeForm.touched) {
 
       //lexical entry creazion
       this.statusForm.get('lexicalEntryCreation').patchValue('pending', { emitEvent: false });
-      this.lexicalService.newLexicalEntry().subscribe(
-        data => {
-          console.log(data);
+      
+      try {
+        let new_lex_entry_request = await this.lexicalService.newLexicalEntry().toPromise();
+        
+        this.statusForm.get('lexicalEntryCreation').patchValue('ok', { emitEvent: false })
+        this.statusForm.get('attachingLanguage').patchValue('pending', { emitEvent: false })
 
-          this.statusForm.get('lexicalEntryCreation').patchValue('ok', { emitEvent: false })
-
-          this.statusForm.get('attachingLanguage').patchValue('pending', { emitEvent: false })
-          //attaching language
-          let lexId = data.lexicalEntryInstanceName;
-          let lang = this.stepThreeForm.get('language').value;
-          let parameters = {
-            relation: 'language',
-            value: lang
-          }
-
-          this.lexicalService.updateLexicalEntry(lexId, parameters).subscribe(
-            data => {
-              console.log(data)
-            }, error => {
-              console.log(error);
-
-              if (error.status == 200) {
-                this.statusForm.get('attachingLanguage').patchValue('ok', { emitEvent: false });
-
-
-                //attaching type
-                this.statusForm.get('attachingType').patchValue('pending', { emitEvent: false });
-                let type = this.stepThreeForm.get('type').value;
-                let parameters = {
-                  relation: 'type',
-                  value: type
-                }
-
-                this.lexicalService.updateLexicalEntry(lexId, parameters).subscribe(
-                  data => {
-                    console.log(data)
-                  }, error => {
-                    console.log(error);
-                    if (error.status == 200) {
-
-                      this.statusForm.get('attachingType').patchValue('ok', { emitEvent: false });
-
-                      this.statusForm.get('attachingLabel').patchValue('pending', { emitEvent: false });
-                      //attaching label
-                      let label = this.stepThreeForm.get('label').value;
-                      let parameters = {
-                        relation: 'label',
-                        value: label
-                      };
-
-                      this.lexicalService.updateLexicalEntry(lexId, parameters).subscribe(
-                        data => {
-                          console.log(data)
-                        }, error => {
-                          console.log(error);
-
-                          if (error.status == 200) {
-                            this.statusForm.get('attachingLabel').patchValue('ok', { emitEvent: false });
-
-
-                            //attaching pos
-                            this.statusForm.get('attachingPos').patchValue('pending', { emitEvent: false });
-
-                            let pos = this.stepThreeForm.get('pos').value;
-                            let parameters = {
-                              type: 'morphology',
-                              relation: 'partOfSpeech',
-                              value: pos
-                            }
-
-                            this.lexicalService.updateLinguisticRelation(lexId, parameters).subscribe(
-                              data => {
-                                console.log(data)
-                              }, error => {
-                                console.log(error);
-
-                                this.statusForm.get('attachingPos').patchValue('ok', { emitEvent: false });
-
-                                //creating form
-                                this.statusForm.get('creatingForm').patchValue('pending', { emitEvent: false });
-
-
-                                this.lexicalService.createNewForm(lexId).subscribe(
-                                  data=>{
-                                    console.log(data);
-
-                                    let formId = data.formInstanceName;
-
-                                    this.statusForm.get('creatingForm').patchValue('ok', { emitEvent: false });
-
-
-                                    //attaching writtenRep to form
-                                    this.statusForm.get('attachingWrittenForm').patchValue('pending', { emitEvent: false });
-                                    let writtenRep = this.stepFourForm.get('writtenForm').value;
-                                    let parameters = {
-                                      relation: 'writtenRep',
-                                      value: writtenRep
-                                    }
-
-                                    this.lexicalService.updateForm(formId, parameters).subscribe(
-                                      data=>{
-                                        console.log(data)
-                                        this.statusForm.get('attachingWrittenForm').patchValue('ok', { emitEvent: false });
-                                      },error=>{
-                                        console.log(error)
-                                        this.statusForm.get('attachingWrittenForm').patchValue('ok', { emitEvent: false });
-
-                                        //attach type to form
-                                        this.statusForm.get('attachingFormType').patchValue('pending', { emitEvent: false });
-                                        let typeForm = this.stepFourForm.get('type').value;
-
-                                        let parameters = {
-                                          relation: 'type',
-                                          value : typeForm
-                                        }
-
-                                        this.lexicalService.updateForm(formId, parameters).subscribe(
-                                          data=>{
-                                            console.log(data);
-                                            this.statusForm.get('attachingFormType').patchValue('ok', { emitEvent: false });
-                                            this.statusForm.get('finish').patchValue('ok', { emitEvent: false });
-                                          },error=>{
-                                            console.log(error);
-                                            this.statusForm.get('attachingFormType').patchValue('ok', { emitEvent: false });
-
-                                            this.statusForm.get('finish').patchValue('ok', { emitEvent: false });
-
-                                          }
-                                        )
-                                      }
-                                    )
-
-                                  },error=>{
-                                    console.log(error);
-
-                                  }
-                                )
-                              }
-                            )
-                          }
-                        }
-                      )
-
-                    }
-                  }
-                )
-
-              }
-            }
-          )
-
-        }, error => {
-          console.log(error)
+        //attaching language
+        let lexId = new_lex_entry_request['lexicalEntryInstanceName'];
+        let lang = this.stepThreeForm.get('language').value;
+        let parameters = {
+          relation: 'language',
+          value: lang
         }
-      )
+
+        try {
+          let update_lang_new_lex_request = await this.lexicalService.updateLexicalEntry(lexId, parameters).toPromise();
+        } catch (error) {
+
+          if(error.status == 200){
+            this.statusForm.get('attachingLanguage').patchValue('ok', { emitEvent: false });
+            //attaching type
+            this.statusForm.get('attachingType').patchValue('pending', { emitEvent: false });
+            let type = this.stepThreeForm.get('type').value;
+            let parameters = {
+              relation: 'type',
+              value: type
+            }
+
+            try {
+              let attach_type_req = await this.lexicalService.updateLexicalEntry(lexId, parameters).toPromise()
+            } catch (error) {
+              if(error.status == 200){
+                this.statusForm.get('attachingType').patchValue('ok', { emitEvent: false });
+
+                this.statusForm.get('attachingLabel').patchValue('pending', { emitEvent: false });
+                //attaching label
+                let label = this.stepThreeForm.get('label').value;
+                let parameters = {
+                  relation: 'label',
+                  value: label
+                };
+
+                try{
+                  let attach_label = await this.lexicalService.updateLexicalEntry(lexId, parameters).toPromise();
+
+                }catch(error){
+                  if(error.status == 200){
+                    this.statusForm.get('attachingLabel').patchValue('ok', { emitEvent: false });
+                    //attaching pos
+                    this.statusForm.get('attachingPos').patchValue('pending', { emitEvent: false });
+
+                    let pos = this.stepThreeForm.get('pos').value;
+                    let parameters = {
+                      type: 'morphology',
+                      relation: 'partOfSpeech',
+                      value: pos
+                    }
+
+                    try {
+                      let attach_pos = await this.lexicalService.updateLinguisticRelation(lexId, parameters).toPromise();
+                    } catch (error) {
+                      if(error.status == 200){
+                        this.statusForm.get('attachingPos').patchValue('ok', { emitEvent: false });
+
+                        //creating form
+                        this.statusForm.get('creatingForm').patchValue('pending', { emitEvent: false });
+
+                        try {
+                          let create_form = await this.lexicalService.createNewForm(lexId).toPromise();
+                          console.log(create_form);
+                          let formId = create_form.formInstanceName;
+
+                          this.statusForm.get('creatingForm').patchValue('ok', { emitEvent: false });
+
+
+                          //attaching writtenRep to form
+                          this.statusForm.get('attachingWrittenForm').patchValue('pending', { emitEvent: false });
+                          let writtenRep = this.stepFourForm.get('writtenForm').value;
+                          let parameters = {
+                            relation: 'writtenRep',
+                            value: writtenRep
+                          }
+
+                          try {
+                            let attach_written_rep = await this.lexicalService.updateForm(formId, parameters).toPromise();
+                          } catch (error) {
+                            if(error.status == 200){
+                              this.statusForm.get('attachingWrittenForm').patchValue('ok', { emitEvent: false });
+                              //attach type to form
+                              this.statusForm.get('attachingFormType').patchValue('pending', { emitEvent: false });
+                              let typeForm = this.stepFourForm.get('type').value;
+
+                              let parameters = {
+                                relation: 'type',
+                                value : typeForm
+                              }
+
+                              try {
+                                let attach_type_form = await this.lexicalService.updateForm(formId, parameters).toPromise();
+                                this.statusForm.get('attachingFormType').patchValue('ok', { emitEvent: false });
+                                this.statusForm.get('finish').patchValue('ok', { emitEvent: false });
+                              } catch (error) {
+                                if(error.status == 200){
+                                  this.statusForm.get('attachingFormType').patchValue('ok', { emitEvent: false });
+                                  this.statusForm.get('finish').patchValue('ok', { emitEvent: false });
+                                }else{
+                                  this.toastr.error("Error on attaching form type", "Error", {timeOut: 5000})
+                                }
+                              }
+
+                            }else{
+                              this.toastr.error("Error on attaching writtenRep", "Error", {timeOut: 5000})
+                            }
+                          }
+                        } catch (error) {
+                          this.toastr.error("Error on creating new form", "Error", {timeOut: 5000})
+                        }
+                      }else{
+                        this.toastr.error("Error on attaching POS", "Error", {timeOut:5000})
+                      }
+                    }
+                  }else{
+                    this.toastr.error("Error on attaching label", "Error", {timeOut: 5000})
+                  }
+                }
+              }else{
+                this.toastr.error("Error on attaching type", "Error", {timeOut: 5000})
+              }
+              
+            }
+          }else{
+            this.toastr.error(error.error.message, "Error")
+          }
+          
+        }
+      } catch (error) {
+        this.toastr.error("Error on creating lexical entry", "Error")
+      }
     } else if (this.stepTwoForm.touched) { //lexical entry esistente
 
       let lexId = this.stepTwoForm.get('lexicalEntry').value;
       //creating form
       this.statusForm.get('creatingForm').patchValue('pending', { emitEvent: false });
 
+      try {
+        let create_new_form = await this.lexicalService.createNewForm(lexId).toPromise();
+        console.log(create_new_form);
 
-      this.lexicalService.createNewForm(lexId).subscribe(
-        data=>{
-          console.log(data);
+        let formId = create_new_form.formInstanceName;
 
-          let formId = data.formInstanceName;
-
-          this.statusForm.get('creatingForm').patchValue('ok', { emitEvent: false });
+        this.statusForm.get('creatingForm').patchValue('ok', { emitEvent: false });
 
 
-          //attaching writtenRep to form
-          this.statusForm.get('attachingWrittenForm').patchValue('pending', { emitEvent: false });
-          let writtenRep = this.stepFourForm.get('writtenForm').value;
-          let parameters = {
-            relation: 'writtenRep',
-            value: writtenRep
-          }
-
-          this.lexicalService.updateForm(formId, parameters).subscribe(
-            data=>{
-              console.log(data)
-              this.statusForm.get('attachingWrittenForm').patchValue('ok', { emitEvent: false });
-            },error=>{
-              console.log(error)
-              this.statusForm.get('attachingWrittenForm').patchValue('ok', { emitEvent: false });
-
-              //attach type to form
-              this.statusForm.get('attachingFormType').patchValue('pending', { emitEvent: false });
-              let typeForm = this.stepFourForm.get('type').value;
-
-              let parameters = {
-                relation: 'type',
-                value : typeForm
-              }
-
-              this.lexicalService.updateForm(formId, parameters).subscribe(
-                data=>{
-                  console.log(data);
-                  this.statusForm.get('attachingFormType').patchValue('ok', { emitEvent: false });
-                  this.statusForm.get('finish').patchValue('ok', { emitEvent: false });
-                },error=>{
-                  console.log(error);
-                  this.statusForm.get('attachingFormType').patchValue('ok', { emitEvent: false });
-
-                  this.statusForm.get('finish').patchValue('ok', { emitEvent: false });
-
-                }
-              )
-            }
-          )
-
-        },error=>{
-          console.log(error);
-
+        //attaching writtenRep to form
+        this.statusForm.get('attachingWrittenForm').patchValue('pending', { emitEvent: false });
+        let writtenRep = this.stepFourForm.get('writtenForm').value;
+        let parameters = {
+          relation: 'writtenRep',
+          value: writtenRep
         }
-      )
-      
+
+        try {
+          let attach_written_rep = await this.lexicalService.updateForm(formId, parameters).toPromise(); 
+        } catch (error) {
+          if(error.status == 200){
+            this.statusForm.get('attachingWrittenForm').patchValue('ok', { emitEvent: false });
+            //attach type to form
+            this.statusForm.get('attachingFormType').patchValue('pending', { emitEvent: false });
+            let typeForm = this.stepFourForm.get('type').value;
+
+            let parameters = {
+              relation: 'type',
+              value : typeForm
+            }
+
+            try {
+              let attach_type = await this.lexicalService.updateForm(formId, parameters).toPromise();
+              this.statusForm.get('attachingFormType').patchValue('ok', { emitEvent: false });
+              this.statusForm.get('finish').patchValue('ok', { emitEvent: false });
+            } catch (error) {
+              if(error.status == 200){
+                this.statusForm.get('attachingFormType').patchValue('ok', { emitEvent: false });
+                this.statusForm.get('finish').patchValue('ok', { emitEvent: false });
+              }else{
+                this.toastr.error("Error on attaching type", "Error", {timeOut: 5000})
+              }
+            }
+          }else{
+            this.toastr.error("Error on attaching writtenRep", "Error", {timeOut : 5000})
+          }
+        }
+      } catch (error) {
+        if(error.status != 200){
+          this.toastr.error("Error on creating new form", "Error", {timeOut: 5000});
+        }
+      } 
     }
+  }
+
+  ngOnDestroy(): void {
+      this.search_subscription.unsubscribe();
+      this.get_languages_subscription.unsubscribe();
+      this.get_morphology_subscription.unsubscribe();
+      this.get_lex_entry_type_subscription.unsubscribe();
+      this.get_form_type_subscription.unsubscribe();
   }
 
 }

@@ -27,10 +27,12 @@ export class EpigraphyDetailComponent implements OnInit, OnDestroy {
 
   object : any;
   subscription : Subscription;
+
+  open_epigraphy_subscription : Subscription;
   constructor(private documentService: DocumentSystemService, private exp : ExpanderService) { }
 
   ngOnInit(): void {
-    this.exp.openEpigraphy$.subscribe(
+    this.open_epigraphy_subscription = this.exp.openEpigraphy$.subscribe(
       boolean => {
         if(boolean){
           setTimeout(() => {
@@ -144,5 +146,6 @@ export class EpigraphyDetailComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
+    this.open_epigraphy_subscription.unsubscribe();
   }
 }

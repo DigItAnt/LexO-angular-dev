@@ -10,10 +10,10 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { Form, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Subject, Subscription } from 'rxjs';
-import { debounceTime, pairwise, startWith } from 'rxjs/operators';
+import { debounceTime, pairwise, startWith, take } from 'rxjs/operators';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { ToastrService } from 'ngx-toastr';
 
@@ -22,7 +22,7 @@ import { ToastrService } from 'ngx-toastr';
   templateUrl: './form-core-form.component.html',
   styleUrls: ['./form-core-form.component.scss']
 })
-export class FormCoreFormComponent implements OnInit {
+export class FormCoreFormComponent implements OnInit, OnDestroy {
 
   @Input() formData: any;
 
@@ -63,10 +63,15 @@ export class FormCoreFormComponent implements OnInit {
   disableAddOther = false;
   disableAddMorpho = false;
 
+  get_morpho_data_subscription : Subscription;
+  subject_label_subscription : Subscription;
+  subject_ex_label_subscription : Subscription;
+  get_form_type_subscription : Subscription;
+
   constructor( private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder, private toastr: ToastrService) { }
 
   ngOnInit() {
-    this.lexicalService.getMorphologyData().subscribe(
+    this.get_morpho_data_subscription = this.lexicalService.getMorphologyData().subscribe(
       data => {
         this.morphologyData = data;
         this.morphologyData = this.morphologyData.filter(x => {
@@ -97,20 +102,21 @@ export class FormCoreFormComponent implements OnInit {
     })
 
     this.onChanges();
-    this.subject_label.pipe(debounceTime(1000)).subscribe(
+    
+    this.subject_label_subscription = this.subject_label.pipe(debounceTime(1000)).subscribe(
       data => {
         this.onChangeLabel(data)
       }
     )
 
-    this.subject_ex_label.pipe(debounceTime(1000)).subscribe(
+    this.subject_ex_label_subscription = this.subject_ex_label.pipe(debounceTime(1000)).subscribe(
       data => {
 
         this.onChangeExistingLabelValue(data['evt'], data['i']);
       }
     )
 
-    this.lexicalService.getFormTypes().subscribe(
+    this.get_form_type_subscription = this.lexicalService.getFormTypes().subscribe(
       data => {
         this.typesData = data;
         //console.log(this.typesData)
@@ -214,7 +220,7 @@ export class FormCoreFormComponent implements OnInit {
 
             this.staticMorpho.push({ trait: trait, value: value })
           }
-        }, 100);
+        }, 1);
 
 
         setTimeout(() => {
@@ -243,7 +249,7 @@ export class FormCoreFormComponent implements OnInit {
 
         }, 1000);
       }
-    }, 200)
+    }, 1)
 
   }
 
@@ -268,7 +274,7 @@ export class FormCoreFormComponent implements OnInit {
           value: confidence_value
       }
       console.log(parameters)
-      this.lexicalService.updateGenericRelation(formId, parameters).subscribe(
+      this.lexicalService.updateGenericRelation(formId, parameters).pipe(take(1)).subscribe(
           data => {
               console.log(data);
               /* data['request'] = 0;
@@ -305,7 +311,7 @@ export class FormCoreFormComponent implements OnInit {
     const newType = evt.target.value;
     const formId = this.object.formInstanceName
     const parameters = { relation: "type", value: newType }
-    this.lexicalService.updateForm(formId, parameters).pipe(debounceTime(500)).subscribe(
+    this.lexicalService.updateForm(formId, parameters).pipe(take(1)).subscribe(
       data => {
         console.log(data)
         this.lexicalService.spinnerAction('off');
@@ -398,7 +404,7 @@ export class FormCoreFormComponent implements OnInit {
       let formId = this.object.formInstanceName;
       console.log(parameters)
 
-      this.lexicalService.updateLinguisticRelation(formId, parameters).pipe(debounceTime(1000)).subscribe(
+      this.lexicalService.updateLinguisticRelation(formId, parameters).pipe(take(1)).subscribe(
         data => {
           console.log(data)
           //this.lexicalService.refreshAfterEdit(data);
@@ -462,7 +468,7 @@ export class FormCoreFormComponent implements OnInit {
 
       this.staticMorpho.push({ trait: trait, value: value })
 
-      this.lexicalService.updateLinguisticRelation(formId, parameters).pipe(debounceTime(1000)).subscribe(
+      this.lexicalService.updateLinguisticRelation(formId, parameters).pipe(take(1)).subscribe(
         data => {
           console.log(data)
           this.lexicalService.spinnerAction('off');
@@ -598,7 +604,7 @@ export class FormCoreFormComponent implements OnInit {
 
 
 
-      this.lexicalService.updateForm(formId, parameters).pipe(debounceTime(1000)).subscribe(
+      this.lexicalService.updateForm(formId, parameters).pipe(take(1)).subscribe(
         data => {
           console.log(data)
           this.lexicalService.spinnerAction('off');
@@ -649,7 +655,7 @@ export class FormCoreFormComponent implements OnInit {
     this.staticOtherDef.push({ trait: trait, value: newValue })
 
     if (trait != undefined && newValue != '') {
-      this.lexicalService.updateForm(formId, parameters).pipe(debounceTime(1000)).subscribe(
+      this.lexicalService.updateForm(formId, parameters).pipe(take(1)).subscribe(
         data => {
           console.log(data)
           this.lexicalService.spinnerAction('off');
@@ -757,7 +763,7 @@ export class FormCoreFormComponent implements OnInit {
         value: value
       }
 
-      this.lexicalService.deleteLinguisticRelation(formId, parameters).subscribe(
+      this.lexicalService.deleteLinguisticRelation(formId, parameters).pipe(take(1)).subscribe(
         data => {
           console.log(data)
           this.toastr.success('Element removed', '', {
@@ -802,7 +808,7 @@ export class FormCoreFormComponent implements OnInit {
         value: value
       }
 
-      this.lexicalService.deleteLinguisticRelation(formId, parameters).subscribe(
+      this.lexicalService.deleteLinguisticRelation(formId, parameters).pipe(take(1)).subscribe(
         data => {
           console.log(data)
 
@@ -822,5 +828,12 @@ export class FormCoreFormComponent implements OnInit {
     this.staticOtherDef.splice(index, 1)
     this.labelArray.removeAt(index);
   }
+
+  ngOnDestroy(): void {
+      this.get_morpho_data_subscription.unsubscribe();
+      this.subject_label_subscription.unsubscribe();
+      this.subject_ex_label_subscription.unsubscribe();
+      this.get_form_type_subscription.unsubscribe();
+    }
 
 }

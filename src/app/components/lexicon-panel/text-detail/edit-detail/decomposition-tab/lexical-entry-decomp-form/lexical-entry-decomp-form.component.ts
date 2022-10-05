@@ -10,7 +10,7 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { NgSelectComponent } from '@ng-select/ng-select';
 import { ToastrService } from 'ngx-toastr';
@@ -23,7 +23,7 @@ import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-
   templateUrl: './lexical-entry-decomp-form.component.html',
   styleUrls: ['./lexical-entry-decomp-form.component.scss']
 })
-export class LexicalEntryDecompFormComponent implements OnInit {
+export class LexicalEntryDecompFormComponent implements OnInit, OnDestroy {
 
   @Input() decData: any;
   private subterm_subject: Subject<any> = new Subject();
@@ -58,7 +58,13 @@ export class LexicalEntryDecompFormComponent implements OnInit {
 
   disableAddTraits = [];
 
-  constructor( private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder, private toastr: ToastrService) { }
+  change_decomp_label_subscription: Subscription;
+  subterm_subject_subscription: Subscription;
+  ext_subterm_subject_subscription: Subscription;
+  corresponds_subject_subscription: Subscription;
+  update_component_subject_subscription: Subscription;
+
+  constructor(private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder, private toastr: ToastrService) { }
 
   ngOnInit(): void {
 
@@ -70,7 +76,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
     this.triggerTooltip();
     this.loadMorphologyData();
 
-    this.lexicalService.changeDecompLabel$.subscribe(
+    this.change_decomp_label_subscription = this.lexicalService.changeDecompLabel$.subscribe(
       data => {
         if (data != null) {
           this.decompForm.get('label').setValue(data, { emitEvent: false });
@@ -78,25 +84,25 @@ export class LexicalEntryDecompFormComponent implements OnInit {
       }
     )
 
-    this.subterm_subject.pipe(debounceTime(1000)).subscribe(
+    this.subterm_subject_subscription = this.subterm_subject.pipe(debounceTime(1000)).subscribe(
       data => {
         this.onSearchFilter(data)
       }
     )
 
-    this.ext_subterm_subject.pipe(debounceTime(1000)).subscribe(
+    this.ext_subterm_subject_subscription = this.ext_subterm_subject.pipe(debounceTime(1000)).subscribe(
       data => {
-          this.onChangeSubterm(data)
+        this.onChangeSubterm(data)
       }
     )
 
-    this.corresponds_subject.pipe(debounceTime(1000)).subscribe(
+    this.corresponds_subject_subscription = this.corresponds_subject.pipe(debounceTime(1000)).subscribe(
       data => {
         this.onSearchFilter(data)
       }
     )
 
-    this.update_component_subject.pipe(debounceTime(1000)).subscribe(
+    this.update_component_subject_subscription = this.update_component_subject.pipe(debounceTime(1000)).subscribe(
       data => {
         this.onChanges(data)
       }
@@ -112,14 +118,17 @@ export class LexicalEntryDecompFormComponent implements OnInit {
     }, 500);
   }
 
-  loadMorphologyData() {
-    this.lexicalService.getMorphologyData().subscribe(
-      data => {
-        console.log(data)
-        this.morphologyData = data;
-
+  async loadMorphologyData() {
+    try {
+      let get_morpho_data = await this.lexicalService.getMorphologyData().toPromise();
+      console.log(get_morpho_data)
+      this.morphologyData = get_morpho_data;
+    } catch (error) {
+      console.log(error);
+      if (error.status != 200) {
+        this.toastr.error("Error on getting morphology data, please check the log", "Error", { timeOut: 5000 })
       }
-    )
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -148,74 +157,61 @@ export class LexicalEntryDecompFormComponent implements OnInit {
       this.object = changes.decData.currentValue;
       if (this.object != null) {
         this.decompForm.get('label').setValue(this.object.label, { emitEvent: false });
-
         if (this.object.lexicalEntryInstanceName != undefined && this.object.sense == undefined) {
-          this.lexicalService.getSubTerms(this.object.lexicalEntryInstanceName).subscribe(
-            data => {
-              console.log(data)
-
-              if (data != undefined) {
-
-                Array.from(data).forEach((element: any) => {
-                  this.addSubterm(element.lexicalEntryInstanceName, element.label, element.language);
-                  this.memorySubterm.push(element);
-                })
-              }
-            }, error => {
-              console.log(error)
-            }
-          )
+          let lexId = this.object.lexicaleEntryInstanceName;
+          this.getSubterms(lexId);
+          this.getConstituents(lexId);
         }
-
-        if (this.object.lexicalEntryInstanceName != undefined && this.object.sense == undefined) {
-          this.lexicalService.getConstituents(this.object.lexicalEntryInstanceName).subscribe(
-            data => {
-              console.log(data)
-
-              if (data != undefined) {
-                Array.from(data).forEach((element: any) => {
-
-                  this.lexicalService.getCorrespondsTo(element.componentInstanceName).subscribe(
-                    correspondsTo_data => {
-                      console.log(correspondsTo_data);
-
-                      let corr;
-                      if(correspondsTo_data != undefined){
-                        corr = correspondsTo_data.lexicalEntryInstanceName;
-                      }
-                      element.corresponds_to = corr;
-                      this.addComponent(element, Array.from(data).indexOf(element));
-                    }, error => {
-                      console.log(error)
-                    }
-                  )
-
-                  
-
-                });
-              }
-            }, error => {
-              console.log(error)
-            }
-          )
-        }
-
-
-
       }
       this.triggerTooltip();
     }, 10)
   }
 
-  /* private loadPeople() {
-    this.peopleLoading = true;
-    this.dataService.getPeople().subscribe(x => {
-      this.people = x;
-      this.peopleLoading = false;
-    });
-  } */
+  async getSubterms(lexId) {
+    try {
+      let get_subterms_req = await this.lexicalService.getSubTerms(this.object.lexicalEntryInstanceName).toPromise();
+      if (get_subterms_req != undefined) {
+        Array.from(get_subterms_req).forEach((element: any) => {
+          this.addSubterm(element.lexicalEntryInstanceName, element.label, element.language);
+          this.memorySubterm.push(element);
+        })
+      }
+    } catch (error) {
+      console.log(error);
+      if (error.status != 200) {
+        this.toastr.error("Something went wrong on get subterms, please check the log", "Error", { timeOut: 5000 })
+      }
+    }
+  }
 
-  onChanges(data) {
+  async getConstituents(lexId) {
+
+    try {
+      let get_constituents_req = await this.lexicalService.getConstituents(this.object.lexicalEntryInstanceName).toPromise();
+      for (const element of get_constituents_req) {
+        try {
+          let get_corresponds_to_req = await this.lexicalService.getCorrespondsTo(element.componentInstanceName).toPromise();
+          console.log(get_corresponds_to_req);
+          let corr;
+          if (get_corresponds_to_req != undefined) {
+            corr = get_corresponds_to_req.lexicalEntryInstanceName;
+          }
+          element.corresponds_to = corr;
+          this.addComponent(element, Array.from(get_corresponds_to_req).indexOf(element));
+        } catch (error) {
+
+        }
+      }
+
+    } catch (error) {
+      console.log(error);
+      if (error.status != 200) {
+        this.toastr.error("Something went wrong on getting costituents, please check the log", "Error", { timeOut: 5000 })
+      }
+    }
+  }
+
+  async onChanges(data) {
     let fieldType = '';
     console.log(data)
     if (data != undefined) {
@@ -236,12 +232,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
       }
 
       //this.biblioArray = this.bibliographyForm.get('bibliography') as FormArray;
-
-
-
       let instanceName = this.memoryComponent[index].componentInstanceName;
-
-
       let parameters;
 
       if (oldValue == '' || oldValue == null) {
@@ -260,12 +251,22 @@ export class LexicalEntryDecompFormComponent implements OnInit {
       }
 
       if (fieldType == 'confidence' && oldValue == "-1") {
+        if (newValue == 'true') {
+          newValue = 0;
+        } else if (newValue == 'false') {
+          newValue = -1;
+        }
         parameters = {
           type: "confidence",
           relation: fieldType,
           value: newValue
         }
       } else if (fieldType == 'confidence' && oldValue != "-1") {
+        if (newValue == 'true') {
+          newValue = 0;
+        } else if (newValue == 'false') {
+          newValue = -1;
+        }
         parameters = {
           type: "confidence",
           relation: fieldType,
@@ -273,110 +274,54 @@ export class LexicalEntryDecompFormComponent implements OnInit {
           currentValue: oldValue
         }
       }
-
-
-
       //console.log(this.componentArray.at(index))
       console.log(parameters)
 
-      this.lexicalService.updateGenericRelation(instanceName, parameters).subscribe(
-        data => {
-          console.log(data);
-          this.lexicalService.spinnerAction('off');
-          //this.lexicalService.updateLexCard(this.object);
-          this.toastr.success('Component updated', '', {
+      //TODO: fare check sulla confidence
+      try {
+        let update_comp_req = await this.lexicalService.updateGenericRelation(instanceName, parameters).toPromise();
+        console.log(update_comp_req);
+        this.lexicalService.spinnerAction('off');
+        //this.lexicalService.updateLexCard(this.object);
+        this.toastr.success('Component updated', '', {
+          timeOut: 5000,
+        });
+
+        if (fieldType == 'note') {
+          this.memoryComponent[index]['note'] = newValue;
+        } else if (fieldType == 'label') {
+          this.memoryComponent[index]['label'] = newValue;
+        } else if (fieldType == 'confidence') {
+          this.memoryComponent[index]['confidence'] = newValue;
+        }
+      } catch (error) {
+        this.lexicalService.spinnerAction('off');
+        if (error.status == 200) {
+          this.toastr.success('Component item updated', '', {
             timeOut: 5000,
           });
-
           if (fieldType == 'note') {
             this.memoryComponent[index]['note'] = newValue;
+            (<FormArray>this.decompForm.controls['component']).at(index).get('note').setValue(newValue, { emitEvent: false });
           } else if (fieldType == 'label') {
             this.memoryComponent[index]['label'] = newValue;
+            (<FormArray>this.decompForm.controls['component']).at(index).get('label').setValue(newValue, { emitEvent: false });
           } else if (fieldType == 'confidence') {
             this.memoryComponent[index]['confidence'] = newValue;
+            (<FormArray>this.decompForm.controls['component']).at(index).get('confidence').setValue(newValue, { emitEvent: false });
           }
-        }, error => {
-          console.log(error);
-          //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
-          this.lexicalService.spinnerAction('off');
-          if (error.status == 200) {
-            this.toastr.success('Component item updated', '', {
-              timeOut: 5000,
-            });
-            if (fieldType == 'note') {
-              this.memoryComponent[index]['note'] = newValue;
-              (<FormArray>this.decompForm.controls['component']).at(index).get('note').setValue(newValue, { emitEvent: false });
-            } else if (fieldType == 'label') {
-              this.memoryComponent[index]['label'] = newValue;
-              (<FormArray>this.decompForm.controls['component']).at(index).get('label').setValue(newValue, { emitEvent: false });
-            } else if (fieldType == 'confidence') {
-              this.memoryComponent[index]['confidence'] = newValue;
-              (<FormArray>this.decompForm.controls['component']).at(index).get('confidence').setValue(newValue, { emitEvent: false });
-            }
-          } else {
-            this.toastr.error(error.error, 'Error', {
-              timeOut: 5000,
-            });
-          }
-
-        }
-      )
-
-
-      if (fieldType == 'note') {
-        this.memoryComponent[index]['note'] = newValue;
-      } else if (fieldType == 'label') {
-        this.memoryComponent[index].label = newValue;
-      }
-
-
-
-    }
-  }
-
-  applyUncertain(i) {
-    this.lexicalService.spinnerAction('on');
-    const oldValue = (<FormArray>this.decompForm.controls['component']).at(i).get('confidence').value;
-    let compId = (<FormArray>this.decompForm.controls['component']).at(i).get('id').value;
-    let parameters = {
-      relation: 'confidence',
-      value: oldValue,
-    }
-    console.log(parameters)
-    this.lexicalService.deleteLinguisticRelation(compId, parameters).subscribe(
-      data => {
-        console.log(data);
-        /* data['request'] = 0;
-        data['new_label'] = confidence_value
-        this.lexicalService.refreshAfterEdit(data); */
-        //this.lexicalService.updateLexCard(data)
-        this.lexicalService.spinnerAction('off');
-        (<FormArray>this.decompForm.controls['component']).at(i).get('confidence').setValue(-1, { emitEvent: false });
-        this.object.confidence = -1;
-        this.memoryComponent[i]['confidence'] = -1;
-      },
-      error => {
-        console.log(error);
-        /*  const data = this.object.etymology;
-        data['request'] = 0;
-        data['new_label'] = confidence_value;
-        this.lexicalService.refreshAfterEdit(data); */
-        this.lexicalService.spinnerAction('off');
-        //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
-        if (error.status == 200) {
-          this.toastr.success('Confidence updated', '', { timeOut: 5000 })
-          this.decompForm.get('confidence').setValue(-1, { emitEvent: false });
-          this.object.confidence = -1;
-          this.memoryComponent[i]['confidence'] = -1;
         } else {
-          this.toastr.error(error.error, 'Error', { timeOut: 5000 })
-
+          this.toastr.error(error.error, 'Error', {
+            timeOut: 5000,
+          });
         }
       }
-    )
+    }
   }
 
-  onChangeValue(i, j) {
+
+
+  async onChangeValue(i, j) {
     this.lexicalService.spinnerAction('on');
     const control = (<FormArray>this.decompForm.controls['component']).at(i).get('relation') as FormArray;
 
@@ -406,102 +351,103 @@ export class LexicalEntryDecompFormComponent implements OnInit {
           type: "morphology",
           relation: trait,
           value: value,
-        }
-        this.lexicalService.deleteLinguisticRelation(compId, delete_old_param).subscribe(
-          data => {
-            console.log(data);
+        };
 
-            this.lexicalService.updateLinguisticRelation(compId, parameters).subscribe(
-              data => {
-                //console.log(data)
-                data['request'] = 0;
-                this.lexicalService.refreshAfterEdit(data);
-                this.lexicalService.spinnerAction('off');
-                this.lexicalService.refreshFilter({ request: true })
-                //this.lexicalService.updateLexCard(data)
+        try {
+          let delete_req = await this.lexicalService.deleteLinguisticRelation(compId, delete_old_param).toPromise();
 
-                this.memoryComponent[i].morphology[j] = trait
-                control.at(j).patchValue({ trait: trait, value: value })
-                this.disableAddTraits[i] = false;
-                setTimeout(() => {
+          try {
+            let change_morpho_value_req = await this.lexicalService.updateLinguisticRelation(compId, parameters).toPromise();
+            //console.log(data)
+            change_morpho_value_req['request'] = 0;
+            this.lexicalService.refreshAfterEdit(change_morpho_value_req);
+            this.lexicalService.spinnerAction('off');
+            this.lexicalService.refreshFilter({ request: true })
+            //this.lexicalService.updateLexCard(data)
 
-                  let traitDescription = '';
-                  this.morphologyData.filter(x => {
-                    if (x.propertyId == trait  ) {
-                      x.propertyValues.filter(y => {
-                        if (y.valueId == value) {
-                          traitDescription = y.valueDescription;
-                          return true;
-                        } else {
-                          return false;
-                        }
-                      })
+            this.memoryComponent[i].morphology[j] = trait
+            control.at(j).patchValue({ trait: trait, value: value })
+            this.disableAddTraits[i] = false;
+            setTimeout(() => {
+
+              let traitDescription = '';
+              this.morphologyData.filter(x => {
+                if (x.propertyId == trait) {
+                  x.propertyValues.filter(y => {
+                    if (y.valueId == value) {
+                      traitDescription = y.valueDescription;
                       return true;
                     } else {
                       return false;
                     }
                   })
+                  return true;
+                } else {
+                  return false;
+                }
+              })
 
-                  //@ts-ignore
-                  $('.trait-tooltip').tooltip({
-                    trigger: 'hover'
-                  });
+              //@ts-ignore
+              $('.trait-tooltip').tooltip({
+                trigger: 'hover'
+              });
 
 
-                }, 1000);
-              },
-              error => {
-                //console.log(error)
-                this.lexicalService.refreshAfterEdit({ request: 0, label: this.object.label });
-                this.lexicalService.spinnerAction('off');
-                this.lexicalService.refreshFilter({ request: true })
-                //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+            }, 1000);
+          } catch (error) {
+            this.lexicalService.refreshAfterEdit({ request: 0, label: this.object.label });
+            this.lexicalService.spinnerAction('off');
+            this.lexicalService.refreshFilter({ request: true })
+            //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
 
-                this.memoryComponent[i].morphology[j] = trait
-                control.at(j).patchValue({ trait: trait, value: value })
-                this.disableAddTraits[i] = false;
-                setTimeout(() => {
+            this.memoryComponent[i].morphology[j] = trait
+            control.at(j).patchValue({ trait: trait, value: value })
+            this.disableAddTraits[i] = false;
+            setTimeout(() => {
 
-                  let traitDescription = '';
-                  this.morphologyData.filter(x => {
-                    if (x.propertyId == trait  ) {
-                      x.propertyValues.filter(y => {
-                        if (y.valueId == value) {
-                          traitDescription = y.valueDescription;
-                          return true;
-                        } else {
-                          return false;
-                        }
-                      })
+              let traitDescription = '';
+              this.morphologyData.filter(x => {
+                if (x.propertyId == trait) {
+                  x.propertyValues.filter(y => {
+                    if (y.valueId == value) {
+                      traitDescription = y.valueDescription;
                       return true;
                     } else {
                       return false;
                     }
                   })
+                  return true;
+                } else {
+                  return false;
+                }
+              })
 
 
 
-                  //@ts-ignore
-                  $('.trait-tooltip').tooltip({
-                    trigger: 'hover'
-                  });
-                  if (typeof (error.error) != 'object') {
-                    this.toastr.error(error.error, 'Error', {
-                      timeOut: 5000,
-                    });
-                  } else {
-                    this.toastr.success('Morphotraits changed correctly for ' + compId, '', {
-                      timeOut: 5000,
-                    });
-                  }
-
-                }, 1000);
+              //@ts-ignore
+              $('.trait-tooltip').tooltip({
+                trigger: 'hover'
+              });
+              if (typeof (error.error) != 'object') {
+                this.toastr.error(error.error, 'Error', {
+                  timeOut: 5000,
+                });
+              } else {
+                this.toastr.success('Morphotraits changed correctly for ' + compId, '', {
+                  timeOut: 5000,
+                });
               }
-            )
-          }, error => {
-            console.log(error);
+
+            }, 1000);
           }
-        )
+
+        } catch (error) {
+          console.log(error);
+          if(error.status != 200){
+            this.toastr.error("Something went wrong on updating components, please check the log", "Error", {timeOut : 5000})
+          }
+        }
+
       } else if (this.memoryComponent[i].morphology[j] == trait && this.memoryComponent[i].morphology[j] != '') {
         parameters = {
           type: "morphology",
@@ -509,48 +455,46 @@ export class LexicalEntryDecompFormComponent implements OnInit {
           value: value,
           currentValue: this.memoryValues[i][j][0]
         }
+        try {
+          let change_morpho_value_req = await this.lexicalService.updateLinguisticRelation(compId, parameters).toPromise();
+          change_morpho_value_req['request'] = 0;
+          this.lexicalService.refreshAfterEdit(change_morpho_value_req);
+          this.lexicalService.spinnerAction('off');
+          this.lexicalService.refreshFilter({ request: true })
+          //this.lexicalService.updateLexCard(data)
 
-        this.lexicalService.updateLinguisticRelation(compId, parameters).pipe(debounceTime(1000)).subscribe(
-          data => {
-            //console.log(data)
-            data['request'] = 0;
-            this.lexicalService.refreshAfterEdit(data);
-            this.lexicalService.spinnerAction('off');
-            this.lexicalService.refreshFilter({ request: true })
-            //this.lexicalService.updateLexCard(data)
+          this.memoryComponent[i].morphology[j] = trait
+          control.at(j).patchValue({ trait: trait, value: value })
+          this.disableAddTraits[i] = false;
+          setTimeout(() => {
 
-            this.memoryComponent[i].morphology[j] = trait
-            control.at(j).patchValue({ trait: trait, value: value })
-            this.disableAddTraits[i] = false;
-            setTimeout(() => {
+            let traitDescription = '';
+            this.morphologyData.filter(x => {
+              if (x.propertyId == trait) {
+                x.propertyValues.filter(y => {
+                  if (y.valueId == value) {
+                    traitDescription = y.valueDescription;
+                    return true;
+                  } else {
+                    return false;
+                  }
+                })
+                return true;
+              } else {
+                return false;
+              }
+            })
 
-              let traitDescription = '';
-              this.morphologyData.filter(x => {
-                if (x.propertyId == trait  ) {
-                  x.propertyValues.filter(y => {
-                    if (y.valueId == value) {
-                      traitDescription = y.valueDescription;
-                      return true;
-                    } else {
-                      return false;
-                    }
-                  })
-                  return true;
-                } else {
-                  return false;
-                }
-              })
-
-              //@ts-ignore
-              $('.trait-tooltip').tooltip({
-                trigger: 'hover'
-              });
+            //@ts-ignore
+            $('.trait-tooltip').tooltip({
+              trigger: 'hover'
+            });
 
 
-            }, 1000);
-          },
-          error => {
-            //console.log(error)
+          }, 1000);
+        } catch (error) {
+          console.log(error)
+          if(error.status == 200){
             this.lexicalService.refreshAfterEdit({ request: 0, label: this.object.label });
             this.lexicalService.spinnerAction('off');
             this.lexicalService.refreshFilter({ request: true })
@@ -563,7 +507,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
 
               let traitDescription = '';
               this.morphologyData.filter(x => {
-                if (x.propertyId == trait  ) {
+                if (x.propertyId == trait) {
                   x.propertyValues.filter(y => {
                     if (y.valueId == value) {
                       traitDescription = y.valueDescription;
@@ -595,52 +539,54 @@ export class LexicalEntryDecompFormComponent implements OnInit {
               }
 
             }, 1000);
+          }else{
+            this.toastr.error("Error on updating components, please check the log", "Error", {timeOut : 5000})
           }
-        )
+        }
+        
 
       } else if (this.memoryComponent[i].morphology[j] == '') {
         console.log(parameters)
-        this.lexicalService.updateLinguisticRelation(compId, parameters).pipe(debounceTime(1000)).subscribe(
-          data => {
-            //console.log(data)
-            data['request'] = 0;
-            this.lexicalService.refreshAfterEdit(data);
-            this.lexicalService.spinnerAction('off');
-            this.lexicalService.refreshFilter({ request: true })
-            //this.lexicalService.updateLexCard(data)
 
-            this.memoryComponent[i].morphology[j] = trait
-            control.at(j).patchValue({ trait: trait, value: value })
-            this.disableAddTraits[i] = false;
-            setTimeout(() => {
+        try {
+          let update_comp_req = await this.lexicalService.updateLinguisticRelation(compId, parameters).toPromise();
+          update_comp_req['request'] = 0;
+          this.lexicalService.refreshAfterEdit(update_comp_req);
+          this.lexicalService.spinnerAction('off');
+          this.lexicalService.refreshFilter({ request: true })
+          //this.lexicalService.updateLexCard(data)
 
-              let traitDescription = '';
-              this.morphologyData.filter(x => {
-                if (x.propertyId == trait  ) {
-                  x.propertyValues.filter(y => {
-                    if (y.valueId == value) {
-                      traitDescription = y.valueDescription;
-                      return true;
-                    } else {
-                      return false;
-                    }
-                  })
-                  return true;
-                } else {
-                  return false;
-                }
-              })
+          this.memoryComponent[i].morphology[j] = trait
+          control.at(j).patchValue({ trait: trait, value: value })
+          this.disableAddTraits[i] = false;
+          setTimeout(() => {
 
-              //@ts-ignore
-              $('.trait-tooltip').tooltip({
-                trigger: 'hover'
-              });
+            let traitDescription = '';
+            this.morphologyData.filter(x => {
+              if (x.propertyId == trait) {
+                x.propertyValues.filter(y => {
+                  if (y.valueId == value) {
+                    traitDescription = y.valueDescription;
+                    return true;
+                  } else {
+                    return false;
+                  }
+                })
+                return true;
+              } else {
+                return false;
+              }
+            })
+
+            //@ts-ignore
+            $('.trait-tooltip').tooltip({
+              trigger: 'hover'
+            });
 
 
-            }, 1000);
-          },
-          error => {
-            //console.log(error)
+          }, 1000);
+        } catch (error) {
+          if(error.status == 200){
             this.lexicalService.refreshAfterEdit({ request: 0, label: this.object.label });
             this.lexicalService.spinnerAction('off');
             this.lexicalService.refreshFilter({ request: true })
@@ -653,7 +599,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
 
               let traitDescription = '';
               this.morphologyData.filter(x => {
-                if (x.propertyId == trait  ) {
+                if (x.propertyId == trait) {
                   x.propertyValues.filter(y => {
                     if (y.valueId == value) {
                       traitDescription = y.valueDescription;
@@ -685,11 +631,12 @@ export class LexicalEntryDecompFormComponent implements OnInit {
               }
 
             }, 1000);
+          }else{
+            this.toastr.error("Error on updating components, please check the log", "Error", {timeOut : 5000})
           }
-        )
+        }
+        
       }
-
-
     } else {
       this.lexicalService.spinnerAction('off');
       this.disableAddTraits[i] = false;
@@ -755,46 +702,49 @@ export class LexicalEntryDecompFormComponent implements OnInit {
 
   }
 
-  addComponent(element?, index?) {
+  async addComponent(element?, index?) {
 
     if (this.object.lexicalEntryInstanceName != undefined && element == undefined) {
       let instance = this.object.lexicalEntryInstanceName;
-      this.object['request'] = 'constituent'
-      this.lexicalService.createComponent(instance).subscribe(
-        data => {
-          console.log(data)
+      this.object['request'] = 'constituent';
 
-          let compId = data.componentInstanceName;
-          let componentURI = data.component;
-          let creator = data.creator;
-          let label = '';
-          let creationDate = data.creationDate;
-          let lastUpdate = data.lastUpdate;
-          let morphology = data.morphology;
-          let note = '';
-          let position = data.position;
+      try{
+        let create_comp_req = await this.lexicalService.createComponent(instance).toPromise();
+        console.log(create_comp_req)
 
-          let confidence = data.confidence;
+        let compId = create_comp_req.componentInstanceName;
+        let componentURI = create_comp_req.component;
+        let creator = create_comp_req.creator;
+        let label = '';
+        let creationDate = create_comp_req.creationDate;
+        let lastUpdate = create_comp_req.lastUpdate;
+        let morphology = create_comp_req.morphology;
+        let note = '';
+        let position = create_comp_req.position;
 
-          this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': data });
+        let confidence = create_comp_req.confidence;
 
-          this.componentArray = this.decompForm.get('component') as FormArray;
-          this.componentArray.push(this.createComponent(compId, componentURI, confidence, creator, label, creationDate, lastUpdate, [], note, position));
+        this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': create_comp_req });
 
-          data['morphology'] = [];
-          this.memoryComponent.push(data)
+        this.componentArray = this.decompForm.get('component') as FormArray;
+        this.componentArray.push(this.createComponent(compId, componentURI, confidence, creator, label, creationDate, lastUpdate, [], note, position));
 
-          this.toastr.success('Component created correctly', 'Success', {
-            timeOut: 5000
-          })
-        }, error => {
-          console.log(error);
+        create_comp_req['morphology'] = [];
+        this.memoryComponent.push(create_comp_req)
 
+        this.toastr.success('Component created correctly', 'Success', {
+          timeOut: 5000
+        })
+      }catch(error){
+        console.log(error);
+
+        if(error.status != 200){
           this.toastr.error('Something went wrong', 'Error', {
             timeOut: 5000
           })
         }
-      )
+        
+      }
     } else if (element != undefined) {
       let compId = element.componentInstanceName;
       let componentURI = element.component;
@@ -823,28 +773,29 @@ export class LexicalEntryDecompFormComponent implements OnInit {
     }
   }
 
-  removeComponent(index) {
+  async removeComponent(index) {
     this.componentArray = this.decompForm.get('component') as FormArray;
     const control = this.componentArray.at(index);
 
     if (control != null) {
       let idComp = control.get('id').value;
 
-      this.lexicalService.deleteComponent(idComp).subscribe(
-        data => {
-          console.log(data)
-          this.lexicalService.deleteRequest({ componentInstanceName: idComp });
-          this.toastr.info('Component ' + idComp + ' deleted', 'Info', {
-            timeOut: 5000
-          })
-        }, error => {
+      try {
+        let delete_comp_req = await this.lexicalService.deleteComponent(idComp).toPromise();
+        console.log(delete_comp_req)
+        this.lexicalService.deleteRequest({ componentInstanceName: idComp });
+        this.toastr.info('Component ' + idComp + ' deleted', 'Info', {
+          timeOut: 5000
+        })
+      } catch (error) {
+        if(error.status != 200){
           console.log(error);
           this.lexicalService.deleteRequest({ componentInstanceName: idComp });
-          this.toastr.error('Something went wrong', 'Error', {
+          this.toastr.error('Something went wrong, please check the log', 'Error', {
             timeOut: 5000
           })
         }
-      )
+      }
     }
 
 
@@ -949,7 +900,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
 
   }
 
-  removeRelation(ix, iy) {
+  async removeRelation(ix, iy) {
     const control = (<FormArray>this.decompForm.controls['component']).at(ix).get('relation') as FormArray;
     const trait = control.at(iy).get('trait').value;
     const value = control.at(iy).get('value').value;
@@ -965,30 +916,28 @@ export class LexicalEntryDecompFormComponent implements OnInit {
 
       //console.log(parameters)
 
-      this.lexicalService.deleteLinguisticRelation(compId, parameters).subscribe(
-        data => {
-          //console.log(data)
-          //this.lexicalService.updateLexCard(this.object)
-          this.lexicalService.refreshAfterEdit({ request: 0, label: this.object.label });
-          this.lexicalService.spinnerAction('off');
-          this.lexicalService.refreshFilter({ request: true })
-        }, error => {
-          //console.log(error)
+      try {
+        let delete_linguistic_rel_req = await this.lexicalService.deleteLinguisticRelation(compId, parameters);
+        this.lexicalService.refreshAfterEdit({ request: 0, label: this.object.label });
+        this.lexicalService.spinnerAction('off');
+        this.lexicalService.refreshFilter({ request: true })
+      } catch (error) {
+        if(error.status == 200){
           this.lexicalService.refreshAfterEdit({ request: 0, label: this.object.label });
           this.lexicalService.spinnerAction('off');
           this.lexicalService.refreshFilter({ request: true })
           //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
-          if (typeof (error.error) != 'object') {
-            this.toastr.error(error.error, 'Error', {
-              timeOut: 5000,
-            });
-          } else {
-            this.toastr.success('Element removed correctly for ' + compId, '', {
-              timeOut: 5000,
-            });
-          }
+          
+          this.toastr.success('Element removed correctly for ' + compId, '', {
+            timeOut: 5000,
+          });
+        }else{
+          this.toastr.error(error.error, 'Error', {
+            timeOut: 5000,
+          });
         }
-      )
+      }
+      
     } else {
       this.disableAddTraits[ix] = false;
     }
@@ -1020,7 +969,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
     }
   }
 
-  removeSubterm(index) {
+  async removeSubterm(index) {
 
 
     if (this.object.lexicalEntryInstanceName != undefined) {
@@ -1034,23 +983,25 @@ export class LexicalEntryDecompFormComponent implements OnInit {
         value: entity
       }
 
-      this.lexicalService.deleteLinguisticRelation(lexId, parameters).subscribe(
-        data => {
-          console.log(data);
+      try {
+        let delete_linguistic_rel_req = await this.lexicalService.deleteLinguisticRelation(lexId, parameters).toPromise();
+        console.log(delete_linguistic_rel_req);
+        this.toastr.info('Subterm removed correctly', 'Info', {
+          timeOut: 5000
+        })
+        this.lexicalService.deleteRequest({ subtermInstanceName: entity, parentNode: this.object.lexicaleEntryInstanceName });
+      } catch (error) {
+        console.log(error)
+        if(error.status == 200){
           this.toastr.info('Subterm removed correctly', 'Info', {
             timeOut: 5000
           })
-          this.lexicalService.deleteRequest({ subtermInstanceName: entity, parentNode : this.object.lexicaleEntryInstanceName });
-        }, error => {
-          console.log(error)
-          this.toastr.info('Subterm removed correctly', 'Info', {
-            timeOut: 5000
-          })
-          this.lexicalService.deleteRequest({ subtermInstanceName: entity, parentNode : this.object.lexicaleEntryInstanceName });
+          this.lexicalService.deleteRequest({ subtermInstanceName: entity, parentNode: this.object.lexicaleEntryInstanceName });
+        }else{
+          this.toastr.error("Something went wrong, please check the log", "Error", {timeOut : 5000})
         }
-      )
-
-
+      }
+      
     }
 
     this.subtermArray.removeAt(index);
@@ -1133,17 +1084,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
 
   }
 
-  /* createSubterm(e?) {
-    if(e != undefined){
 
-    }else{
-
-    }
-    return this.formBuilder.group({
-      subterm_array: new FormArray([this.createSubtermComponent()])
-    })
-  } */
-  
 
   handleSubterm(evt, i) {
 
@@ -1154,8 +1095,8 @@ export class LexicalEntryDecompFormComponent implements OnInit {
         this.onChangeSubterm({ name: label, i: i, object: evt.selectedItems[0]['value'] })
       }
     } else {
-        let label = evt.target.value;
-        this.ext_subterm_subject.next({ name: label, i: i })
+      let label = evt.target.value;
+      this.ext_subterm_subject.next({ name: label, i: i })
     }
   }
 
@@ -1177,7 +1118,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
     this.update_component_subject.next({ v: evt, i: index, f: field })
   }
 
-  onChangeSubterm(data) {
+  async onChangeSubterm(data) {
     var index = data['i'];
     this.subtermArray = this.decompForm.get("subterm") as FormArray;
     if (this.memorySubterm[index] == undefined) {
@@ -1191,48 +1132,43 @@ export class LexicalEntryDecompFormComponent implements OnInit {
 
       this.object['request'] = 'subterm'
       let lexId = this.object.lexicalEntryInstanceName;
-      this.lexicalService.updateLinguisticRelation(lexId, parameters).subscribe(
-        data => {
-          console.log(data);
-          this.lexicalService.spinnerAction('off');
-          /* data['request'] = 0;
-          this.lexicalService.refreshAfterEdit(data); */
-          //this.lexicalService.updateLexCard(data) TODO: inserire updater per decomp qua
-          this.memorySubterm[index] = data;
 
-          this.subtermArray.at(index).patchValue({ entity: data.object.label, label: data['label'], language: data['language'] })
+      try {
+        let change_subterm_req = await this.lexicalService.updateLinguisticRelation(lexId, parameters).toPromise();
+        console.log(change_subterm_req);
+        this.lexicalService.spinnerAction('off');
+        /* data['request'] = 0;
+        this.lexicalService.refreshAfterEdit(data); */
+        //this.lexicalService.updateLexCard(data) TODO: inserire updater per decomp qua
+        this.memorySubterm[index] = change_subterm_req;
+
+        this.subtermArray.at(index).patchValue({ entity: change_subterm_req.object.label, label: change_subterm_req['label'], language: change_subterm_req['language'] })
+        this.subtermDisabled = false;
+
+        this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': change_subterm_req });
+      } catch (error) {
+        this.lexicalService.spinnerAction('off');
+        if (error.status == 200) {
+
+          this.toastr.success('Subterm changed correctly for ' + lexId, '', {
+            timeOut: 5000,
+          });
+
           this.subtermDisabled = false;
+          this.memorySubterm[index] = this.object;
+          data['request'] = 'subterm';
+          this.subtermArray.at(index).patchValue({ entity: newValue, label: data.object.label, language: data.object.language })
+          this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': data['object'] });
+          //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
 
-          this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': data });
-        }, error => {
-          console.log(error)
+        } else {
+          this.toastr.error(error.error, 'Error', {
+            timeOut: 5000,
+          });
 
-          
-          this.lexicalService.spinnerAction('off');
-          if (error.status == 200) {
-
-            this.toastr.success('Subterm changed correctly for ' + lexId, '', {
-              timeOut: 5000,
-            });
-
-            this.subtermDisabled = false;
-            this.memorySubterm[index] = data.object;
-            data['request'] = 'subterm';
-            this.subtermArray.at(index).patchValue({ entity: newValue, label: data.object.label, language: data.object.language })
-            this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': data['object'] });
-            //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
-
-          } else {
-            this.toastr.error(error.error, 'Error', {
-              timeOut: 5000,
-            });
-
-          }
         }
-      )
-
-
-
+      }
+    
     } else {
       const oldValue = this.memorySubterm[index]['lexicalEntryInstanceName']
       const newValue = data['name']
@@ -1244,34 +1180,34 @@ export class LexicalEntryDecompFormComponent implements OnInit {
       }
 
       let lexId = this.object.lexicalEntryInstanceName;
-      console.log(parameters)
-      this.lexicalService.updateLinguisticRelation(lexId, parameters).subscribe(
-        data => {
-          console.log(data);
-          this.lexicalService.spinnerAction('off');
-          ////this.lexicalService.updateLexCard(data)
-          data['request'] = 0;
-          this.lexicalService.refreshAfterEdit(data);
-        }, error => {
-          console.log(error)
-          const data = this.object;
-          data['request'] = 0;
+      console.log(parameters);
+
+      try {
+        let change_subterm_req = await this.lexicalService.updateLinguisticRelation(lexId, parameters).toPromise();
+        console.log(change_subterm_req);
+        this.lexicalService.spinnerAction('off');
+        change_subterm_req['request'] = 0;
+        this.lexicalService.refreshAfterEdit(change_subterm_req);
+      } catch (error) {
+        console.log(error)
+        const data = this.object;
+        data['request'] = 0;
 
 
-          //this.lexicalService.refreshAfterEdit(data);
-          ////this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
-          this.lexicalService.spinnerAction('off');
-          if (error.status == 200) {
-            this.toastr.success('Label changed correctly for ' + lexId, '', {
-              timeOut: 5000,
-            });
-          } else {
-            this.toastr.error(error.error, 'Error', {
-              timeOut: 5000,
-            });
-          }
+        
+        this.lexicalService.spinnerAction('off');
+        if (error.status == 200) {
+          this.toastr.success('Label changed correctly for ' + lexId, '', {
+            timeOut: 5000,
+          });
+        } else {
+          this.toastr.error(error.error, 'Error', {
+            timeOut: 5000,
+          });
         }
-      )
+      }
+
+     
       this.memorySubterm[index] = data;
     }
 
@@ -1279,7 +1215,7 @@ export class LexicalEntryDecompFormComponent implements OnInit {
   }
 
 
-  onChangeCorrespondsTo(data) {
+  async onChangeCorrespondsTo(data) {
     var index = data['i'];
     this.subtermArray = this.decompForm.get("subterm") as FormArray;
     if (this.memoryComponent[index].corresponds_to == undefined) {
@@ -1291,34 +1227,27 @@ export class LexicalEntryDecompFormComponent implements OnInit {
       }
       console.log(parameters)
       let compId = this.memoryComponent[index].componentInstanceName;
-      this.lexicalService.updateLinguisticRelation(compId, parameters).subscribe(
-        data => {
-          console.log(data);
-          this.lexicalService.spinnerAction('off');
-          /* data['request'] = 0;
-          this.lexicalService.refreshAfterEdit(data); */
-          //this.lexicalService.updateLexCard(data)
-        }, error => {
-          console.log(error)
 
-          /* this.toastr.error(error.error, 'Error', {
-              timeOut: 5000,
-          }); */
-          //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
-          this.lexicalService.spinnerAction('off');
-          if (error.status == 200) {
-            this.toastr.success('CorrespondsTo changed correctly for ' + compId, '', {
-              timeOut: 5000,
-            });
+      try {
+        let change_corr_req = this.lexicalService.updateLinguisticRelation(compId, parameters).toPromise();
+        console.log(change_corr_req);
+        this.lexicalService.spinnerAction('off');
+      } catch (error) {
+        this.lexicalService.spinnerAction('off');
+        if (error.status == 200) {
+          this.toastr.success('CorrespondsTo changed correctly for ' + compId, '', {
+            timeOut: 5000,
+          });
 
-          } else {
-            this.toastr.error(error.error, 'Error', {
-              timeOut: 5000,
-            });
+        } else {
+          this.toastr.error(error.error, 'Error', {
+            timeOut: 5000,
+          });
 
-          }
         }
-      )
+      }
+      
+      
       this.memoryComponent[index].corresponds_to = data;
 
 
@@ -1334,39 +1263,31 @@ export class LexicalEntryDecompFormComponent implements OnInit {
 
       let compId = this.memoryComponent[index].componentInstanceName;
       console.log(parameters)
-      this.lexicalService.updateLinguisticRelation(compId, parameters).subscribe(
-        data => {
-          console.log(data);
-          this.lexicalService.spinnerAction('off');
-          //this.lexicalService.updateLexCard(data)
-          data['request'] = 0;
-          this.lexicalService.refreshAfterEdit(data);
-        }, error => {
-          console.log(error)
-          /* const data = this.object;
-          data['request'] = 0; */
+      try {
+        let change_corr_req = this.lexicalService.updateLinguisticRelation(compId, parameters).toPromise();
+        console.log(change_corr_req);
+        this.lexicalService.spinnerAction('off');
+      } catch (error) {
+        this.lexicalService.spinnerAction('off');
+        if (error.status == 200) {
+          this.toastr.success('CorrespondsTo changed correctly for ' + compId, '', {
+            timeOut: 5000,
+          });
 
-          //this.lexicalService.refreshAfterEdit(data);
-          //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
-          this.lexicalService.spinnerAction('off');
-          if (error.status == 200) {
-            this.toastr.success('Label changed correctly for ' + compId, '', {
-              timeOut: 5000,
-            });
-          } else {
-            this.toastr.error(error.error, 'Error', {
-              timeOut: 5000,
-            });
-          }
+        } else {
+          this.toastr.error(error.error, 'Error', {
+            timeOut: 5000,
+          });
+
         }
-      )
+      }
       this.memoryComponent[index].corresponds_to = data;
     }
 
 
   }
 
-  onSearchFilter(data) {
+  async onSearchFilter(data) {
     this.searchResults = [];
 
     if (this.object.lexicalEntryInstanceName != undefined) {
@@ -1384,18 +1305,13 @@ export class LexicalEntryDecompFormComponent implements OnInit {
       }
 
       /* && data.length >= 3 */
-      this.lexicalService.getLexicalEntriesList(parameters).subscribe(
-        data => {
-          console.log(data)
-
-
-          this.searchResults = data['list'];
-
-        }, error => {
-          console.log(error)
-        }
-      )
-
+      try {
+        let search_filter_req = await this.lexicalService.getLexicalEntriesList(parameters).toPromise();
+        console.log(data)
+        this.searchResults = data['list'];
+      } catch (error) {
+        console.log(error)
+      }
     } else {
     }
 
@@ -1405,4 +1321,11 @@ export class LexicalEntryDecompFormComponent implements OnInit {
     this.searchResults = [];
   }
 
+  ngOnDestroy(): void {
+    this.change_decomp_label_subscription.unsubscribe();
+    this.subterm_subject_subscription.unsubscribe();
+    this.ext_subterm_subject_subscription.unsubscribe();
+    this.corresponds_subject_subscription.unsubscribe();
+    this.update_component_subject_subscription.unsubscribe();
+  }
 }

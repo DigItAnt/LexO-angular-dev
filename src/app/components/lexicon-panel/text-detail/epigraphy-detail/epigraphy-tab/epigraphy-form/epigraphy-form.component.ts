@@ -16,7 +16,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { NgbPopover, NgbPopoverConfig } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent } from '@ng-select/ng-select';
 import { ToastrService } from 'ngx-toastr';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { debounceTime, filter } from 'rxjs/operators';
 import { AnnotatorService } from 'src/app/services/annotator/annotator.service';
 import { DocumentSystemService } from 'src/app/services/document-system/document-system.service';
@@ -38,6 +38,11 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
   textEpigraphy = '';
   leidenLines : any;
 
+  epigraphy_text_subscription : Subscription;
+  leiden_subscription : Subscription;
+  translation_subscription : Subscription;
+  delete_annotation_subscription : Subscription;
+  
   private bind_subject: Subject<any> = new Subject();
   searchResults = [];
   memoryForms = [];
@@ -388,7 +393,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
       tokens: this.formBuilder.array([this.createToken()])
     })
 
-    this.documentService.epigraphyTextData$.subscribe(
+    this.epigraphy_text_subscription = this.documentService.epigraphyTextData$.subscribe(
       data=>{
         if(data != null){
           this.textEpigraphy = data;
@@ -400,7 +405,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.documentService.epigraphyLeidenData$.subscribe(
+    this.leiden_subscription = this.documentService.epigraphyLeidenData$.subscribe(
       data=>{
         console.log(data)
         if(data != null){
@@ -415,7 +420,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.documentService.epigraphyTranslationData$.subscribe(
+    this.translation_subscription = this.documentService.epigraphyTranslationData$.subscribe(
       data=>{
         console.log(data)
         if(data != null){
@@ -439,7 +444,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.annotatorService.deleteAnnoReq$.subscribe(
+    this.delete_annotation_subscription = this.annotatorService.deleteAnnoReq$.subscribe(
       data=> {
 
         let localArray = [];
@@ -497,357 +502,11 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
           this.spanSelection = null;
           this.annotationArray = [];
           this.epidoc_annotation_array = [];
-
-          /* 
-  
-          this.denotesArray = this.coreForm.get('denotes') as FormArray;
-          this.denotesArray.clear();
-  
-          this.cognatesArray = this.coreForm.get('cognate') as FormArray;
-          this.cognatesArray.clear();
-  
-          this.evokesArray = this.coreForm.get('evokes') as FormArray;
-          this.evokesArray.clear();
-  
-          this.memoryPos = '';
-  
-          this.staticMorpho = [] */
-        }
+        }   
         
+          this.object = changes.epiData.currentValue['tokens'];
+          this.getAnnotations(changes);
         
-        this.object = changes.epiData.currentValue['tokens'];
-        let element_id = changes.epiData.currentValue['element_id']
-        this.fileId = changes.epiData.currentValue['epidoc_id']
-        let xmlDoc = changes.epiData.currentValue['xmlDoc']
-        console.log(this.object)
-        if (this.object != null) {
-
-          if(this.object.length == 0){
-            this.isEmptyFile = true;
-            console.log("FILE VUOTO")
-          }else{
-            this.isEmptyFile = false;
-            console.log("FILE NON VUOTO")
-          }
-  
-          //console.log(this.object)
-          
-          this.annotatorService.getAnnotation(element_id).subscribe(
-            data=>{
-              console.log(data);
-              if(data.annotations != undefined){
-                data.annotations.forEach(element => {
-                  //console.log(element)
-                  if(element.layer == 'attestation'){
-                    if(element.attributes.bibliography == undefined){
-                      element.attributes['bibliography'] = [];
-                    }
-                    
-                    if(!Array.isArray(element.attributes.bibliography)){
-                      let tmp_arr = [];
-                      tmp_arr.push(element.attributes['bibliography']);
-                      element.attributes['bibliography'] = tmp_arr;
-                    }
-                    
-                    
-                    if(Array.isArray(element.attributes['bibliography'])){
-                      Array.from(element.attributes['bibliography']).forEach(element => { 
-                        
-                        if(element['note'] == undefined){
-                          element['note'] = "";
-                        } 
-                        
-                        if(element['textualRef']== undefined){
-                          element['textualRef'] = "";
-                        } 
-                      });
-                    }
-
-                    if(this.isEmptyFile){
-                      element['empty_file'] = this.isEmptyFile;
-                      if(element.attributes.leiden == undefined){
-                        element.attributes.leiden = '';
-                      }
-                    }else{
-                      element['empty_file'] = this.isEmptyFile;
-                    }
-                    this.annotationArray.push(element);
-                  }else if(element.layer == 'epidoc'){
-                    this.epidoc_annotation_array.push(element);
-                  }
-                });
-                //this.annotationArray = data.annotations;
-                if(this.annotationArray.length > 0){
-                  
-            
-
-                  var that2 = this;
-                  var timer_object = setInterval((val)=>{
-                    try {
-                      if(this.object != null){
-                        this.object.forEach(element => {
-                          let startElement = element.begin;
-                          let endElement = element.end;
-                          this.annotationArray.forEach(annotation => {
-                            if(annotation.spans.length == 1){
-                              let startAnnotation = annotation.spans[0].start;
-                              let endAnnotation = annotation.spans[0].end;
-      
-                              if(startAnnotation >= startElement  && endAnnotation <= endElement){
-                                let positionElement = element.position;
-                                let elementHTML = document.getElementsByClassName('token-'+(positionElement-1))[0]
-                                var that = this;
-
-                                let xmlNode = xmlDoc.querySelectorAll('[*|id=\''+element.xmlid+'\']')[0].outerHTML;
-                                let object = {
-                                  xmlString : xmlNode
-                                }
-                                this.documentService.testConvert(object).subscribe(
-                                  data=> {
-                                    console.log(data);
-                                    let raw = data.xml;
-                                    let bodyResponse = new DOMParser().parseFromString(raw, "text/html").body;
-                                    let leidenToken = '';
-                                    bodyResponse.childNodes.forEach(
-                                      x=>{
-                                        if(x.nodeName != undefined){
-                                          if(x.nodeName == '#text'){
-                                            leidenToken += x.nodeValue.replace('\n', '');
-                                          }
-                                        }
-                                      }
-                                    )
-                                    //let leidenToken = new DOMParser().parseFromString(raw, "text/html").body.textContent.replace('\n', '');
-                                    if(leidenToken != ''){
-                                      annotation.attributes['leiden'] = leidenToken;
-                                    }else{
-                                      annotation.attributes['leiden'] = '';
-                                    }
-                                    
-                                  }, error=> {
-                                    console.log(error)
-                                  }
-                                )
-                                var timer = setInterval((val)=>{                
-                                    
-                                    try{
-                                        if(elementHTML != undefined){
-                                          that.renderer.addClass(elementHTML, 'annotation');
-                                          clearInterval(timer)
-                                        }
-                                    }catch(e){
-                                        console.log(e)
-                                    }
-                                        
-                                          
-                                }, 250)
-                                
-                                
-                                
-                              }
-                            }
-                          });
-                          
-                        });
-                        setTimeout(() => {
-                          this.lexicalService.triggerAttestationPanel(true);
-                          this.lexicalService.sendToAttestationPanel(this.annotationArray);
-                        }, 1000);
-                        clearInterval(timer_object)
-                      }
-                      
-                    } catch (error) {
-                      console.log(error)
-                    }
-                  }, 250)
-
-                 
-
-                }else{
-                  this.annotationArray = [];
-                  this.lexicalService.triggerAttestationPanel(false);
-                  this.lexicalService.sendToAttestationPanel(null);
-
-                }
-
-                /* setTimeout(() => {
-                  
-                  console.log(this.epidoc_annotation_array); 
-                  
-                  let epidoc_aggregator = []
-                  if(this.epidoc_annotation_array.length > 0){
-                    this.object.forEach(element => {
-                      
-                      let object = {};
-                      object['element'] = element.text;
-                      object['element-span'] = {
-                        start : element.begin,
-                        end : element.end
-                      };
-                      let epidoc_array = [];
-                      let start = element.begin;
-                      let end = element.end;
-                      this.epidoc_annotation_array.forEach(
-                        epidoc => {
-                          
-                          epidoc.spans.forEach(span => {
-                            if(span.start >= start && span.end <= end){
-                              epidoc_array.push(epidoc)
-                            }
-                          });
-                        }
-                      )
-
-                      object['epidoc'] = epidoc_array;
-                      epidoc_aggregator.push(object)
-                    });
-                  }
-
-                  console.log(epidoc_aggregator);
-
-                  let leiden_string = "";
-
-                  epidoc_aggregator.forEach(
-                    token =>{
-                      let start = token['element-span'].start;
-                      let end = token['element-span'].end;
-                      let text = token.element;
-
-                      let edit_dict = [];
-
-                      token.epidoc.forEach(epidoc => {
-
-                        let obj = {};
-                        
-                        let relative_start, relative_end;
-                        relative_start = epidoc.spans[0].start-start;
-                        relative_end = relative_start + (epidoc.spans[0].end - epidoc.spans[0].start);
-
-                        if(relative_end == 0){
-                          relative_end = text.length;
-                        }
-
-                        if(epidoc.value == 'tei:lb' && epidoc.attributes.break == undefined){
-                          obj['start'] = relative_start;
-                          obj['end'] = relative_end;
-                          obj['transformed'] = '\n';
-
-                          edit_dict.push(obj);
-
-                        }else if(epidoc.value == 'tei:ex'){
-                          //console.log(token, epidoc, relative_start, relative_end)
-                          let substring = text.substring(relative_start, relative_end)
-
-                          obj['start'] = relative_start;
-                          obj['end'] = relative_end;
-                          obj['transformed'] = '('+substring+')';
-
-                          edit_dict.push(obj);
-
-                          
-                        }else if(epidoc.value == 'tei:supplied'){
-                          //console.log(token, epidoc, relative_start, relative_end)
-                          let substring = text.substring(relative_start, relative_end)
-                          
-                          obj['start'] = relative_start;
-                          obj['end'] = relative_end;
-                          obj['transformed'] = '['+substring+']'
-
-                          edit_dict.push(obj);
-                        }else if(epidoc.value == 'tei:unclear'){
-                          //console.log(token, epidoc, relative_start, relative_end)
-                          let substring = text.substring(relative_start, relative_end);
-                          let tmp_string = "";
-                          Array.from(substring).forEach((element : string) => {
-                            //console.log(element.codePointAt(0).toString(16))
-                            element = element+'\u0323'
-                            leiden_string += element;
-                            tmp_string += element;
-                          });
-                          
-                          obj['start'] = relative_start;
-                          obj['end'] = relative_end;
-                          obj['transformed'] = tmp_string
-
-                          edit_dict.push(obj);
-                        }else if(epidoc.value == 'tei:pc' && text == '.'){
-                          obj['start'] = relative_start;
-                          obj['end'] = relative_end;
-                          obj['transformed'] = '·'
-
-                          edit_dict.push(obj)
-                        }
-                      });
-
-
-
-                      console.log(edit_dict, text);
-                      if(edit_dict.length > 0){
-                        let tmp_string = '';
-                        let current_offset = 0;
-                        edit_dict.forEach(element =>{
-                          if(element.transformed == '\n'){
-                            if(element.start == current_offset){
-                              tmp_string += '\n';
-                              if(edit_dict.indexOf(element)== edit_dict.length-1 && current_offset < text.length){
-                                tmp_string += text.substring(current_offset, text.length);
-                              }
-                            }else if(element.end == text.length){
-                              if(edit_dict.indexOf(element)== edit_dict.length-1 && current_offset < text.length){
-                                tmp_string += text.substring(current_offset, text.length);
-                              }
-                              tmp_string += '\n';
-                            }
-                            
-                            //console.log(edit_dict.indexOf(element), edit_dict.length)
-                          }else{
-                            if(element.start == current_offset){
-                              tmp_string += element.transformed;;
-                              current_offset = element.end;
-                              //console.log(edit_dict.indexOf(element), edit_dict.length-1)
-
-                              if(edit_dict.indexOf(element)== edit_dict.length-1 && current_offset < text.length){
-                                tmp_string += text.substring(current_offset, text.length);
-                              }
-                            }else if(current_offset != element.start){
-                              tmp_string += text.substring(current_offset, element.start) + element.transformed;
-                              current_offset = element.end;
-
-                              //console.log(edit_dict.indexOf(element)== edit_dict.length-1, element.transformed, current_offset, text.length)
-                              
-                              if(edit_dict.indexOf(element)== edit_dict.length-1 && current_offset < text.length){
-                                tmp_string += text.substring(current_offset, text.length);
-                              }
-                            }
-                          }
-                        });
-                        console.log(tmp_string);
-                        leiden_string += tmp_string;
-                      }else{
-                        leiden_string += text;
-                      }
-                      
-
-                    }
-                  )
-
-                  console.log(leiden_string)
-                  
-
-                }, 100); */
-                
-              }else{
-                this.annotationArray = [];
-                this.epidoc_annotation_array = [];
-                this.lexicalService.triggerAttestationPanel(null);
-                this.lexicalService.sendToAttestationPanel(null);
-              }
-              
-            },error=>{
-              console.log(error)
-            }
-          )
-        }
       }else{
         this.object = null;
       }
@@ -858,10 +517,145 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
   }
 
-  ngOnDestroy(){
+  async getAnnotations(changes){
     
-  }
+    let element_id = changes.epiData.currentValue['element_id']
+    this.fileId = changes.epiData.currentValue['epidoc_id']
+    let xmlDoc = changes.epiData.currentValue['xmlDoc']
+    console.log(this.object)
+    
+    if(this.object.length == 0){
+      this.isEmptyFile = true;
+      console.log("FILE VUOTO")
+    }else{
+      this.isEmptyFile = false;
+      console.log("FILE NON VUOTO")
+    }
 
+    //console.log(this.object)
+    
+    try {
+      let get_anno_req = await this.annotatorService.getAnnotation(element_id).toPromise();
+      console.log(get_anno_req);
+
+      if(get_anno_req.annotations != undefined){
+        get_anno_req.annotations.forEach(element => {
+          //console.log(element)
+          if(element.layer == 'attestation'){
+            if(element.attributes.bibliography == undefined){
+              element.attributes['bibliography'] = [];
+            }
+            
+            if(!Array.isArray(element.attributes.bibliography)){
+              let tmp_arr = [];
+              tmp_arr.push(element.attributes['bibliography']);
+              element.attributes['bibliography'] = tmp_arr;
+            }
+            
+            
+            if(Array.isArray(element.attributes['bibliography'])){
+              Array.from(element.attributes['bibliography']).forEach(element => { 
+                
+                if(element['note'] == undefined){
+                  element['note'] = "";
+                } 
+                
+                if(element['textualRef']== undefined){
+                  element['textualRef'] = "";
+                } 
+              });
+            }
+
+            if(this.isEmptyFile){
+              element['empty_file'] = this.isEmptyFile;
+              if(element.attributes.leiden == undefined){
+                element.attributes.leiden = '';
+              }
+            }else{
+              element['empty_file'] = this.isEmptyFile;
+            }
+            this.annotationArray.push(element);
+          }else if(element.layer == 'epidoc'){
+            this.epidoc_annotation_array.push(element);
+          }
+        });
+
+        if(this.annotationArray.length > 0){
+          if(this.object != null){
+            for(const element of this.object){
+              let startElement = element.begin;
+              let endElement = element.end;
+
+              for(const annotation of this.annotationArray){
+                if(annotation.spans.length == 1){
+                  let startAnnotation = annotation.spans[0].start;
+                  let endAnnotation = annotation.spans[0].end;
+
+                  if(startAnnotation >= startElement  && endAnnotation <= endElement){
+                    let positionElement = element.position;
+                    let elementHTML = document.getElementsByClassName('token-'+(positionElement-1))[0]
+                    var that = this;
+
+                    let xmlNode = xmlDoc.querySelectorAll('[*|id=\''+element.xmlid+'\']')[0].outerHTML;
+                    let object = {
+                      xmlString : xmlNode
+                    }
+
+                    try {
+                      let convert_to_leiden = await this.documentService.testConvert(object).toPromise();
+                      console.log(convert_to_leiden);
+                      let raw = convert_to_leiden['xml'];
+                      let bodyResponse = new DOMParser().parseFromString(raw, "text/html").body;
+                      let leidenToken = '';
+                      bodyResponse.childNodes.forEach(
+                        x=>{
+                          if(x.nodeName != undefined){
+                            if(x.nodeName == '#text'){
+                              leidenToken += x.nodeValue.replace('\n', '');
+                            }
+                          }
+                        }
+                      )
+                      if(leidenToken != ''){
+                        annotation.attributes['leiden'] = leidenToken;
+                      }else{
+                        annotation.attributes['leiden'] = '';
+                      }
+                      if(elementHTML != undefined){
+                        that.renderer.addClass(elementHTML, 'annotation');
+                      }
+                    } catch (error) {
+                      
+                    }
+                    
+                    
+                    
+                    
+                  }
+                }
+              }
+            }
+            
+            this.lexicalService.triggerAttestationPanel(true);
+            this.lexicalService.sendToAttestationPanel(this.annotationArray);
+          }
+        }else{
+          this.annotationArray = [];
+          this.lexicalService.triggerAttestationPanel(false);
+          this.lexicalService.sendToAttestationPanel(null);
+        }
+      }else{
+        this.annotationArray = [];
+        this.epidoc_annotation_array = [];
+        this.lexicalService.triggerAttestationPanel(null);
+        this.lexicalService.sendToAttestationPanel(null);
+      }
+    } catch (error) {
+      if(error.status != 200){
+        this.toastr.error("Something went wrong", "Error", {timeOut : 5000})
+      }
+    }
+  }
 
 
   createToken(token?) {
@@ -922,18 +716,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
     } else {
       popoverHtml.textContent = popoverHtml.textContent.trim();
     }
-    /* if(popoverHtml.querySelectorAll('.mark').length > 0){
-      let innerText = popoverHtml.innerText;
-      const childElements = popoverHtml.children;
-      for (let child of childElements) {
-        console.log(child)
-        this.renderer.removeChild(popoverHtml, child);
-      }
-      console.log(innerText)
-      popoverHtml.innerText = innerText
-    }else if(popoverHtml.querySelectorAll('.mark').length == 0){
-      
-    } */
+    
 
   }
 
@@ -1233,220 +1016,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
           this.spanSelection['start'] = 0;
           this.spanSelection['end'] = 0;
         }
-        /* else if (this.message != '' ) { //&& areThereAnnotations
-          let anchorOffset = selection.anchorOffset;
-          let focusOffset = selection.focusOffset;
-          let range = selection.getRangeAt(0)
-
-          var sel = getSelection(),
-            position = sel.anchorNode.compareDocumentPosition(sel.focusNode),
-            backward = false;
-          // position == 0 if nodes are the same
-          if (!position && sel.anchorOffset > sel.focusOffset || position === Node.DOCUMENT_POSITION_PRECEDING) {
-            backward = true;
-          }
-
-          console.log(backward)
-
-          let startContainer = range.startContainer;
-          let endContainer = range.endContainer;
-          let textStartContainer = range.startContainer.textContent;
-          let textEndContainer = range.endContainer.textContent;
-          let annotations = popoverHtml.querySelectorAll('.annotation')
-
-          //console.log(range.startContainer == range.endContainer)
-          if (range.startContainer == range.endContainer) {
-            if (anchorOffset > focusOffset) {
-              let tmp = anchorOffset;
-              anchorOffset = focusOffset;
-              focusOffset = tmp;
-            }
-            this.message = textStartContainer.substring(range.startOffset, range.endOffset);
-            const span = this.renderer.createElement('span');
-
-            const l_text = this.renderer.createText(textStartContainer.substring(0, range.startOffset))
-            const text = this.renderer.createText(this.message);
-            const r_text = this.renderer.createText(textStartContainer.substring(range.endOffset, textStartContainer.length))
-
-            //console.log(anchorOffset, focusOffset)
-            //console.log("l_text:" , l_text)
-            //console.log("text:" , text)
-            //console.log("r_text:" , r_text)
-
-            //range.startContainer.textContent = '';
-
-
-            this.renderer.appendChild(span, text)
-            this.renderer.addClass(span, 'mark');
-
-            console.log(popoverHtml.childNodes)
-            let i = 0;
-            const getStartEnd = (str, sub) => [str.indexOf(sub), str.indexOf(sub) + sub.length - 1];
-            let generalStartEndOffset = getStartEnd(popoverHtml.textContent, this.message);
-            let children = Array.from(popoverHtml.childNodes).forEach(
-              x => {
-                if (range.startContainer == x) {
-                  range.startContainer.textContent = '';
-
-                  if (l_text.textContent != "") {
-                    this.renderer.insertBefore(popoverHtml, l_text, x)
-                  }
-
-
-
-                  this.renderer.setAttribute(span, 'startoffset', anchorOffset.toString());
-                  this.renderer.setAttribute(span, 'endoffset', focusOffset.toString())
-
-                  popoverHtml.insertBefore(span, popoverHtml.childNodes[i + 1]);
-
-                  if (r_text.textContent != "") {
-                    popoverHtml.insertBefore(r_text, popoverHtml.childNodes[i + 2]);
-                  }
-                  //@ts-ignore
-                  x.remove()
-                }
-
-                i++;
-              }
-            )
-          } else if (range.startContainer != range.endContainer) {
-            console.log(range)
-            console.log(startContainer);
-            console.log(endContainer)
-
-            if (backward) {
-              let tmp = anchorOffset;
-              anchorOffset = focusOffset;
-              focusOffset = tmp;
-            }
-
-            console.log(anchorOffset, focusOffset)
-
-            this.message = '';
-            let walker = function foo(element, that) {
-
-              let textElement = element.textContent
-              let nextSibling = element.nextSibling;
-              if (element == endContainer) {
-                console.log("end container", endContainer)
-                that.message += textElement.substring(0, focusOffset)
-
-                const span = that.renderer.createElement('span');
-                const text = that.renderer.createText(textElement.substring(0, focusOffset));
-                const r_text = that.renderer.createText(textElement.substring(focusOffset, textElement.length))
-
-
-                that.renderer.appendChild(span, text)
-                that.renderer.addClass(span, 'mark_test');
-
-                let i = 0;
-                const getStartEnd = (str, sub) => [str.indexOf(sub), str.indexOf(sub) + sub.length - 1];
-                let generalStartEndOffset = getStartEnd(popoverHtml.textContent, that.message);
-                let children = Array.from(popoverHtml.childNodes).forEach(
-                  x => {
-                    console.log(i, x)
-                    if (element == x) {
-                      element.textContent = '';
-
-                      //that.renderer.setAttribute(span, 'startoffset', generalStartEndOffset[0]);
-                      //that.renderer.setAttribute(span, 'endoffset', generalStartEndOffset[1])
-
-                      popoverHtml.insertBefore(span, popoverHtml.childNodes[i + 1]);
-
-                      if (r_text.textContent != "") {
-                        popoverHtml.insertBefore(r_text, popoverHtml.childNodes[i + 2]);
-                      }
-
-                      //@ts-ignore
-                      x.remove();
-
-                    }
-
-                    i++;
-                  }
-                )
-                return;
-              } else {
-                console.log("current element", element);
-
-
-                if (element == startContainer) {
-                  that.message = textElement.substring(anchorOffset, textElement.length);
-                  const span = that.renderer.createElement('span');
-                  const l_text = that.renderer.createText(textStartContainer.substring(0, anchorOffset))
-                  const text = that.renderer.createText(that.message);
-
-                  that.renderer.appendChild(span, text)
-                  that.renderer.addClass(span, 'mark_test');
-
-                  let i = 0;
-                  const getStartEnd = (str, sub) => [str.indexOf(sub), str.indexOf(sub) + sub.length - 1];
-                  let generalStartEndOffset = getStartEnd(popoverHtml.textContent, that.message);
-                  let children = Array.from(popoverHtml.childNodes).forEach(
-                    x => {
-                      if (element == x) {
-                        element.textContent = '';
-
-                        if (l_text.textContent != "") {
-                          that.renderer.insertBefore(popoverHtml, l_text, x)
-                        }
-
-                        //that.renderer.setAttribute(span, 'startoffset', generalStartEndOffset[0]);
-                        popoverHtml.insertBefore(span, popoverHtml.childNodes[i + 1]);
-                        //@ts-ignore
-                        x.remove();
-                      }
-
-                      i++;
-                    }
-                  )
-                }
-
-                if (element.classList == undefined && element != startContainer) {
-                  that.message += element.textContent;
-                  const span = that.renderer.createElement('span');
-                  const text = that.renderer.createText(element.textContent);
-
-                  that.renderer.appendChild(span, text)
-                  that.renderer.addClass(span, 'mark_test');
-
-                  let i = 0;
-                  const getStartEnd = (str, sub) => [str.indexOf(sub), str.indexOf(sub) + sub.length - 1];
-                  let generalStartEndOffset = getStartEnd(popoverHtml.textContent, that.message);
-                  let children = Array.from(popoverHtml.childNodes).forEach(
-                    x => {
-                      if (element == x) {
-                        element.textContent = '';
-                        //that.renderer.setAttribute(span, 'startoffset', generalStartEndOffset[0]);
-                        //that.renderer.setAttribute(span, 'endoffset', generalStartEndOffset[1])
-                        popoverHtml.insertBefore(span, popoverHtml.childNodes[i + 1]);
-                        //@ts-ignore
-                        x.remove();
-                      }
-
-                      i++;
-                    }
-                  )
-
-                }
-
-                 //if(element.classList != undefined){
-                   //if(element.classList.contains('annotation')){
-                     
-                   //}
-                // }
-
-                if (nextSibling != null) {
-                  foo(nextSibling, that)
-                }
-              }
-            }
-
-            walker(startContainer, this)
-          }
-
-
-        } */
+        
       }
 
       
@@ -1472,24 +1042,27 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
     this.annotatorService.triggerSearch('');
   }
 
-  deleteAnnotation(annotation, index, token){
+  async deleteAnnotation(annotation, index, token){
     let anno_id = annotation.id;
     let token_position = token.position;
-    this.annotatorService.deleteAnnotation(anno_id).subscribe(
-      data=> {
-        console.log(data);
-        /* let popover = document.getElementsByClassName('token-'+(token_position -1))[0]      
-        this.renderer.removeClass(popover, "annotation_entire");
-        this.renderer.removeClass(popover, "unselectable"); */
 
-        this.lexicalService.triggerAttestationPanel(false)
-      },
-      error => {
-        console.log(error)
+    try {
+      let delete_anno_req = await this.annotatorService.deleteAnnotation(anno_id).toPromise();
+      console.log(delete_anno_req);
+      
+      this.token_annotationArray.splice(index, 1)
+      this.annotationArray.splice(index, 1);
+      this.lexicalService.triggerAttestationPanel(false)
+    } catch (error) {
+      if(error.status == 200){
+        this.token_annotationArray.splice(index, 1)
+        this.annotationArray.splice(index, 1);  
+      }else{
+        this.toastr.error("Something went wront, check the log", "Error", {timeOut:5000})
       }
-    )
-    this.token_annotationArray.splice(index, 1)
-    this.annotationArray.splice(index, 1);
+    }
+    
+    
   }
 
 
@@ -1502,5 +1075,12 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
     return origin.substring(0, startIndex) + insertion + origin.substring(endIndex);
   }
 
-}
+
+  ngOnDestroy(){
+    this.epigraphy_text_subscription.unsubscribe();
+    this.leiden_subscription.unsubscribe();
+    this.translation_subscription.unsubscribe();
+    this.delete_annotation_subscription.unsubscribe();
+  }
+} 
 

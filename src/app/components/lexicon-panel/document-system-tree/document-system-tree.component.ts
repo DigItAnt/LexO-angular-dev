@@ -10,13 +10,15 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { ToastrService } from 'ngx-toastr';
 import { DocumentSystemService } from 'src/app/services/document-system/document-system.service';
 import { TreeNode } from '@circlon/angular-tree-component';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
 import {saveAs as importedSaveAs} from "file-saver";
+import { Subscription } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 
 @Component({
@@ -25,7 +27,7 @@ import {saveAs as importedSaveAs} from "file-saver";
   styleUrls: ['./document-system-tree.component.scss'],
 })
 
-export class DocumentSystemTreeComponent implements OnInit {
+export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
 
   switcher = false;
   @ViewChild('lexTree') lexTree: any;
@@ -34,19 +36,20 @@ export class DocumentSystemTreeComponent implements OnInit {
   @ViewChild('skosTree') skosTree: any;
   @ViewChild('accordion') accordion: ElementRef; 
 
-
+  refresh_after_edit_subscription : Subscription;
+  trigger_lex_tree_subscription : Subscription;
 
   constructor(private exp: ExpanderService, private lexicalService: LexicalEntriesService, private toastr: ToastrService, private renderer: Renderer2, private documentService: DocumentSystemService) { }
 
   ngOnInit(): void {
-    this.lexicalService.refreshAfterEdit$.subscribe(
+    this.refresh_after_edit_subscription = this.refresh_after_edit_subscription = this.lexicalService.refreshAfterEdit$.subscribe(
       data => {
         this.refreshAfterEdit(data);
       }
     )
 
 
-    this.lexicalService.triggerLexicalEntryTree$.subscribe(
+    this.trigger_lex_tree_subscription = this.lexicalService.triggerLexicalEntryTree$.subscribe(
       (data:any)=> {
         setTimeout(() => {
           if(data != null){
@@ -546,7 +549,7 @@ export class DocumentSystemTreeComponent implements OnInit {
 
   newLexicalEntry() {
 
-    this.lexicalService.newLexicalEntry().subscribe(
+    this.lexicalService.newLexicalEntry().pipe(take(1)).subscribe(
       data => {
         console.log(data);
 
@@ -594,7 +597,7 @@ export class DocumentSystemTreeComponent implements OnInit {
       filename : "new_file"+Math.floor(Math.random() * (99999 - 10) + 10)
     }
 
-    this.documentService.createFile(parameters).subscribe(
+    this.documentService.createFile(parameters).pipe(take(1)).subscribe(
       data =>{
         console.log(data)
         this.textTree.treeText.treeModel.nodes.push(data.node);
@@ -628,7 +631,7 @@ export class DocumentSystemTreeComponent implements OnInit {
         const formData = new FormData();
         formData.append('file', evt.target.files[0]);
 
-        this.documentService.uploadFile(formData, element_id, 11).subscribe(
+        this.documentService.uploadFile(formData, element_id, 11).pipe(take(1)).subscribe(
           data => {
             console.log(data)
 
@@ -670,7 +673,7 @@ export class DocumentSystemTreeComponent implements OnInit {
           const formData = new FormData();
           formData.append('file', element);
 
-          this.documentService.uploadFile(formData, element_id, 11).subscribe(
+          this.documentService.uploadFile(formData, element_id, 11).pipe(take(1)).subscribe(
             data => {
               console.log(data)
 
@@ -713,7 +716,7 @@ export class DocumentSystemTreeComponent implements OnInit {
     }
 
 
-    this.documentService.addFolder(parameters).subscribe(
+    this.documentService.addFolder(parameters).pipe(take(1)).subscribe(
       data => {
         console.log(data)
         let id_new_node = 243;
@@ -752,7 +755,7 @@ export class DocumentSystemTreeComponent implements OnInit {
       "inferred": false
     }
 
-    this.lexicalService.exportLexicon(parameters).subscribe(
+    this.lexicalService.exportLexicon(parameters).pipe(take(1)).subscribe(
       data=> {
         console.log(data);
         var blob = new Blob([data], { type: 'text/turtle' });
@@ -772,4 +775,9 @@ export class DocumentSystemTreeComponent implements OnInit {
     const url= window.URL.createObjectURL(blob);
     window.open(url);
   } */
+
+  ngOnDestroy(): void {
+      this.refresh_after_edit_subscription.unsubscribe();
+      this.trigger_lex_tree_subscription.unsubscribe();
+  }
 }

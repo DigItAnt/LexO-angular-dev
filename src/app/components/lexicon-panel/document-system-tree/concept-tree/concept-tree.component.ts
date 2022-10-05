@@ -178,7 +178,7 @@ export class ConceptTreeComponent implements OnInit {
 
   }
 
-  onScrollDown(treeModel: TreeModel) {
+  onScrollDownConceptTree(treeModel: TreeModel) {
 
     this.offset += 500;
     this.modalShow = true;

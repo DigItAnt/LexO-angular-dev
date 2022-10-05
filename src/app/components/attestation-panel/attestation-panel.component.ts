@@ -10,11 +10,11 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, ComponentFactoryResolver, ElementRef, Input, OnChanges, OnInit, QueryList, SimpleChanges, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
+import { Component, ComponentFactoryResolver, ElementRef, Input, OnChanges, OnDestroy, OnInit, QueryList, SimpleChanges, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
 import { ModalComponent } from 'ng-modal-lib';
 import { ToastrService } from 'ngx-toastr';
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime, take } from 'rxjs/operators';
 import { AnnotatorService } from 'src/app/services/annotator/annotator.service';
 import { BibliographyService } from 'src/app/services/bibliography-service/bibliography.service';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
@@ -26,7 +26,7 @@ import { FormPanelComponent } from './form-panel/form-panel.component';
   templateUrl: './attestation-panel.component.html',
   styleUrls: ['./attestation-panel.component.scss']
 })
-export class AttestationPanelComponent implements OnInit,OnChanges {
+export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
 
   @Input() attestationData: any;
   @ViewChild('addBibliographyAttestation', {static: false}) modal: ModalComponent;
@@ -59,6 +59,13 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
   labelData = [];
   bind = this;
 
+  get_form_subscription : Subscription;
+  get_id_text_subscription : Subscription;
+  update_anno_subscription : Subscription;
+  update_anno_biblio_subject_subscription : Subscription;
+  biblio_bootstrap_subscription : Subscription;
+  search_subject_subscription : Subscription;
+
   constructor(private toastr: ToastrService, 
               private biblioService : BibliographyService, 
               private expander: ExpanderService, 
@@ -70,7 +77,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
   formData = [];
   ngOnInit(): void {
 
-    this.lexicalService.getFormTypes().subscribe(
+    this.get_form_subscription = this.lexicalService.getFormTypes().subscribe(
       data => {
         this.typesData = data;
         //console.log(this.typesData)
@@ -80,7 +87,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
       }
     )
 
-    this.annotatorService.getIdText$.subscribe(
+    this.get_id_text_subscription = this.annotatorService.getIdText$.subscribe(
       data=>{
         console.log(data);
         this.fileId = data;
@@ -98,7 +105,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
     )
     
 
-    this.update_biblio_anno_subject.pipe(debounceTime(1000)).subscribe(
+    this.update_anno_biblio_subject_subscription = this.update_biblio_anno_subject.pipe(debounceTime(1000)).subscribe(
       data => {
         if(data != null){
           this.updateBiblioAnnotation(data)
@@ -106,7 +113,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
       }
     )
 
-    this.biblioService.bootstrapData(this.start, this.sortField, this.direction).subscribe(
+    this.biblio_bootstrap_subscription = this.biblioService.bootstrapData(this.start, this.sortField, this.direction).subscribe(
       data=> {
         this.memorySort = {field : this.sortField, direction : this.direction}
         this.bibliography = data;
@@ -123,7 +130,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
       }
     )
 
-    this.searchSubject.pipe(debounceTime(1000)).subscribe(
+    this.search_subject_subscription = this.searchSubject.pipe(debounceTime(1000)).subscribe(
       data => {
         this.queryTitle  = data.query;
         data.queryMode ? this.queryMode = 'everything' : this.queryMode = 'titleCreatorYear';
@@ -179,7 +186,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
     this.formData.splice(index,1);
     this.annotatorService.deleteAnnotationRequest(id, node_id);
     
-    this.annotatorService.deleteAnnotation(id).subscribe(
+    this.annotatorService.deleteAnnotation(id).pipe(take(1)).subscribe(
       data=> {
         console.log(data);
         this.toastr.success('Attestation deleted correctly', 'Info', {
@@ -276,7 +283,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
       )
       let annotation = data?.a;
       console.log(annotation)
-      this.annotatorService.updateAnnotation(annotation).subscribe(
+      this.annotatorService.updateAnnotation(annotation).pipe(take(1)).subscribe(
         data=> {
           console.log(data);
           this.toastr.success('Attestation updated correctly', 'Info', {
@@ -299,7 +306,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
       console.log('#attestation_collapse-'+index+'')
       let item_collapse = this.accordion.nativeElement.querySelectorAll('#attestation_collapse-'+index)[0];
       if(item_collapse.classList.contains('show')){
-        this.lexicalService.getFormData(formId, 'core').subscribe(
+        this.lexicalService.getFormData(formId, 'core').pipe(take(1)).subscribe(
           data=>{
             console.log(data);
             this.lexicalService.triggerLexicalEntryTree({request: true, data: data})
@@ -370,7 +377,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
     this.direction = 'asc';
     this.tableBody.nativeElement.scrollTop = 0;
     this.memorySort = { field: this.sortField, direction: this.direction}
-    this.biblioService.bootstrapData(this.start, this.sortField, this.direction).subscribe(
+    this.biblioService.bootstrapData(this.start, this.sortField, this.direction).pipe(take(1)).subscribe(
       data=> {
         this.bibliography = data;
         this.bibliography.forEach(element => {
@@ -397,7 +404,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
     this.start += 25;
     
     if(this.queryTitle != ''){
-      this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).subscribe(
+      this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).pipe(take(1)).subscribe(
         data=>{
           console.log(data)
           //@ts-ignore
@@ -411,7 +418,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
         }
       )
     }else{
-      this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).subscribe(
+      this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).pipe(take(1)).subscribe(
         data=> {
           
           data.forEach(element => {
@@ -496,7 +503,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
         }
       );
 
-      this.annotatorService.updateAnnotation(this.selectedAnnotation).subscribe(
+      this.annotatorService.updateAnnotation(this.selectedAnnotation).pipe(take(1)).subscribe(
         data=>{
           console.log(data);
           //@ts-ignore
@@ -525,7 +532,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
       )
       /* this.annotatorService.updateAnnotation() */
       /*       
-      this.lexicalService.addBibliographyData(instance, parameters).subscribe(
+      this.lexicalService.addBibliographyData(instance, parameters).pipe(take(1)).subscribe(
         data=>{
           console.log(data);
           setTimeout(() => {
@@ -597,7 +604,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
     this.start = 0;
     this.tableBody.nativeElement.scrollTop = 0;
 
-    this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).subscribe(
+    this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).pipe(take(1)).subscribe(
       data=>{
         console.log(data)
         this.bibliography = [];
@@ -625,7 +632,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
       }
     )
 
-    this.annotatorService.updateAnnotation(item).subscribe(
+    this.annotatorService.updateAnnotation(item).pipe(take(1)).subscribe(
       data=>{
         console.log(data)
         this.toastr.success('Attestation removed correctly', 'Info', {
@@ -660,7 +667,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
     $('body').css("padding-right", "");
     this.tableBody.nativeElement.scrollTop = 0;
     if(this.queryTitle != ''){
-      this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).subscribe(
+      this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).pipe(take(1)).subscribe(
         data => {
           console.log(data);
           this.bibliography = [];
@@ -676,7 +683,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
         }
       )
     }else{
-      this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).subscribe(
+      this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).pipe(take(1)).subscribe(
         data => {
           console.log(data);
           this.bibliography = [];
@@ -700,7 +707,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
     console.log(idAnnotation)
     let panel = this.annotatorService.getPanelForm(idAnnotation);
     if(panel == undefined){
-      this.lexicalService.getFormData(formId, 'core').subscribe(
+      this.lexicalService.getFormData(formId, 'core').pipe(take(1)).subscribe(
         data=> {
           console.log(data);
           if(data != undefined){
@@ -723,5 +730,14 @@ export class AttestationPanelComponent implements OnInit,OnChanges {
 
     }
 
+  }
+
+  ngOnDestroy(): void {
+    this.get_form_subscription.unsubscribe();
+    this.get_id_text_subscription.unsubscribe();
+    this.update_anno_subscription.unsubscribe();
+    this.update_anno_biblio_subject_subscription.unsubscribe();
+    this.biblio_bootstrap_subscription.unsubscribe();
+    this.search_subject_subscription.unsubscribe();
   }
 }

@@ -10,7 +10,8 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 
@@ -19,7 +20,7 @@ import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-
   templateUrl: './edit-detail.component.html',
   styleUrls: ['./edit-detail.component.scss']
 })
-export class EditDetailComponent implements OnInit {
+export class EditDetailComponent implements OnInit, OnDestroy {
 
   object : any;
   showTrigger = false;
@@ -29,12 +30,18 @@ export class EditDetailComponent implements OnInit {
   @ViewChild('navtabs') navtabs: ElementRef; 
   @ViewChild('navcontent') navcontent: ElementRef; 
 
+  expand_edit_subscription : Subscription;
+  expand_epi_subscription : Subscription;
+  core_data_subscription : Subscription;
+  decomp_data_subscription : Subscription;
+  etymology_data_subscription : Subscription;
+
   constructor(private lexicalService: LexicalEntriesService, private exp : ExpanderService) { }
 
   ngOnInit(): void {
     
     this.object = null;
-    this.exp.openEdit$.subscribe(
+    this.expand_edit_subscription = this.exp.openEdit$.subscribe(
       boolean => {
         if(boolean){
           setTimeout(() => {
@@ -57,7 +64,7 @@ export class EditDetailComponent implements OnInit {
       }
     )
 
-    this.lexicalService.coreData$.subscribe(
+    this.core_data_subscription = this.lexicalService.coreData$.subscribe(
       object => {
         if(object != null){
           if(object['lexicalEntryInstanceName'] != undefined ||
@@ -108,7 +115,7 @@ export class EditDetailComponent implements OnInit {
       }
     );
     
-    this.lexicalService.decompData$.subscribe(
+    this.decomp_data_subscription = this.lexicalService.decompData$.subscribe(
       object => {
         if(object != null){
           setTimeout(() => {
@@ -153,7 +160,7 @@ export class EditDetailComponent implements OnInit {
     )
     
 
-    this.lexicalService.etymologyData$.subscribe(
+    this.etymology_data_subscription = this.lexicalService.etymologyData$.subscribe(
       object => {
         if(object != null){
           if(object['etymology']['etymologyInstanceName'] != undefined){
@@ -220,6 +227,14 @@ export class EditDetailComponent implements OnInit {
       }
       
     }, 200);
+  }
+
+  ngOnDestroy(): void {
+      this.core_data_subscription.unsubscribe();
+      this.expand_epi_subscription.unsubscribe();
+      this.decomp_data_subscription.unsubscribe();
+      this.expand_edit_subscription.unsubscribe();
+      this.etymology_data_subscription.unsubscribe();
   }
 
 }

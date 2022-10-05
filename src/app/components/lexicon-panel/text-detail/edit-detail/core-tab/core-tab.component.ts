@@ -10,7 +10,7 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { LexicalEntriesService } from '../../../../../services/lexical-entries/lexical-entries.service';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
 import { ToastrService } from 'ngx-toastr';
@@ -22,10 +22,10 @@ import {
   trigger,
   state
 } from "@angular/animations";
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, take } from 'rxjs/operators';
 import { ModalComponent } from 'ng-modal-lib';
 import { BibliographyService } from 'src/app/services/bibliography-service/bibliography.service';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-core-tab',
@@ -45,7 +45,7 @@ import { Subject } from 'rxjs';
     ])
   ]
 })
-export class CoreTabComponent implements OnInit {
+export class CoreTabComponent implements OnInit, OnDestroy {
 
   lock = 0;
   object: any;
@@ -80,6 +80,14 @@ export class CoreTabComponent implements OnInit {
   queryTitle = '';
   queryMode = 'titleCreatorYear';
 
+  core_data_subscription : Subscription;
+  expand_edit_subscription : Subscription;
+  expand_epi_subscription : Subscription;
+  update_core_card_subscription : Subscription;
+  spinner_subscription : Subscription;
+  search_subject_subscription : Subscription;
+  biblio_bootstrap_subscription : Subscription;
+
   private searchSubject : Subject<any> = new Subject();
 
   @ViewChild('expander') expander_body: ElementRef;
@@ -91,7 +99,7 @@ export class CoreTabComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.lexicalService.coreData$.subscribe(
+    this.core_data_subscription = this.lexicalService.coreData$.subscribe(
       object => {
         if(this.object != object){
           this.lexicalEntryData = null;
@@ -198,7 +206,7 @@ export class CoreTabComponent implements OnInit {
       }
     );
 
-    this.expand.expEdit$.subscribe(
+    this.expand_edit_subscription = this.expand.expEdit$.subscribe(
       trigger => {
         /* console.log("trigger core-tab: ", trigger) */
         setTimeout(() => {
@@ -234,7 +242,7 @@ export class CoreTabComponent implements OnInit {
       }
     );
 
-    this.expand.expEpigraphy$.subscribe(
+    this.expand_epi_subscription = this.expand.expEpigraphy$.subscribe(
       trigger => {
         setTimeout(() => {
           if(trigger){
@@ -252,7 +260,7 @@ export class CoreTabComponent implements OnInit {
       }
     );
 
-    this.lexicalService.updateCoreCardReq$.subscribe(
+    this.update_core_card_subscription = this.lexicalService.updateCoreCardReq$.subscribe(
       data => {
         console.log(data)
         if(data != null){
@@ -264,7 +272,7 @@ export class CoreTabComponent implements OnInit {
       }
     )
 
-    this.lexicalService.spinnerAction$.subscribe(
+    this.spinner_subscription = this.lexicalService.spinnerAction$.subscribe(
       data => {
         if(data == 'on'){
           this.searchIconSpinner = true;
@@ -277,7 +285,7 @@ export class CoreTabComponent implements OnInit {
       }
     )
 
-    this.searchSubject.pipe(debounceTime(1000)).subscribe(
+    this.search_subject_subscription = this.searchSubject.pipe(debounceTime(1000)).subscribe(
       data => {
         this.queryTitle  = data.query;
         data.queryMode ? this.queryMode = 'everything' : this.queryMode = 'titleCreatorYear';
@@ -295,7 +303,7 @@ export class CoreTabComponent implements OnInit {
     $('body').removeClass("modal-open")
     $('body').css("padding-right", "");
 
-    this.biblioService.bootstrapData(this.start, this.sortField, this.direction).subscribe(
+    this.biblio_bootstrap_subscription = this.biblioService.bootstrapData(this.start, this.sortField, this.direction).subscribe(
       data=> {
         this.memorySort = {field : this.sortField, direction : this.direction}
         this.bibliography = data;
@@ -338,7 +346,7 @@ export class CoreTabComponent implements OnInit {
             relation : "status",
             value : "working"
           }
-          this.lexicalService.updateLexicalEntry(lexicalId, parameters).pipe(debounceTime(500)).subscribe(
+          this.lexicalService.updateLexicalEntry(lexicalId, parameters).pipe(take(1)).subscribe(
           data => {
             this.searchIconSpinner = false;
             data['request'] = 0;
@@ -367,7 +375,7 @@ export class CoreTabComponent implements OnInit {
           relation : "status",
           value : "completed"
         }
-        this.lexicalService.updateLexicalEntry(lexicalId, parameters).pipe(debounceTime(500)).subscribe(
+        this.lexicalService.updateLexicalEntry(lexicalId, parameters).pipe(take(1)).subscribe(
           data => {
 
             this.searchIconSpinner = false;
@@ -397,7 +405,7 @@ export class CoreTabComponent implements OnInit {
           relation : "status",
           value : "reviewed"
         }
-        this.lexicalService.updateLexicalEntry(lexicalId, parameters).pipe(debounceTime(500)).subscribe(
+        this.lexicalService.updateLexicalEntry(lexicalId, parameters).pipe(take(1)).subscribe(
           data => {
             this.searchIconSpinner = false;
             data['request'] = 0;
@@ -437,7 +445,7 @@ export class CoreTabComponent implements OnInit {
   deleteLexicalEntry(){
     this.searchIconSpinner = true;
     let lexicalId = this.object.lexicalEntryInstanceName
-    this.lexicalService.deleteLexicalEntry(lexicalId).subscribe(
+    this.lexicalService.deleteLexicalEntry(lexicalId).pipe(take(1)).subscribe(
       data=>{
         //console.log(data)
         this.searchIconSpinner = false;
@@ -475,7 +483,7 @@ export class CoreTabComponent implements OnInit {
   deleteForm(){
     this.searchIconSpinner = true;
     let lexicalId = this.object.formInstanceName;    
-    this.lexicalService.deleteForm(lexicalId).subscribe(
+    this.lexicalService.deleteForm(lexicalId).pipe(take(1)).subscribe(
       data=>{
         this.searchIconSpinner = false;
         this.lexicalService.deleteRequest(this.object);
@@ -499,7 +507,7 @@ export class CoreTabComponent implements OnInit {
     this.searchIconSpinner = true;
     let lexicalId = this.object.senseInstanceName;
     
-    this.lexicalService.deleteSense(lexicalId).subscribe(
+    this.lexicalService.deleteSense(lexicalId).pipe(take(1)).subscribe(
       data=>{
         console.log(data)
         this.searchIconSpinner = false;
@@ -523,7 +531,7 @@ export class CoreTabComponent implements OnInit {
     this.object['request'] = 'form'
     if(this.isLexicalEntry){
       let lexicalId = this.object.lexicalEntryInstanceName;
-      this.lexicalService.createNewForm(lexicalId).subscribe(
+      this.lexicalService.createNewForm(lexicalId).pipe(take(1)).subscribe(
         data=>{
           this.toastr.success('Form added correctly', '', {
             timeOut: 5000,
@@ -549,7 +557,7 @@ export class CoreTabComponent implements OnInit {
       //console.log(this.object);
       this.object['request'] = 'form';
       this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
-      this.lexicalService.createNewForm(parentNodeInstanceName).subscribe(
+      this.lexicalService.createNewForm(parentNodeInstanceName).pipe(take(1)).subscribe(
         data=>{
           if(data['creator'] == this.object.creator){
             data['flagAuthor'] = false;
@@ -574,7 +582,7 @@ export class CoreTabComponent implements OnInit {
       this.object['request'] = 'form';
       this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
       //console.log(this.object);
-      this.lexicalService.createNewForm(parentNodeInstanceName).subscribe(
+      this.lexicalService.createNewForm(parentNodeInstanceName).pipe(take(1)).subscribe(
         data=>{
           if(data['creator'] == this.object.creator){
             data['flagAuthor'] = false;
@@ -602,7 +610,7 @@ export class CoreTabComponent implements OnInit {
     this.object['request'] = 'sense'
     if(this.isLexicalEntry){
       let lexicalId = this.object.lexicalEntryInstanceName;
-      this.lexicalService.createNewSense(lexicalId).subscribe(
+      this.lexicalService.createNewSense(lexicalId).pipe(take(1)).subscribe(
         data=>{
           if(data['creator'] == this.object.creator){
             data['flagAuthor'] = false;
@@ -627,7 +635,7 @@ export class CoreTabComponent implements OnInit {
       this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
       this.object['request'] = 'sense'
       //console.log(this.object);
-      this.lexicalService.createNewSense(parentNodeInstanceName).subscribe(
+      this.lexicalService.createNewSense(parentNodeInstanceName).pipe(take(1)).subscribe(
         data=>{
           if(data['creator'] == this.object.creator){
             data['flagAuthor'] = false;
@@ -651,7 +659,7 @@ export class CoreTabComponent implements OnInit {
       this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
       this.object['request'] = 'sense'
       //console.log(this.object);
-      this.lexicalService.createNewSense(parentNodeInstanceName).subscribe(
+      this.lexicalService.createNewSense(parentNodeInstanceName).pipe(take(1)).subscribe(
         data=>{
           if(data['creator'] == this.object.creator){
             data['flagAuthor'] = false;
@@ -695,7 +703,7 @@ export class CoreTabComponent implements OnInit {
     }
 
     console.log(parentNodeInstanceName)
-    this.lexicalService.createNewEtymology(parentNodeInstanceName).subscribe(
+    this.lexicalService.createNewEtymology(parentNodeInstanceName).pipe(take(1)).subscribe(
       data=>{
         console.log(data)
         if(data['creator'] == this.object.creator){
@@ -769,7 +777,7 @@ export class CoreTabComponent implements OnInit {
         seeAlsoLink: seeAlsoLink
       }
       console.log(instance, parameters)
-      this.lexicalService.addBibliographyData(instance, parameters).subscribe(
+      this.lexicalService.addBibliographyData(instance, parameters).pipe(take(1)).subscribe(
         data=>{
           console.log(data);
           setTimeout(() => {
@@ -835,7 +843,7 @@ export class CoreTabComponent implements OnInit {
     $('body').css("padding-right", "");
     this.tableBody.nativeElement.scrollTop = 0;
     if(this.queryTitle != ''){
-      this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).subscribe(
+      this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).pipe(take(1)).subscribe(
         data => {
           console.log(data);
           this.bibliography = [];
@@ -851,7 +859,7 @@ export class CoreTabComponent implements OnInit {
         }
       )
     }else{
-      this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).subscribe(
+      this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).pipe(take(1)).subscribe(
         data => {
           console.log(data);
           this.bibliography = [];
@@ -882,7 +890,7 @@ export class CoreTabComponent implements OnInit {
     this.start += 25;
     
     if(this.queryTitle != ''){
-      this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).subscribe(
+      this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).pipe(take(1)).subscribe(
         data=>{
           console.log(data)
           //@ts-ignore
@@ -896,7 +904,7 @@ export class CoreTabComponent implements OnInit {
         }
       )
     }else{
-      this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).subscribe(
+      this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).pipe(take(1)).subscribe(
         data=> {
           
           data.forEach(element => {
@@ -961,7 +969,7 @@ export class CoreTabComponent implements OnInit {
     this.start = 0;
     this.tableBody.nativeElement.scrollTop = 0;
 
-    this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).subscribe(
+    this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).pipe(take(1)).subscribe(
       data=>{
         console.log(data)
         this.bibliography = [];
@@ -985,7 +993,7 @@ export class CoreTabComponent implements OnInit {
     this.direction = 'asc';
     this.tableBody.nativeElement.scrollTop = 0;
     this.memorySort = { field: this.sortField, direction: this.direction}
-    this.biblioService.bootstrapData(this.start, this.sortField, this.direction).subscribe(
+    this.biblioService.bootstrapData(this.start, this.sortField, this.direction).pipe(take(1)).subscribe(
       data=> {
         this.bibliography = data;
         this.bibliography.forEach(element => {
@@ -997,5 +1005,15 @@ export class CoreTabComponent implements OnInit {
         console.log(error)
       }
     );
+  }
+
+  ngOnDestroy(): void {
+      this.core_data_subscription.unsubscribe();
+      this.expand_edit_subscription.unsubscribe();
+      this.expand_epi_subscription.unsubscribe();
+      this.update_core_card_subscription.unsubscribe();
+      this.spinner_subscription.unsubscribe();
+      this.search_subject_subscription.unsubscribe();
+      this.biblio_bootstrap_subscription.unsubscribe();
   }
 }

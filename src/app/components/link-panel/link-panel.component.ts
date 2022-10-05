@@ -10,7 +10,8 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 
 @Component({
@@ -18,7 +19,7 @@ import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-
   templateUrl: './link-panel.component.html',
   styleUrls: ['./link-panel.component.scss']
 })
-export class LinkPanelComponent implements OnInit {
+export class LinkPanelComponent implements OnInit, OnDestroy {
 
   @Input() linkData: any[] | any;
   
@@ -26,214 +27,100 @@ export class LinkPanelComponent implements OnInit {
   sameAsData : {};
   counterElement = 0;
   object : any;
+
+  refresh_subscription : Subscription;
+
   constructor(private lexicalService: LexicalEntriesService) { }
 
   ngOnInit(): void {
 
-    this.lexicalService.refreshLinkCounter$.subscribe(
+    this.refresh_subscription = this.lexicalService.refreshLinkCounter$.subscribe(
       data=>{
         console.log(data)
         if(data!=null){
           this.counterElement = eval(this.counterElement.toString()+data)
         }
       },error=>{
-
+        console.log(error)
       }
     )
   }
 
-  ngOnChanges(changes: SimpleChanges){
+  async ngOnChanges(changes: SimpleChanges){
     if(changes.linkData.currentValue != null){
       this.counterElement = 0;
       this.object = changes.linkData.currentValue;
       this.sameAsData = null;
       this.seeAlsoData = null;
-      
+      let lexicalElementId = '';
+      let instanceNameType = '';
+      let parameters = {};
+      if (this.object.lexicalEntryInstanceName != undefined) {
+        lexicalElementId = this.object.lexicalEntryInstanceName;
+        instanceNameType = 'lexicalEntryInstanceName'
+      } else if (this.object.formInstanceName != undefined) {
+        lexicalElementId = this.object.formInstanceName;
+        instanceNameType = 'formInstanceName'
+      } else if (this.object.senseInstanceName != undefined) {
+        lexicalElementId = this.object.senseInstanceName;
+        instanceNameType = 'senseInstanceName'
+      } else if (this.object.etymologyInstanceName != undefined) {
+        lexicalElementId = this.object.etymologyInstanceName;
+        instanceNameType = 'etymologyInstanceName'
+      }
       /* //console.log(changes.linkData.currentValue) */
 
-      if(this.object.lexicalEntryInstanceName != undefined){
-        let lexId = this.object.lexicalEntryInstanceName;
-        this.lexicalService.getLexEntryLinguisticRelation(lexId, 'sameAs').subscribe(
-          data=>{
-            console.log(data, this.object);
-            this.sameAsData = {}
-            this.sameAsData['array'] = data;
-            this.sameAsData['parentNodeLabel']= this.object['lexicalEntry'];
-            this.sameAsData['lexicalEntryInstanceName']= this.object['lexicalEntryInstanceName'];
-            this.sameAsData['type'] = this.object.type;
-          }, error=>{
-            console.log(this.object)
-            this.sameAsData = {}
-            this.sameAsData['array'] = [];
-            this.sameAsData['parentNodeLabel']= this.object['lexicalEntry'];
-            this.sameAsData['lexicalEntryInstanceName']= this.object['lexicalEntryInstanceName'];
-            this.sameAsData['label']= this.object['label'];
-            this.sameAsData['type'] = this.object.type;
-            console.log(error);
-            
-          }
-        )
 
-        this.lexicalService.getLexEntryLinguisticRelation(lexId, 'seeAlso').subscribe(
-          data=>{
-            console.log(data)
-            this.seeAlsoData = {}
-            this.seeAlsoData['array'] = data;
-            this.seeAlsoData['parentNodeLabel']= this.object['lexicalEntry'];
-            this.seeAlsoData['lexicalEntryInstanceName']= this.object['lexicalEntryInstanceName'];
-          }, error=>{
-            this.seeAlsoData = {}
-            this.seeAlsoData['array'] = [];
-            this.seeAlsoData['parentNodeLabel']= this.object['lexicalEntry'];
-            this.seeAlsoData['lexicalEntryInstanceName']= this.object['lexicalEntryInstanceName'];
-            //console.log(error);
-            
-          }
-        )
-
-        //console.log(this.object)
-        this.object.links.forEach(element => {
-          if(element.type != undefined){
-            if(element.type == 'Reference'){
-              element.elements.forEach(sub => {
-                this.counterElement += sub.count;
-              });
-            }
-          }
-        });
-      }else if(this.object.formInstanceName != undefined){
-        let formId = this.object.formInstanceName;
-        this.lexicalService.getLexEntryLinguisticRelation(formId, 'sameAs').subscribe(
-          data=>{
-            //console.log(data);
-            this.sameAsData = {}
-            this.sameAsData['array'] = data;
-            this.sameAsData['formInstanceName']= this.object['formInstanceName'];
-          }, error=>{
-            this.sameAsData = {}
-            this.sameAsData['array'] = [];
-            this.sameAsData['formInstanceName']= this.object['formInstanceName'];
-            //console.log(error);
-            
-          }
-        )
-
-        this.lexicalService.getLexEntryLinguisticRelation(formId, 'seeAlso').subscribe(
-          data=>{
-            this.seeAlsoData = {}
-            this.seeAlsoData['array'] = data;
-            this.seeAlsoData['formInstanceName']= this.object['formInstanceName'];
-          }, error=>{
-            this.seeAlsoData = {}
-            this.seeAlsoData['array'] = [];
-            this.seeAlsoData['formInstanceName']= this.object['formInstanceName'];
-            //console.log(error);
-            
-          }
-        )
-
-        //console.log(this.object)
-        if(this.object.links != null){
-          this.object.links.forEach(element => {
-            if(element.type != undefined){
-              if(element.type == 'Reference'){
-                element.elements.forEach(sub => {
-                  this.counterElement += sub.count;
-                });
-              }
-            }
-          });
+      try{
+        let same_as_data = await this.lexicalService.getLexEntryLinguisticRelation(lexicalElementId, 'sameAs').toPromise()
+        console.log(same_as_data)
+        this.sameAsData = {}
+        this.sameAsData['array'] = same_as_data;
+        if(instanceNameType == 'lexicalEntryInstanceName'){
+          this.sameAsData['parentNodeLabel']= this.object['lexicalEntry'];
         }
-        
-      }else if(this.object.senseInstanceName != undefined){
-        let senseId = this.object.senseInstanceName;
-        this.lexicalService.getLexEntryLinguisticRelation(senseId, 'sameAs').subscribe(
-          data=>{
-            //console.log(data);
-            this.sameAsData = {}
-            this.sameAsData['array'] = data;
-            this.sameAsData['senseInstanceName']= this.object['senseInstanceName'];
-          }, error=>{
-            this.sameAsData = {}
-            this.sameAsData['array'] = [];
-            this.sameAsData['senseInstanceName']= this.object['senseInstanceName'];
-            //console.log(error);
-            
-          }
-        )
-
-        this.lexicalService.getLexEntryLinguisticRelation(senseId, 'seeAlso').subscribe(
-          data=>{
-            //console.log(data)
-            this.seeAlsoData = {}
-            this.seeAlsoData['array'] = data;
-            this.seeAlsoData['senseInstanceName']= this.object['senseInstanceName'];
-          }, error=>{
-            this.seeAlsoData = {}
-            this.seeAlsoData['array'] = [];
-            this.seeAlsoData['senseInstanceName']= this.object['senseInstanceName'];
-            //console.log(error);
-            
-          }
-        )
-
-        //console.log(this.object)
-        if(this.object.links != null){
-          this.object.links.forEach(element => {
-            if(element.type != undefined){
-              if(element.type == 'Reference'){
-                element.elements.forEach(sub => {
-                  this.counterElement += sub.count;
-                });
-              }
-            }
-          });
+        this.sameAsData[instanceNameType]= this.object[instanceNameType];
+        this.sameAsData['type'] = this.object.type;
+      }catch(e){
+        console.log(this.object)
+        this.sameAsData = {}
+        this.sameAsData['array'] = [];
+        if(instanceNameType == 'lexicalEntryInstanceName'){
+          this.sameAsData['parentNodeLabel']= this.object['lexicalEntry'];
         }
-      }else if(this.object.etymologyInstanceName != undefined){
-        let etymId = this.object.etymologyInstanceName;
-        this.lexicalService.getLexEntryLinguisticRelation(etymId, 'sameAs').subscribe(
-          data=>{
-            //console.log(data);
-            this.sameAsData = {}
-            this.sameAsData['array'] = data;
-            this.sameAsData['etymologyInstanceName']= this.object['etymologyInstanceName'];
-          }, error=>{
-            this.sameAsData = {}
-            this.sameAsData['array'] = [];
-            this.sameAsData['etymologyInstanceName']= this.object['etymologyInstanceName'];
-            //console.log(error);
-            
-          }
-        )
+        this.sameAsData[instanceNameType]= this.object[instanceNameType];
+        this.sameAsData['label']= this.object['label'];
+        this.sameAsData['type'] = this.object.type;
+        console.log(e);
+      }
+      
+      try{
+        let see_also_data = await this.lexicalService.getLexEntryLinguisticRelation(lexicalElementId, 'seeAlso').toPromise();
+        console.log(see_also_data)
+        this.seeAlsoData = {}
+        this.seeAlsoData['array'] = see_also_data;
+        this.seeAlsoData['parentNodeLabel']= this.object['lexicalEntry'];
+        this.seeAlsoData[instanceNameType]= this.object[instanceNameType];
+      }catch(e){
+        this.seeAlsoData = {}
+        this.seeAlsoData['array'] = [];
+        this.seeAlsoData['parentNodeLabel']= this.object['lexicalEntry'];
+        this.seeAlsoData[instanceNameType]= this.object[instanceNameType];
+      }
+      
 
-        this.lexicalService.getLexEntryLinguisticRelation(etymId, 'seeAlso').subscribe(
-          data=>{
-            //console.log(data)
-            this.seeAlsoData = {}
-            this.seeAlsoData['array'] = data;
-            this.seeAlsoData['etymologyInstanceName']= this.object['etymologyInstanceName'];
-          }, error=>{
-            this.seeAlsoData = {}
-            this.seeAlsoData['array'] = [];
-            this.seeAlsoData['etymologyInstanceName']= this.object['etymologyInstanceName'];
-            //console.log(error);
-            
+      //console.log(this.object)
+      this.object.links.forEach(element => {
+        if(element.type != undefined){
+          if(element.type == 'Reference'){
+            element.elements.forEach(sub => {
+              this.counterElement += sub.count;
+            });
           }
-        )
-
-        //console.log(this.object)
-        if(this.object.links != null){
-          this.object.links.forEach(element => {
-            if(element.type != undefined){
-              if(element.type == 'Reference'){
-                element.elements.forEach(sub => {
-                  this.counterElement += sub.count;
-                });
-              }
-            }
-          });
         }
-      }  
+      });
+    
+      
     }else{
       this.counterElement = 0;
       this.sameAsData = null;
@@ -242,5 +129,7 @@ export class LinkPanelComponent implements OnInit {
   }
 
   
-
+  ngOnDestroy(): void {
+      this.refresh_subscription.unsubscribe();
+  }
 }

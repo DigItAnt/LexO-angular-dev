@@ -89,11 +89,7 @@ export class SenseVartransFormComponent implements OnInit {
   }
 
   private loadPeople() {
-    /* this.peopleLoading = true;
-    this.dataService.getPeople().subscribe(x => {
-      this.people = x;
-      this.peopleLoading = false;
-    }); */
+   
   }
 
   onChanges(): void {

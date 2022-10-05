@@ -10,13 +10,13 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { ToastrService } from 'ngx-toastr';
 import { BibliographyService } from 'src/app/services/bibliography-service/bibliography.service';
-import { debounceTime } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { debounceTime, take } from 'rxjs/operators';
+import { Subject, Subscription } from 'rxjs';
 
 
 @Component({
@@ -24,7 +24,7 @@ import { Subject } from 'rxjs';
   templateUrl: './bibliography-panel.component.html',
   styleUrls: ['./bibliography-panel.component.scss']
 })
-export class BibliographyPanelComponent implements OnInit {
+export class BibliographyPanelComponent implements OnInit, OnDestroy {
 
   @Input() biblioData: any[];
   bibliographyData: any[];
@@ -40,6 +40,9 @@ export class BibliographyPanelComponent implements OnInit {
 
   private subject: Subject<any> = new Subject();
 
+  add_biblio_req_subscription : Subscription;
+  subject_subscription : Subscription;
+
   constructor(private lexicalService: LexicalEntriesService, private biblioService: BibliographyService, private formBuilder: FormBuilder, private toastr: ToastrService) { }
 
   ngOnInit(): void {
@@ -47,7 +50,7 @@ export class BibliographyPanelComponent implements OnInit {
       bibliography: this.formBuilder.array([])
     })
 
-    this.biblioService.addBiblioReq$.subscribe(
+    this.add_biblio_req_subscription = this.biblioService.addBiblioReq$.subscribe(
       incomingBiblio => {
         if (incomingBiblio != null) {
 
@@ -69,7 +72,7 @@ export class BibliographyPanelComponent implements OnInit {
       }
     )
 
-    this.subject.pipe(debounceTime(1000)).subscribe(
+    this.subject_subscription= this.subject.pipe(debounceTime(1000)).subscribe(
       data => {
         this.onChanges(data)
       }
@@ -90,7 +93,7 @@ export class BibliographyPanelComponent implements OnInit {
 
       if (this.object.lexicalEntryInstanceName != undefined && this.object.formInstanceName == undefined) {
         let lexId = this.object.lexicalEntryInstanceName;
-        this.lexicalService.getBibliographyData(lexId).subscribe(
+        this.lexicalService.getBibliographyData(lexId).pipe(take(1)).subscribe(
           data => {
             console.log(data);
             if (data != []) {
@@ -123,7 +126,7 @@ export class BibliographyPanelComponent implements OnInit {
 
       } else if (this.object.formInstanceName != undefined) {
         let formId = this.object.formInstanceName;
-        this.lexicalService.getBibliographyData(formId).subscribe(
+        this.lexicalService.getBibliographyData(formId).pipe(take(1)).subscribe(
           data => {
             console.log(data);
             let count = 0;
@@ -150,7 +153,7 @@ export class BibliographyPanelComponent implements OnInit {
 
       } else if (this.object.senseInstanceName != undefined) {
         let senseId = this.object.senseInstanceName;
-        this.lexicalService.getBibliographyData(senseId).subscribe(
+        this.lexicalService.getBibliographyData(senseId).pipe(take(1)).subscribe(
           data => {
             console.log(data);
             let count = 0;
@@ -176,7 +179,7 @@ export class BibliographyPanelComponent implements OnInit {
         )
       } else if (this.object.etymologyInstanceName != undefined) {
         let etymId = this.object.etymologyInstanceName;
-        this.lexicalService.getBibliographyData(etymId).subscribe(
+        this.lexicalService.getBibliographyData(etymId).pipe(take(1)).subscribe(
           data => {
             console.log(data);
             let count = 0;
@@ -259,7 +262,7 @@ export class BibliographyPanelComponent implements OnInit {
       console.log(this.biblioArray.at(index))
       console.log(parameters)
 
-      this.lexicalService.updateGenericRelation(instanceName, parameters).subscribe(
+      this.lexicalService.updateGenericRelation(instanceName, parameters).pipe(take(1)).subscribe(
         data => {
           console.log(data);
           this.lexicalService.spinnerAction('off');
@@ -302,7 +305,7 @@ export class BibliographyPanelComponent implements OnInit {
 
     let instanceName = this.bibliographyData[index].bibliographyInstanceName;
 
-    this.lexicalService.removeBibliographyItem(instanceName).subscribe(
+    this.lexicalService.removeBibliographyItem(instanceName).pipe(take(1)).subscribe(
       data => {
         console.log(data)
         this.lexicalService.updateCoreCard(this.object);
@@ -376,7 +379,7 @@ export class BibliographyPanelComponent implements OnInit {
       lexId = this.object.etymologyInstanceName;
     }
 
-    this.lexicalService.synchronizeBibliographyItem(lexId, id).pipe(debounceTime(500)).subscribe(
+    this.lexicalService.synchronizeBibliographyItem(lexId, id).pipe(debounceTime(500), take(1)).subscribe(
       data => {
         console.log(data);
         this.loadingSynchro[i] = false;
@@ -391,4 +394,8 @@ export class BibliographyPanelComponent implements OnInit {
     );
   }
 
+  ngOnDestroy(): void {
+      this.add_biblio_req_subscription.unsubscribe();
+      this.subject_subscription.unsubscribe();
+  }
 }
