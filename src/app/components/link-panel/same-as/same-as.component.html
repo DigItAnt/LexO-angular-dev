@@ -52,7 +52,7 @@
                                                 <div class="input-group-append ml-2" *ngIf="(sameAsForm.get('isCognate').value || sameAsForm.get('isEtymon').value) && (!inf.boolean && !sameAs.get('inferred').value)">
                                                     <div class="btn-group-toggle" data-toggle="buttons" placement="top" ngbTooltip="Enable LiLa endpoint" title="Enable LiLa endpoint" >
                                                         <label class="btn btn-secondary" >
-                                                          <input (click)="triggerLilaSearch(i)" type="checkbox" autocomplete="off" autocomplete="off" formControlName="lila" name="lila" style="border-radius: .3rem;" > 
+                                                          <input  type="checkbox" autocomplete="off" autocomplete="off" formControlName="lila" name="lila" style="border-radius: .3rem;" > 
                                                             <!-- <img src="../../../../../../../assets/images/graphql.png" alt="Avatar" class="image" style="height: 20px;" /> -->
                                                             <i class="fas fa-project-diagram"></i>
                                                         </label>
