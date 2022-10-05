@@ -25,8 +25,8 @@ const routes: Routes = [
   /* {path: 'home', component: HomePageComponent}, */
   /* {path: 'login', component: LoginPageComponent}, */
   {path: 'lexicon', component: LexiconPageComponent, canActivate: [AuthGuard], data: {roles: ['USER']}},
-  {path: 'user', component: ProfilePageComponent, canActivate: [AuthGuard], data: {roles: ['ADMIN']}},
-  {path: 'search', component: SearchPageComponent},
+  /* {path: 'user', component: ProfilePageComponent, canActivate: [AuthGuard], data: {roles: ['ADMIN']}}, */
+  /* {path: 'search', component: SearchPageComponent}, */
   /* {path: '**', component: PageNotFoundComponent} */
   {path: '**', component: LexiconPageComponent}
 ];
