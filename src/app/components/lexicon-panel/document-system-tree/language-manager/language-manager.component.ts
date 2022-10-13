@@ -30,6 +30,8 @@ export class LanguageManagerComponent implements OnInit, OnDestroy {
   loadingService = false;
   removeMessage;
 
+  linkedLexicalEntries : string;
+
   private subject: Subject<any> = new Subject();
   /* public urlRegex = /(^|\s)((https?:\/\/.+))/ */
 
@@ -225,6 +227,33 @@ export class LanguageManagerComponent implements OnInit, OnDestroy {
 
   removeLang(index) {
     this.removeMessage = this.languageList[index]['languageInstanceName']
+  }
+
+  async showLinkedLexicalEntries(index){
+    this.linkedLexicalEntries = '';
+    console.log(this.languageList[index]);
+    let lexvo = this.languageList[index].lexvo;
+
+    let parameters = {
+      text: '',
+      searchMode: "startsWith",
+      type: "",
+      pos: "",
+      formType: "entry",
+      author: "",
+      lang: lexvo,
+      status: "",
+      offset: 0,
+      limit: 500
+  }
+
+    let filtered_lex_entries = await this.lexicalService.getLexicalEntriesList(parameters).toPromise();
+
+    filtered_lex_entries.list.forEach(element => {
+      this.linkedLexicalEntries += element.lexicalEntry + '\n';
+    });
+
+    document.getElementById('lexical-entries-linked-list').innerHTML = this.linkedLexicalEntries;
   }
 
   deleteLangRequest(){

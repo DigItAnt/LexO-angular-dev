@@ -30,6 +30,11 @@
                                         class="fas fa-edit"></i></button></span>
                             <span><button class="btn btn-danger ml-1" (click)="removeLang(i); removeLangModal.show()"><i
                                         class="fas fa-trash-alt"></i></button></span>
+                            <span>
+                                <button class="btn btn-secondary ml-1" (click)="showLinkedLexicalEntries(i); lexEntryModal.show()" alt="show linked entries">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </span>
                         </td>
                     </tr>
                 </tbody>
@@ -58,6 +63,20 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </ng-container>
+</app-modal>
+
+<app-modal #lexEntryModal class="lex_entry_modal">
+    <ng-container class="app-modal-header"></ng-container>
+    <ng-container class="app-modal-body">
+        <div class="card" *ngIf="editLangArray">
+            <span class="text-id"><b>LEXICAL ENTRIES</b></span>
+            <!-- <a class="pointer" (click)="addLanguageModal.show()"><span class="collapse-icon"><i
+                        class="fa fa-plus-square"></i></span></a> -->
+            <div class="card-body">
+                <textarea id="lexical-entries-linked-list" class="w-100" cols="30" rows="10" readonly [hidden]="linkedLexicalEntries == ''"></textarea>
             </div>
         </div>
     </ng-container>
