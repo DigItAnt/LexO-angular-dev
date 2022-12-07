@@ -13,7 +13,7 @@ You should have received a copy of the GNU General Public License along with Epi
 import { Component, Input, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Subject, Subscription } from 'rxjs';
-import { debounceTime, pairwise, startWith, take } from 'rxjs/operators';
+import { debounceTime, pairwise, startWith, take, takeUntil } from 'rxjs/operators';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { ToastrService } from 'ngx-toastr';
 
@@ -56,8 +56,10 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
   definitionArray: FormArray;
   lexicalConceptArray: FormArray;
 
-  subject_def_subscription : Subscription;  
-  subject_ex_def_subscription : Subscription;
+  subject_def_subscription: Subscription;
+  subject_ex_def_subscription: Subscription;
+  destroy$: Subject<boolean> = new Subject();
+
   constructor(private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder, private toastr: ToastrService) { }
 
   ngOnInit() {
@@ -69,13 +71,13 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
     }, 1000);
     this.loadPeople();
 
-    this.subject_def_subscription = this.subject_def.pipe(debounceTime(1000)).subscribe(
+    this.subject_def_subscription = this.subject_def.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onChangeDefinition(data)
       }
     )
 
-    this.subject_ex_def_subscription = this.subject_ex_def.pipe(debounceTime(1000)).subscribe(
+    this.subject_ex_def_subscription = this.subject_ex_def.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onChangeExistingDefinition(data['evt'], data['i'])
       }
@@ -140,9 +142,9 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
           }
         }
         //console.log(this.object)
-        if(this.object.confidence == 0){
+        if (this.object.confidence == 0) {
           this.senseCore.get('confidence').setValue(true, { emitEvent: false });
-        }else{
+        } else {
           this.senseCore.get('confidence').setValue(false, { emitEvent: false });
         }
         this.senseCore.get('topic').setValue(this.object.topic, { emitEvent: false })
@@ -155,14 +157,14 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
 
 
   onChanges(): void {
-    this.senseCore.get('usage').valueChanges.pipe(debounceTime(1000)).subscribe(newDef => {
+    this.senseCore.get('usage').valueChanges.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(newDef => {
       this.lexicalService.spinnerAction('on');
       let senseId = this.object.senseInstanceName;
       let parameters = {
         relation: "usage",
         value: newDef
       }
-      this.lexicalService.updateSense(senseId, parameters).pipe(take(1)).subscribe(
+      this.lexicalService.updateSense(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           console.log(data)
           this.lexicalService.spinnerAction('off');
@@ -186,55 +188,35 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
       )
     })
 
-    this.senseCore.get('confidence').valueChanges.pipe(debounceTime(100)).subscribe(newConfidence => {
+    this.senseCore.get('confidence').valueChanges.pipe(debounceTime(100), startWith(this.senseCore.get('confidence').value), pairwise(), takeUntil(this.destroy$)).subscribe(([prev, next]: [any, any]) => {
       let confidence_value = null;
-      console.log(newConfidence)
-      if(newConfidence == false){
-        confidence_value = -1
-        this.senseCore.get('confidence').setValue(false, { emitEvent: false });
-      }else{
-        confidence_value = 0
-        this.senseCore.get('confidence').setValue(true, { emitEvent: false });
-      }
-
-      this.lexicalService.spinnerAction('on');
+      console.log(confidence_value);
       let senseId = this.object.senseInstanceName;
+
+      this.senseCore.get('confidence').setValue(next, { emitEvent: false });
+
+      let oldValue = prev ? 0 : -1;
+      let newValue = next ? 0 : -1;
       let parameters = {
-          type: "confidence",
-          relation: 'confidence',
-          value: confidence_value
-      }
-      console.log(parameters)
-      this.lexicalService.updateGenericRelation(senseId, parameters).pipe(take(1)).subscribe(
-          data => {
-              console.log(data);
-              /* data['request'] = 0;
-              data['new_label'] = confidence_value
-              this.lexicalService.refreshAfterEdit(data); */
-              //this.lexicalService.updateLexCard(data)
-              this.lexicalService.spinnerAction('off');
-          },
-          error => {
-              console.log(error);
-              /*  const data = this.object.etymology;
-              data['request'] = 0;
-              data['new_label'] = confidence_value;
-              this.lexicalService.refreshAfterEdit(data); */
-              this.lexicalService.spinnerAction('off');
-              //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
-              if(error.status == 200){
-                this.toastr.success('Label updated', '', {timeOut: 5000})
+        type: "confidence",
+        relation: 'confidence',
+        value: newValue
+      };
 
-              }else{
-                this.toastr.error(error.error, 'Error', {timeOut: 5000})
 
-              }
-          }
+      if (prev !== null) parameters['currentValue'] = oldValue;
+
+      this.lexicalService.updateGenericRelation(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
+        data => { },
+        error => {
+          if (error.status == 200) this.toastr.success('Confidence updated', '', { timeOut: 5000 })
+          if (error.status != 200) this.toastr.error(error.error, '', { timeOut: 5000 })
+        }
       )
 
     });
 
-    this.senseCore.get('topic').valueChanges.pipe(debounceTime(1000)).subscribe(newTopic => {
+    this.senseCore.get('topic').valueChanges.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(newTopic => {
       if (newTopic.trim() != '') {
         this.lexicalService.spinnerAction('on');
         let senseId = this.object.senseInstanceName;
@@ -242,7 +224,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
           relation: "subject",
           value: newTopic
         }
-        this.lexicalService.updateSense(senseId, parameters).pipe(take(1)).subscribe(
+        this.lexicalService.updateSense(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
           data => {
             console.log(data)
             this.lexicalService.spinnerAction('off');
@@ -269,7 +251,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
 
     })
 
-    this.senseCore.get('reference').valueChanges.pipe(debounceTime(1000)).subscribe(newDef => {
+    this.senseCore.get('reference').valueChanges.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(newDef => {
       this.lexicalService.spinnerAction('on');
       let senseId = this.object.senseInstanceName;
       let parameters = {
@@ -278,7 +260,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
       }
       //console.log(senseId)
       console.log(parameters);
-      this.lexicalService.updateSense(senseId, parameters).pipe(take(1)).subscribe(
+      this.lexicalService.updateSense(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           console.log(data)
           this.lexicalService.spinnerAction('off');
@@ -312,7 +294,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
       value: 0
     }
     console.log(parameters)
-    this.lexicalService.deleteLinguisticRelation(senseId, parameters).pipe(take(1)).subscribe(
+    this.lexicalService.deleteLinguisticRelation(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         console.log(data);
         /* data['request'] = 0;
@@ -323,7 +305,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
         this.senseCore.get('confidence').setValue(-1, { emitEvent: false });
         this.object.confidence = -1;
 
-        this.toastr.success('Confidence updated', 'Success', {timeOut: 5000});
+        this.toastr.success('Confidence updated', 'Success', { timeOut: 5000 });
       },
       error => {
         console.log(error);
@@ -396,7 +378,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
         value: value
       }
 
-      this.lexicalService.deleteLinguisticRelation(senseId, parameters).pipe(take(1)).subscribe(
+      this.lexicalService.deleteLinguisticRelation(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           console.log(data)
           this.lexicalService.updateCoreCard(this.object)
@@ -459,7 +441,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
     if (trait != undefined && newValue != '') {
 
       this.staticDef[i] = { trait: trait, value: newValue };
-      this.lexicalService.updateSense(senseId, parameters).pipe(take(1)).subscribe(
+      this.lexicalService.updateSense(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           console.log(data)
           this.lexicalService.spinnerAction('off');
@@ -508,7 +490,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
     if (trait != undefined) {
 
       this.staticDef.push({ trait: trait, value: newValue });
-      this.lexicalService.updateSense(senseId, parameters).pipe(take(1)).subscribe(
+      this.lexicalService.updateSense(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           console.log(data)
           this.lexicalService.spinnerAction('off');
@@ -526,7 +508,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
             data['request'] = 6;
 
             this.lexicalService.refreshAfterEdit(data);
-            
+
           }
 
           if (error.status != 200) {
@@ -581,7 +563,10 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-      this.subject_def_subscription.unsubscribe();
-      this.subject_ex_def_subscription.unsubscribe();
+    this.subject_def_subscription.unsubscribe();
+    this.subject_ex_def_subscription.unsubscribe();
+
+    this.destroy$.next(true);
+    this.destroy$.complete();
   }
 }

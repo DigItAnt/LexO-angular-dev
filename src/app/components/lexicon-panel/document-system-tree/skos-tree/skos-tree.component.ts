@@ -1,7 +1,8 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder } from '@angular/forms';
 import { IActionMapping, TREE_ACTIONS, KEYS, ITreeState, ITreeOptions, TreeModel } from '@circlon/angular-tree-component';
-import { debounceTime } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { debounceTime, takeUntil } from 'rxjs/operators';
 import { ConceptService } from 'src/app/services/concept/concept.service';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { v4 } from 'uuid';
@@ -48,12 +49,12 @@ const actionMapping: IActionMapping = {
   templateUrl: './skos-tree.component.html',
   styleUrls: ['./skos-tree.component.scss']
 })
-export class SkosTreeComponent implements OnInit {
+export class SkosTreeComponent implements OnInit, OnDestroy {
 
   state!: ITreeState;
   @ViewChild('skosConcept') skosConcept: any;
   selectedNodeId;
-
+  destroy$ : Subject<boolean> = new Subject();
   options: ITreeOptions = {
     actionMapping,
     allowDrag: (node) => node.isLeaf,
@@ -102,7 +103,7 @@ export class SkosTreeComponent implements OnInit {
 
 
   onChanges() {
-    this.skosFilterForm.valueChanges.pipe(debounceTime(500)).subscribe(searchParams => {
+    this.skosFilterForm.valueChanges.pipe(debounceTime(500), takeUntil(this.destroy$)).subscribe(searchParams => {
       console.log(searchParams)
       this.searchFilter(searchParams)
     })
@@ -165,6 +166,11 @@ export class SkosTreeComponent implements OnInit {
 
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next(true);
+    this.destroy$.complete();
+  }
+
   onScrollDown(treeModel: TreeModel) {
 
     this.offset += 500;
@@ -180,7 +186,7 @@ export class SkosTreeComponent implements OnInit {
     parameters['offset'] = this.offset;
     parameters['limit'] = this.limit;
 
-    this.lexicalService.getLexicalEntriesList(parameters).pipe(debounceTime(200)).subscribe(
+    this.lexicalService.getLexicalEntriesList(parameters).pipe(debounceTime(200), takeUntil(this.destroy$)).subscribe(
       data => {
         //@ts-ignore
         $('#lazyLoadingModal').modal('hide');

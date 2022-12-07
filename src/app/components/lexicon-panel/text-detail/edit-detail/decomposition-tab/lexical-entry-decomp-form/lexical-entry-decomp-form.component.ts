@@ -15,7 +15,7 @@ import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { NgSelectComponent } from '@ng-select/ng-select';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, takeUntil } from 'rxjs/operators';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 
 @Component({
@@ -51,7 +51,7 @@ export class LexicalEntryDecompFormComponent implements OnInit, OnDestroy {
 
   componentArray: FormArray;
   subtermArray: FormArray;
-
+  destroy$ : Subject<boolean> = new Subject();
   staticMorpho = [];
   morphologyData = [];
   valueTraits = [];
@@ -84,25 +84,25 @@ export class LexicalEntryDecompFormComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.subterm_subject_subscription = this.subterm_subject.pipe(debounceTime(1000)).subscribe(
+    this.subterm_subject_subscription = this.subterm_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onSearchFilter(data)
       }
     )
 
-    this.ext_subterm_subject_subscription = this.ext_subterm_subject.pipe(debounceTime(1000)).subscribe(
+    this.ext_subterm_subject_subscription = this.ext_subterm_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onChangeSubterm(data)
       }
     )
 
-    this.corresponds_subject_subscription = this.corresponds_subject.pipe(debounceTime(1000)).subscribe(
+    this.corresponds_subject_subscription = this.corresponds_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onSearchFilter(data)
       }
     )
 
-    this.update_component_subject_subscription = this.update_component_subject.pipe(debounceTime(1000)).subscribe(
+    this.update_component_subject_subscription = this.update_component_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onChanges(data)
       }
@@ -1327,5 +1327,8 @@ export class LexicalEntryDecompFormComponent implements OnInit, OnDestroy {
     this.ext_subterm_subject_subscription.unsubscribe();
     this.corresponds_subject_subscription.unsubscribe();
     this.update_component_subject_subscription.unsubscribe();
+
+    this.destroy$.next(true);
+    this.destroy$.complete();
   }
 }

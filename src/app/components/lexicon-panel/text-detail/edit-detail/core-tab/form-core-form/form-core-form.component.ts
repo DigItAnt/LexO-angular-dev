@@ -13,7 +13,7 @@ You should have received a copy of the GNU General Public License along with Epi
 import { Component, Input, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { Form, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Subject, Subscription } from 'rxjs';
-import { debounceTime, pairwise, startWith, take } from 'rxjs/operators';
+import { debounceTime, pairwise, startWith, take, takeUntil } from 'rxjs/operators';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { ToastrService } from 'ngx-toastr';
 
@@ -68,6 +68,8 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
   subject_ex_label_subscription : Subscription;
   get_form_type_subscription : Subscription;
 
+  destroy$ : Subject<boolean> = new Subject();
+
   constructor( private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder, private toastr: ToastrService) { }
 
   ngOnInit() {
@@ -103,13 +105,13 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
 
     this.onChanges();
     
-    this.subject_label_subscription = this.subject_label.pipe(debounceTime(1000)).subscribe(
+    this.subject_label_subscription = this.subject_label.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onChangeLabel(data)
       }
     )
 
-    this.subject_ex_label_subscription = this.subject_ex_label.pipe(debounceTime(1000)).subscribe(
+    this.subject_ex_label_subscription = this.subject_ex_label.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
 
         this.onChangeExistingLabelValue(data['evt'], data['i']);
@@ -255,50 +257,30 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
 
   onChanges(): void {
 
-    this.formCore.get('confidence').valueChanges.pipe(debounceTime(100)).subscribe(newConfidence => {
+    this.formCore.get('confidence').valueChanges.pipe(debounceTime(100), startWith(this.formCore.get('confidence').value), pairwise(), takeUntil(this.destroy$)).subscribe(([prev, next]: [any, any]) => {
       let confidence_value = null;
-      console.log(newConfidence)
-      if(newConfidence == false){
-        confidence_value = -1
-        this.formCore.get('confidence').setValue(false, { emitEvent: false });
-      }else{
-        confidence_value = 0
-        this.formCore.get('confidence').setValue(true, { emitEvent: false });
-      }
-
-      this.lexicalService.spinnerAction('on');
+      console.log(confidence_value);
       let formId = this.object.formInstanceName;
+
+      this.formCore.get('confidence').setValue(next, { emitEvent: false });
+
+      let oldValue = prev ? 0 : -1;
+      let newValue = next ? 0 : -1;
       let parameters = {
-          type: "confidence",
-          relation: 'confidence',
-          value: confidence_value
-      }
-      console.log(parameters)
-      this.lexicalService.updateGenericRelation(formId, parameters).pipe(take(1)).subscribe(
-          data => {
-              console.log(data);
-              /* data['request'] = 0;
-              data['new_label'] = confidence_value
-              this.lexicalService.refreshAfterEdit(data); */
-              //this.lexicalService.updateLexCard(data)
-              this.lexicalService.spinnerAction('off');
-          },
-          error => {
-              console.log(error);
-              /*  const data = this.object.etymology;
-              data['request'] = 0;
-              data['new_label'] = confidence_value;
-              this.lexicalService.refreshAfterEdit(data); */
-              this.lexicalService.spinnerAction('off');
-              //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
-              if(error.status == 200){
-                this.toastr.success('Label updated', '', {timeOut: 5000})
+        type: "confidence",
+        relation: 'confidence',
+        value: newValue
+      };
 
-              }else{
-                this.toastr.error(error.error, 'Error', {timeOut: 5000})
 
-              }
-          }
+      if (prev !== null) parameters['currentValue'] = oldValue;
+
+      this.lexicalService.updateGenericRelation(formId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
+        data => { },
+        error => {
+          if (error.status == 200) this.toastr.success('Confidence updated', '', { timeOut: 5000 })
+          if (error.status != 200) this.toastr.error(error.error, '', { timeOut: 5000 })
+        }
       )
 
     });
@@ -311,7 +293,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
     const newType = evt.target.value;
     const formId = this.object.formInstanceName
     const parameters = { relation: "type", value: newType }
-    this.lexicalService.updateForm(formId, parameters).pipe(take(1)).subscribe(
+    this.lexicalService.updateForm(formId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         console.log(data)
         this.lexicalService.spinnerAction('off');
@@ -404,7 +386,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
       let formId = this.object.formInstanceName;
       console.log(parameters)
 
-      this.lexicalService.updateLinguisticRelation(formId, parameters).pipe(take(1)).subscribe(
+      this.lexicalService.updateLinguisticRelation(formId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           console.log(data)
           //this.lexicalService.refreshAfterEdit(data);
@@ -468,7 +450,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
 
       this.staticMorpho.push({ trait: trait, value: value })
 
-      this.lexicalService.updateLinguisticRelation(formId, parameters).pipe(take(1)).subscribe(
+      this.lexicalService.updateLinguisticRelation(formId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           console.log(data)
           this.lexicalService.spinnerAction('off');
@@ -604,7 +586,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
 
 
 
-      this.lexicalService.updateForm(formId, parameters).pipe(take(1)).subscribe(
+      this.lexicalService.updateForm(formId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           console.log(data)
           this.lexicalService.spinnerAction('off');
@@ -655,7 +637,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
     this.staticOtherDef.push({ trait: trait, value: newValue })
 
     if (trait != undefined && newValue != '') {
-      this.lexicalService.updateForm(formId, parameters).pipe(take(1)).subscribe(
+      this.lexicalService.updateForm(formId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           console.log(data)
           this.lexicalService.spinnerAction('off');
@@ -763,7 +745,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
         value: value
       }
 
-      this.lexicalService.deleteLinguisticRelation(formId, parameters).pipe(take(1)).subscribe(
+      this.lexicalService.deleteLinguisticRelation(formId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           console.log(data)
           this.toastr.success('Element removed', '', {
@@ -808,7 +790,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
         value: value
       }
 
-      this.lexicalService.deleteLinguisticRelation(formId, parameters).pipe(take(1)).subscribe(
+      this.lexicalService.deleteLinguisticRelation(formId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           console.log(data)
 
@@ -834,6 +816,9 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
       this.subject_label_subscription.unsubscribe();
       this.subject_ex_label_subscription.unsubscribe();
       this.get_form_type_subscription.unsubscribe();
+
+      this.destroy$.next(true);
+      this.destroy$.complete();
     }
 
 }

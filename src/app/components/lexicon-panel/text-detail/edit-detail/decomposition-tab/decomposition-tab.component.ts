@@ -22,8 +22,8 @@ import {
   state
 } from "@angular/animations";
 import { ToastrService } from 'ngx-toastr';
-import { Subscription } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { Subject, Subscription } from 'rxjs';
+import { take, takeUntil } from 'rxjs/operators';
 
 
 @Component({
@@ -34,7 +34,7 @@ import { take } from 'rxjs/operators';
     trigger('slideInOut', [
       state('in', style({
         height: 'calc(100vh - 17rem)',
-        
+
       })),
       state('out', style({
         height: 'calc(50vh - 12.5rem)',
@@ -56,15 +56,15 @@ export class DecompositionTabComponent implements OnInit, OnDestroy {
   isLexicalEntry = false;
   searchIconSpinner = false;
 
-  decompData : any;
-
-  core_data_subscription : Subscription;
-  decomp_data_subscription : Subscription;
-  expand_edit_subscription : Subscription;
-  expand_epigraphy_subscription : Subscription;
+  decompData: any;
+  destroy$: Subject<boolean> = new Subject();
+  core_data_subscription: Subscription;
+  decomp_data_subscription: Subscription;
+  expand_edit_subscription: Subscription;
+  expand_epigraphy_subscription: Subscription;
 
   @ViewChild('expander') expander_body: ElementRef;
-  
+
   constructor(private toastr: ToastrService, private lexicalService: LexicalEntriesService, private expand: ExpanderService, private rend: Renderer2) { }
 
   ngOnInit(): void {
@@ -99,23 +99,23 @@ export class DecompositionTabComponent implements OnInit, OnDestroy {
     this.decomp_data_subscription = this.lexicalService.decompData$.subscribe(
       object => {
         this.object = null;
-        if(this.object != object){
+        if (this.object != object) {
           this.decompData = null;
         }
         this.object = object
-        
-        if(this.object != null){
-          if(this.object.lexicalEntry != undefined && this.object.sense == undefined){
+
+        if (this.object != null) {
+          if (this.object.lexicalEntry != undefined && this.object.sense == undefined) {
             this.isLexicalEntry = true;
             this.decompData = object;
 
             this.creationDate = object['creationDate'];
             this.lastUpdate = object['lastUpdate']
-          }else if(this.object.form != undefined){
+          } else if (this.object.form != undefined) {
             this.isLexicalEntry = false;
             this.decompData = null;
             this.object = null;
-          }else if(this.object.sense != undefined){
+          } else if (this.object.sense != undefined) {
             this.isLexicalEntry = false;
             this.decompData = null;
             this.object = null;
@@ -143,47 +143,47 @@ export class DecompositionTabComponent implements OnInit, OnDestroy {
     this.expand_edit_subscription = this.expand.expEdit$.subscribe(
       trigger => {
         setTimeout(() => {
-          if(trigger){
+          if (trigger) {
             let isEditExpanded = this.expand.isEditTabExpanded();
             let isEpigraphyExpanded = this.expand.isEpigraphyTabExpanded();
-  
-            if(!isEpigraphyExpanded){
+
+            if (!isEpigraphyExpanded) {
               this.exp_trig = 'in';
               this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(100vh - 17rem)')
               this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(100vh - 17rem)')
-            }else{
+            } else {
               this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12.5rem)');
               this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)');
               this.exp_trig = 'in';
             }
-            
-          }else if(trigger==null){
+
+          } else if (trigger == null) {
             return;
-          }else{
+          } else {
             this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12.5rem)');
             this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)');
             this.exp_trig = 'out';
           }
         }, 100);
-        
+
       }
     );
 
     this.expand_epigraphy_subscription = this.expand.expEpigraphy$.subscribe(
       trigger => {
         setTimeout(() => {
-          if(trigger){
+          if (trigger) {
             this.exp_trig = 'in';
             this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12.5rem)')
             this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)')
-          }else if(trigger==null){
+          } else if (trigger == null) {
             return;
-          }else{
+          } else {
             this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)');
             this.exp_trig = 'out';
           }
         }, 100);
-        
+
       }
     );
   }
@@ -211,26 +211,26 @@ export class DecompositionTabComponent implements OnInit, OnDestroy {
     
   } */
 
-  addNewForm(){
+  addNewForm() {
     this.searchIconSpinner = true;
     /* console.log(this.object) */
     this.object['request'] = 'form'
-    if(this.isLexicalEntry){
+    if (this.isLexicalEntry) {
       let lexicalId = this.object.lexicalEntryInstanceName;
-      this.lexicalService.createNewForm(lexicalId).pipe(take(1)).subscribe(
-        data=>{
+      this.lexicalService.createNewForm(lexicalId).pipe(takeUntil(this.destroy$)).subscribe(
+        data => {
           this.toastr.success('Form added correctly', '', {
             timeOut: 5000,
           });
           console.log(data);
-          if(data['creator'] == this.object.creator){
+          if (data['creator'] == this.object.creator) {
             data['flagAuthor'] = false;
-          }else{
+          } else {
             data['flagAuthor'] = true;
           }
-          this.lexicalService.addSubElementRequest({'lex' : this.object, 'data' : data});
+          this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': data });
           this.searchIconSpinner = false;
-        },error=> {
+        }, error => {
           console.log(error)
           this.toastr.error(error.error, 'Error', {
             timeOut: 5000,
@@ -239,32 +239,32 @@ export class DecompositionTabComponent implements OnInit, OnDestroy {
         }
       )
     }
-    
+
   }
 
-  addNewSense(){
+  addNewSense() {
     this.searchIconSpinner = true;
     this.object['request'] = 'sense'
-    if(this.isLexicalEntry){
+    if (this.isLexicalEntry) {
       let lexicalId = this.object.lexicalEntryInstanceName;
-      this.lexicalService.createNewSense(lexicalId).pipe(take(1)).subscribe(
-        data=>{
-          if(data['creator'] == this.object.creator){
+      this.lexicalService.createNewSense(lexicalId).pipe(takeUntil(this.destroy$)).subscribe(
+        data => {
+          if (data['creator'] == this.object.creator) {
             data['flagAuthor'] = false;
-          }else{
+          } else {
             data['flagAuthor'] = true;
           }
-          this.lexicalService.addSubElementRequest({'lex' : this.object, 'data' : data});
+          this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': data });
           this.searchIconSpinner = false;
           this.toastr.success('Sense added correctly', '', {
             timeOut: 5000,
           });
-        },error=> {
+        }, error => {
           this.searchIconSpinner = false;
           this.toastr.error(error.error, 'Error', {
             timeOut: 5000,
           });
-          
+
         }
       )
     }/* else if(this.isSense){
@@ -321,14 +321,14 @@ export class DecompositionTabComponent implements OnInit, OnDestroy {
 
   }
 
-  addNewEtymology(){
+  addNewEtymology() {
     this.searchIconSpinner = true;
     this.object['request'] = 'etymology'
     let parentNodeInstanceName = '';
-    if(this.object.lexicalEntryInstanceName != undefined
-      && this.object.senseInstanceName == undefined){
-        console.log(1)
-        parentNodeInstanceName = this.object.lexicalEntryInstanceName;
+    if (this.object.lexicalEntryInstanceName != undefined
+      && this.object.senseInstanceName == undefined) {
+      console.log(1)
+      parentNodeInstanceName = this.object.lexicalEntryInstanceName;
     }/* else if(this.object.formInstanceName != undefined){
       parentNodeInstanceName = this.object.parentNodeInstanceName;
       this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
@@ -340,20 +340,20 @@ export class DecompositionTabComponent implements OnInit, OnDestroy {
     } */
 
     console.log(parentNodeInstanceName)
-    this.lexicalService.createNewEtymology(parentNodeInstanceName).pipe(take(1)).subscribe(
-      data=>{
+    this.lexicalService.createNewEtymology(parentNodeInstanceName).pipe(takeUntil(this.destroy$)).subscribe(
+      data => {
         console.log(data)
-        if(data['creator'] == this.object.creator){
+        if (data['creator'] == this.object.creator) {
           data['flagAuthor'] = false;
-        }else{
+        } else {
           data['flagAuthor'] = true;
         }
-        this.lexicalService.addSubElementRequest({'lex' : this.object, 'data' : data});
+        this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': data });
         this.searchIconSpinner = false;
         this.toastr.success('Etymology added correctly', '', {
           timeOut: 5000,
         });
-      },error=> {
+      }, error => {
         this.searchIconSpinner = false;
       }
     )
@@ -361,9 +361,12 @@ export class DecompositionTabComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-      this.core_data_subscription.unsubscribe();
-      this.expand_edit_subscription.unsubscribe();
-      this.expand_epigraphy_subscription.unsubscribe();
-    }
+    this.core_data_subscription.unsubscribe();
+    this.expand_edit_subscription.unsubscribe();
+    this.expand_epigraphy_subscription.unsubscribe();
+
+    this.destroy$.next(true);
+    this.destroy$.complete();
+  }
 
 }

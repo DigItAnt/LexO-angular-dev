@@ -17,7 +17,7 @@ import { NgbPopover, NgbPopoverConfig } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent } from '@ng-select/ng-select';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, Subscription } from 'rxjs';
-import { debounceTime, filter } from 'rxjs/operators';
+import { debounceTime, filter, takeUntil } from 'rxjs/operators';
 import { AnnotatorService } from 'src/app/services/annotator/annotator.service';
 import { DocumentSystemService } from 'src/app/services/document-system/document-system.service';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
@@ -81,6 +81,8 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
   fileId;
 
   isEmptyFile = false;
+
+  destroy$ : Subject<boolean> = new Subject();
 
   @HostListener('document:mouseup', ['$event'])
   onMouseUp(event): void {
@@ -437,7 +439,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
 
 
-    this.bind_subject.pipe(debounceTime(100)).subscribe(
+    this.bind_subject.pipe(debounceTime(100), takeUntil(this.destroy$)).subscribe(
       data => {
         /* console.log(data) */
         this.bindSelection(data.popover, data.evt, data.i);
@@ -1081,6 +1083,8 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
     this.leiden_subscription.unsubscribe();
     this.translation_subscription.unsubscribe();
     this.delete_annotation_subscription.unsubscribe();
+    this.destroy$.next(true);
+    this.destroy$.complete();
   }
 } 
 

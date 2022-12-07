@@ -10,18 +10,18 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component, Input, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Subject, Subscription } from 'rxjs';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 
 import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, takeUntil } from 'rxjs/operators';
 @Component({
   selector: 'app-lexical-concept-form',
   templateUrl: './lexical-concept-form.component.html',
   styleUrls: ['./lexical-concept-form.component.scss']
 })
-export class LexicalConceptFormComponent implements OnInit {
+export class LexicalConceptFormComponent implements OnInit, OnDestroy {
 
   switchInput = false;
   subscription: Subscription;
@@ -43,6 +43,8 @@ export class LexicalConceptFormComponent implements OnInit {
   hierachicalRelation: FormArray;
   scheme: FormArray;
   conceptReference: FormArray;
+
+  destroy$ : Subject<boolean> = new Subject();
 
   constructor(private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder) {
   }
@@ -97,7 +99,7 @@ export class LexicalConceptFormComponent implements OnInit {
   }
 
   onChanges(): void {
-    this.lexicalConceptForm.valueChanges.pipe(debounceTime(200)).subscribe(searchParams => {
+    this.lexicalConceptForm.valueChanges.pipe(debounceTime(200), takeUntil(this.destroy$)).subscribe(searchParams => {
       //console.log(searchParams)
     })
   }
@@ -153,6 +155,11 @@ export class LexicalConceptFormComponent implements OnInit {
     return this.formBuilder.group({
       target: ''
     })
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next(true);
+    this.destroy$.complete();
   }
 
 }

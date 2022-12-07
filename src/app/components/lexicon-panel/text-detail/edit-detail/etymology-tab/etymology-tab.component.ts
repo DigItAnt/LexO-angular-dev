@@ -26,7 +26,7 @@ import { ToastrService } from 'ngx-toastr';
 import { BibliographyService } from 'src/app/services/bibliography-service/bibliography.service';
 import { ModalComponent } from 'ng-modal-lib';
 import { Subject, Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-etymology-tab',
@@ -88,12 +88,14 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
   @ViewChild('addBibliography', { static: false }) modal: ModalComponent;
   @ViewChild('table_body') tableBody: ElementRef;
 
-  etymology_data_subscription : Subscription;
-  expand_edit_subscription : Subscription;
-  expand_epigraphy_subscription : Subscription;
-  spinner_subscription : Subscription;
-  search_subject_subscription : Subscription;
-  bootstrap_bibliography_subscription : Subscription;
+  etymology_data_subscription: Subscription;
+  expand_edit_subscription: Subscription;
+  expand_epigraphy_subscription: Subscription;
+  spinner_subscription: Subscription;
+  search_subject_subscription: Subscription;
+  bootstrap_bibliography_subscription: Subscription;
+
+  destroy$ : Subject<boolean> = new Subject();
   constructor(private lexicalService: LexicalEntriesService, private biblioService: BibliographyService, private expand: ExpanderService, private rend: Renderer2, private toastr: ToastrService) { }
 
   ngOnInit(): void {
@@ -109,7 +111,7 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
         this.object = object
         //console.log(this.object)
         if (this.object != null) {
-          
+
           this.creator = this.object['etymology'].creator;
           this.revisor = this.object.revisor;
           this.etymologyData = object;
@@ -118,17 +120,17 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
             //@ts-ignore
             $('#etymologyTabModal').modal('hide');
             $('.modal-backdrop').remove();
-            var timer = setInterval((val)=>{                 
-              try{
-                  //@ts-ignore
-                  $('#etymologyTabModal').modal('hide');
-                  if(!$('#etymologyTabModal').is(':visible')){
-                    clearInterval(timer)
-                  }
-                  
-              }catch(e){
-                  console.log(e)
-              }    
+            var timer = setInterval((val) => {
+              try {
+                //@ts-ignore
+                $('#etymologyTabModal').modal('hide');
+                if (!$('#etymologyTabModal').is(':visible')) {
+                  clearInterval(timer)
+                }
+
+              } catch (e) {
+                console.log(e)
+              }
             }, 10)
           }, 500);
         }
@@ -138,47 +140,47 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
     this.expand_edit_subscription = this.expand.expEdit$.subscribe(
       trigger => {
         setTimeout(() => {
-          if(trigger){
+          if (trigger) {
             let isEditExpanded = this.expand.isEditTabExpanded();
             let isEpigraphyExpanded = this.expand.isEpigraphyTabExpanded();
-  
-            if(!isEpigraphyExpanded){
+
+            if (!isEpigraphyExpanded) {
               this.exp_trig = 'in';
               this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(100vh - 17rem)')
               this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(100vh - 17rem)')
-            }else{
+            } else {
               this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12.5rem)');
               this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)');
               this.exp_trig = 'in';
             }
-            
-          }else if(trigger==null){
+
+          } else if (trigger == null) {
             return;
-          }else{
+          } else {
             this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12.5rem)');
             this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)');
             this.exp_trig = 'out';
           }
         }, 100);
-        
+
       }
     );
 
     this.expand_epigraphy_subscription = this.expand.expEpigraphy$.subscribe(
       trigger => {
         setTimeout(() => {
-          if(trigger){
+          if (trigger) {
             this.exp_trig = 'in';
             this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12.5rem)')
             this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)')
-          }else if(trigger==null){
+          } else if (trigger == null) {
             return;
-          }else{
+          } else {
             this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)');
             this.exp_trig = 'out';
           }
         }, 100);
-        
+
       }
     );
 
@@ -207,7 +209,7 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.search_subject_subscription = this.searchSubject.pipe(debounceTime(1000)).subscribe(
+    this.search_subject_subscription = this.searchSubject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.queryTitle = data.query;
         data.queryMode ? this.queryMode = 'everything' : this.queryMode = 'titleCreatorYear';
@@ -294,7 +296,7 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
       console.log(error)
       this.searchIconSpinner = false;
     }
- 
+
   }
 
   showBiblioModal() {
@@ -334,7 +336,7 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
       } catch (error) {
         console.log(error)
       }
-      
+
     } else {
 
       try {
@@ -384,7 +386,7 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
       } catch (error) {
         console.log(error)
       }
-      
+
     } else {
       try {
         let filter_bibliography_req = await this.biblioService.filterBibliography(this.start, this.sortField, this.direction, this.queryTitle, this.queryMode).toPromise();
@@ -488,7 +490,7 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
       });
     } catch (error) {
       console.log(error);
-      if(error.status != 200){
+      if (error.status != 200) {
         this.searchIconSpinner = false;
         this.toastr.error('Something goes wrong', 'Error', {
           timeOut: 5000,
@@ -520,7 +522,7 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
       });
     } catch (error) {
       console.log(error);
-      if(error.status != 200){
+      if (error.status != 200) {
         this.searchIconSpinner = false;
         //this.lexicalService.refreshLexEntryTree();
         this.toastr.error(error.error, 'Error', {
@@ -590,7 +592,7 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
         }, 300);
         this.biblioService.sendDataToBibliographyPanel(add_biblio_data);
       } catch (error) {
-        if(error.status != 200){
+        if (error.status != 200) {
           console.log(error)
           this.toastr.error(error.error, 'Error', {
             timeOut: 5000,
@@ -602,7 +604,7 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
           }, 300);
         }
       }
-      
+
     }
 
   }
@@ -629,11 +631,13 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-      this.etymology_data_subscription.unsubscribe();
-      this.expand_edit_subscription.unsubscribe();
-      this.expand_epigraphy_subscription.unsubscribe();
-      this.spinner_subscription.unsubscribe();
-      this.search_subject_subscription.unsubscribe();
-      this.bootstrap_bibliography_subscription.unsubscribe();
+    this.etymology_data_subscription.unsubscribe();
+    this.expand_edit_subscription.unsubscribe();
+    this.expand_epigraphy_subscription.unsubscribe();
+    this.spinner_subscription.unsubscribe();
+    this.search_subject_subscription.unsubscribe();
+    this.bootstrap_bibliography_subscription.unsubscribe();
+    this.destroy$.next(true);
+    this.destroy$.complete();
   }
 }

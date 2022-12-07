@@ -11,12 +11,12 @@ You should have received a copy of the GNU General Public License along with Epi
 */
 
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, AfterViewInit, ViewChild, OnChanges, SimpleChanges, ElementRef, Input } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, OnChanges, SimpleChanges, ElementRef, Input, OnDestroy } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { KeycloakService } from 'keycloak-angular';
 import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, takeUntil } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { ConfirmedValidator } from './validator/password-match';
 
@@ -25,7 +25,7 @@ import { ConfirmedValidator } from './validator/password-match';
   templateUrl: './profiles-table.component.html',
   styleUrls: ['./profiles-table.component.scss']
 })
-export class ProfilesTableComponent implements OnInit, OnChanges {
+export class ProfilesTableComponent implements OnInit, OnChanges, OnDestroy {
 
   message = '';
   users = [];
@@ -59,7 +59,7 @@ export class ProfilesTableComponent implements OnInit, OnChanges {
     roles: new FormArray([]),
     enabled: new FormControl(null, Validators.required)
   })
-
+  destroy$ : Subject<boolean> = new Subject();
   private search_subject: Subject<any> = new Subject();
   roles_array: FormArray;
 
@@ -137,6 +137,7 @@ export class ProfilesTableComponent implements OnInit, OnChanges {
     /* this.rolesNames.forEach((c, i) => {
       this.roles.push({ id: i, name: c });
     }); */
+    
 
     this.auth.searchUser().subscribe(
       data => {
@@ -156,7 +157,7 @@ export class ProfilesTableComponent implements OnInit, OnChanges {
     )
 
 
-    this.search_subject.pipe(debounceTime(1000)).subscribe(
+    this.search_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.searchUsers(data);
       }
@@ -219,6 +220,11 @@ export class ProfilesTableComponent implements OnInit, OnChanges {
       let value = event.target.value;
       this.search_subject.next(value);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next(true);
+    this.destroy$.complete();
   }
 
   userDetail(id) {

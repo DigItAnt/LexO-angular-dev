@@ -17,7 +17,8 @@ import { TreeNode, TreeModel, TREE_ACTIONS, KEYS, IActionMapping, ITreeOptions }
 import { ModalComponent } from 'ng-modal-lib';
 import { ContextMenuComponent } from 'ngx-contextmenu';
 import { ToastrService } from 'ngx-toastr';
-import { debounceTime, take } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { debounceTime, take, takeUntil } from 'rxjs/operators';
 import { AnnotatorService } from 'src/app/services/annotator/annotator.service';
 import { DocumentSystemService } from 'src/app/services/document-system/document-system.service';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
@@ -126,7 +127,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
   
   metadata_array: FormArray;
   metadata_search : FormArray;
-
+  destroy$ : Subject<boolean> = new Subject();
   
   options: ITreeOptions = {
     actionMapping,
@@ -191,7 +192,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
   }
 
   onChanges() {
-    this.textFilterForm.valueChanges.pipe(debounceTime(500)).subscribe(searchParams => {
+    this.textFilterForm.valueChanges.pipe(debounceTime(500), takeUntil(this.destroy$)).subscribe(searchParams => {
       console.log(searchParams)
       this.searchFilter(searchParams)
     })
@@ -221,7 +222,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
       }
       this.annotatorService.getIdText(this.selectedEpidocId);
 
-      this.documentService.getContent(this.selectedNodeId).pipe(take(1)).subscribe(
+      this.documentService.getContent(this.selectedNodeId).pipe(takeUntil(this.destroy$)).subscribe(
         data=>{
 
           //console.log("XML", data)
@@ -232,7 +233,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
 
           let xmlDom = new DOMParser().parseFromString(text, "text/xml");
 
-          this.annotatorService.getTokens(this.selectedNodeId).pipe(take(1)).subscribe(
+          this.annotatorService.getTokens(this.selectedNodeId).pipe(takeUntil(this.destroy$)).subscribe(
             data => {
     
               console.log(data)
@@ -278,7 +279,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
           );
 
           this.documentService.sendLeidenToEpigraphyTab(null);
-          this.documentService.testConvert(object).pipe(take(1)).subscribe(
+          this.documentService.testConvert(object).pipe(takeUntil(this.destroy$)).subscribe(
             data=>{
               //console.log("TEST", data);
               
@@ -507,7 +508,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
             "target-id": target_element_id
           }
 
-          this.documentService.copyFileTo(parameters).pipe(take(1)).subscribe(
+          this.documentService.copyFileTo(parameters).pipe(takeUntil(this.destroy$)).subscribe(
             data=>{
               console.log(data);
               //this.nodes = data['documentSystem'];
@@ -575,7 +576,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
           }
 
           if(data_node.type == 'file'){
-            this.documentService.removeFile(parameters).pipe(take(1)).subscribe(
+            this.documentService.removeFile(parameters).pipe(takeUntil(this.destroy$)).subscribe(
               data=>{
                 console.log(data);
                 this.toastr.info('File '+ data_node.name +' deleted', '', {
@@ -630,7 +631,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
               }
             )
           }else if(data_node.type == 'directory'){
-            this.documentService.removeFolder(parameters).pipe(take(1)).subscribe(
+            this.documentService.removeFolder(parameters).pipe(takeUntil(this.destroy$)).subscribe(
               data=>{
                 console.log(data);
                 
@@ -687,7 +688,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
         filename : "new_file"+Math.floor(Math.random() * (99999 - 10) + 10)
       }
 
-      this.documentService.createFile(parameters).pipe(take(1)).subscribe(
+      this.documentService.createFile(parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data =>{
           console.log(data)
           this.treeText.treeModel.getNodeBy(x => {
@@ -727,7 +728,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
       
       const expandedNodes = this.treeText.treeModel.expandedNodes;
       
-      this.documentService.addFolder(parameters).pipe(take(1)).subscribe(
+      this.documentService.addFolder(parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data=>{
           console.log(data)
           this.toastr.info('New folder added', '', {
@@ -785,7 +786,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
         }
         const formData = new FormData();
         formData.append('file', evt.target.files[0])
-        this.documentService.uploadFile(formData, element_id, 11).pipe(take(1)).subscribe(
+        this.documentService.uploadFile(formData, element_id, 11).pipe(takeUntil(this.destroy$)).subscribe(
           data=>{
             console.log(data)
            
@@ -834,7 +835,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
           const formData = new FormData();
           formData.append('file', element);
 
-          this.documentService.uploadFile(formData, element_id, 11).pipe(take(1)).subscribe(
+          this.documentService.uploadFile(formData, element_id, 11).pipe(takeUntil(this.destroy$)).subscribe(
             data => {
               console.log(data)
               this.treeText.treeModel.getNodeBy(x => {
@@ -898,7 +899,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
       "target-id": element_id_target
     }
             
-    this.documentService.copyFileTo(parameters).pipe(take(1)).subscribe(
+    this.documentService.copyFileTo(parameters).pipe(takeUntil(this.destroy$)).subscribe(
       data=>{
         console.log(data);
         //this.nodes = data['documentSystem'];
@@ -952,7 +953,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
       "element-id": element_id,
     }
             
-    this.documentService.downloadFile(parameters).pipe(take(1)).subscribe(
+    this.documentService.downloadFile(parameters).pipe(takeUntil(this.destroy$)).subscribe(
       data=>{
         console.log(data);
         this.toastr.info('File '+ evt['name'] +' downloaded', '', {
@@ -988,7 +989,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
 
       const expandedNodes = this.treeText.treeModel.expandedNodes;
 
-      this.documentService.removeFile(parameters).pipe(take(1)).subscribe(
+      this.documentService.removeFile(parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data=>{
           console.log(data);
           this.toastr.info('File '+ evt['name'] +' deleted', '', {
@@ -1060,7 +1061,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
       });
       const expandedNodes = this.treeText.treeModel.expandedNodes;
 
-      this.documentService.removeFolder(parameters).pipe(take(1)).subscribe(
+      this.documentService.removeFolder(parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data=>{
           console.log(data);
           
@@ -1115,7 +1116,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
       }
             
       
-      this.documentService.moveFolder(parameters).pipe(take(1)).subscribe(
+      this.documentService.moveFolder(parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data=>{
           this.toastr.info('Folder '+ evt.node['name'] +' moved', '', {
             timeOut: 5000,
@@ -1141,7 +1142,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
       }
             
       
-      this.documentService.moveFileTo(parameters).pipe(take(1)).subscribe(
+      this.documentService.moveFileTo(parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data=>{
           console.log(data);
           this.toastr.info('File '+ evt.node['name'] +' moved', '', {
@@ -1208,7 +1209,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
 
       if(node_type == 'directory'){
         
-        this.documentService.renameFolder(parameters).pipe(take(1)).subscribe(
+        this.documentService.renameFolder(parameters).pipe(takeUntil(this.destroy$)).subscribe(
           data=> {
             //console.log(data);
             this.toastr.info('Folder '+ node.data.name +' renamed', '', {
@@ -1255,7 +1256,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
         )
 
       }else if(node_type == 'file'){
-        this.documentService.renameFile(parameters).pipe(take(1)).subscribe(
+        this.documentService.renameFile(parameters).pipe(takeUntil(this.destroy$)).subscribe(
           data=> {
             this.toastr.info('File renamed', '', {
               timeOut: 5000,
@@ -1340,7 +1341,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
 
     const expandedNodes = this.treeText.treeModel.expandedNodes;
 
-    this.documentService.updateMetadata(parameters).pipe(take(1)).subscribe(
+    this.documentService.updateMetadata(parameters).pipe(takeUntil(this.destroy$)).subscribe(
       data=> {
         this.toastr.info('Metadata updated for ' + name + ' node' , '', {
           timeOut: 5000,
@@ -1400,7 +1401,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
     
     const expandedNodes = this.treeText.treeModel.expandedNodes;
 
-    this.documentService.deleteMetadata(parameters).pipe(take(1)).subscribe(
+    this.documentService.deleteMetadata(parameters).pipe(takeUntil(this.destroy$)).subscribe(
       data=> {
         //console.log(data);
         this.toastr.info('Metadata deleted for ' + name + ' node' , '', {
@@ -1532,7 +1533,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
     
     console.log(parameters)
     
-    this.documentService.searchFiles(newPar).pipe(take(1)).subscribe(
+    this.documentService.searchFiles(newPar).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         if(data['files'].length > 0){
           this.show = false;
@@ -1567,6 +1568,8 @@ export class TextTreeComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
       
+  this.destroy$.next(true);
+  this.destroy$.complete();
   }
 
 }

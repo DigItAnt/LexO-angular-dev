@@ -14,7 +14,7 @@ import { Component, HostListener, Input, OnChanges, OnDestroy, OnInit, SimpleCha
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, takeUntil } from 'rxjs/operators';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 
 @Component({
@@ -25,15 +25,17 @@ import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-
 export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() noteData: string;
-  object : any;
-  private subject : Subject<string> = new Subject();
+  object: any;
+  private subject: Subject<string> = new Subject();
 
-  note_subscription : Subscription;
-  lex_entry_update_subscription : Subscription;
-  form_update_subscription : Subscription;
-  sense_update_subscription : Subscription;
-  etymology_update_subscription : Subscription;
-  
+  note_subscription: Subscription;
+  lex_entry_update_subscription: Subscription;
+  form_update_subscription: Subscription;
+  sense_update_subscription: Subscription;
+  etymology_update_subscription: Subscription;
+
+  destroy$ : Subject<boolean> = new Subject();
+
   @HostListener('window:keyup', ['$event'])
   keyEvent(event: KeyboardEvent) {
     /* //console.log(event) */
@@ -42,7 +44,7 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
     return;
   }
 
-  htmlContent : '';
+  htmlContent: '';
   editorConfig: AngularEditorConfig = {
     editable: true,
     spellcheck: true,
@@ -111,17 +113,17 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
     this.editorConfig.editable = false;
 
 
-    this.note_subscription = this.subject.pipe(debounceTime(1000)).subscribe(
+    this.note_subscription = this.subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       newNote => {
-        if(this.noteData != null){
+        if (this.noteData != null) {
           this.lexicalService.spinnerAction('on');
           console.log(this.object)
           //console.log(this.object)
-          if(this.object.lexicalEntryInstanceName != undefined){
+          if (this.object.lexicalEntryInstanceName != undefined) {
             var lexId = this.object.lexicalEntryInstanceName;
             var parameters = {
-              relation : "note",
-              value : newNote
+              relation: "note",
+              value: newNote
             }
             this.lex_entry_update_subscription = this.lexicalService.updateLexicalEntry(lexId, parameters).subscribe(
               data => {
@@ -140,18 +142,18 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
                 data['request'] = 0;
                 data['new_note'] = newNote;
                 this.lexicalService.refreshAfterEdit(data);
-                this.lexicalService.updateCoreCard({lastUpdate : error.error.text})
+                this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
                 this.lexicalService.spinnerAction('off');
                 this.toastr.success('Note updated', '', {
                   timeOut: 5000,
                 });
               }
             )
-          }else if(this.object.formInstanceName != undefined){
+          } else if (this.object.formInstanceName != undefined) {
             var formId = this.object.formInstanceName;
             var parameters = {
-              relation : "note",
-              value : newNote
+              relation: "note",
+              value: newNote
             }
             this.form_update_subscription = this.lexicalService.updateForm(formId, parameters).subscribe(
               data => {
@@ -170,18 +172,18 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
                 data['request'] = 0;
                 data['new_note'] = newNote;
                 this.lexicalService.refreshAfterEdit(data);
-                this.lexicalService.updateCoreCard({lastUpdate : error.error.text})
+                this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
                 this.lexicalService.spinnerAction('off');
                 this.toastr.success('Note updated', '', {
                   timeOut: 5000,
                 });
               }
             )
-          }else if(this.object.senseInstanceName != undefined){
+          } else if (this.object.senseInstanceName != undefined) {
             var senseId = this.object.senseInstanceName;
             var parameters = {
-              relation : "note",
-              value : newNote
+              relation: "note",
+              value: newNote
             }
             this.sense_update_subscription = this.lexicalService.updateSense(senseId, parameters).subscribe(
               data => {
@@ -200,18 +202,18 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
                 data['request'] = 0;
                 data['new_note'] = newNote;
                 this.lexicalService.refreshAfterEdit(data);
-                this.lexicalService.updateCoreCard({lastUpdate : error.error.text})
+                this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
                 this.lexicalService.spinnerAction('off');
                 this.toastr.success('Note updated', '', {
                   timeOut: 5000,
                 });
               }
             )
-          }else if(this.object.etymologyInstanceName != undefined){
+          } else if (this.object.etymologyInstanceName != undefined) {
             var etymId = this.object.etymologyInstanceName;
             var parameters = {
-              relation : "note",
-              value : newNote
+              relation: "note",
+              value: newNote
             }
             this.etymology_update_subscription = this.lexicalService.updateEtymology(etymId, parameters).subscribe(
               data => {
@@ -230,7 +232,7 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
                 data['request'] = 0;
                 data['new_note'] = newNote;
                 this.lexicalService.refreshAfterEdit(data);
-                this.lexicalService.updateCoreCard({lastUpdate : error.error.text})
+                this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
                 this.lexicalService.spinnerAction('off');
                 this.toastr.success('Note updated', '', {
                   timeOut: 5000,
@@ -251,35 +253,37 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
     )
   }
 
-  ngOnChanges(changes: SimpleChanges) { 
-    
-      if(changes.noteData.currentValue == null){
-        this.editorConfig.editable = false;
-        this.noteData = null;
-        this.object = null;
-      }else{
-        this.editorConfig.editable = true;
-        this.noteData = changes.noteData.currentValue.note;
-        this.object = changes.noteData.currentValue;
-      }
-      
-      /* //console.log(changes) */
-    
+  ngOnChanges(changes: SimpleChanges) {
+
+    if (changes.noteData.currentValue == null) {
+      this.editorConfig.editable = false;
+      this.noteData = null;
+      this.object = null;
+    } else {
+      this.editorConfig.editable = true;
+      this.noteData = changes.noteData.currentValue.note;
+      this.object = changes.noteData.currentValue;
+    }
+
+    /* //console.log(changes) */
+
   }
 
-  onChanges(evt){
-    if(evt.key != "Control" && evt.key != 'Alt' && evt.key != 'Shift'){
+  onChanges(evt) {
+    if (evt.key != "Control" && evt.key != 'Alt' && evt.key != 'Shift') {
       this.subject.next(this.noteData);
     }
-    
+
   }
 
   ngOnDestroy(): void {
-      this.note_subscription.unsubscribe();
-      this.lex_entry_update_subscription.unsubscribe();
-      this.form_update_subscription.unsubscribe();
-      this.sense_update_subscription.unsubscribe();
-      this.etymology_update_subscription.unsubscribe();
+    this.note_subscription.unsubscribe();
+    this.lex_entry_update_subscription.unsubscribe();
+    this.form_update_subscription.unsubscribe();
+    this.sense_update_subscription.unsubscribe();
+    this.etymology_update_subscription.unsubscribe();
+    this.destroy$.next(true);
+    this.destroy$.complete();
   }
 
 }

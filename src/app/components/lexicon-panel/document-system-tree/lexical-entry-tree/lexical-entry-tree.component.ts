@@ -21,7 +21,7 @@ import * as _ from 'underscore';
 declare var $: JQueryStatic;
 
 
-import { debounceTime, take } from 'rxjs/operators';
+import { debounceTime, take, takeUntil } from 'rxjs/operators';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
 import { Subject, Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
@@ -69,6 +69,8 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
   offset = 0;
   limit = 500;
   interval;
+
+  destroy$ : Subject<boolean> = new Subject();
 
   @ViewChild(ContextMenuComponent) public basicMenu: ContextMenuComponent;
   /* sub : Subscription; */
@@ -176,7 +178,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.copy_subject_subscription = this.copySubject.pipe(debounceTime(500)).subscribe(v => {
+    this.copy_subject_subscription = this.copySubject.pipe(debounceTime(500), takeUntil(this.destroy$)).subscribe(v => {
       let selBox = document.createElement('textarea');
       selBox.style.position = 'fixed';
       selBox.style.left = '0';
@@ -199,7 +201,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
 
         if (signal != null) {
 
-          this.get_lex_entry_list_subscription = this.lexicalService.getLexicalEntriesList(this.parameters).pipe(take(1)).subscribe(
+          this.get_lex_entry_list_subscription = this.lexicalService.getLexicalEntriesList(this.parameters).pipe(takeUntil(this.destroy$)).subscribe(
             data => {
               this.counter = data['totalHits'];
             },
@@ -209,32 +211,32 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
           );
 
 
-          this.get_languages_subscription = this.lexicalService.getLanguages().pipe(take(1)).subscribe(
+          this.get_languages_subscription = this.lexicalService.getLanguages().pipe(takeUntil(this.destroy$)).subscribe(
             data => {
 
               this.languages = data;
             }
           );
 
-          this.get_types_subscription = this.lexicalService.getTypes().pipe(take(1)).subscribe(
+          this.get_types_subscription = this.lexicalService.getTypes().pipe(takeUntil(this.destroy$)).subscribe(
             data => {
               this.types = data;
             }
           );
 
-          this.get_authors_subscription = this.lexicalService.getAuthors().pipe(take(1)).subscribe(
+          this.get_authors_subscription = this.lexicalService.getAuthors().pipe(takeUntil(this.destroy$)).subscribe(
             data => {
               this.authors = data;
             }
           );
 
-          this.get_pos_subscription = this.lexicalService.getPos().pipe(take(1)).subscribe(
+          this.get_pos_subscription = this.lexicalService.getPos().pipe(takeUntil(this.destroy$)).subscribe(
             data => {
               this.partOfSpeech = data;
             }
           )
 
-          this.get_status_subscription = this.lexicalService.getStatus().pipe(take(1)).subscribe(
+          this.get_status_subscription = this.lexicalService.getStatus().pipe(takeUntil(this.destroy$)).subscribe(
             data => {
               this.status = data;
             }
@@ -246,7 +248,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
     )
 
     /* //console.log(this.parameters) */
-    this.get_lex_entry_list_subscription = this.lexicalService.getLexicalEntriesList(this.parameters).pipe(take(1)).subscribe(
+    this.get_lex_entry_list_subscription = this.lexicalService.getLexicalEntriesList(this.parameters).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         this.nodes = data['list'];
         this.counter = data['totalHits'];
@@ -288,7 +290,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
   }
 
   onChanges() {
-    this.filterForm.valueChanges.pipe(debounceTime(500)).subscribe(searchParams => {
+    this.filterForm.valueChanges.pipe(debounceTime(500), takeUntil(this.destroy$)).subscribe(searchParams => {
       this.offset = 0;
       this.lexicalEntriesFilter(searchParams);
     })
@@ -637,7 +639,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
     parameters['offset'] = this.offset;
     parameters['limit'] = this.limit;
     console.log(parameters)
-    this.lexicalService.getLexicalEntriesList(newPar).pipe(take(1)).subscribe(
+    this.lexicalService.getLexicalEntriesList(newPar).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         console.log(data)
         if (data['list'].length > 0) {
@@ -710,7 +712,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
       && $event.node.data.lexicalEntryInstanceName != this.selectedNodeId) {
       //this.lexicalService.sendToCoreTab($event.node.data);
       let idLexicalEntry = $event.node.data.lexicalEntryInstanceName;
-      this.lexicalService.getLexEntryData(idLexicalEntry).pipe(take(1)).subscribe(
+      this.lexicalService.getLexEntryData(idLexicalEntry).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
 
           console.log(data);
@@ -771,7 +773,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
 
       let formId = $event.node.data.formInstanceName;
 
-      this.lexicalService.getFormData(formId, 'core').pipe(take(1)).subscribe(
+      this.lexicalService.getFormData(formId, 'core').pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           console.log(data)
           this.selectedNodeId = $event.node.data.formInstanceName;
@@ -824,7 +826,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
 
       let senseId = $event.node.data.senseInstanceName;
 
-      this.lexicalService.getSenseData(senseId, 'core').pipe(take(1)).subscribe(
+      this.lexicalService.getSenseData(senseId, 'core').pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           this.selectedNodeId = $event.node.data.senseInstanceName;
           data['parentNodeLabel'] = $event.node.parent.parent.data.label;
@@ -877,7 +879,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
 
       let etymologyId = $event.node.data.etymologyInstanceName;
 
-      this.lexicalService.getEtymologyData(etymologyId).pipe(take(1)).subscribe(
+      this.lexicalService.getEtymologyData(etymologyId).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           this.selectedNodeId = $event.node.data.etymologyInstanceName;
           data['parentNodeLabel'] = $event.node.parent.parent.data.label;
@@ -932,7 +934,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
       let parentInstanceLabel = $event.node.parent.parent.data.label;
       let parentInstanceName = $event.node.parent.parent.data.lexicalEntryInstanceName;
 
-      this.lexicalService.getLexEntryData(parentInstanceName).pipe(take(1)).subscribe(
+      this.lexicalService.getLexEntryData(parentInstanceName).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           this.selectedNodeId = $event.node.data.parentNodeInstanceName;
 
@@ -1123,5 +1125,8 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
     this.get_authors_subscription.unsubscribe();
     this.get_pos_subscription.unsubscribe();
     this.get_status_subscription.unsubscribe();
+
+    this.destroy$.next(true);
+    this.destroy$.complete();
   }
 }

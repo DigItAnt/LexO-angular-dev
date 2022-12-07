@@ -93,7 +93,7 @@ export class SenseVartransFormComponent implements OnInit {
   }
 
   onChanges(): void {
-    this.senseVartransForm.valueChanges.pipe(debounceTime(200)).subscribe(searchParams => {
+    this.senseVartransForm.valueChanges.pipe(debounceTime(200), takeUntil(this.destroy$)).subscribe(searchParams => {
       //console.log(searchParams)
     })
   }

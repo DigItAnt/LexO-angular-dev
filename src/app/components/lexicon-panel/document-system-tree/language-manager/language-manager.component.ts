@@ -13,7 +13,7 @@ You should have received a copy of the GNU General Public License along with Epi
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Subject, Subscription } from 'rxjs';
-import { debounceTime, take } from 'rxjs/operators';
+import { debounceTime, take, takeUntil } from 'rxjs/operators';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { ToastrService } from 'ngx-toastr';
 
@@ -29,7 +29,7 @@ export class LanguageManagerComponent implements OnInit, OnDestroy {
   isValid = false;
   loadingService = false;
   removeMessage;
-
+  destroy$ : Subject<boolean> = new Subject();
   linkedLexicalEntries : string;
 
   private subject: Subject<any> = new Subject();
@@ -61,7 +61,7 @@ export class LanguageManagerComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.subject_subscription = this.subject.pipe(debounceTime(1000)).subscribe(
+    this.subject_subscription = this.subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onEditLanguage(data)
       }
@@ -70,7 +70,7 @@ export class LanguageManagerComponent implements OnInit, OnDestroy {
 
 
   loadLangData() {
-    this.lexicalService.getLexiconLanguages().pipe(take(1)).subscribe(
+    this.lexicalService.getLexiconLanguages().pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         /* //console.log(data) */
         this.languageList = data;
@@ -86,7 +86,7 @@ export class LanguageManagerComponent implements OnInit, OnDestroy {
       this.isValid = true;
       this.loadingService = true;
       
-      this.lexicalService.createNewLanguage(inputValue).pipe(take(1)).subscribe(
+      this.lexicalService.createNewLanguage(inputValue).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           console.log(data)
           this.loadingService = false;
@@ -124,7 +124,7 @@ export class LanguageManagerComponent implements OnInit, OnDestroy {
           value: data['v']
         }
   
-        this.lexicalService.updateLanguage(langId, parameters).pipe(take(1)).subscribe(
+        this.lexicalService.updateLanguage(langId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
           data => {
             console.log(data)
             this.lexicalService.refreshLangTable();
@@ -133,7 +133,7 @@ export class LanguageManagerComponent implements OnInit, OnDestroy {
             console.log(error)
             this.lexicalService.refreshLangTable();
             this.lexicalService.refreshFilter({request : true})
-            if(error.statusText == 'OK'){
+            if(error.status == 200){
               this.toastr.info('Description for '+langId+' updated', '', {
                 timeOut: 5000,
               });
@@ -152,7 +152,7 @@ export class LanguageManagerComponent implements OnInit, OnDestroy {
           value: data['v']
         }
   
-        this.lexicalService.updateLanguage(langId, parameters).pipe(take(1)).subscribe(
+        this.lexicalService.updateLanguage(langId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
           data => {
             console.log(data)
             this.lexicalService.refreshLangTable();
@@ -161,7 +161,7 @@ export class LanguageManagerComponent implements OnInit, OnDestroy {
             console.log(error)
             this.lexicalService.refreshLangTable();
             this.lexicalService.refreshFilter({request : true})
-            if(error.statusText == 'OK'){
+            if(error.status == 200){
               this.toastr.info('Description for '+langId+' updated', '', {
                 timeOut: 5000,
               });
@@ -180,14 +180,14 @@ export class LanguageManagerComponent implements OnInit, OnDestroy {
             value: data['v']
           }
     
-          this.lexicalService.updateLanguage(langId, parameters).pipe(take(1)).subscribe(
+          this.lexicalService.updateLanguage(langId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
             data => {
               console.log(data)
               this.lexicalService.refreshLangTable();
             }, error => {
               console.log(error)
               this.lexicalService.refreshLangTable();
-              if(error.statusText == 'OK'){
+              if(error.status == 200){
                 this.toastr.info('Description for '+langId+' updated', '', {
                   timeOut: 5000,
                 });
@@ -258,7 +258,7 @@ export class LanguageManagerComponent implements OnInit, OnDestroy {
 
   deleteLangRequest(){
     let langId = this.removeMessage;
-    this.lexicalService.deleteLanguage(langId).pipe(take(1)).subscribe(
+    this.lexicalService.deleteLanguage(langId).pipe(takeUntil(this.destroy$)).subscribe(
       data=>{
         console.log(data);
         this.lexicalService.refreshLangTable();
@@ -280,6 +280,9 @@ export class LanguageManagerComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
       this.refresh_lang_table_subscription.unsubscribe();
       this.subject_subscription.unsubscribe();
+
+      this.destroy$.next(true);
+      this.destroy$.complete();
   }
 
 }

@@ -10,10 +10,11 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { IActionMapping, ITreeOptions, ITreeState, KEYS, TreeModel, TREE_ACTIONS } from '@circlon/angular-tree-component';
-import { debounceTime } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { debounceTime, takeUntil } from 'rxjs/operators';
 import { ConceptService } from 'src/app/services/concept/concept.service';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { v4 } from 'uuid';
@@ -60,12 +61,12 @@ const actionMapping: IActionMapping = {
   templateUrl: './concept-tree.component.html',
   styleUrls: ['./concept-tree.component.scss']
 })
-export class ConceptTreeComponent implements OnInit {
+export class ConceptTreeComponent implements OnInit, OnDestroy {
 
   state!: ITreeState;
   @ViewChild('treeConcept') treeConcept: any;
   selectedNodeId;
-
+  destroy$ : Subject<boolean> = new Subject();
   options: ITreeOptions = {
     actionMapping,
     allowDrag: (node) => node.isLeaf,
@@ -113,9 +114,13 @@ export class ConceptTreeComponent implements OnInit {
     this.initialValues = this.conceptFilterForm.value
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next(true);
+    this.destroy$.complete();
+  }
 
   onChanges() {
-    this.conceptFilterForm.valueChanges.pipe(debounceTime(500)).subscribe(searchParams => {
+    this.conceptFilterForm.valueChanges.pipe(debounceTime(500), takeUntil(this.destroy$)).subscribe(searchParams => {
       console.log(searchParams)
       this.searchFilter(searchParams)
     })
@@ -193,7 +198,7 @@ export class ConceptTreeComponent implements OnInit {
     parameters['offset'] = this.offset;
     parameters['limit'] = this.limit;
 
-    this.lexicalService.getLexicalEntriesList(parameters).pipe(debounceTime(200)).subscribe(
+    this.lexicalService.getLexicalEntriesList(parameters).pipe(debounceTime(200), takeUntil(this.destroy$)).subscribe(
       data => {
         //@ts-ignore
         $('#lazyLoadingModal').modal('hide');

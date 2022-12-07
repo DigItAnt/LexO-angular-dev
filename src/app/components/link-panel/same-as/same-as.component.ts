@@ -66,7 +66,7 @@ export class SameAsComponent implements OnInit, OnDestroy {
       isCognate: false,
     })
 
-    this.subject.pipe(debounceTime(1000)).subscribe(
+    this.subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onSearchFilter(data)
       }
@@ -110,7 +110,7 @@ export class SameAsComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.subject_input.pipe(debounceTime(1000)).subscribe(
+    this.subject_input.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onChangeSameAsByInput(data['value'], data['i'])
       }

@@ -60,14 +60,14 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
 
     this.onChanges();
     /* //console.log(this.seeAlsoForm) */
-    this.search_filter_subscriber = this.subject.pipe(debounceTime(1000)).subscribe(
+    this.search_filter_subscriber = this.subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         console.log(data)
         this.onSearchFilter(data)
       }
     )
 
-    this.search_by_input_subscriber = this.subject_input.pipe(debounceTime(1000)).subscribe(
+    this.search_by_input_subscriber = this.subject_input.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onChangeSeeAlsoByInput(data['value'], data['i'])
       }
@@ -384,7 +384,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
 
   }
   onChanges(): void {
-    this.seeAlsoForm.valueChanges.pipe(debounceTime(200)).subscribe(searchParams => {
+    this.seeAlsoForm.valueChanges.pipe(debounceTime(200), takeUntil(this.destroy$)).subscribe(searchParams => {
       //console.log(searchParams)
     })
   }

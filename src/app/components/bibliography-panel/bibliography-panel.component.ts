@@ -15,7 +15,7 @@ import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { ToastrService } from 'ngx-toastr';
 import { BibliographyService } from 'src/app/services/bibliography-service/bibliography.service';
-import { debounceTime, take } from 'rxjs/operators';
+import { debounceTime, take, takeUntil } from 'rxjs/operators';
 import { Subject, Subscription } from 'rxjs';
 
 
@@ -37,7 +37,7 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
   biblioArray: FormArray;
   memoryNote = [];
   memoryTextualRef = [];
-
+  destroy$ : Subject<boolean> = new Subject();
   private subject: Subject<any> = new Subject();
 
   add_biblio_req_subscription : Subscription;
@@ -72,7 +72,7 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.subject_subscription= this.subject.pipe(debounceTime(1000)).subscribe(
+    this.subject_subscription= this.subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onChanges(data)
       }
@@ -93,7 +93,7 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
 
       if (this.object.lexicalEntryInstanceName != undefined && this.object.formInstanceName == undefined) {
         let lexId = this.object.lexicalEntryInstanceName;
-        this.lexicalService.getBibliographyData(lexId).pipe(take(1)).subscribe(
+        this.lexicalService.getBibliographyData(lexId).pipe(takeUntil(this.destroy$)).subscribe(
           data => {
             console.log(data);
             if (data != []) {
@@ -126,7 +126,7 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
 
       } else if (this.object.formInstanceName != undefined) {
         let formId = this.object.formInstanceName;
-        this.lexicalService.getBibliographyData(formId).pipe(take(1)).subscribe(
+        this.lexicalService.getBibliographyData(formId).pipe(takeUntil(this.destroy$)).subscribe(
           data => {
             console.log(data);
             let count = 0;
@@ -153,7 +153,7 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
 
       } else if (this.object.senseInstanceName != undefined) {
         let senseId = this.object.senseInstanceName;
-        this.lexicalService.getBibliographyData(senseId).pipe(take(1)).subscribe(
+        this.lexicalService.getBibliographyData(senseId).pipe(takeUntil(this.destroy$)).subscribe(
           data => {
             console.log(data);
             let count = 0;
@@ -179,7 +179,7 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
         )
       } else if (this.object.etymologyInstanceName != undefined) {
         let etymId = this.object.etymologyInstanceName;
-        this.lexicalService.getBibliographyData(etymId).pipe(take(1)).subscribe(
+        this.lexicalService.getBibliographyData(etymId).pipe(takeUntil(this.destroy$)).subscribe(
           data => {
             console.log(data);
             let count = 0;
@@ -262,7 +262,7 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
       console.log(this.biblioArray.at(index))
       console.log(parameters)
 
-      this.lexicalService.updateGenericRelation(instanceName, parameters).pipe(take(1)).subscribe(
+      this.lexicalService.updateGenericRelation(instanceName, parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           console.log(data);
           this.lexicalService.spinnerAction('off');
@@ -305,7 +305,7 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
 
     let instanceName = this.bibliographyData[index].bibliographyInstanceName;
 
-    this.lexicalService.removeBibliographyItem(instanceName).pipe(take(1)).subscribe(
+    this.lexicalService.removeBibliographyItem(instanceName).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         console.log(data)
         this.lexicalService.updateCoreCard(this.object);
@@ -379,7 +379,7 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
       lexId = this.object.etymologyInstanceName;
     }
 
-    this.lexicalService.synchronizeBibliographyItem(lexId, id).pipe(debounceTime(500), take(1)).subscribe(
+    this.lexicalService.synchronizeBibliographyItem(lexId, id).pipe(debounceTime(500), takeUntil(this.destroy$)).subscribe(
       data => {
         console.log(data);
         this.loadingSynchro[i] = false;
@@ -397,5 +397,7 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
       this.add_biblio_req_subscription.unsubscribe();
       this.subject_subscription.unsubscribe();
+      this.destroy$.next(true);
+this.destroy$.complete();
   }
 }

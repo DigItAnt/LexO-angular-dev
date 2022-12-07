@@ -15,7 +15,7 @@ import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { NgSelectComponent } from '@ng-select/ng-select';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, pairwise, startWith, takeUntil } from 'rxjs/operators';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { LilaService } from 'src/app/services/lila/lila.service';
 
@@ -68,6 +68,8 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
 
   memoryLinks = [];
 
+  destroy$ : Subject<boolean> = new Subject();
+
   constructor(private lexicalService: LexicalEntriesService,
     private formBuilder: FormBuilder,
     private toastr: ToastrService,
@@ -87,7 +89,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
     this.onChanges();
     this.triggerTooltip();
 
-    this.subject_cognates_subscription = this.subject_cognates.pipe(debounceTime(1000)).subscribe(
+    this.subject_cognates_subscription = this.subject_cognates.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         if (data != null) {
           this.onSearchFilter(data)
@@ -96,7 +98,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.subject_etylink_subscription = this.subject_etylink.pipe(debounceTime(1000)).subscribe(
+    this.subject_etylink_subscription = this.subject_etylink.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         if (data != null) {
           this.onSearchFilter(data)
@@ -105,7 +107,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.subject_etylink_input_subscription = this.subject_etylink_input.pipe(debounceTime(1000)).subscribe(
+    this.subject_etylink_input_subscription = this.subject_etylink_input.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         console.log(data)
         if (data != null) {
@@ -117,19 +119,19 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.subject_cognates_input_subscription = this.subject_cognates_input.pipe(debounceTime(1000)).subscribe(
+    this.subject_cognates_input_subscription = this.subject_cognates_input.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onSearchFilter(data)
       }
     )
 
-    this.subject_etylink_note_subscription = this.etylink_note_subject.pipe(debounceTime(1000)).subscribe(
+    this.subject_etylink_note_subscription = this.etylink_note_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onChangeEtylinkNote(data)
       }
     )
 
-    this.subject_etylink_label_subscription = this.etylink_label_subject.pipe(debounceTime(1000)).subscribe(
+    this.subject_etylink_label_subscription = this.etylink_label_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onChangeEtylinkLabel(data)
       }
@@ -215,26 +217,36 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
 
 
   onChanges(): void {
-    /* this.etyForm.valueChanges.pipe(debounceTime(200)).subscribe(searchParams => {
-      console.log(searchParams)
-    }) */
-    this.etyForm.get('confidence').valueChanges.pipe(debounceTime(100)).subscribe(newConfidence => {
-      let confidence_value = null;
-      console.log(newConfidence)
-      if (newConfidence == false) {
-        confidence_value = 1
-        this.etyForm.get('confidence').setValue(false, { emitEvent: false });
-      } else {
-        confidence_value = 0
-        this.etyForm.get('confidence').setValue(true, { emitEvent: false });
-      }
+   
+    this.etyForm.get('confidence').valueChanges.pipe(debounceTime(100), startWith(this.etyForm.get('confidence').value), pairwise(), takeUntil(this.destroy$)).subscribe(([prev, next]: [any, any]) => {
+      this.lexicalService.spinnerAction('on');
+      let etyId = this.object.etymology.etymologyInstanceName;
 
-      this.updateConfidence(confidence_value);
+      this.etyForm.get('confidence').setValue(next, { emitEvent: false });
+
+      let oldValue = prev ? 0 : -1;
+      let newValue = next ? 0 : -1;
+      let parameters = {
+        type: "confidence",
+        relation: 'confidence',
+        value: newValue
+      };
+
+
+      if (prev !== null) parameters['currentValue'] = oldValue;
+
+      this.lexicalService.updateGenericRelation(etyId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
+        data => { },
+        error => {
+          if (error.status == 200) this.toastr.success('Confidence updated', '', { timeOut: 5000 })
+          if (error.status != 200) this.toastr.error(error.error, '', { timeOut: 5000 })
+        }
+      )
 
     });
 
 
-    this.etyForm.get("label").valueChanges.pipe(debounceTime(1000)).subscribe(
+    this.etyForm.get("label").valueChanges.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       updatedLabel => {
         if (updatedLabel.length > 2 && updatedLabel.trim() != '') {
           this.updateLabel(updatedLabel);
@@ -242,7 +254,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.etyForm.get("author").valueChanges.pipe(debounceTime(1000)).subscribe(
+    this.etyForm.get("author").valueChanges.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       updateAuthor => {
 
         this.updateAuthor(updateAuthor)
@@ -250,7 +262,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
     )
   }
 
-  async updateConfidence(confidence_value: any) {
+  /* async updateConfidence(confidence_value: any) {
     this.lexicalService.spinnerAction('on');
     let etyId = this.object.etymology.etymologyInstanceName;
     let parameters = {
@@ -271,7 +283,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
 
       }
     }
-  }
+  } */
 
   async updateLabel(updatedLabel : string){
     this.lexicalService.spinnerAction('on');
@@ -828,6 +840,9 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
     this.subject_cognates_input_subscription.unsubscribe();
     this.subject_etylink_note_subscription.unsubscribe();
     this.subject_etylink_label_subscription.unsubscribe();
+
+    this.destroy$.next(true);
+    this.destroy$.complete();
   }
 
 

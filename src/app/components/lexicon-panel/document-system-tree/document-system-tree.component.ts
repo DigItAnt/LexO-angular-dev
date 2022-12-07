@@ -17,8 +17,8 @@ import { DocumentSystemService } from 'src/app/services/document-system/document
 import { TreeNode } from '@circlon/angular-tree-component';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
 import {saveAs as importedSaveAs} from "file-saver";
-import { Subscription } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { Subject, Subscription } from 'rxjs';
+import { take, takeUntil } from 'rxjs/operators';
 
 
 @Component({
@@ -35,7 +35,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
   @ViewChild('conceptTree') conceptTree: any;
   @ViewChild('skosTree') skosTree: any;
   @ViewChild('accordion') accordion: ElementRef; 
-
+  destroy$ : Subject<boolean> = new Subject();
   refresh_after_edit_subscription : Subscription;
   trigger_lex_tree_subscription : Subscription;
 
@@ -549,7 +549,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
 
   newLexicalEntry() {
 
-    this.lexicalService.newLexicalEntry().pipe(take(1)).subscribe(
+    this.lexicalService.newLexicalEntry().pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         console.log(data);
 
@@ -597,7 +597,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
       filename : "new_file"+Math.floor(Math.random() * (99999 - 10) + 10)
     }
 
-    this.documentService.createFile(parameters).pipe(take(1)).subscribe(
+    this.documentService.createFile(parameters).pipe(takeUntil(this.destroy$)).subscribe(
       data =>{
         console.log(data)
         this.textTree.treeText.treeModel.nodes.push(data.node);
@@ -631,7 +631,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
         const formData = new FormData();
         formData.append('file', evt.target.files[0]);
 
-        this.documentService.uploadFile(formData, element_id, 11).pipe(take(1)).subscribe(
+        this.documentService.uploadFile(formData, element_id, 11).pipe(takeUntil(this.destroy$)).subscribe(
           data => {
             console.log(data)
 
@@ -673,7 +673,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
           const formData = new FormData();
           formData.append('file', element);
 
-          this.documentService.uploadFile(formData, element_id, 11).pipe(take(1)).subscribe(
+          this.documentService.uploadFile(formData, element_id, 11).pipe(takeUntil(this.destroy$)).subscribe(
             data => {
               console.log(data)
 
@@ -716,7 +716,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
     }
 
 
-    this.documentService.addFolder(parameters).pipe(take(1)).subscribe(
+    this.documentService.addFolder(parameters).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         console.log(data)
         let id_new_node = 243;
@@ -755,7 +755,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
       "inferred": false
     }
 
-    this.lexicalService.exportLexicon(parameters).pipe(take(1)).subscribe(
+    this.lexicalService.exportLexicon(parameters).pipe(takeUntil(this.destroy$)).subscribe(
       data=> {
         console.log(data);
         var blob = new Blob([data], { type: 'text/turtle' });
@@ -779,5 +779,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
       this.refresh_after_edit_subscription.unsubscribe();
       this.trigger_lex_tree_subscription.unsubscribe();
+      this.destroy$.next(true);
+      this.destroy$.complete();
   }
 }

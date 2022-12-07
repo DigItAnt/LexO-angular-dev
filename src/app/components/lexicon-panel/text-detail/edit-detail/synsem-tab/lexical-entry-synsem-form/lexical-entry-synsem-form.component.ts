@@ -89,7 +89,7 @@ export class LexicalEntrySynsemFormComponent implements OnInit {
   }
 
   onChanges(): void {
-    this.synsemForm.valueChanges.pipe(debounceTime(200)).subscribe(searchParams => {
+    this.synsemForm.valueChanges.pipe(debounceTime(200), takeUntil(this.destroy$)).subscribe(searchParams => {
       //console.log(searchParams)
     })
   }

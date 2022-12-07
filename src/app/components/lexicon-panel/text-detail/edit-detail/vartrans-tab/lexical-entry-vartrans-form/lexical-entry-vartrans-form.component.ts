@@ -96,7 +96,7 @@ export class LexicalEntryVartransFormComponent implements OnInit {
   }
 
   onChanges(): void {
-    this.vartransForm.valueChanges.pipe(debounceTime(200)).subscribe(searchParams => {
+    this.vartransForm.valueChanges.pipe(debounceTime(200), takeUntil(this.destroy$)).subscribe(searchParams => {
       /* //console.log(searchParams) */
     })
   }
