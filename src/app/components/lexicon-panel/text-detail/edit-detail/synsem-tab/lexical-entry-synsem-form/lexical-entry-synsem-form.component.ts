@@ -10,19 +10,19 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component, Input, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Subject, Subscription } from 'rxjs';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 
 import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-lexical-entry-synsem-form',
   templateUrl: './lexical-entry-synsem-form.component.html',
   styleUrls: ['./lexical-entry-synsem-form.component.scss']
 })
-export class LexicalEntrySynsemFormComponent implements OnInit {
+export class LexicalEntrySynsemFormComponent implements OnInit, OnDestroy {
 
   switchInput = false;
   subscription: Subscription;
@@ -30,6 +30,7 @@ export class LexicalEntrySynsemFormComponent implements OnInit {
   peopleLoading = false;
   counter = 0;
   componentRef: any;
+  destroy$ : Subject<boolean> = new Subject();
 
   @Input() lexData: any;
 
@@ -149,5 +150,8 @@ export class LexicalEntrySynsemFormComponent implements OnInit {
     })
   }
 
-
+  ngOnDestroy(): void {
+    this.destroy$.next(true);
+    this.destroy$.complete();
+  }
 }

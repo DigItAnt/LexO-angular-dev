@@ -13,7 +13,7 @@ You should have received a copy of the GNU General Public License along with Epi
 import { Component, Input, OnDestroy, OnInit, QueryList, SimpleChanges, ViewChildren } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { Subject, Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, takeUntil } from 'rxjs/operators';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { ToastrService } from 'ngx-toastr';
 import { LilaService } from 'src/app/services/lila/lila.service';
@@ -36,6 +36,8 @@ export class SameAsComponent implements OnInit, OnDestroy {
   filterLoading = false;
 
   sameas_subscription: Subscription;
+
+  destroy$
 
   @ViewChildren('sameAsSelect') sameAsList: QueryList<NgSelectComponent>;
 
@@ -589,6 +591,8 @@ export class SameAsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.sameas_subscription.unsubscribe();
+    this.destroy$.next(true);
+    this.destroy$.complete();
   }
 
 }

@@ -13,7 +13,7 @@ You should have received a copy of the GNU General Public License along with Epi
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { Subject, Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, takeUntil } from 'rxjs/operators';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { ToastrService } from 'ngx-toastr';
 
@@ -33,6 +33,8 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
   object: any;
   peopleLoading = false;
 
+  destroy$: Subject<boolean> = new Subject();
+
   isSense;
   isForm;
   isLexEntry;
@@ -47,8 +49,8 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
 
   seeAlsoArray: FormArray;
 
-  search_filter_subscriber : Subscription;
-  search_by_input_subscriber : Subscription;
+  search_filter_subscriber: Subscription;
+  search_by_input_subscriber: Subscription;
 
   constructor(private formBuilder: FormBuilder, private lexicalService: LexicalEntriesService, private toastr: ToastrService) {
   }
@@ -96,15 +98,15 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         //console.log(this.object)
 
         this.object.array.forEach(element => {
-          if(element.label != ''){
+          if (element.label != '') {
             this.addSeeAlsoEntry(element.label, element.inferred, element.lexicalEntityInstanceName, element.linkType)
             this.memorySeeAlso.push(element.lexicalEntityInstanceName)
-          }else{
+          } else {
             this.addSeeAlsoEntry(element.lexicalEntity, element.inferred, element.lexicalEntityInstanceName, element.linkType)
             this.memorySeeAlso.push(element.lexicalEntity)
           }
-          
-          
+
+
         });
 
         if (this.object.lexicalEntryInstanceName != undefined) {
@@ -130,7 +132,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
 
   async onChangeSeeAlsoByInput(value, index) {
 
-    if(value.trim() != ""){
+    if (value.trim() != "") {
       var selectedValues = value;
       var lexicalElementId = '';
       if (this.object.lexicalEntryInstanceName != undefined) {
@@ -139,28 +141,28 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         lexicalElementId = this.object.formInstanceName;
       } else if (this.object.senseInstanceName != undefined) {
         lexicalElementId = this.object.senseInstanceName;
-      }else if (this.object.etymologyInstanceName != undefined) {
+      } else if (this.object.etymologyInstanceName != undefined) {
         lexicalElementId = this.object.etymologyInstanceName;
       }
 
       console.log(this.object)
-  
+
       if (this.memorySeeAlso[index] == "" || this.memorySeeAlso[index] == undefined) {
         let parameters = {
           type: "reference",
           relation: "seeAlso",
           value: selectedValues
         }
-        try{
+        try {
           let data = await this.lexicalService.updateGenericRelation(lexicalElementId, parameters).toPromise();
-        }catch(e){
+        } catch (e) {
           console.log(e)
-          if(e.status == 200){
+          if (e.status == 200) {
             this.memorySeeAlso.push(selectedValues)
             this.toastr.success('SeeAlso updated', '', {
               timeOut: 5000,
             });
-          }else{
+          } else {
             this.toastr.error(e.error, 'Error', {
               timeOut: 5000,
             });
@@ -175,24 +177,24 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
           currentValue: oldValue
         }
         console.log(parameters)
-        try{
+        try {
           let data = await this.lexicalService.updateGenericRelation(lexicalElementId, parameters).toPromise();
-        }catch(e){
-          if(e.status == 200){
+        } catch (e) {
+          if (e.status == 200) {
             this.memorySeeAlso.push(selectedValues)
             this.toastr.success('SeeAlso updated', '', {
               timeOut: 5000,
             });
-          }else{
+          } else {
             this.toastr.error(e.error, 'Error', {
               timeOut: 5000,
             });
           }
         }
-        
+
       }
     }
-    
+
 
   }
 
@@ -207,7 +209,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         lexicalElementId = this.object.formInstanceName;
       } else if (this.object.senseInstanceName != undefined) {
         lexicalElementId = this.object.senseInstanceName;
-      }else if (this.object.etymologyInstanceName != undefined) {
+      } else if (this.object.etymologyInstanceName != undefined) {
         lexicalElementId = this.object.etymologyInstanceName;
       }
 
@@ -219,22 +221,22 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         }
         console.log(parameters)
 
-        try{
+        try {
           let data = await this.lexicalService.updateGenericRelation(lexicalElementId, parameters).toPromise();
-        }catch(e){
-          if(e.status == 200){
+        } catch (e) {
+          if (e.status == 200) {
             this.memorySeeAlso[index] = selectedValues
             this.lexicalService.refreshLinkCounter('+1')
             this.toastr.success('SeeAlso updated', '', {
               timeOut: 5000,
             });
-          }else{
+          } else {
             this.toastr.error(e.error, 'Error', {
               timeOut: 5000,
             });
           }
         }
-        
+
       } else {
         let oldValue = this.memorySeeAlso[index];
         let parameters = {
@@ -244,22 +246,22 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
           currentValue: oldValue
         }
         console.log(parameters)
-        try{
+        try {
           let data = await this.lexicalService.updateGenericRelation(lexicalElementId, parameters).toPromise();
-        }catch(e){
-          if(e.status == 200){
+        } catch (e) {
+          if (e.status == 200) {
             this.memorySeeAlso[index] = selectedValues
             this.lexicalService.refreshLinkCounter('+1')
             this.toastr.success('SeeAlso updated', '', {
               timeOut: 5000,
             });
-          }else{
+          } else {
             this.toastr.error(e.error, 'Error', {
               timeOut: 5000,
             });
           }
         }
-       
+
       }
 
     }
@@ -291,16 +293,16 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         limit: 500
       }
       //console.log(data.length)
-      
+
       let lexical_entries_list = await this.lexicalService.getLexicalEntriesList(parameters).toPromise();
-      if(lexical_entries_list){
+      if (lexical_entries_list) {
         this.searchResults = lexical_entries_list['list']
         this.filterLoading = false;
-      }else{
+      } else {
         this.filterLoading = false;
       }
-      
-      
+
+
     } else if (this.object.formInstanceName != undefined) {
       let lexId = this.object.parentInstanceName;
       let parameters = {
@@ -312,10 +314,10 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         limit: 500
       }
       let form_list = await this.lexicalService.getFormList(parameters).toPromise();
-      if(form_list){
+      if (form_list) {
         this.searchResults = form_list['list']
         this.filterLoading = false;
-      }else{
+      } else {
         this.filterLoading = false;
       }
     } else if (this.object.senseInstanceName != undefined) {
@@ -334,10 +336,10 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
       }
 
       let lexical_entries_list = await this.lexicalService.getLexicalEntriesList(parameters).toPromise();
-      if(lexical_entries_list){
+      if (lexical_entries_list) {
         this.searchResults = lexical_entries_list['list']
         this.filterLoading = false;
-      }else{
+      } else {
         this.filterLoading = false;
       }
 
@@ -356,10 +358,10 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         limit: 500
       }
       let lexical_entries_list = await this.lexicalService.getLexicalEntriesList(parameters).toPromise();
-      if(lexical_entries_list){
+      if (lexical_entries_list) {
         this.searchResults = lexical_entries_list['list']
         this.filterLoading = false;
-      }else{
+      } else {
         this.filterLoading = false;
       }
     }
@@ -395,14 +397,14 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         entity: null,
         inferred: false,
         lexical_entity: null,
-        link_type : 'internal'
+        link_type: 'internal'
       })
     } else {
       return this.formBuilder.group({
         entity: e,
         inferred: i,
         lexical_entity: le,
-        link_type : lt
+        link_type: lt
       })
     }
 
@@ -417,7 +419,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
       this.seeAlsoArray.push(this.createSeeAlsoEntry(e, i, le, lt));
     }
 
-    
+
     this.triggerTooltip();
   }
 
@@ -426,7 +428,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
 
     let lexical_entity = this.seeAlsoArray.at(index).get('lexical_entity').value;
     //console.log('Lexical Entity: '+lexical_entity)
-    if(lexical_entity == '' || lexical_entity == null){
+    if (lexical_entity == '' || lexical_entity == null) {
       lexical_entity = this.seeAlsoArray.at(index).get('entity').value;
       //console.log('Entity: '+lexical_entity)
     }
@@ -442,25 +444,25 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
 
       //console.log(parameters)
       //console.log(index)
-      try{
+      try {
         let delete_see_also = await this.lexicalService.deleteLinguisticRelation(lexId, parameters).toPromise();
 
-        
+
         this.lexicalService.updateCoreCard(this.object)
         this.toastr.success('SeeAlso deleted', '', {
           timeOut: 5000,
         });
         this.lexicalService.refreshLinkCounter('-1')
-        
-      }catch(e){
+
+      } catch (e) {
         this.toastr.error(e.error, 'Error', {
           timeOut: 5000,
         });
         this.lexicalService.refreshLinkCounter('-1')
 
       }
-      
-      
+
+
     } else if (this.object.formInstanceName != undefined) {
       let formId = this.object.formInstanceName;
 
@@ -469,21 +471,21 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         value: lexical_entity
       }
 
-      try{
+      try {
         let delete_see_also = await this.lexicalService.deleteLinguisticRelation(formId, parameters).toPromise();
         this.lexicalService.updateCoreCard(this.object)
         this.toastr.success('SeeAlso deleted', '', {
           timeOut: 5000,
         });
         this.lexicalService.refreshLinkCounter('-1')
-        
-      }catch(e){
+
+      } catch (e) {
         this.toastr.error(e.error, 'Error', {
           timeOut: 5000,
         });
         this.lexicalService.refreshLinkCounter('-1')
       }
-    
+
 
     } else if (this.object.senseInstanceName != undefined) {
       let senseId = this.object.senseInstanceName;
@@ -496,7 +498,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
 
       //console.log(parameters)
 
-      try{
+      try {
         let delete_see_also = await this.lexicalService.deleteLinguisticRelation(senseId, parameters).toPromise();
 
         this.lexicalService.updateCoreCard(this.object)
@@ -504,8 +506,8 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
           timeOut: 5000,
         });
         this.lexicalService.refreshLinkCounter('-1')
-        
-      }catch(e){
+
+      } catch (e) {
         this.toastr.error(e.error, 'Error', {
           timeOut: 5000,
         });
@@ -523,7 +525,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
 
       //console.log(parameters)
 
-      try{
+      try {
         let delete_see_also = await this.lexicalService.deleteLinguisticRelation(etymId, parameters).toPromise();
 
         this.lexicalService.updateCoreCard(this.object)
@@ -531,8 +533,8 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
           timeOut: 5000,
         });
         this.lexicalService.refreshLinkCounter('-1')
-        
-      }catch(e){
+
+      } catch (e) {
         this.toastr.error(e.error, 'Error', {
           timeOut: 5000,
         });
@@ -545,8 +547,11 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-      this.search_filter_subscriber.unsubscribe();
-      this.search_by_input_subscriber.unsubscribe();
+    this.search_filter_subscriber.unsubscribe();
+    this.search_by_input_subscriber.unsubscribe();
+
+    this.destroy$.next(true);
+    this.destroy$.complete();
   }
 
 }

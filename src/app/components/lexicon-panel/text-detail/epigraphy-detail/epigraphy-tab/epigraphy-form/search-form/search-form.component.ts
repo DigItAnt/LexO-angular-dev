@@ -17,7 +17,7 @@ import { NgSelectComponent } from '@ng-select/ng-select';
 import { data } from 'jquery';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, takeUntil } from 'rxjs/operators';
 import { AnnotatorService } from 'src/app/services/annotator/annotator.service';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
@@ -38,16 +38,16 @@ export class SearchFormComponent implements OnInit, OnDestroy {
   lexEntryTypesData: any;
   typesData: any;
   addTagFormText: any;
-  creator : any;
+  creator: any;
 
 
-  search_subscription : Subscription;
-  get_languages_subscription : Subscription;
-  get_morphology_subscription : Subscription;
-  get_lex_entry_type_subscription : Subscription;
-  get_form_type_subscription : Subscription;
+  search_subscription: Subscription;
+  get_languages_subscription: Subscription;
+  get_morphology_subscription: Subscription;
+  get_lex_entry_type_subscription: Subscription;
+  get_form_type_subscription: Subscription;
 
-  constructor(private formBuilder: FormBuilder, private modalService: NgbModal, private toastr: ToastrService, private annotatorService: AnnotatorService, private lexicalService: LexicalEntriesService, private expander: ExpanderService, private renderer: Renderer2, private auth : AuthService) { }
+  constructor(private formBuilder: FormBuilder, private modalService: NgbModal, private toastr: ToastrService, private annotatorService: AnnotatorService, private lexicalService: LexicalEntriesService, private expander: ExpanderService, private renderer: Renderer2, private auth: AuthService) { }
 
   @Input() bind;
   @ViewChild('addFormModal') addFormModal: any;
@@ -89,12 +89,14 @@ export class SearchFormComponent implements OnInit, OnDestroy {
     error: new FormControl(null)
   })
 
+  destroy$: Subject<boolean> = new Subject();
+
   ngOnInit(): void {
     setTimeout(() => {
       //console.log(this.select_form);
     }, 1000);
 
-    if(this.auth.getLoggedUser()['preferred_username'] != undefined){
+    if (this.auth.getLoggedUser()['preferred_username'] != undefined) {
       this.creator = this.auth.getLoggedUser()['preferred_username'];
     }
 
@@ -109,7 +111,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         this.onSearchFilter(data)
       }
     )
-    
+
     this.get_languages_subscription = this.lexicalService.getLexiconLanguages().subscribe(
       data => {
         this.languages = [];
@@ -270,7 +272,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       } catch (error) {
         console.log(error)
       }
-      
+
     }
 
   }
@@ -292,9 +294,8 @@ export class SearchFormComponent implements OnInit, OnDestroy {
 
   }
 
-  /* ngOnDestroy(){
-    this.lexicalService.
-  } */
+
+
 
   handleForm(evt) {
 
@@ -328,7 +329,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
     let selectionSpan = this.bind.spanSelection;
     let formValue = data.form;
 
-    if(this.creator == undefined){
+    if (this.creator == undefined) {
       this.creator = '';
     }
 
@@ -442,29 +443,29 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       console.log(data);
       this.bind.annotationArray.push(add_annotation_request.annotation);
 
-        if (!this.bind.isEmptyFile) {
-          this.bind.populateLocalAnnotation(tokenData);
-        } else {
-          this.bind.populateLocalAnnotation(add_annotation_request.annotation)
-        }
+      if (!this.bind.isEmptyFile) {
+        this.bind.populateLocalAnnotation(tokenData);
+      } else {
+        this.bind.populateLocalAnnotation(add_annotation_request.annotation)
+      }
 
 
-        if (!this.bind.isEmptyFile) {
-          this.bind.object.forEach(element => {
-            if (add_annotation_request.annotation.attributes.node_id == element.id) {
-              let positionElement = element.position;
-              let elementHTML = document.getElementsByClassName('token-' + (positionElement - 1))[0]
-              this.renderer.addClass(elementHTML, 'annotation');
-            }
-          });
-        }
+      if (!this.bind.isEmptyFile) {
+        this.bind.object.forEach(element => {
+          if (add_annotation_request.annotation.attributes.node_id == element.id) {
+            let positionElement = element.position;
+            let elementHTML = document.getElementsByClassName('token-' + (positionElement - 1))[0]
+            this.renderer.addClass(elementHTML, 'annotation');
+          }
+        });
+      }
 
 
-        this.toastr.success('New attestation created', 'Info', {
-          timeOut: 5000
-        })
+      this.toastr.success('New attestation created', 'Info', {
+        timeOut: 5000
+      })
     } catch (error) {
-      if(error.status != 200){
+      if (error.status != 200) {
         this.toastr.error('Error on create new attestation', 'Error', {
           timeOut: 5000
         })
@@ -637,10 +638,10 @@ export class SearchFormComponent implements OnInit, OnDestroy {
 
       //lexical entry creazion
       this.statusForm.get('lexicalEntryCreation').patchValue('pending', { emitEvent: false });
-      
+
       try {
         let new_lex_entry_request = await this.lexicalService.newLexicalEntry().toPromise();
-        
+
         this.statusForm.get('lexicalEntryCreation').patchValue('ok', { emitEvent: false })
         this.statusForm.get('attachingLanguage').patchValue('pending', { emitEvent: false })
 
@@ -656,7 +657,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
           let update_lang_new_lex_request = await this.lexicalService.updateLexicalEntry(lexId, parameters).toPromise();
         } catch (error) {
 
-          if(error.status == 200){
+          if (error.status == 200) {
             this.statusForm.get('attachingLanguage').patchValue('ok', { emitEvent: false });
             //attaching type
             this.statusForm.get('attachingType').patchValue('pending', { emitEvent: false });
@@ -669,7 +670,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
             try {
               let attach_type_req = await this.lexicalService.updateLexicalEntry(lexId, parameters).toPromise()
             } catch (error) {
-              if(error.status == 200){
+              if (error.status == 200) {
                 this.statusForm.get('attachingType').patchValue('ok', { emitEvent: false });
 
                 this.statusForm.get('attachingLabel').patchValue('pending', { emitEvent: false });
@@ -680,11 +681,11 @@ export class SearchFormComponent implements OnInit, OnDestroy {
                   value: label
                 };
 
-                try{
+                try {
                   let attach_label = await this.lexicalService.updateLexicalEntry(lexId, parameters).toPromise();
 
-                }catch(error){
-                  if(error.status == 200){
+                } catch (error) {
+                  if (error.status == 200) {
                     this.statusForm.get('attachingLabel').patchValue('ok', { emitEvent: false });
                     //attaching pos
                     this.statusForm.get('attachingPos').patchValue('pending', { emitEvent: false });
@@ -699,7 +700,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
                     try {
                       let attach_pos = await this.lexicalService.updateLinguisticRelation(lexId, parameters).toPromise();
                     } catch (error) {
-                      if(error.status == 200){
+                      if (error.status == 200) {
                         this.statusForm.get('attachingPos').patchValue('ok', { emitEvent: false });
 
                         //creating form
@@ -724,7 +725,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
                           try {
                             let attach_written_rep = await this.lexicalService.updateForm(formId, parameters).toPromise();
                           } catch (error) {
-                            if(error.status == 200){
+                            if (error.status == 200) {
                               this.statusForm.get('attachingWrittenForm').patchValue('ok', { emitEvent: false });
                               //attach type to form
                               this.statusForm.get('attachingFormType').patchValue('pending', { emitEvent: false });
@@ -732,7 +733,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
 
                               let parameters = {
                                 relation: 'type',
-                                value : typeForm
+                                value: typeForm
                               }
 
                               try {
@@ -740,38 +741,38 @@ export class SearchFormComponent implements OnInit, OnDestroy {
                                 this.statusForm.get('attachingFormType').patchValue('ok', { emitEvent: false });
                                 this.statusForm.get('finish').patchValue('ok', { emitEvent: false });
                               } catch (error) {
-                                if(error.status == 200){
+                                if (error.status == 200) {
                                   this.statusForm.get('attachingFormType').patchValue('ok', { emitEvent: false });
                                   this.statusForm.get('finish').patchValue('ok', { emitEvent: false });
-                                }else{
-                                  this.toastr.error("Error on attaching form type", "Error", {timeOut: 5000})
+                                } else {
+                                  this.toastr.error("Error on attaching form type", "Error", { timeOut: 5000 })
                                 }
                               }
 
-                            }else{
-                              this.toastr.error("Error on attaching writtenRep", "Error", {timeOut: 5000})
+                            } else {
+                              this.toastr.error("Error on attaching writtenRep", "Error", { timeOut: 5000 })
                             }
                           }
                         } catch (error) {
-                          this.toastr.error("Error on creating new form", "Error", {timeOut: 5000})
+                          this.toastr.error("Error on creating new form", "Error", { timeOut: 5000 })
                         }
-                      }else{
-                        this.toastr.error("Error on attaching POS", "Error", {timeOut:5000})
+                      } else {
+                        this.toastr.error("Error on attaching POS", "Error", { timeOut: 5000 })
                       }
                     }
-                  }else{
-                    this.toastr.error("Error on attaching label", "Error", {timeOut: 5000})
+                  } else {
+                    this.toastr.error("Error on attaching label", "Error", { timeOut: 5000 })
                   }
                 }
-              }else{
-                this.toastr.error("Error on attaching type", "Error", {timeOut: 5000})
+              } else {
+                this.toastr.error("Error on attaching type", "Error", { timeOut: 5000 })
               }
-              
+
             }
-          }else{
+          } else {
             this.toastr.error(error.error.message, "Error")
           }
-          
+
         }
       } catch (error) {
         this.toastr.error("Error on creating lexical entry", "Error")
@@ -800,9 +801,9 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         }
 
         try {
-          let attach_written_rep = await this.lexicalService.updateForm(formId, parameters).toPromise(); 
+          let attach_written_rep = await this.lexicalService.updateForm(formId, parameters).toPromise();
         } catch (error) {
-          if(error.status == 200){
+          if (error.status == 200) {
             this.statusForm.get('attachingWrittenForm').patchValue('ok', { emitEvent: false });
             //attach type to form
             this.statusForm.get('attachingFormType').patchValue('pending', { emitEvent: false });
@@ -810,7 +811,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
 
             let parameters = {
               relation: 'type',
-              value : typeForm
+              value: typeForm
             }
 
             try {
@@ -818,31 +819,33 @@ export class SearchFormComponent implements OnInit, OnDestroy {
               this.statusForm.get('attachingFormType').patchValue('ok', { emitEvent: false });
               this.statusForm.get('finish').patchValue('ok', { emitEvent: false });
             } catch (error) {
-              if(error.status == 200){
+              if (error.status == 200) {
                 this.statusForm.get('attachingFormType').patchValue('ok', { emitEvent: false });
                 this.statusForm.get('finish').patchValue('ok', { emitEvent: false });
-              }else{
-                this.toastr.error("Error on attaching type", "Error", {timeOut: 5000})
+              } else {
+                this.toastr.error("Error on attaching type", "Error", { timeOut: 5000 })
               }
             }
-          }else{
-            this.toastr.error("Error on attaching writtenRep", "Error", {timeOut : 5000})
+          } else {
+            this.toastr.error("Error on attaching writtenRep", "Error", { timeOut: 5000 })
           }
         }
       } catch (error) {
-        if(error.status != 200){
-          this.toastr.error("Error on creating new form", "Error", {timeOut: 5000});
+        if (error.status != 200) {
+          this.toastr.error("Error on creating new form", "Error", { timeOut: 5000 });
         }
-      } 
+      }
     }
   }
 
   ngOnDestroy(): void {
-      this.search_subscription.unsubscribe();
-      this.get_languages_subscription.unsubscribe();
-      this.get_morphology_subscription.unsubscribe();
-      this.get_lex_entry_type_subscription.unsubscribe();
-      this.get_form_type_subscription.unsubscribe();
+    this.search_subscription.unsubscribe();
+    this.get_languages_subscription.unsubscribe();
+    this.get_morphology_subscription.unsubscribe();
+    this.get_lex_entry_type_subscription.unsubscribe();
+    this.get_form_type_subscription.unsubscribe();
+    this.destroy$.next(true);
+    this.destroy$.complete();
   }
 
 }
