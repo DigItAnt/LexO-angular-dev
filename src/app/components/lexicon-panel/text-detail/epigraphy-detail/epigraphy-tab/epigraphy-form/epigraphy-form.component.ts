@@ -221,8 +221,10 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
     setTimeout(() => {
       /* console.log(event.path) */
+
       let evtPath = Array.from(event.path)
       //console.log(this.selectedPopover.htmlNodeName)
+
       let htmlNode = document.getElementById(this.selectedPopover.htmlNodeName)
       console.log
       let tokenId = this.selectedPopover.tokenId;

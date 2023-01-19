@@ -44,15 +44,15 @@ export class LexicalEntriesService {
   private _triggerLexicalEntryTree : BehaviorSubject<object> = new BehaviorSubject(null);
   private _triggerSameAs : BehaviorSubject<object> = new BehaviorSubject(null);
 
+  morphologyData;
 
-  private baseUrl = "/LexO-backend-itant/service/"
+  private baseUrl = "/LexO-backend-itant_demo/service/"
   private key = "PRINitant19";
   private author = "";
 
   coreData$ = this._coreFormData.asObservable();
   decompData$ = this._decompData.asObservable();
   attestationPanelData$ = this._attestationPanelData.asObservable();
-  /* vartransData = this._vartransData.asObservable(); */
   etymologyData$ = this._etymologyData.asObservable();
   rightPanelData$ = this._rightPanelData.asObservable();
   deleteReq$ = this._deleteLexicalEntryReq.asObservable();
@@ -92,9 +92,6 @@ export class LexicalEntriesService {
     this._changeDecompLabel.next(string);
   }
   
-  /* sendToVartransTab(object: object) {
-    this._vartransData.next(object)
-  } */
 
   sendToRightTab(object: object) {
     this._rightPanelData.next(object);
@@ -300,8 +297,8 @@ export class LexicalEntriesService {
   }
 
   //GET  /lexinfo/data/morphology --> get data about morphology
-  getMorphologyData(): Observable<any> {
-    return this.http.get(this.baseUrl + "lexinfo/data/morphology");
+  getMorphologyData() : Observable<object[]> {
+    return this.http.get<object[]>(this.baseUrl + "lexinfo/data/morphology");
   }
 
   ///GET /ontolex/data/formType --> get data about form types
@@ -310,8 +307,8 @@ export class LexicalEntriesService {
   }
 
   ///GET /ontolex/data/lexicalEntryType --> get data about lexicalEntry types
-  getLexEntryTypes(): Observable<any> {
-    return this.http.get(this.baseUrl + "ontolex/data/lexicalEntryType");
+  getLexEntryTypes(): Observable<object[]> {
+    return this.http.get<object[]>(this.baseUrl + "ontolex/data/lexicalEntryType");
   }
 
 

@@ -172,9 +172,9 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 this.onSearchFilter(data)
             }
         )
-
-        this.loadMorphologyData();
-        this.loadLexEntryTypeData();
+        
+        
+        //this.lexEntryTypesData = await this.lexicalService.getMorphologyData().toPromise();
 
         this.coreForm = this.formBuilder.group({
             label: '',
@@ -208,16 +208,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
         }
     }
 
-    loadLexEntryTypeData() {
-        this.lexicalService.getLexEntryTypes().pipe(takeUntil(this.destroy$)).subscribe(
-            data => {
-                this.lexEntryTypesData = data;
-
-            }, error => {
-                console.log(error)
-            }
-        )
-    }
+    
 
     onSearchFilter(data) {
         this.filterLoading = true;
@@ -247,10 +238,14 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 data => {
                     console.log(data)
 
-                    let filter_lang = data.list.filter(
-                        x => {
-                            return x.language != this.object.language;
+                    let filter_lang = data.list.filter(this.lexicalService.getMorphologyData().pipe(takeUntil(this.destroy$)).subscribe(
+                        data => {
+                            
+            
+                        },error=>{
+                            console.log(error)
                         }
+                    )
                     )
                     filter_lang.forEach(element => {
                         element['label_lang'] = element.label + "@" + element.language
@@ -321,26 +316,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
         this.searchResults = [];
     }
 
-    loadMorphologyData() {
-        this.lexicalService.getMorphologyData().pipe(takeUntil(this.destroy$)).subscribe(
-            data => {
-                this.morphologyData = data;
-                /* //console.log(this.morphologyData) */
-                this.valuePos = this.morphologyData.filter(x => {
-                    if (x.propertyId == 'partOfSpeech') {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                })
-
-                this.valuePos = this.valuePos[0]['propertyValues'];
-
-            },error=>{
-                console.log(error)
-            }
-        )
-    }
+   
 
 
     ngOnChanges(changes: SimpleChanges) {
@@ -424,7 +400,8 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
                 /*  //console.log('MORFOLOGIA')
                  //console.log(this.object.morphology) */
-                setTimeout(() => {
+                setTimeout(async () => {
+                    this.morphologyData = await this.lexicalService.getMorphologyData().toPromise();
                     for (var i = 0; i < this.object.morphology.length; i++) {
                         const trait = this.object.morphology[i]['trait'];
                         const value = this.object.morphology[i]['value'];
@@ -447,43 +424,34 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                         })
 
                         this.memoryValues[i] = value;
-
+                        this.valuePos = this.morphologyData.filter(x => {
+                            if (x.propertyId == 'partOfSpeech') {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        })
+                
+                        this.valuePos = this.valuePos[0]['propertyValues'];
+                        let pos = this.coreForm.get('pos').value;
+                        this.valuePos.forEach(el => {
+                            if (el.valueId == pos) {
+                
+                                this.posDescription = el.valueDescription;
+                            }
+                        })
                         this.addMorphoTraits(trait, value, traitDescription);
                         this.onChangeTrait(trait, i);
 
                         this.staticMorpho.push({ trait: trait, value: value });
 
                     }
-                }, 1);
+                }, 50);
 
+                
 
-                setTimeout(() => {
-                    let pos = this.coreForm.get('pos').value;
-                    this.valuePos.forEach(el => {
-                        if (el.valueId == pos) {
-
-                            this.posDescription = el.valueDescription;
-                        }
-                    })
-                    //@ts-ignore
-                    $('.pos-tooltip').tooltip({
-                        trigger: 'hover'
-                    });
-
-
-                }, 1);
-
-                setTimeout(() => {
-
-                    //@ts-ignore
-                    $('.trait-tooltip').tooltip({
-                        trigger: 'hover'
-                    });
-
-
-                }, 1000);
-
-                setTimeout(() => {
+                setTimeout(async () => {
+                    this.lexEntryTypesData = await this.lexicalService.getLexEntryTypes().toPromise();
                     let type = this.coreForm.get('type').value;
                     this.lexEntryTypesData.forEach(el => {
                         if (el.valueId == type) {
@@ -491,13 +459,10 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                             this.typeDesc = el.valueDescription;
                         }
                     })
-                    //@ts-ignore
-                    $('.type-tooltip').tooltip({
-                        trigger: 'hover'
-                    });
+                    
 
 
-                }, 1);
+                }, 100);
 
                 this.lexicalService.getLexEntryLinguisticRelation(lexId, 'denotes').pipe(takeUntil(this.destroy$)).subscribe(
                     data => {

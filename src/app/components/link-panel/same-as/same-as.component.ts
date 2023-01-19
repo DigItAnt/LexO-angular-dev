@@ -37,7 +37,7 @@ export class SameAsComponent implements OnInit, OnDestroy {
 
   sameas_subscription: Subscription;
 
-  destroy$
+  destroy$ : Subject<any> = new Subject();
 
   @ViewChildren('sameAsSelect') sameAsList: QueryList<NgSelectComponent>;
 

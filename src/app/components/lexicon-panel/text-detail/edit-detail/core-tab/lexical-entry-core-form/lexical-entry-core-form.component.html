@@ -58,8 +58,7 @@
                     </option>
                 </select>
                 <div class="input-group-append ml-2">
-                    <button *ngIf="!variable.etymon" class="btn btn-secondary type-tooltip" type="button" data-toggle="tooltip"
-                    data-placement="top" data-trigger="hover" [attr.data-original-title]="typeDesc"
+                    <button *ngIf="!variable.etymon" class="btn btn-secondary type-tooltip" type="button" placement="top" container="body" [ngbTooltip]="typeDesc"
                         style="font-size: 12px; border-radius: .25rem;"><i class="fas fa-question"></i></button>
                     <button *ngIf="variable.etymon" class="btn btn-secondary type-tooltip" type="button" data-toggle="tooltip"
                     data-placement="top" data-trigger="hover" title="Etymon' is a subclass of Lexical Entry that consists of individuals whose role is to describe the origin and history of another Lexical Entry."
@@ -108,8 +107,7 @@
                                     {{item.valueId}}</option>
                             </select>
                             <div class="input-group-append ml-2">
-                                <button class="btn btn-secondary pos-tooltip" type="button" data-toggle="tooltip"
-                                data-placement="top" data-trigger="hover" [attr.data-original-title]="posDescription"
+                                <button class="btn btn-secondary pos-tooltip" type="button" placement="top" container="body" [ngbTooltip]="posDescription"
                                     style="font-size: 12px; border-radius: .25rem;"><i class="fas fa-question"></i></button>
                             </div>
 

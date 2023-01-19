@@ -83,17 +83,8 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
             return false
           }
         })
-        /* //console.log(this.morphologyData) */
       }
     )
-
-    setTimeout(() => {
-      //@ts-ignore
-      $('.denotes-tooltip').tooltip({
-        trigger: 'hover'
-      });
-    }, 1000);
-    this.loadPeople();
 
     this.formCore = this.formBuilder.group({
       inheritance: this.formBuilder.array([]),
@@ -130,13 +121,6 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
 
   }
 
-  private loadPeople() {
-    this.peopleLoading = true;
-    /* this.dataService.getPeople().subscribe(x => {
-      this.people = x;
-      this.peopleLoading = false;
-    }); */
-  }
 
   ngOnChanges(changes: SimpleChanges) {
     setTimeout(() => {
@@ -154,7 +138,6 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
         this.staticOtherDef = [];
       }
       this.object = changes.formData.currentValue;
-      //console.log(this.object)
       if (this.object != null) {
 
         this.valueTraits = [];
@@ -196,7 +179,8 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
 
         }
 
-        setTimeout(() => {
+        setTimeout(async () => {
+          this.morphologyData = await this.lexicalService.getMorphologyData().toPromise();
           for (var i = 0; i < this.object.morphology.length; i++) {
             const trait = this.object.morphology[i]['trait'];
             const value = this.object.morphology[i]['value'];
@@ -225,7 +209,8 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
         }, 1);
 
 
-        setTimeout(() => {
+        setTimeout(async () => {
+          this.typesData = await this.lexicalService.getFormTypes().toPromise();
           let type = this.formCore.get('type').value;
           this.typesData.forEach(el => {
             if (el.valueId == type) {
@@ -233,23 +218,12 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
               this.typeDesc = el.valueDescription;
             }
           })
-          //@ts-ignore
-          $('.type-tooltip').tooltip({
-            trigger: 'hover'
-          });
+         
 
 
         }, 1000);
 
-        setTimeout(() => {
 
-          //@ts-ignore
-          $('.trait-tooltip').tooltip({
-            trigger: 'hover'
-          });
-
-
-        }, 1000);
       }
     }, 1)
 
