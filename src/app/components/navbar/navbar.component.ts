@@ -12,6 +12,7 @@ You should have received a copy of the GNU General Public License along with Epi
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { KeycloakEventType, KeycloakService } from 'keycloak-angular';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth/auth.service';
@@ -28,7 +29,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   kc_subscriber : Subscription;
 
-  constructor(private route: ActivatedRoute, private router: Router, private keycloakService: KeycloakService, private auth : AuthService) { }
+  constructor(private route: ActivatedRoute, 
+              private router: Router, 
+              private keycloakService: KeycloakService, 
+              private auth : AuthService,
+              private modalService : NgbModal) { }
 
   ngOnInit(): void {
     if(this.auth.getLoggedUser() != undefined){
@@ -62,5 +67,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
       this.kc_subscriber.unsubscribe();
+  }
+
+  getDateNow() {
+    return new Date();
   }
 }

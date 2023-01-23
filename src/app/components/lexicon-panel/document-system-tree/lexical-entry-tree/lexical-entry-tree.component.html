@@ -14,10 +14,10 @@
         <div id="buttons-container" class="input-group-append">
             <button class="btn  btn-sm btn-info btn-block filter-button" type="button" data-toggle="popover"
                 data-placement="bottom" data-trigger="hover"><i class="fa fa-question"></i></button>
-            <button class="btn btn-sm btn-secondary btn-block filter-button" type="button" value="Filter" title="Filter"
-                data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false"
+            <button  class="btn btn-sm btn-secondary btn-block filter-button" type="button" value="Filter" title="Filter"
+                container="body" placement="bottom" ngbTooltip="Show lexical entries filter" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false"
                 aria-controls="filterCollapse"><i class="fa fa-filter"></i></button>
-            <button class="btn btn-sm btn-danger btn-block reset-button" type="button" value="Reset" title="Reset"
+            <button container="body" placement="right" ngbTooltip="Reset form fields" class="btn btn-sm btn-danger btn-block reset-button" type="button" value="Reset" title="Reset"
                 (click)="resetFields();" style="border-top-right-radius: .25rem; border-bottom-right-radius: .25rem;"><i
                     class="fa fa-times"></i></button>
             <button class="btn btn-block counter-button" type="button"><span

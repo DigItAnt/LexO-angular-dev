@@ -12,7 +12,7 @@
                     <i class="fa"></i> Text
                 </button>
                 <div class="icons-container dropdown">
-                    <button class="btn btn-link" type="button" id="textTreeActionDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-plus"></i></button>
+                    <button container="body" placement="right" ngbTooltip="Add new file / folder / empty file" class="btn btn-link" type="button" id="textTreeActionDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-plus"></i></button>
                     <!-- <button class="btn btn-link"><i class="fa fa-file-import"></i></button>
                     <button class="btn btn-link"><i class="fa fa-download"></i></button>
                     <button class="btn btn-link" title="Language"><i class="fa fa-globe-americas"></i></button> -->
@@ -43,15 +43,15 @@
                     <i class="fa"></i> Lexicon
                 </button>
                 <div class="icons-container">
-                    <button
+                    <button placement="bottom" [ngbTooltip]="switcher ? 'Enable label view' : 'Disable label view'"
                         [ngStyle]="switcher ? {'background-color': '#007bff', 'color': 'rgb(247 247 247)'} : {'background-color': 'transparent', 'color': '#007bff'}"
                         class="btn btn-link" title="Switch to label view"
                         (click)="switchLabel(); updateTreeParent();"><i class="fas fa-tag"></i></button>
-                    <button class="btn btn-link" title="Add new lexical entry" (click)="newLexicalEntry()"><i
+                    <button placement="bottom" ngbTooltip="Add new lexical entry" class="btn btn-link" title="Add new lexical entry" (click)="newLexicalEntry()"><i
                             class="fa fa-plus"></i></button>
-                    <button class="btn btn-link" title="Export" (click)="exportLexicon();"><i class="fa fa-file-import"></i></button>
+                    <button placement="bottom" ngbTooltip="Export entire lexicon" class="btn btn-link" title="Export" (click)="exportLexicon();"><i class="fa fa-file-import"></i></button>
                     <!-- <button class="btn btn-link" title="Download"><i class="fa fa-download"></i></button> -->
-                    <button class="btn btn-link" title="Edit Languages" (click)="selectLanguageModal.show(); triggerLoad();"><i
+                    <button placement="bottom" ngbTooltip="Open language manager" class="btn btn-link" title="Edit Languages" (click)="selectLanguageModal.show(); triggerLoad();"><i
                             class="fas fa-flag-usa"></i></button>
 
                     <app-modal #selectLanguageModal class="languages_modal">

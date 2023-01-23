@@ -76,7 +76,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
     disableAddMorpho = false;
 
     coreForm = new FormGroup({
-        label: new FormControl('', [Validators.required, Validators.minLength(3)]),
+        label: new FormControl('', [Validators.required, Validators.minLength(2)]),
         type: new FormControl(''),
         confidence: new FormControl(null),
         language: new FormControl('', [Validators.required, Validators.minLength(0)]),
@@ -359,7 +359,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 if (this.object.confidence == 0) {
                     this.coreForm.get('confidence').setValue(true, { emitEvent: false });
                 } else {
-                    this.coreForm.get('confidence').setValue(false, { emitEvent: false });
+                    this.coreForm.get('confidence').setValue(null, { emitEvent: false });
                 }
 
 
@@ -856,7 +856,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
         this.coreForm.get("label").valueChanges.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
             updatedLabel => {
-                if (updatedLabel.length > 2 && updatedLabel.trim() != '') {
+                if (updatedLabel.length >= 2 && updatedLabel.trim() != '') {
                     this.emptyLabelFlag = false;
                     this.lexicalService.spinnerAction('on');
                     let lexId = this.object.lexicalEntryInstanceName;

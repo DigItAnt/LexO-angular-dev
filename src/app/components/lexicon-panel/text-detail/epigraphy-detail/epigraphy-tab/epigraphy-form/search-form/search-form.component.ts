@@ -127,7 +127,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
 
         let morphoData = data;
 
-        this.morphologyData = morphoData.filter(x => {
+        this.morphologyData = morphoData.filter((x : any) => {
           if (x.propertyId == 'partOfSpeech') {
             return true;
           } else {
