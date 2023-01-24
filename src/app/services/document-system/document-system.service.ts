@@ -19,8 +19,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 })
 export class DocumentSystemService {
 
-  private baseUrl_document = "/cash/"
-  //private baseUrl_document = "https://lari2.ilc.cnr.it/cash/"
+  private baseUrl_document = "/cash_demo/api/"
 
   private _epigraphyData: BehaviorSubject<object> = new BehaviorSubject(null);
   private _epigraphyTextData: BehaviorSubject<string> = new BehaviorSubject(null);
@@ -64,87 +63,87 @@ export class DocumentSystemService {
 
   //GET /api/getDocumentSystem  ---> return document system
   getDocumentSystem(): Observable<any> {
-    return this.http.get(this.baseUrl_document + "api/getDocumentSystem?requestUUID=11")
+    return this.http.get(this.baseUrl_document + "public/getDocumentSystem?requestUUID=11")
   }
 
   //POST ​/api​/crud​/addFolder --> add folder to document system
   addFolder(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "api/crud/addFolder", parameters)
+    return this.http.post(this.baseUrl_document + "crud/addFolder", parameters)
   }
 
   //POST ​/api​/crud​/removeFolder --> remove Folder folder from document system
   removeFolder(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "api/crud/removeFolder", parameters)
+    return this.http.post(this.baseUrl_document + "crud/removeFolder", parameters)
   }
 
   //POST ​/api​/crud​/moveFolder --> move Folder to another folder
   moveFolder(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "api/crud/moveFolder", parameters)
+    return this.http.post(this.baseUrl_document + "crud/moveFolder", parameters)
   }
 
   //POST ​/api​/crud​/renameFolder --> rename folder
   renameFolder(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "api/crud/renameFolder", parameters)
+    return this.http.post(this.baseUrl_document + "crud/renameFolder", parameters)
   }
 
 
   //POST ​/api​/crud​/uploadFile --> upload text
   uploadFile(parameters, element_id, request_uuid): Observable<any> {
-    return this.http.post(this.baseUrl_document + "api/crud/uploadFile?requestUUID="+request_uuid+"&element-id="+element_id+"", parameters)
+    return this.http.post(this.baseUrl_document + "crud/uploadFile?requestUUID="+request_uuid+"&element-id="+element_id+"", parameters)
   }
 
   //POST ​/api​/crud​/removeFile --> upload text
   removeFile(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "api/crud/removeFile", parameters)
+    return this.http.post(this.baseUrl_document + "crud/removeFile", parameters)
   }
 
   //POST ​/api​/crud​/renameFile --> upload text
   renameFile(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "api/crud/renameFile", parameters)
+    return this.http.post(this.baseUrl_document + "crud/renameFile", parameters)
   }
 
   //POST ​/api​/crud​/moveFileTo --> move file to another folder
   moveFileTo(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "api/crud/moveFileTo", parameters)
+    return this.http.post(this.baseUrl_document + "crud/moveFileTo", parameters)
   }
 
   //POST ​/api​/crud​/copyFileTo --> move file to another folder
   copyFileTo(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "api/crud/copyFileTo", parameters)
+    return this.http.post(this.baseUrl_document + "crud/copyFileTo", parameters)
   }
 
   //POST ​/api​/crud​/downloadFile --> move file to another folder
   downloadFile(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "api/crud/downloadFile", parameters)
+    return this.http.post(this.baseUrl_document + "crud/downloadFile", parameters)
   }
 
   //POST ​/api​/crud​/updateMetadata --> move file to another folder
   updateMetadata(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "api/crud/updateMetadata", parameters)
+    return this.http.post(this.baseUrl_document + "crud/updateMetadata", parameters)
   }
   
   //POST ​/api​/crud​/deleteMetadata --> move file to another folder
   deleteMetadata(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "api/crud/deleteMetadata", parameters)
+    return this.http.post(this.baseUrl_document + "crud/deleteMetadata", parameters)
   }
 
   //POST ​/api​/crud​/searchFiles --> move file to another folder
   searchFiles(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "api/searchFiles", parameters)
+    return this.http.post(this.baseUrl_document + "public/searchFiles", parameters)
   }
 
   //POST ​/api​/crud​/createFile --> create file
   createFile(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "api/crud/createFile", parameters)
+    return this.http.post(this.baseUrl_document + "crud/createFile", parameters)
   }
 
 
   getContent(nodeId) : Observable<any> {
-    return this.http.get(this.baseUrl_document + "api/v1/getcontent?requestUUID=11&nodeid="+nodeId);
+    return this.http.get(this.baseUrl_document + "public/getcontent?requestUUID=11&nodeid="+nodeId);
   }
 
 
   testConvert(parameters) : Observable<any> {
-    return this.http.post('/leiden/', parameters);
+    return this.http.post('/leiden_demo/', parameters);
   }
 }

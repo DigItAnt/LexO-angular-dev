@@ -20,7 +20,7 @@ export class AuthGuard extends KeycloakAuthGuard {
     
     if (!this.authenticated) {
       await this.keycloak.login({
-        redirectUri: window.location.origin + state.url, /* aggiungere '/epilexo/' in produzione */
+        redirectUri: window.location.origin  + state.url, /* aggiungere '/epilexo/' in produzione */
       });
     }
 

@@ -18,8 +18,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class AnnotatorService {
-  //private baseUrl = "https://lari2.ilc.cnr.it/cash/api/v1/"
-  private baseUrl = "/cash/api/v1/"
+  private baseUrl = "/cash_demo/api/"
 
 
   constructor(private http: HttpClient) { }
@@ -67,11 +66,11 @@ export class AnnotatorService {
   }
 
   getTokens(id: number) : Observable<any> {
-    return this.http.get(this.baseUrl + 'token?requestUUID=test123&nodeid='+id);
+    return this.http.get(this.baseUrl + 'public/token?requestUUID=test123&nodeid='+id);
   }
 
   getText(id: number) : Observable<any> {
-    return this.http.get(this.baseUrl + 'gettext?requestUUID=test123&nodeid='+id);
+    return this.http.get(this.baseUrl + 'public/gettext?requestUUID=test123&nodeid='+id);
   }
 
   addAnnotation(parameters : object, id : number) : Observable<any>{
@@ -79,7 +78,7 @@ export class AnnotatorService {
   }
 
   getAnnotation(id : number) : Observable<any>{
-    return this.http.get(this.baseUrl + 'annotation?requestUUID=test123&nodeid='+id);
+    return this.http.get(this.baseUrl + 'public/annotation?requestUUID=test123&nodeid='+id);
   }
 
   deleteAnnotation(id: number) : Observable<any> {
