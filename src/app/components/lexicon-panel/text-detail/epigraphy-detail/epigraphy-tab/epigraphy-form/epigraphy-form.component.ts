@@ -36,13 +36,13 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
   object: any;
   tokenArray: FormArray;
   textEpigraphy = '';
-  leidenLines : any;
+  leidenLines: any;
 
-  epigraphy_text_subscription : Subscription;
-  leiden_subscription : Subscription;
-  translation_subscription : Subscription;
-  delete_annotation_subscription : Subscription;
-  
+  epigraphy_text_subscription: Subscription;
+  leiden_subscription: Subscription;
+  translation_subscription: Subscription;
+  delete_annotation_subscription: Subscription;
+
   private bind_subject: Subject<any> = new Subject();
   searchResults = [];
   memoryForms = [];
@@ -60,12 +60,12 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
   isOpen = false;
   bind = this;
   @ViewChildren('span_modal') spanPopovers: QueryList<any>;
-  @ViewChild('search_form') searchForm : SearchFormComponent;
+  @ViewChild('search_form') searchForm: SearchFormComponent;
 
   //@ViewChild('span_modal') spanPopover: ElementRef;
 
 
-  
+
   epigraphyForm = new FormGroup({
     tokens: new FormArray([this.createToken()]),
   })
@@ -82,116 +82,121 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
   isEmptyFile = false;
 
-  destroy$ : Subject<boolean> = new Subject();
+  destroy$: Subject<boolean> = new Subject();
 
   @HostListener('document:mouseup', ['$event'])
   onMouseUp(event): void {
     setTimeout(() => {
-      let evtPath = Array.from(event.path);
-      let isMultiwordRequest = false;
-      evtPath.some((element: HTMLElement) => {
-        //console.log(element)
-        if (element.classList != undefined) {
-          if (element.classList.contains('ok-button')) {
-            isMultiwordRequest = true;
-            return true;
+      try {
+        let evtPath = Array.from(event.path);
+        let isMultiwordRequest = false;
+        evtPath.some((element: HTMLElement) => {
+          //console.log(element)
+          if (element.classList != undefined) {
+            if (element.classList.contains('ok-button')) {
+              isMultiwordRequest = true;
+              return true;
+            } else {
+              isMultiwordRequest
+              return false;
+            }
           } else {
-            isMultiwordRequest
             return false;
           }
-        } else {
-          return false;
-        }
-      })
+        })
 
-      
-      let event_el;
 
-      if (isMultiwordRequest) {
-        let multiWordArray = Array.from(document.getElementsByClassName('multiword'));
-        multiWordArray.forEach(element => {
-          let children = Array.from(element.children);
-          children.forEach(subchild => {
-            if (subchild.classList.contains('multiword-button')) {
-              event_el = element.children
-              subchild.remove();
+        let event_el;
+
+        if (isMultiwordRequest) {
+          let multiWordArray = Array.from(document.getElementsByClassName('multiword'));
+          multiWordArray.forEach(element => {
+            let children = Array.from(element.children);
+            children.forEach(subchild => {
+              if (subchild.classList.contains('multiword-button')) {
+                event_el = element.children
+                subchild.remove();
+              }
+            })
+          });
+          document.querySelectorAll('.multiword').forEach(element => {
+            this.renderer.removeClass(element, 'multiword');
+            this.renderer.addClass(element, 'multiword-span-' + 1);
+
+            let prev = element.previousElementSibling;
+            let next = element.nextElementSibling;
+
+            if (prev != undefined) {
+              if (prev.classList != undefined) {
+                let classNames = prev.className;
+                let matchTest = /(^|\s)(multiword-span-\d)(\s|$)/.test(classNames)
+                if (matchTest) {
+                  this.renderer.addClass(element, 'border-left-0')
+                }
+              }
+            } else if (next != undefined) {
+              if (next.classList != undefined) {
+                let classNames = next.className;
+                let matchTest = /(^|\s)(multiword-span-\d)(\s|$)/.test(classNames)
+                if (matchTest) {
+                  this.renderer.addClass(element, 'border-right-0')
+                }
+              }
             }
           })
-        });
-        document.querySelectorAll('.multiword').forEach(element => {
-          this.renderer.removeClass(element, 'multiword');
-          this.renderer.addClass(element, 'multiword-span-' + 1);
-          
-          let prev = element.previousElementSibling;
-          let next = element.nextElementSibling;
 
-          if (prev != undefined) {
-            if (prev.classList != undefined) {
-              let classNames = prev.className;
-              let matchTest = /(^|\s)(multiword-span-\d)(\s|$)/.test(classNames)
-              if (matchTest) {
-                this.renderer.addClass(element, 'border-left-0')
-              }
-            }
-          } else if (next != undefined) {
-            if (next.classList != undefined) {
-              let classNames = next.className;
-              let matchTest = /(^|\s)(multiword-span-\d)(\s|$)/.test(classNames)
-              if (matchTest) {
-                this.renderer.addClass(element, 'border-right-0')
-              }
-            }
-          }
-        })
+          let position_popover;
 
-        let position_popover;
-      
-        Array.from(event_el).forEach(
-          (element : HTMLElement)=>{
-            position_popover = element.getAttribute('position');
-            return;
-          }
-        )
-        
-        this.message = '';
-        
-        this.spanPopovers.toArray()[position_popover-1].open();
-        
-        let popover_id = this.spanPopovers.toArray()[position_popover-1]._ngbPopoverWindowId;
-        this.selectedPopover.tokenId = (position_popover -1).toString();
-        this.annotatorService.triggerSearch(null);
-        this.selectedPopover.htmlNodeName = popover_id;
-        let multiwordSpan = Array.from(document.querySelectorAll("[class*=multiword-span-]"));
-        let spansArray = [];
-        multiwordSpan.forEach(element => {
-          let children = Array.from(element.children);
-          children.forEach(
-            span=>{
-              let position = parseInt(span.getAttribute('position'));
-              let object = {
-                start : this.object[position-1].begin,
-                end : this.object[position-1].end
-              }
-              
-              spansArray.push(object)
+          Array.from(event_el).forEach(
+            (element: HTMLElement) => {
+              position_popover = element.getAttribute('position');
+              return;
             }
           )
-        })
 
-        console.log(spansArray);
-        this.spanSelection = spansArray;
-        
-        
-      } else {
-        if (!this.multiWordMode) {
+          this.message = '';
 
-          //console.log(document.querySelectorAll('.token'))
-          document.querySelectorAll('.multiword').forEach(element => {
-            this.renderer.removeClass(element, 'multiword')
-            this.renderer.removeClass(element, 'border-right-0');
-          });
+          this.spanPopovers.toArray()[position_popover - 1].open();
+
+          let popover_id = this.spanPopovers.toArray()[position_popover - 1]._ngbPopoverWindowId;
+          this.selectedPopover.tokenId = (position_popover - 1).toString();
+          this.annotatorService.triggerSearch(null);
+          this.selectedPopover.htmlNodeName = popover_id;
+          let multiwordSpan = Array.from(document.querySelectorAll("[class*=multiword-span-]"));
+          let spansArray = [];
+          multiwordSpan.forEach(element => {
+            let children = Array.from(element.children);
+            children.forEach(
+              span => {
+                let position = parseInt(span.getAttribute('position'));
+                let object = {
+                  start: this.object[position - 1].begin,
+                  end: this.object[position - 1].end
+                }
+
+                spansArray.push(object)
+              }
+            )
+          })
+
+          console.log(spansArray);
+          this.spanSelection = spansArray;
+
+
+        } else {
+          if (!this.multiWordMode) {
+
+            //console.log(document.querySelectorAll('.token'))
+            document.querySelectorAll('.multiword').forEach(element => {
+              this.renderer.removeClass(element, 'multiword')
+              this.renderer.removeClass(element, 'border-right-0');
+            });
+          }
         }
+      } catch (error) {
+        console.log(error)
       }
+
     }, 10);
   }
 
@@ -208,11 +213,11 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
       if (index != '') {
         //console.log(this.config)
         let popover = this.spanPopovers.toArray()[index];
-       /*  if (popover.isOpen()) {
-          //console.log(popover.isOpen())
-          //console.log(popover)
-          //popover.autoClose = false;
-        } */
+        /*  if (popover.isOpen()) {
+           //console.log(popover.isOpen())
+           //console.log(popover)
+           //popover.autoClose = false;
+         } */
       }
 
 
@@ -221,82 +226,87 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
     setTimeout(() => {
       /* console.log(event.path) */
+      try {
+        let evtPath = Array.from(event.path)
+        //console.log(this.selectedPopover.htmlNodeName)
 
-      let evtPath = Array.from(event.path)
-      //console.log(this.selectedPopover.htmlNodeName)
+        let htmlNode = document.getElementById(this.selectedPopover.htmlNodeName)
+        console.log
+        let tokenId = this.selectedPopover.tokenId;
+        if (evtPath.includes(htmlNode)) {
 
-      let htmlNode = document.getElementById(this.selectedPopover.htmlNodeName)
-      console.log
-      let tokenId = this.selectedPopover.tokenId;
-      if (evtPath.includes(htmlNode)) {
+        } else {
+          if (this.object != null) {
+            this.object.forEach(element => {
+              //console.log(element.position != tokenId)
+              if (element.position != tokenId) {
 
-      } else {
-        if(this.object != null){
-          this.object.forEach(element => {
-            //console.log(element.position != tokenId)
-            if (element.position != tokenId) {
-  
-              element.editing = false;
-  
-              this.selectedPopover.htmlNodeName = '';
-              this.selectedPopover.tokenId = ''
-            }
-          });
-        }
-        
+                element.editing = false;
 
-        let parentMarkElement = document.getElementsByClassName('token-' + tokenId)[0];
-        //console.log(document.getElementsByClassName('token-'+tokenId))
-        if (parentMarkElement != null) {
-          let i = 0;
-          Array.from(parentMarkElement.childNodes).forEach(
-            element => {
-//              console.log(element)
-              let textMarkElement = element.textContent;
-              let prev, next;
-              if (element['classList'] != undefined) {
-
-                if (element['classList'].contains('mark') || element['classList'].contains('mark_test')) {
-
-                  prev = Array.from(parentMarkElement.childNodes)[i - 1];
-                  next = Array.from(parentMarkElement.childNodes)[i];
-
-                  if (next == element) {
-                    next = Array.from(parentMarkElement.childNodes)[i + 1];
-                  }
-
-                  if (prev != undefined) {
-                    if (prev.nodeName == '#text') {
-                      textMarkElement = prev.textContent += textMarkElement;
-                      prev.remove();
-                    }
-                  }
-
-                  if (next != undefined) {
-                    if (next.nodeName == '#text') {
-                      textMarkElement += next.textContent;
-                      next.remove()
-                    }
-                  }
-
-                  const text = this.renderer.createText(textMarkElement)
-
-                  this.renderer.insertBefore(parentMarkElement, text, element)
-                  //this.renderer.removeChild(parentMarkElement, element);
-
-                  element.remove();
-
-
-                }
+                this.selectedPopover.htmlNodeName = '';
+                this.selectedPopover.tokenId = ''
               }
+            });
+          }
 
-              i++;
-            }
-          );
+
+          let parentMarkElement = document.getElementsByClassName('token-' + tokenId)[0];
+          //console.log(document.getElementsByClassName('token-'+tokenId))
+          if (parentMarkElement != null) {
+            let i = 0;
+            Array.from(parentMarkElement.childNodes).forEach(
+              element => {
+                //              console.log(element)
+                let textMarkElement = element.textContent;
+                let prev, next;
+                if (element['classList'] != undefined) {
+
+                  if (element['classList'].contains('mark') || element['classList'].contains('mark_test')) {
+
+                    prev = Array.from(parentMarkElement.childNodes)[i - 1];
+                    next = Array.from(parentMarkElement.childNodes)[i];
+
+                    if (next == element) {
+                      next = Array.from(parentMarkElement.childNodes)[i + 1];
+                    }
+
+                    if (prev != undefined) {
+                      if (prev.nodeName == '#text') {
+                        textMarkElement = prev.textContent += textMarkElement;
+                        prev.remove();
+                      }
+                    }
+
+                    if (next != undefined) {
+                      if (next.nodeName == '#text') {
+                        textMarkElement += next.textContent;
+                        next.remove()
+                      }
+                    }
+
+                    const text = this.renderer.createText(textMarkElement)
+
+                    this.renderer.insertBefore(parentMarkElement, text, element)
+                    //this.renderer.removeChild(parentMarkElement, element);
+
+                    element.remove();
+
+
+                  }
+                }
+
+                i++;
+              }
+            );
+
+          }
 
         }
-
       }
+      catch (e) {
+        console.log(e)
+      }
+
     }, 17);
 
   }
@@ -308,30 +318,30 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
     /* console.log(event) */
     if (event.altKey && event.ctrlKey) {
       this.multiWordMode = true;
-      if(this.object != undefined){
+      if (this.object != undefined) {
         this.object.forEach(element => {
           element.editing = false;
           this.selectedPopover.htmlNodeName = '';
           this.selectedPopover.tokenId = ''
         });
       }
-      
+
     } else if (event.code == 'Escape') {
 
       let htmlNode = document.getElementById(this.selectedPopover.htmlNodeName)
       let tokenId = this.selectedPopover.tokenId;
 
-      if(this.object != undefined){
+      if (this.object != undefined) {
         this.object.forEach(element => {
           if (element.id != tokenId) {
-  
+
             element.editing = false;
-  
+
             this.selectedPopover.htmlNodeName = '';
             this.selectedPopover.tokenId = ''
           }
         });
-  
+
         let parentMarkElement = document.getElementsByClassName('token-' + tokenId)[0];
         if (parentMarkElement != null) {
           let i = 0;
@@ -339,7 +349,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
             element => {
               console.log(element)
               if (element.classList.contains('mark')) {
-  
+
                 let textMarkElement = element.textContent;
                 const text = this.renderer.createText(textMarkElement)
                 //parentMarkElement.textContent = parentMarkElement.textContent.trim();
@@ -355,10 +365,10 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
               i++;
             }
           );
-  
+
         }
       }
-      
+
 
 
 
@@ -372,7 +382,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  constructor(private router : Router, private annotatorService: AnnotatorService, private expander: ExpanderService, private renderer: Renderer2, private documentService: DocumentSystemService, private formBuilder: FormBuilder, private toastr: ToastrService, private lexicalService: LexicalEntriesService, private config: NgbPopoverConfig) { 
+  constructor(private router: Router, private annotatorService: AnnotatorService, private expander: ExpanderService, private renderer: Renderer2, private documentService: DocumentSystemService, private formBuilder: FormBuilder, private toastr: ToastrService, private lexicalService: LexicalEntriesService, private config: NgbPopoverConfig) {
     /* this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe((val) => {
       setTimeout(() => {
         this.lexicalService.sendToCoreTab(null);
@@ -398,43 +408,43 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
     })
 
     this.epigraphy_text_subscription = this.documentService.epigraphyTextData$.subscribe(
-      data=>{
-        if(data != null){
+      data => {
+        if (data != null) {
           this.textEpigraphy = data;
-        }else{
+        } else {
           this.textEpigraphy = '';
         }
-      },error=>{
+      }, error => {
         console.log(error)
       }
     )
 
     this.leiden_subscription = this.documentService.epigraphyLeidenData$.subscribe(
-      data=>{
+      data => {
         console.log(data)
-        if(data != null){
+        if (data != null) {
           this.leidenLines = data;
 
 
-        }else{
+        } else {
           this.leidenLines = [];
         }
-      },error=>{
+      }, error => {
         console.log(error)
       }
     )
 
     this.translation_subscription = this.documentService.epigraphyTranslationData$.subscribe(
-      data=>{
+      data => {
         console.log(data)
-        if(data != null){
+        if (data != null) {
           this.translation_array = data;
 
 
-        }else{
+        } else {
           this.translation_array = [];
         }
-      },error=>{
+      }, error => {
         console.log(error)
       }
     )
@@ -449,11 +459,11 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
     )
 
     this.delete_annotation_subscription = this.annotatorService.deleteAnnoReq$.subscribe(
-      data=> {
+      data => {
 
         let localArray = [];
-        if(data != null){
-          
+        if (data != null) {
+
 
           this.annotationArray = this.annotationArray.filter(
             element => {
@@ -461,35 +471,35 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
             }
           )
           //console.log(this.annotationArray)
-          
-          if(this.object != undefined){
+
+          if (this.object != undefined) {
             this.object.forEach(element => {
-              if(element.id == data.node_id){
+              if (element.id == data.node_id) {
                 /* let position = element.position;
   
                 let elementHTML = document.getElementsByClassName('token-'+(position-1))[0]
                 this.renderer.removeClass(elementHTML, 'annotation'); */
-  
+
                 let start = element.begin;
                 let end = element.end;
-  
+
                 this.annotationArray.forEach(element => {
-                  if(element.spans[0].start >= start  && element.spans[0].end <= end){
+                  if (element.spans[0].start >= start && element.spans[0].end <= end) {
                     localArray.push(element);
                   }
                 })
-  
+
                 console.log(localArray, localArray.length);
-  
-                if(localArray.length == 0){
+
+                if (localArray.length == 0) {
                   let position = element.position;
-                  let elementHTML = document.getElementsByClassName('token-'+(position-1))[0]
+                  let elementHTML = document.getElementsByClassName('token-' + (position - 1))[0]
                   this.renderer.removeClass(elementHTML, 'annotation');
                 }
               }
             });
           }
-          
+
         }
       }
     )
@@ -499,110 +509,110 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges) {
     setTimeout(() => {
-      if(changes.epiData.currentValue != null){
+      if (changes.epiData.currentValue != null) {
         if (this.object != changes.epiData.currentValue) {
           this.tokenArray = this.epigraphyForm.get('tokens') as FormArray;
           this.tokenArray.clear();
           this.spanSelection = null;
           this.annotationArray = [];
           this.epidoc_annotation_array = [];
-        }   
-        
-          this.object = changes.epiData.currentValue['tokens'];
-          this.getAnnotations(changes);
-        
-      }else{
+        }
+
+        this.object = changes.epiData.currentValue['tokens'];
+        this.getAnnotations(changes);
+
+      } else {
         this.object = null;
       }
-      
+
 
 
     }, 10)
 
   }
 
-  async getAnnotations(changes){
-    
+  async getAnnotations(changes) {
+
     let element_id = changes.epiData.currentValue['element_id']
     this.fileId = changes.epiData.currentValue['epidoc_id']
     let xmlDoc = changes.epiData.currentValue['xmlDoc']
     console.log(this.object)
-    
-    if(this.object.length == 0){
+
+    if (this.object.length == 0) {
       this.isEmptyFile = true;
       console.log("FILE VUOTO")
-    }else{
+    } else {
       this.isEmptyFile = false;
       console.log("FILE NON VUOTO")
     }
 
     //console.log(this.object)
-    
+
     try {
       let get_anno_req = await this.annotatorService.getAnnotation(element_id).toPromise();
       console.log(get_anno_req);
 
-      if(get_anno_req.annotations != undefined){
+      if (get_anno_req.annotations != undefined) {
         get_anno_req.annotations.forEach(element => {
           //console.log(element)
-          if(element.layer == 'attestation'){
-            if(element.attributes.bibliography == undefined){
+          if (element.layer == 'attestation') {
+            if (element.attributes.bibliography == undefined) {
               element.attributes['bibliography'] = [];
             }
-            
-            if(!Array.isArray(element.attributes.bibliography)){
+
+            if (!Array.isArray(element.attributes.bibliography)) {
               let tmp_arr = [];
               tmp_arr.push(element.attributes['bibliography']);
               element.attributes['bibliography'] = tmp_arr;
             }
-            
-            
-            if(Array.isArray(element.attributes['bibliography'])){
-              Array.from(element.attributes['bibliography']).forEach(element => { 
-                
-                if(element['note'] == undefined){
+
+
+            if (Array.isArray(element.attributes['bibliography'])) {
+              Array.from(element.attributes['bibliography']).forEach(element => {
+
+                if (element['note'] == undefined) {
                   element['note'] = "";
-                } 
-                
-                if(element['textualRef']== undefined){
+                }
+
+                if (element['textualRef'] == undefined) {
                   element['textualRef'] = "";
-                } 
+                }
               });
             }
 
-            if(this.isEmptyFile){
+            if (this.isEmptyFile) {
               element['empty_file'] = this.isEmptyFile;
-              if(element.attributes.leiden == undefined){
+              if (element.attributes.leiden == undefined) {
                 element.attributes.leiden = '';
               }
-            }else{
+            } else {
               element['empty_file'] = this.isEmptyFile;
             }
             this.annotationArray.push(element);
-          }else if(element.layer == 'epidoc'){
+          } else if (element.layer == 'epidoc') {
             this.epidoc_annotation_array.push(element);
           }
         });
 
-        if(this.annotationArray.length > 0){
-          if(this.object != null){
-            for(const element of this.object){
+        if (this.annotationArray.length > 0) {
+          if (this.object != null) {
+            for (const element of this.object) {
               let startElement = element.begin;
               let endElement = element.end;
 
-              for(const annotation of this.annotationArray){
-                if(annotation.spans.length == 1){
+              for (const annotation of this.annotationArray) {
+                if (annotation.spans.length == 1) {
                   let startAnnotation = annotation.spans[0].start;
                   let endAnnotation = annotation.spans[0].end;
 
-                  if(startAnnotation >= startElement  && endAnnotation <= endElement){
+                  if (startAnnotation >= startElement && endAnnotation <= endElement) {
                     let positionElement = element.position;
-                    let elementHTML = document.getElementsByClassName('token-'+(positionElement-1))[0]
+                    let elementHTML = document.getElementsByClassName('token-' + (positionElement - 1))[0]
                     var that = this;
 
-                    let xmlNode = xmlDoc.querySelectorAll('[*|id=\''+element.xmlid+'\']')[0].outerHTML;
+                    let xmlNode = xmlDoc.querySelectorAll('[*|id=\'' + element.xmlid + '\']')[0].outerHTML;
                     let object = {
-                      xmlString : xmlNode
+                      xmlString: xmlNode
                     }
 
                     try {
@@ -612,51 +622,51 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
                       let bodyResponse = new DOMParser().parseFromString(raw, "text/html").body;
                       let leidenToken = '';
                       bodyResponse.childNodes.forEach(
-                        x=>{
-                          if(x.nodeName != undefined){
-                            if(x.nodeName == '#text'){
+                        x => {
+                          if (x.nodeName != undefined) {
+                            if (x.nodeName == '#text') {
                               leidenToken += x.nodeValue.replace('\n', '');
                             }
                           }
                         }
                       )
-                      if(leidenToken != ''){
+                      if (leidenToken != '') {
                         annotation.attributes['leiden'] = leidenToken;
-                      }else{
+                      } else {
                         annotation.attributes['leiden'] = '';
                       }
-                      if(elementHTML != undefined){
+                      if (elementHTML != undefined) {
                         that.renderer.addClass(elementHTML, 'annotation');
                       }
                     } catch (error) {
-                      
+
                     }
-                    
-                    
-                    
-                    
+
+
+
+
                   }
                 }
               }
             }
-            
+
             this.lexicalService.triggerAttestationPanel(true);
             this.lexicalService.sendToAttestationPanel(this.annotationArray);
           }
-        }else{
+        } else {
           this.annotationArray = [];
           this.lexicalService.triggerAttestationPanel(false);
           this.lexicalService.sendToAttestationPanel(null);
         }
-      }else{
+      } else {
         this.annotationArray = [];
         this.epidoc_annotation_array = [];
         this.lexicalService.triggerAttestationPanel(null);
         this.lexicalService.sendToAttestationPanel(null);
       }
     } catch (error) {
-      if(error.status != 200){
-        this.toastr.error("Something went wrong", "Error", {timeOut : 5000})
+      if (error.status != 200) {
+        this.toastr.error("Something went wrong", "Error", { timeOut: 5000 })
       }
     }
   }
@@ -677,16 +687,16 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
   enterCell(evt, i) {
     //console.log("enter cell " + i);
     //console.log(evt);
-    if(evt.target.innerText != '.' && evt.target.innerText != ':' && evt.target.innerText != ''){
+    if (evt.target.innerText != '.' && evt.target.innerText != ':' && evt.target.innerText != '') {
       let parentNode = evt.target.parentElement
       if (parentNode != undefined) {
         let classNames = parentNode.className;
         let matchTest = /(^|\s)(multiword-span-\d)(\s|$)/.test(classNames)
         if (matchTest) {
-          
+
         } else {
           this.object[i]['selected'] = true;
-          
+
           if (window.getSelection) {
             if (window.getSelection().empty) {  // Chrome
               window.getSelection().empty();
@@ -697,7 +707,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
         }
       }
     }
-    
+
 
 
 
@@ -720,16 +730,16 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
     } else {
       popoverHtml.textContent = popoverHtml.textContent.trim();
     }
-    
+
 
   }
 
   triggerBind(popover, evt, i) {
     if (!this.multiWordMode) {
-      if(evt.target.innerText != '.' && evt.target.innerText != ':' && evt.target.innerText != ''){
+      if (evt.target.innerText != '.' && evt.target.innerText != ':' && evt.target.innerText != '') {
         this.bind_subject.next({ popover, evt, i })
       }
-      
+
     } else {
       //console.log("multiword mode", i)
       console.log(popover);
@@ -852,31 +862,31 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
     this.renderer.appendChild(span, div);
   }
 
-  populateLocalAnnotation(tokenData){
+  populateLocalAnnotation(tokenData) {
     this.token_annotationArray = [];
     //console.log(anno)
     this.annotationArray.forEach(
       annotation => {
         //console.log(annotation)
         let start_token, end_token;
-        if(!this.isEmptyFile){
+        if (!this.isEmptyFile) {
           start_token = tokenData.begin;
           end_token = tokenData.end;
-        }else{
+        } else {
           start_token = tokenData.spans[0].start;
           end_token = tokenData.spans[0].end;
         }
 
         annotation.spans.forEach(element => {
-          if( element.start >= start_token  &&  element.end <= end_token){
+          if (element.start >= start_token && element.end <= end_token) {
             this.token_annotationArray.push(annotation);
           }
         });
 
-        
+
       }
     )
-    if(this.token_annotationArray.length > 0){
+    if (this.token_annotationArray.length > 0) {
       this.lexicalService.triggerAttestationPanel(true);
       this.lexicalService.sendToAttestationPanel(this.token_annotationArray)
     }
@@ -894,29 +904,29 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
         //console.log(annotation.spans)
 
-        if(annotation.spans.length == 1){
+        if (annotation.spans.length == 1) {
           annotation.spans.forEach(element => {
-            if(element.start >= start_token && element.end <= end_token){
+            if (element.start >= start_token && element.end <= end_token) {
               this.token_annotationArray.push(annotation);
             }
           });
-        }else{
+        } else {
 
         }
       }
     )
 
-    if(this.token_annotationArray.length > 0){
+    if (this.token_annotationArray.length > 0) {
       this.lexicalService.triggerAttestationPanel(true)
       this.lexicalService.sendToAttestationPanel(this.token_annotationArray);
-    }else{
+    } else {
       this.lexicalService.triggerAttestationPanel(false)
       this.lexicalService.sendToAttestationPanel(null);
     }
 
     //console.log(evt)
     setTimeout(() => {
-      
+
       this.message = '';
       this.object[i]['editing'] = true;
       this.message = window.getSelection().toString();
@@ -957,11 +967,11 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
         let anchorNodeParent = selection.anchorNode.parentNode;
         let focusNodeParent = selection.focusNode.parentNode;
 
-        if (anchorNodeParent == focusNodeParent && this.message != '' ) { /* && !areThereAnnotations */
+        if (anchorNodeParent == focusNodeParent && this.message != '') { /* && !areThereAnnotations */
           //SE SELEZIONO UNA PARTE DEL TOKEN
-        
+
           if (selection.anchorNode.textContent.trim().length == innerText.length && this.message != innerText) { //!isThereMark && 
-            
+
             let anchorOffset = selection.anchorOffset;
             let focusOffset = selection.focusOffset;
 
@@ -992,7 +1002,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
             this.renderer.appendChild(span, text)
             this.renderer.appendChild(popoverHtml, span);
             this.renderer.addClass(span, 'mark'),
-            this.renderer.setAttribute(span, 'startoffset', anchorOffset.toString());
+              this.renderer.setAttribute(span, 'startoffset', anchorOffset.toString());
             this.renderer.setAttribute(span, 'endoffset', focusOffset.toString())
 
             if (l_text.textContent != "") {
@@ -1007,31 +1017,31 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
             this.spanSelection['start'] = this.object[i].begin + anchorOffset;
             this.spanSelection['end'] = this.object[i].begin + focusOffset;
             this.annotatorService.triggerSearch(this.message);
-          }else if(selection.anchorNode.textContent.trim().length == innerText.length && this.message == innerText){
+          } else if (selection.anchorNode.textContent.trim().length == innerText.length && this.message == innerText) {
             this.message = '';
             this.annotatorService.triggerSearch(innerText);
           }
-        } 
+        }
         //SE SELEZIONO L'INTERO TOKEN
-        
-        else if(this.message == ''){
+
+        else if (this.message == '') {
           this.annotatorService.triggerSearch(innerText);
           this.spanSelection = {}
           this.spanSelection['start'] = 0;
           this.spanSelection['end'] = 0;
         }
-        
+
       }
 
-      
+
 
 
       let parentNode = evt.target.parentElement;
       let classNames = parentNode.className;
 
-      if(/(^|\s)(multiword-span-\d)(\s|$)/.test(classNames)){
+      if (/(^|\s)(multiword-span-\d)(\s|$)/.test(classNames)) {
         let multiwordSpan = Array.from(document.querySelectorAll("[class*=multiword-span-]"));
-        let text = ''; 
+        let text = '';
         multiwordSpan.forEach(element => {
           console.log(element)
           text += element.textContent + ' ';
@@ -1042,35 +1052,35 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
   }
 
-  triggerEmptySearch(){
+  triggerEmptySearch() {
     this.annotatorService.triggerSearch('');
   }
 
-  async deleteAnnotation(annotation, index, token){
+  async deleteAnnotation(annotation, index, token) {
     let anno_id = annotation.id;
     let token_position = token.position;
 
     try {
       let delete_anno_req = await this.annotatorService.deleteAnnotation(anno_id).toPromise();
       console.log(delete_anno_req);
-      
+
       this.token_annotationArray.splice(index, 1)
       this.annotationArray.splice(index, 1);
       this.lexicalService.triggerAttestationPanel(false)
     } catch (error) {
-      if(error.status == 200){
+      if (error.status == 200) {
         this.token_annotationArray.splice(index, 1)
-        this.annotationArray.splice(index, 1);  
-      }else{
-        this.toastr.error("Something went wront, check the log", "Error", {timeOut:5000})
+        this.annotationArray.splice(index, 1);
+      } else {
+        this.toastr.error("Something went wront, check the log", "Error", { timeOut: 5000 })
       }
     }
-    
-    
+
+
   }
 
 
-  showAllAnnotations(){
+  showAllAnnotations() {
     this.lexicalService.triggerAttestationPanel(true)
     this.lexicalService.sendToAttestationPanel(this.annotationArray);
   }
@@ -1080,7 +1090,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
   }
 
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.epigraphy_text_subscription.unsubscribe();
     this.leiden_subscription.unsubscribe();
     this.translation_subscription.unsubscribe();
@@ -1088,5 +1098,5 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
     this.destroy$.next(true);
     this.destroy$.complete();
   }
-} 
+}
 

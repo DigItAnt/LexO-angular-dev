@@ -25,13 +25,13 @@
                     <i class="fa fa-home" aria-hidden="true"></i>
                 </a>
             </li> -->
-            <!-- <li class="nav-item d-flex align-items-center" *ngIf="isAdmin">
+            <li class="nav-item d-flex align-items-center" *ngIf="isAdmin">
                 <a class="nav-link" routerLink="user" routerLinkActive="active">
                     <i class="fa fa-user"></i>
                     <span class="d-flex-xs d-lg-none ml-2">User Admin</span>
                 </a>
                 
-            </li> -->
+            </li>
             <li class="nav-item">
                 <a class="nav-link" routerLink="lexicon" routerLinkActive="active">
                     <i class="fa fa-edit"></i>
@@ -47,10 +47,10 @@
         </ul>
         <ul class="navbar-nav ml-auto d-none d-xs-none d-sm-none d-lg-flex align-items-center">
             <div class="dropdown mr-2">
-                <a placement="bottom" ngbTooltip="Send help request" class="btn btn-light" type="button" target="_blank" [href]="'mailto:mmallia92@gmail.com?subject=Ticket '+(getDateNow() | date : 'M/d/yy hh:mm a')+'&body=Please describe the steps to reproduce the error&cc=vquochi@gmail.com;andrea.bellandi@gmail.com'">
+                <!-- <a placement="bottom" ngbTooltip="Send help request" class="btn btn-light" type="button" target="_blank" [href]="'mailto:mmallia92@gmail.com?subject=Ticket '+(getDateNow() | date : 'M/d/yy hh:mm a')+'&body=Please describe the steps to reproduce the error&cc=vquochi@gmail.com;andrea.bellandi@gmail.com'">
                     <i class="fas fa-question-circle"></i>
                     
-                </a>
+                </a> -->
 
     
                 <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton"

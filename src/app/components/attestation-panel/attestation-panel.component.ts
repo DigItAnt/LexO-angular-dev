@@ -79,7 +79,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
   formData = [];
   ngOnInit(): void {
 
-    this.get_form_subscription = this.lexicalService.getFormTypes().subscribe(
+    this.lexicalService.getFormTypes().pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         this.typesData = data;
         //console.log(this.typesData)
@@ -89,7 +89,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
       }
     )
 
-    this.get_id_text_subscription = this.annotatorService.getIdText$.subscribe(
+    this.annotatorService.getIdText$.pipe(takeUntil(this.destroy$)).subscribe(
       data=>{
         console.log(data);
         this.fileId = data;
@@ -107,7 +107,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
     )
     
 
-    this.update_anno_biblio_subject_subscription = this.update_biblio_anno_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+   this.update_biblio_anno_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         if(data != null){
           this.updateBiblioAnnotation(data)
@@ -115,7 +115,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
       }
     )
 
-    this.biblio_bootstrap_subscription = this.biblioService.bootstrapData(this.start, this.sortField, this.direction).subscribe(
+    this.biblioService.bootstrapData(this.start, this.sortField, this.direction).pipe(takeUntil(this.destroy$)).subscribe(
       data=> {
         this.memorySort = {field : this.sortField, direction : this.direction}
         this.bibliography = data;
@@ -132,7 +132,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
       }
     )
 
-    this.search_subject_subscription = this.searchSubject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.searchSubject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.queryTitle  = data.query;
         data.queryMode ? this.queryMode = 'everything' : this.queryMode = 'titleCreatorYear';
@@ -735,12 +735,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.get_form_subscription.unsubscribe();
-    this.get_id_text_subscription.unsubscribe();
-    this.update_anno_subscription.unsubscribe();
-    this.update_anno_biblio_subject_subscription.unsubscribe();
-    this.biblio_bootstrap_subscription.unsubscribe();
-    this.search_subject_subscription.unsubscribe();
+    
 
     this.destroy$.next(true);
     this.destroy$.complete();

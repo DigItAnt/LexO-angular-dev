@@ -113,7 +113,7 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
     this.editorConfig.editable = false;
 
 
-    this.note_subscription = this.subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       newNote => {
         if (this.noteData != null) {
           this.lexicalService.spinnerAction('on');
@@ -125,7 +125,7 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
               relation: "note",
               value: newNote
             }
-            this.lex_entry_update_subscription = this.lexicalService.updateLexicalEntry(lexId, parameters).subscribe(
+            this.lexicalService.updateLexicalEntry(lexId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
               data => {
                 //console.log(data);
                 data['request'] = 0;
@@ -155,7 +155,7 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
               relation: "note",
               value: newNote
             }
-            this.form_update_subscription = this.lexicalService.updateForm(formId, parameters).subscribe(
+            this.lexicalService.updateForm(formId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
               data => {
                 //console.log(data);
                 data['request'] = 0;
@@ -185,7 +185,7 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
               relation: "note",
               value: newNote
             }
-            this.sense_update_subscription = this.lexicalService.updateSense(senseId, parameters).subscribe(
+            this.lexicalService.updateSense(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
               data => {
                 //console.log(data);
                 data['request'] = 0;
@@ -215,7 +215,7 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
               relation: "note",
               value: newNote
             }
-            this.etymology_update_subscription = this.lexicalService.updateEtymology(etymId, parameters).subscribe(
+            this.lexicalService.updateEtymology(etymId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
               data => {
                 //console.log(data);
                 data['request'] = 0;
@@ -244,7 +244,7 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
       }
     )
 
-    this.lexicalService.deleteReq$.subscribe(
+    this.lexicalService.deleteReq$.pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         this.editorConfig.editable = false;
         this.noteData = null;
@@ -277,11 +277,11 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.note_subscription.unsubscribe();
+    /* this.note_subscription.unsubscribe();
     this.lex_entry_update_subscription.unsubscribe();
     this.form_update_subscription.unsubscribe();
     this.sense_update_subscription.unsubscribe();
-    this.etymology_update_subscription.unsubscribe();
+    this.etymology_update_subscription.unsubscribe(); */
     this.destroy$.next(true);
     this.destroy$.complete();
   }

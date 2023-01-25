@@ -361,7 +361,7 @@ export class DecompositionTabComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.core_data_subscription.unsubscribe();
+    //this.core_data_subscription.unsubscribe();
     this.expand_edit_subscription.unsubscribe();
     this.expand_epigraphy_subscription.unsubscribe();
 

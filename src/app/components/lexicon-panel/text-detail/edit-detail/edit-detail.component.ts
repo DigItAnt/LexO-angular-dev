@@ -231,7 +231,7 @@ export class EditDetailComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
       this.core_data_subscription.unsubscribe();
-      this.expand_epi_subscription.unsubscribe();
+      //this.expand_epi_subscription.unsubscribe();
       this.decomp_data_subscription.unsubscribe();
       this.expand_edit_subscription.unsubscribe();
       this.etymology_data_subscription.unsubscribe();
