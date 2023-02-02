@@ -338,7 +338,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
     }
 
     this.searchIconSpinner = true;
-    let lexicalId = this.object.lexicalEntryInstanceName;
+    let lexicalId = this.object.lexicalEntry;
     //console.log(this.lock)
     switch (this.lock) {
       case 0: {
@@ -444,7 +444,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
 
   deleteLexicalEntry() {
     this.searchIconSpinner = true;
-    let lexicalId = this.object.lexicalEntryInstanceName
+    let lexicalId = this.object.lexicalEntry
     this.lexicalService.deleteLexicalEntry(lexicalId).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         //console.log(data)
@@ -482,7 +482,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
 
   deleteForm() {
     this.searchIconSpinner = true;
-    let lexicalId = this.object.formInstanceName;
+    let lexicalId = this.object.form;
     this.lexicalService.deleteForm(lexicalId).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         this.searchIconSpinner = false;
@@ -505,7 +505,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
 
   deleteSense() {
     this.searchIconSpinner = true;
-    let lexicalId = this.object.senseInstanceName;
+    let lexicalId = this.object.sense;
 
     this.lexicalService.deleteSense(lexicalId).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
@@ -530,7 +530,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
     /* console.log(this.object) */
     this.object['request'] = 'form'
     if (this.isLexicalEntry) {
-      let lexicalId = this.object.lexicalEntryInstanceName;
+      let lexicalId = this.object.lexicalEntry;
       this.lexicalService.createNewForm(lexicalId).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           this.toastr.success('Form added correctly', '', {
@@ -556,7 +556,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
       let parentNodeInstanceName = this.object.parentNodeInstanceName;
       //console.log(this.object);
       this.object['request'] = 'form';
-      this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
+      this.object['lexicalEntry'] = parentNodeInstanceName
       this.lexicalService.createNewForm(parentNodeInstanceName).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           if (data['creator'] == this.object.creator) {
@@ -580,7 +580,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
     } else if (this.isSense) {
       let parentNodeInstanceName = this.object.parentNodeInstanceName;
       this.object['request'] = 'form';
-      this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
+      this.object['lexicalEntry'] = parentNodeInstanceName
       //console.log(this.object);
       this.lexicalService.createNewForm(parentNodeInstanceName).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
@@ -609,7 +609,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
     this.searchIconSpinner = true;
     this.object['request'] = 'sense'
     if (this.isLexicalEntry) {
-      let lexicalId = this.object.lexicalEntryInstanceName;
+      let lexicalId = this.object.lexicalEntry;
       this.lexicalService.createNewSense(lexicalId).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           if (data['creator'] == this.object.creator) {
@@ -632,7 +632,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
       )
     } else if (this.isSense) {
       let parentNodeInstanceName = this.object.parentNodeInstanceName;
-      this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
+      this.object['lexicalEntry'] = parentNodeInstanceName
       this.object['request'] = 'sense'
       //console.log(this.object);
       this.lexicalService.createNewSense(parentNodeInstanceName).pipe(takeUntil(this.destroy$)).subscribe(
@@ -656,7 +656,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
       )
     } else if (this.isForm) {
       let parentNodeInstanceName = this.object.parentNodeInstanceName;
-      this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
+      this.object['lexicalEntry'] = parentNodeInstanceName
       this.object['request'] = 'sense'
       //console.log(this.object);
       this.lexicalService.createNewSense(parentNodeInstanceName).pipe(takeUntil(this.destroy$)).subscribe(
@@ -688,17 +688,17 @@ export class CoreTabComponent implements OnInit, OnDestroy {
     this.searchIconSpinner = true;
     this.object['request'] = 'etymology'
     let parentNodeInstanceName = '';
-    if (this.object.lexicalEntryInstanceName != undefined
+    if (this.object.lexicalEntry != undefined
       && this.object.senseInstanceName == undefined) {
       console.log(1)
-      parentNodeInstanceName = this.object.lexicalEntryInstanceName;
+      parentNodeInstanceName = this.object.lexicalEntry;
     } else if (this.object.formInstanceName != undefined) {
       parentNodeInstanceName = this.object.parentNodeInstanceName;
-      this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
+      this.object['lexicalEntry'] = parentNodeInstanceName
       console.log(2)
     } else if (this.object.senseInstanceName != undefined) {
       parentNodeInstanceName = this.object.parentNodeInstanceName;
-      this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
+      this.object['lexicalEntry'] = parentNodeInstanceName
       console.log(3)
     }
 
@@ -739,14 +739,14 @@ export class CoreTabComponent implements OnInit, OnDestroy {
     $('body').css("padding-right", "");
 
     let instance = '';
-    if (this.object.lexicalEntryInstanceName != undefined
-      && this.object.senseInstanceName == undefined
-      && this.object.formInstanceName == undefined) {
-      instance = this.object.lexicalEntryInstanceName;
-    } else if (this.object.formInstanceName != undefined) {
-      instance = this.object.formInstanceName;
-    } else if (this.object.senseInstanceName != undefined) {
-      instance = this.object.senseInstanceName;
+    if (this.object.lexicalEntry != undefined
+      && this.object.sense == undefined
+      && this.object.form == undefined) {
+      instance = this.object.lexicalEntry;
+    } else if (this.object.form != undefined) {
+      instance = this.object.form;
+    } else if (this.object.sense != undefined) {
+      instance = this.object.sense;
     }
 
     if (item != undefined) {

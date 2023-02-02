@@ -216,7 +216,7 @@ export class DecompositionTabComponent implements OnInit, OnDestroy {
     /* console.log(this.object) */
     this.object['request'] = 'form'
     if (this.isLexicalEntry) {
-      let lexicalId = this.object.lexicalEntryInstanceName;
+      let lexicalId = this.object.lexicalEntry;
       this.lexicalService.createNewForm(lexicalId).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           this.toastr.success('Form added correctly', '', {
@@ -246,7 +246,7 @@ export class DecompositionTabComponent implements OnInit, OnDestroy {
     this.searchIconSpinner = true;
     this.object['request'] = 'sense'
     if (this.isLexicalEntry) {
-      let lexicalId = this.object.lexicalEntryInstanceName;
+      let lexicalId = this.object.lexicalEntry;
       this.lexicalService.createNewSense(lexicalId).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           if (data['creator'] == this.object.creator) {
@@ -269,7 +269,7 @@ export class DecompositionTabComponent implements OnInit, OnDestroy {
       )
     }/* else if(this.isSense){
       let parentNodeInstanceName = this.object.parentNodeInstanceName;
-      this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
+      this.object['lexicalEntry'] = parentNodeInstanceName
       this.object['request'] = 'sense'
       //console.log(this.object);
       this.lexicalService.createNewSense(parentNodeInstanceName).subscribe(
@@ -293,7 +293,7 @@ export class DecompositionTabComponent implements OnInit, OnDestroy {
       )
     }else if(this.isForm){
       let parentNodeInstanceName = this.object.parentNodeInstanceName;
-      this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
+      this.object['lexicalEntry'] = parentNodeInstanceName
       this.object['request'] = 'sense'
       //console.log(this.object);
       this.lexicalService.createNewSense(parentNodeInstanceName).subscribe(
@@ -325,17 +325,17 @@ export class DecompositionTabComponent implements OnInit, OnDestroy {
     this.searchIconSpinner = true;
     this.object['request'] = 'etymology'
     let parentNodeInstanceName = '';
-    if (this.object.lexicalEntryInstanceName != undefined
+    if (this.object.lexicalEntry != undefined
       && this.object.senseInstanceName == undefined) {
       console.log(1)
-      parentNodeInstanceName = this.object.lexicalEntryInstanceName;
+      parentNodeInstanceName = this.object.lexicalEntry;
     }/* else if(this.object.formInstanceName != undefined){
       parentNodeInstanceName = this.object.parentNodeInstanceName;
-      this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
+      this.object['lexicalEntry'] = parentNodeInstanceName
       console.log(2)
     }else if(this.object.senseInstanceName != undefined){
       parentNodeInstanceName = this.object.parentNodeInstanceName;
-      this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
+      this.object['lexicalEntry'] = parentNodeInstanceName
       console.log(3)
     } */
 

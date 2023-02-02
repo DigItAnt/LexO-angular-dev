@@ -247,7 +247,7 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
 
   async deleteEtymology() {
     this.searchIconSpinner = true;
-    let etymId = this.object.etymology.etymologyInstanceName;
+    let etymId = this.object.etymology.etymology;
 
     try {
       let delete_etym_req = await this.lexicalService.deleteEtymology(etymId).toPromise();
@@ -289,7 +289,7 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
       }
       this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': create_etymon_req });
       this.searchIconSpinner = false;
-      this.toastr.success(create_etymon_req['etymologyInstanceName'] + ' added correctly', '', {
+      this.toastr.success(create_etymon_req['etymology'] + ' added correctly', '', {
         timeOut: 5000,
       });
     } catch (error) {
@@ -544,7 +544,7 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
     $('body').removeClass("modal-open")
     $('body').css("padding-right", "");
 
-    let instance = this.object.etymology.etymologyInstanceName;
+    let instance = this.object.etymology.etymology;
     console.log(this.object)
 
     if (item != undefined) {

@@ -59,7 +59,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
               
               let lex = {
                 request : 'form',
-                lexicalEntryInstanceName : data.data.lexicalEntryInstanceName,
+                lexicalEntry : data.data.lexicalEntry,
 
               }
               
@@ -150,20 +150,20 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
     if (data['new_note'] != undefined) {
 
       let instanceName = '';
-      if (data['lexicalEntryInstanceName'] != undefined) {
-        instanceName = data['lexicalEntryInstanceName']
-      } else if (data['formInstanceName'] != undefined) {
-        instanceName = data['formInstanceName']
-      } else if (data['senseInstanceName'] != undefined) {
-        instanceName = data['senseInstanceName']
-      } else if (data['etymologyInstanceName'] != undefined) {
-        instanceName = data['etymologyInstanceName']
+      if (data['lexicalEntry'] != undefined) {
+        instanceName = data['lexicalEntry']
+      } else if (data['form'] != undefined) {
+        instanceName = data['form']
+      } else if (data['sense'] != undefined) {
+        instanceName = data['sense']
+      } else if (data['etymology'] != undefined) {
+        instanceName = data['etymology']
       };
       setTimeout(() => {
         this.lexTree.lexicalEntryTree.treeModel.getNodeBy(
           function (x) {
-            if (data['lexicalEntryInstanceName'] != undefined) {
-              if (x.data.lexicalEntryInstanceName == instanceName) {
+            if (data['lexicalEntry'] != undefined) {
+              if (x.data.lexicalEntry == instanceName) {
 
                 x.data.note = data['new_note']
                 that.lexTree.lexicalEntryTree.treeModel.update();
@@ -178,9 +178,9 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
               } else {
                 return false;
               }
-            } else if (data['formInstanceName'] != undefined) {
+            } else if (data['form'] != undefined) {
 
-              if (x.data.formInstanceName == instanceName) {
+              if (x.data.form == instanceName) {
                 x.data.note = data['new_note']
                 that.lexTree.lexicalEntryTree.treeModel.update();
                 that.lexTree.updateTreeView();
@@ -189,9 +189,9 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
               } else {
                 return false;
               }
-            } else if (data['senseInstanceName'] != undefined) {
+            } else if (data['sense'] != undefined) {
 
-              if (x.data.senseInstanceName == instanceName) {
+              if (x.data.sense == instanceName) {
                 x.data.note = data['new_note']
                 that.lexTree.lexicalEntryTree.treeModel.update();
                 that.lexTree.updateTreeView();
@@ -201,9 +201,9 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
                 return false;
               }
             }
-            else if (data['etymologyInstanceName'] != undefined) {
+            else if (data['etymology'] != undefined) {
 
-              if (x.data.etymologyInstanceName == instanceName) {
+              if (x.data.etymology == instanceName) {
                 x.data.note = data['new_note']
                 that.lexTree.lexicalEntryTree.treeModel.update();
                 that.lexTree.updateTreeView();
@@ -223,20 +223,20 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
       //console.log("cambio label cambio tutto")
       //console.log(data)
       let instanceName = '';
-      if (data['lexicalEntryInstanceName'] != undefined) {
-        instanceName = data['lexicalEntryInstanceName']
-      } else if (data['formInstanceName'] != undefined) {
-        instanceName = data['formInstanceName']
-      } else if (data['senseInstanceName'] != undefined) {
-        instanceName = data['senseInstanceName']
-      } else if (data['etymologyInstanceName'] != undefined) {
-        instanceName = data['etymologyInstanceName']
+      if (data['lexicalEntry'] != undefined) {
+        instanceName = data['lexicalEntry']
+      } else if (data['form'] != undefined) {
+        instanceName = data['form']
+      } else if (data['sense'] != undefined) {
+        instanceName = data['sense']
+      } else if (data['etymology'] != undefined) {
+        instanceName = data['etymology']
       };;
       setTimeout(() => {
         this.lexTree.lexicalEntryTree.treeModel.getNodeBy(
           function (x) {
-            if (data['lexicalEntryInstanceName'] != undefined) {
-              if (x.data.lexicalEntryInstanceName == instanceName) {
+            if (data['lexicalEntry'] != undefined) {
+              if (x.data.lexicalEntry == instanceName) {
                 x.data.label = data['new_label']
                 //x.setActiveAndVisible()
                 x.scrollIntoView();
@@ -245,9 +245,9 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
               } else {
                 return false;
               }
-            } else if (data['formInstanceName'] != undefined) {
+            } else if (data['form'] != undefined) {
 
-              if (x.data.formInstanceName == instanceName) {
+              if (x.data.form == instanceName) {
                 x.data.label = data['new_label']
                 //x.setActiveAndVisible()
                 x.scrollIntoView();
@@ -256,9 +256,9 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
               } else {
                 return false;
               }
-            } else if (data['senseInstanceName'] != undefined) {
+            } else if (data['sense'] != undefined) {
 
-              if (x.data.senseInstanceName == instanceName) {
+              if (x.data.seame == instanceName) {
                 x.data.label = data['new_label']
                 //x.setActiveAndVisible()
                 x.scrollIntoView();
@@ -267,9 +267,9 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
               } else {
                 return false;
               }
-            } else if (data['etymologyInstanceName'] != undefined) {
+            } else if (data['etymology'] != undefined) {
 
-              if (x.data.etymologyInstanceName == instanceName) {
+              if (x.data.etymology == instanceName) {
                 x.data.label = data['new_label']
                 //x.setActiveAndVisible()
                 x.scrollIntoView();
@@ -288,18 +288,18 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
     } else if (data['new_type'] != undefined) {
       //console.log("cambio type cambio tutto")
       let instanceName = '';
-      if (data['lexicalEntryInstanceName'] != undefined) {
-        instanceName = data['lexicalEntryInstanceName']
-      } else if (data['formInstanceName'] != undefined) {
-        instanceName = data['formInstanceName']
-      } else if (data['senseInstanceName'] != undefined) {
-        instanceName = data['senseInstanceName']
+      if (data['lexicalEntry'] != undefined) {
+        instanceName = data['lexicalEntry']
+      } else if (data['form'] != undefined) {
+        instanceName = data['form']
+      } else if (data['sense'] != undefined) {
+        instanceName = data['sense']
       };
       setTimeout(() => {
         this.lexTree.lexicalEntryTree.treeModel.getNodeBy(
           function (x) {
-            if (data['lexicalEntryInstanceName'] != undefined) {
-              if (x.data.lexicalEntryInstanceName == instanceName) {
+            if (data['lexicalEntry'] != undefined) {
+              if (x.data.lexicalEntry == instanceName) {
                 x.data.type = data['new_type']
                 //x.setActiveAndVisible()
                 x.scrollIntoView();
@@ -309,9 +309,9 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
               } else {
                 return false;
               }
-            } else if (data['formInstanceName'] != undefined) {
+            } else if (data['form'] != undefined) {
 
-              if (x.data.formInstanceName == instanceName) {
+              if (x.data.form == instanceName) {
                 x.data.type = data['new_type']
                 //x.setActiveAndVisible()
                 x.scrollIntoView();
@@ -320,9 +320,9 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
               } else {
                 return false;
               }
-            } else if (data['senseInstanceName'] != undefined) {
+            } else if (data['sense'] != undefined) {
 
-              if (x.data.senseInstanceName == instanceName) {
+              if (x.data.seame == instanceName) {
                 x.data.type = data['new_type']
                 //x.setActiveAndVisible()
                 x.scrollIntoView();
@@ -341,18 +341,18 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
     } else if (data['new_lang'] != undefined) {
       //console.log("cambio lang cambio tutto")
       let instanceName = '';
-      if (data['lexicalEntryInstanceName'] != undefined) {
-        instanceName = data['lexicalEntryInstanceName']
-      } else if (data['formInstanceName'] != undefined) {
-        instanceName = data['formInstanceName']
-      } else if (data['senseInstanceName'] != undefined) {
-        instanceName = data['senseInstanceName']
+      if (data['lexicalEntry'] != undefined) {
+        instanceName = data['lexicalEntry']
+      } else if (data['form'] != undefined) {
+        instanceName = data['form']
+      } else if (data['sense'] != undefined) {
+        instanceName = data['sense']
       };
       setTimeout(() => {
         this.lexTree.lexicalEntryTree.treeModel.getNodeBy(
           function (x) {
-            if (data['lexicalEntryInstanceName'] != undefined) {
-              if (x.data.lexicalEntryInstanceName == instanceName) {
+            if (data['lexicalEntry'] != undefined) {
+              if (x.data.lexicalEntry == instanceName) {
                 x.data.language = data['new_lang']
                 //x.setActiveAndVisible()
                 x.scrollIntoView();
@@ -361,9 +361,9 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
               } else {
                 return false;
               }
-            } else if (data['formInstanceName'] != undefined) {
+            } else if (data['form'] != undefined) {
 
-              if (x.data.formInstanceName == instanceName) {
+              if (x.data.form == instanceName) {
                 x.data.language = data['new_lang']
                 //x.setActiveAndVisible()
                 x.scrollIntoView();
@@ -372,9 +372,9 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
               } else {
                 return false;
               }
-            } else if (data['senseInstanceName'] != undefined) {
+            } else if (data['sense'] != undefined) {
 
-              if (x.data.senseInstanceName == instanceName) {
+              if (x.data.seame == instanceName) {
                 x.data.language = data['new_lang']
                 //x.setActiveAndVisible()
                 x.scrollIntoView();
@@ -393,18 +393,18 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
     } else if (data['new_pos'] != undefined) {
       //console.log("cambio pos cambio tutto")
       let instanceName = '';
-      if (data['lexicalEntryInstanceName'] != undefined) {
-        instanceName = data['lexicalEntryInstanceName']
-      } else if (data['formInstanceName'] != undefined) {
-        instanceName = data['formInstanceName']
-      } else if (data['senseInstanceName'] != undefined) {
-        instanceName = data['senseInstanceName']
+      if (data['lexicalEntry'] != undefined) {
+        instanceName = data['lexicalEntry']
+      } else if (data['form'] != undefined) {
+        instanceName = data['form']
+      } else if (data['sense'] != undefined) {
+        instanceName = data['sense']
       };
       setTimeout(() => {
         this.lexTree.lexicalEntryTree.treeModel.getNodeBy(
           function (x) {
-            if (data['lexicalEntryInstanceName'] != undefined) {
-              if (x.data.lexicalEntryInstanceName == instanceName) {
+            if (data['lexicalEntry'] != undefined) {
+              if (x.data.lexicalEntry == instanceName) {
                 x.data.pos = data['new_pos']
                 //x.setActiveAndVisible()
                 x.scrollIntoView();
@@ -413,9 +413,9 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
               } else {
                 return false;
               }
-            } else if (data['formInstanceName'] != undefined) {
+            } else if (data['form'] != undefined) {
 
-              if (x.data.formInstanceName == instanceName) {
+              if (x.data.form == instanceName) {
                 x.data.pos = data['new_pos']
                 //x.setActiveAndVisible()
                 x.scrollIntoView();
@@ -424,9 +424,9 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
               } else {
                 return false;
               }
-            } else if (data['senseInstanceName'] != undefined) {
+            } else if (data['sense'] != undefined) {
 
-              if (x.data.senseInstanceName == instanceName) {
+              if (x.data.seame == instanceName) {
                 x.data.pos = data['new_pos']
                 //x.setActiveAndVisible()
                 x.scrollIntoView();
@@ -451,8 +451,8 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.lexTree.lexicalEntryTree.treeModel.getNodeBy(
         function (x) {
-          if (x.data.senseInstanceName != undefined) {
-            if (x.data.senseInstanceName == data['senseInstanceName']) {
+          if (x.data.sense != undefined) {
+            if (x.data.sense == data['sense']) {
               if(data['new_definition'] == ''){
                 x.data.label = 'no definition';
               }else{
@@ -479,8 +479,8 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.lexTree.lexicalEntryTree.treeModel.getNodeBy(
         function (x) {
-          if (x.data.formInstanceName != undefined) {
-            if (x.data.formInstanceName == data['formInstanceName']) {
+          if (x.data.form != undefined) {
+            if (x.data.form == data['form']) {
               x.data.label = data['new_label'];
               that.lexTree.lexicalEntryTree.treeModel.update();
               that.lexTree.updateTreeView();
@@ -505,8 +505,8 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.lexTree.lexicalEntryTree.treeModel.getNodeBy(
         function (x) {
-          if (x.data.formInstanceName != undefined) {
-            if (x.data.formInstanceName == data['formInstanceName']) {
+          if (x.data.form != undefined) {
+            if (x.data.form == data['form']) {
               x.data.type = data['new_type'];
               //console.log(x.data.note)
               that.lexTree.lexicalEntryTree.treeModel.update();
@@ -552,23 +552,25 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
     this.lexicalService.newLexicalEntry().pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         console.log(data);
-
-        this.toastr.success(data['lexicalEntryInstanceName'] + ' added correctly', '', {
+        let newLexEntryLabel = data['label'];
+        let parameters = this.lexTree.getParameters();
+        this.lexTree.lexicalEntriesFilter(parameters);
+        
+        this.toastr.success(data['lexicalEntry'] + ' added correctly', '', {
           timeOut: 5000,
         });
 
         setTimeout(() => {
-          let newLexEntryLabel = data['label'];
-          let parameters = this.lexTree.getParameters();
-          parameters['text'] = newLexEntryLabel /* + "~0.5"; */
-          this.lexTree.lexicalEntriesFilter(parameters);
+          
+          //parameters['text'] = newLexEntryLabel
           this.lexTree.lexicalEntryTree.treeModel.update();
           this.lexTree.updateTreeView();
+          
 
           setTimeout(() => {
             this.lexTree.lexicalEntryTree.treeModel.getNodeBy(
               function (x) {
-                if (x.data.lexicalEntryInstanceName == data['lexicalEntryInstanceName']) {
+                if (x.data.lexicalEntry == data['lexicalEntry']) {
                   x.setActiveAndVisible()
                   return true;
                 } else {

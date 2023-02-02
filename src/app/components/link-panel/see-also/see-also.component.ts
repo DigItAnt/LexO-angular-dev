@@ -109,15 +109,15 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
 
         });
 
-        if (this.object.lexicalEntryInstanceName != undefined) {
+        if (this.object.lexicalEntry != undefined) {
           this.isLexEntry = true;
           this.isForm = false;
           this.isSense = false;
-        } else if (this.object.formInstanceName != undefined) {
+        } else if (this.object.form != undefined) {
           this.isLexEntry = false;
           this.isForm = true;
           this.isSense = false;
-        } else if (this.object.senseInstanceName != undefined) {
+        } else if (this.object.sense != undefined) {
           this.isLexEntry = false;
           this.isForm = false;
           this.isSense = true;
@@ -135,14 +135,14 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
     if (value.trim() != "") {
       var selectedValues = value;
       var lexicalElementId = '';
-      if (this.object.lexicalEntryInstanceName != undefined) {
-        lexicalElementId = this.object.lexicalEntryInstanceName;
-      } else if (this.object.formInstanceName != undefined) {
-        lexicalElementId = this.object.formInstanceName;
-      } else if (this.object.senseInstanceName != undefined) {
-        lexicalElementId = this.object.senseInstanceName;
-      } else if (this.object.etymologyInstanceName != undefined) {
-        lexicalElementId = this.object.etymologyInstanceName;
+      if (this.object.lexicalEntry != undefined) {
+        lexicalElementId = this.object.lexicalEntry;
+      } else if (this.object.form != undefined) {
+        lexicalElementId = this.object.form;
+      } else if (this.object.sense != undefined) {
+        lexicalElementId = this.object.sense;
+      } else if (this.object.etymology != undefined) {
+        lexicalElementId = this.object.etymology;
       }
 
       console.log(this.object)
@@ -201,16 +201,16 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
   async onChangeSeeAlso(seeAlso, index) {
     //console.log(seeAlso.selectedItems)
     if (seeAlso.selectedItems.length != 0) {
-      var selectedValues = seeAlso.selectedItems[0].value.lexicalEntryInstanceName;
+      var selectedValues = seeAlso.selectedItems[0].value.lexicalEntry;
       var lexicalElementId = '';
-      if (this.object.lexicalEntryInstanceName != undefined) {
-        lexicalElementId = this.object.lexicalEntryInstanceName;
-      } else if (this.object.formInstanceName != undefined) {
-        lexicalElementId = this.object.formInstanceName;
-      } else if (this.object.senseInstanceName != undefined) {
-        lexicalElementId = this.object.senseInstanceName;
-      } else if (this.object.etymologyInstanceName != undefined) {
-        lexicalElementId = this.object.etymologyInstanceName;
+      if (this.object.lexicalEntry != undefined) {
+        lexicalElementId = this.object.lexicalEntry;
+      } else if (this.object.form != undefined) {
+        lexicalElementId = this.object.form;
+      } else if (this.object.sense != undefined) {
+        lexicalElementId = this.object.sense;
+      } else if (this.object.etymology != undefined) {
+        lexicalElementId = this.object.etymology;
       }
 
       if (this.memorySeeAlso[index] == undefined) {
@@ -279,7 +279,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
     this.filterLoading = true;
     this.searchResults = [];
     console.log(this.object)
-    if (this.object.lexicalEntryInstanceName != undefined) {
+    if (this.object.lexicalEntry != undefined) {
       let parameters = {
         text: data,
         searchMode: "startsWith",
@@ -296,6 +296,9 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
 
       let lexical_entries_list = await this.lexicalService.getLexicalEntriesList(parameters).toPromise();
       if (lexical_entries_list) {
+        lexical_entries_list.list.forEach(element => {
+          element['label_lang'] = element.label + "@" + element.language;
+        });
         this.searchResults = lexical_entries_list['list']
         this.filterLoading = false;
       } else {
@@ -303,7 +306,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
       }
 
 
-    } else if (this.object.formInstanceName != undefined) {
+    } else if (this.object.form != undefined) {
       let lexId = this.object.parentInstanceName;
       let parameters = {
         text: data,
@@ -320,7 +323,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
       } else {
         this.filterLoading = false;
       }
-    } else if (this.object.senseInstanceName != undefined) {
+    } else if (this.object.sense != undefined) {
 
       let parameters = {
         text: data,
@@ -343,7 +346,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         this.filterLoading = false;
       }
 
-    } else if (this.object.etymologyInstanceName != undefined) {
+    } else if (this.object.etymology != undefined) {
 
       let parameters = {
         text: data,
@@ -433,9 +436,9 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
       //console.log('Entity: '+lexical_entity)
     }
 
-    if (this.object.lexicalEntryInstanceName != undefined) {
+    if (this.object.lexicalEntry != undefined) {
 
-      let lexId = this.object.lexicalEntryInstanceName;
+      let lexId = this.object.lexicalEntry;
 
       let parameters = {
         relation: 'seeAlso',
@@ -463,8 +466,8 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
       }
 
 
-    } else if (this.object.formInstanceName != undefined) {
-      let formId = this.object.formInstanceName;
+    } else if (this.object.form != undefined) {
+      let formId = this.object.form;
 
       let parameters = {
         relation: 'seeAlso',
@@ -487,8 +490,8 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
       }
 
 
-    } else if (this.object.senseInstanceName != undefined) {
-      let senseId = this.object.senseInstanceName;
+    } else if (this.object.sense != undefined) {
+      let senseId = this.object.sense;
 
       let parameters = {
         type: 'morphology',
@@ -513,8 +516,8 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         });
         this.lexicalService.refreshLinkCounter('-1')
       }
-    } else if (this.object.etymologyInstanceName != undefined) {
-      let etymId = this.object.etymologyInstanceName;
+    } else if (this.object.etymology != undefined) {
+      let etymId = this.object.etymology;
       this.lexicalService.refreshLinkCounter('-1')
 
       let parameters = {

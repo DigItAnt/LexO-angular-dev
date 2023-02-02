@@ -220,7 +220,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
    
     this.etyForm.get('confidence').valueChanges.pipe(debounceTime(100), startWith(this.etyForm.get('confidence').value), pairwise(), takeUntil(this.destroy$)).subscribe(([prev, next]: [any, any]) => {
       this.lexicalService.spinnerAction('on');
-      let etyId = this.object.etymology.etymologyInstanceName;
+      let etyId = this.object.etymology.etymology;
 
       this.etyForm.get('confidence').setValue(next, { emitEvent: false });
 
@@ -264,7 +264,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
 
   /* async updateConfidence(confidence_value: any) {
     this.lexicalService.spinnerAction('on');
-    let etyId = this.object.etymology.etymologyInstanceName;
+    let etyId = this.object.etymology.etymology;
     let parameters = {
       type: "confidence",
       relation: 'confidence',
@@ -287,7 +287,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
 
   async updateLabel(updatedLabel : string){
     this.lexicalService.spinnerAction('on');
-    let etyId = this.object.etymology.etymologyInstanceName;
+    let etyId = this.object.etymology.etymology;
     let parameters = {
       relation: 'label',
       value: updatedLabel
@@ -320,7 +320,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
 
   async updateAuthor(updateAuthor){
     this.lexicalService.spinnerAction('on');
-    let etyId = this.object.etymology.etymologyInstanceName;
+    let etyId = this.object.etymology.etymology;
     let parameters = {
       relation: 'hypothesisOf',
       value: updateAuthor
@@ -426,7 +426,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
     let selectedValues, etymId;
     selectedValues = evt.target.value;
 
-    if (this.object.etymology.etymologyInstanceName != undefined) {
+    if (this.object.etymology.etymology != undefined) {
       etymId = this.object.etyLinks[index].etymologicalLinkInstanceName;
     }
 
@@ -478,7 +478,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
 
     //console.log(index);
     //console.log(this.object.etyLinks[index])
-    if (this.object.etymology.etymologyInstanceName != undefined) {
+    if (this.object.etymology.etymology != undefined) {
       etymId = this.object.etyLinks[index].etymologicalLinkInstanceName;
     }
 
@@ -646,7 +646,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
     this.etyLinkArray.push(this.createEtyLink());
     let index = this.etyLinkArray.length - 1;
 
-    let etyId = this.object.etymology.etymologyInstanceName;
+    let etyId = this.object.etymology.etymology;
     let lexId = this.object.parentNodeInstanceName;
 
     console.log(etyId, lexId)

@@ -103,8 +103,8 @@
                             <select class="form-control selectTrait" formControlName="pos" name="pos"
                                 style="font-size:12px;" (change)="onChangePos($event)">
                                 <option value="">Select a value...</option>
-                                <option *ngFor="let item of valuePos;" [selected]="item.valueId == object.pos">
-                                    {{item.valueId}}</option>
+                                <option *ngFor="let item of valuePos;" [value]="item.valueId" [selected]="item.valueId == object.pos">
+                                    {{item.valueLabel}}</option>
                             </select>
                             <div class="input-group-append ml-2">
                                 <button class="btn btn-secondary pos-tooltip" type="button" placement="top" container="body" [ngbTooltip]="posDescription"
@@ -121,15 +121,15 @@
 
 
                     <ng-container *ngFor="let stat of staticMorpho; let i = index">
-                        <div class="d-flex my-3" *ngIf="stat['trait'] != 'partOfSpeech'">
+                        <div class="d-flex my-3" *ngIf="stat['trait'] != 'http://www.lexinfo.net/ontology/3.0/lexinfo#partOfSpeech'">
                             <div class="col-md-4">
-                                <label class="col-form-label">{{stat['trait']}}</label>
+                                <label class="col-form-label">{{stat['trait'].split('#')[1]}}</label>
                             </div>
                             <div class="input-group col-md-8">
                                 <select class="form-control selectTrait" style="font-size:12px;"
                                     (change)="onChangeExistingValue($event, i)">
                                     <option *ngFor="let item of valueTraits[i];"
-                                        [selected]="stat['value'] === item.valueId">{{item.valueId}}</option>
+                                        [selected]="stat['value'] === item.valueId">{{item.valueLabel}}</option>
                                 </select>
                                 <div class="input-group-append ml-2">
                                     <button *ngIf="coreForm['controls'].morphoTraits?.value[i] != null" class="btn btn-secondary trait-tooltip" type="button" data-toggle="tooltip"
@@ -154,8 +154,9 @@
                                     style="font-size: 12px;" (change)="onChangeTrait($event, i)">
                                     <option value="">Select a trait...</option>
                                     <option *ngFor="let mt of morphologyData"
-                                        [selected]="morpho.value['trait'] === mt.propertyId"
-                                        [disabled]="memoryTraits.indexOf(mt.propertyId) > -1 || mt.propertyId == 'partOfSpeech'">{{mt.propertyId}}</option>
+                                        [selected]="morpho.value['trait'] === mt.propertyId" 
+                                        [value]="mt.propertyId"
+                                        [disabled]="memoryTraits.indexOf(mt.propertyId) > -1 || mt.propertyId == 'http://www.lexinfo.net/ontology/3.0/lexinfo#partOfSpeech'">{{mt.propertyLabel}}</option>
                                 </select>
                                 <div class="invalid-feedback" *ngIf="morpho.get('trait').invalid"
                                     style="display: block;">
@@ -167,7 +168,7 @@
                                     style="font-size:12px;" (change)="onChangeValue(i)">
                                     <option value="">Select a value...</option>
                                     <option *ngFor="let item of valueTraits[i];" [attr.data-index]="i"
-                                        [selected]="morpho.value['value'] === item.valueId">{{item.valueId}}</option>
+                                        [selected]="morpho.value['value'] === item.valueId" [value]="item.valueId">{{item.valueLabel}}</option>
                                 </select>
                                 <div (click)="removeElement(i)" class="input-group-append ml-2"> <button
                                         class="btn btn-danger" type="button"
@@ -288,7 +289,7 @@
                                     type="button"><i class="fas fa-globe-europe"></i></a>
                             </div>
                             <div class="input-group-append ml-2" *ngIf="cog.get('type').value == 'internal' && cog.get('entity').value != ''" container="body" placement="top" ngbTooltip="Open in new panel">
-                                <a  (click)="loadCognateData(cog.get('instanceName').value, cog.get('lexicalEntryInstanceName').value, cog.get('label').value); "  class="btn btn-primary"
+                                <a  (click)="loadCognateData(cog.get('entity').value, cog.get('lexicalEntry').value, cog.get('label').value); "  class="btn btn-primary"
                                     type="button"><i class="fas fa-external-link-alt"></i></a>
                             </div>
                             <div class="input-group-append ml-2" *ngIf="!variable.switch">

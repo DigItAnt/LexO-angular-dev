@@ -91,8 +91,8 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
       this.biblioArray = this.bibliographyForm.get('bibliography') as FormArray;
       this.biblioArray.clear();
 
-      if (this.object.lexicalEntryInstanceName != undefined && this.object.formInstanceName == undefined) {
-        let lexId = this.object.lexicalEntryInstanceName;
+      if (this.object.lexicalEntry != undefined && this.object.form == undefined) {
+        let lexId = this.object.lexicalEntry;
         this.lexicalService.getBibliographyData(lexId).pipe(takeUntil(this.destroy$)).subscribe(
           data => {
             console.log(data);
@@ -109,23 +109,27 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
               });
 
               /* this.bibliographyData['parentNodeLabel']= this.object['lexicalEntry'];
-              this.bibliographyData['lexicalEntryInstanceName']= this.object['lexicalEntryInstanceName']; */
+              this.bibliographyData['lexicalEntry']= this.object['lexicalEntry']; */
             }
 
 
 
           }, error => {
 
+            if(error.status == 200){
 
-            this.toastr.error(error.error, 'Error', {
-              timeOut: 5000,
-            });
+            }else{
+              this.toastr.error(error.error, 'Error', {
+                timeOut: 5000,
+              });
+            }
+            
 
           }
         )
 
-      } else if (this.object.formInstanceName != undefined) {
-        let formId = this.object.formInstanceName;
+      } else if (this.object.form != undefined) {
+        let formId = this.object.form;
         this.lexicalService.getBibliographyData(formId).pipe(takeUntil(this.destroy$)).subscribe(
           data => {
             console.log(data);
@@ -141,7 +145,7 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
             });
 
             this.bibliographyData['parentNodeLabel'] = this.object['form'];
-            this.bibliographyData['formInstanceName'] = this.object['formInstanceName'];
+            this.bibliographyData['form'] = this.object['form'];
           }, error => {
             this.toastr.error(error.error, 'Error', {
               timeOut: 5000,
@@ -151,8 +155,8 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
           }
         )
 
-      } else if (this.object.senseInstanceName != undefined) {
-        let senseId = this.object.senseInstanceName;
+      } else if (this.object.sense != undefined) {
+        let senseId = this.object.sense;
         this.lexicalService.getBibliographyData(senseId).pipe(takeUntil(this.destroy$)).subscribe(
           data => {
             console.log(data);
@@ -168,7 +172,7 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
             });
 
             this.bibliographyData['parentNodeLabel'] = this.object['sense'];
-            this.bibliographyData['senseInstanceName'] = this.object['senseInstanceName'];
+            this.bibliographyData['sense'] = this.object['sense'];
           }, error => {
             this.toastr.error(error.error, 'Error', {
               timeOut: 5000,
@@ -177,8 +181,8 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
 
           }
         )
-      } else if (this.object.etymologyInstanceName != undefined) {
-        let etymId = this.object.etymologyInstanceName;
+      } else if (this.object.etymology != undefined) {
+        let etymId = this.object.etymology;
         this.lexicalService.getBibliographyData(etymId).pipe(takeUntil(this.destroy$)).subscribe(
           data => {
             console.log(data);
@@ -194,7 +198,7 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
             });
 
             this.bibliographyData['parentNodeLabel'] = this.object['etymology'];
-            this.bibliographyData['etymologyInstanceName'] = this.object['etymologyInstanceName'];
+            this.bibliographyData['etymology'] = this.object['etymology'];
           }, error => {
             this.toastr.error(error.error, 'Error', {
               timeOut: 5000,
@@ -237,7 +241,7 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
 
 
 
-      let instanceName = this.bibliographyData[index].bibliographyInstanceName;
+      let instanceName = this.bibliographyData[index].bibliography;
 
 
       let parameters;
@@ -303,7 +307,7 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
     this.biblioArray = this.bibliographyForm.get('bibliography') as FormArray;
     this.countElement--;
 
-    let instanceName = this.bibliographyData[index].bibliographyInstanceName;
+    let instanceName = this.bibliographyData[index].bibliography;
 
     this.lexicalService.removeBibliographyItem(instanceName).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
@@ -365,18 +369,18 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
     console.log(id)
     this.loadingSynchro[i] = true;
     let lexId = '';
-    if (this.object.lexicalEntryInstanceName != undefined
-      && this.object.senseInstanceName == undefined) {
+    if (this.object.lexicalEntry != undefined
+      && this.object.sense == undefined) {
       console.log(1)
-      lexId = this.object.lexicalEntryInstanceName;
-    } else if (this.object.formInstanceName != undefined) {
-      lexId = this.object.formInstanceName;
+      lexId = this.object.lexicalEntry;
+    } else if (this.object.form != undefined) {
+      lexId = this.object.form;
       console.log(2)
-    } else if (this.object.senseInstanceName != undefined) {
-      lexId = this.object.senseInstanceName;
+    } else if (this.object.sense != undefined) {
+      lexId = this.object.sense;
       console.log(3)
-    } else if (this.object.etymologyInstanceName != undefined) {
-      lexId = this.object.etymologyInstanceName;
+    } else if (this.object.etymology != undefined) {
+      lexId = this.object.etymology;
     }
 
     this.lexicalService.synchronizeBibliographyItem(lexId, id).pipe(debounceTime(500), takeUntil(this.destroy$)).subscribe(

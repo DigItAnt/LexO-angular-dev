@@ -305,15 +305,15 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
       console.log(lex)
       console.log(data)
       switch (lex.request) {
-        case 'form': instanceName = 'formInstanceName'; break;
-        case 'sense': instanceName = 'senseInstanceName'; break;
-        case 'etymology': instanceName = 'etymologyInstanceName'; break;
-        case 'subterm': instanceName = 'lexicalEntryInstanceName'; break;
-        case 'constituent': instanceName = 'componentInstanceName'; break;
+        case 'form': instanceName = 'form'; break;
+        case 'sense': instanceName = 'sense'; break;
+        case 'etymology': instanceName = 'etymology'; break;
+        case 'subterm': instanceName = 'lexicalEntry'; break;
+        case 'constituent': instanceName = 'component'; break;
       }
       this.lexicalEntryTree.treeModel.getNodeBy(x => {
-        if (lex.lexicalEntryInstanceName != undefined) {
-          if (x.data.lexicalEntryInstanceName === lex.lexicalEntryInstanceName) {
+        if (lex.lexicalEntry != undefined) {
+          if (x.data.lexicalEntry === lex.lexicalEntry) {
             if (x.data.children == undefined && !x.isExpanded) {
               x.expand();
               var that = this;
@@ -380,7 +380,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
                     this.lexicalEntryTree.treeModel.getNodeBy(y => {
                       if (y.data.etymology == undefined && y.data.label === data['label'] && lex.request != 'subterm') {
                         y.setActiveAndVisible();
-                      } else if (y.data.etymology != undefined && y.data.etymologyInstanceName === data['etymologyInstanceName'] && lex.request != 'subterm') {
+                      } else if (y.data.etymology != undefined && y.data.etymology === data['etymology'] && lex.request != 'subterm') {
                         y.setActiveAndVisible();
                       }
                     })
@@ -468,8 +468,8 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
     setTimeout(() => {
 
       this.lexicalEntryTree.treeModel.getNodeBy(x => {
-        if (signal.lexicalEntryInstanceName != undefined && signal.formInstanceName == undefined) {
-          if (x.data.lexicalEntryInstanceName === signal.lexicalEntryInstanceName) {
+        if (signal.lexicalEntry != undefined && signal.form == undefined) {
+          if (x.data.lexicalEntry === signal.lexicalEntry) {
 
             x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
 
@@ -497,8 +497,8 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
           } else {
             return false;
           }
-        } else if (signal.formInstanceName != undefined) {
-          if (x.data.formInstanceName === signal.formInstanceName) {
+        } else if (signal.form != undefined) {
+          if (x.data.form === signal.form) {
 
             x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
             let countForm = x.parent.data.count;
@@ -518,8 +518,8 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
           } else {
             return false;
           }
-        } else if (signal.senseInstanceName != undefined) {
-          if (x.data.senseInstanceName === signal.senseInstanceName) {
+        } else if (signal.sense != undefined) {
+          if (x.data.sense === signal.sense) {
 
             x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
             let countSense = x.parent.data.count;
@@ -540,7 +540,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
             return false;
           }
         } else if (signal.etymology != undefined) {
-          if (x.data.etymologyInstanceName === signal.etymology.etymologyInstanceName) {
+          if (x.data.etymology === signal.etymology.etymology) {
             x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
             let countSense = x.parent.data.count;
             if (countSense != 0) {
@@ -581,13 +581,13 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
           }
         } else if (signal.subtermInstanceName != undefined) {
           let parent = signal.parentNodeInstanceName;
-          if (x.data.lexicalEntryInstanceName == signal.parentNodeInstanceName) {
+          if (x.data.lexicalEntry == signal.parentNodeInstanceName) {
             console.log(x)
             let children = x.data.children;
 
             if (children.length >= 1) {
               Array.from(children).forEach((y: any) => {
-                if (y.lexicalEntryInstanceName == signal.subtermInstanceName) {
+                if (y.lexicalEntry == signal.subtermInstanceName) {
 
                   console.log(y, x)
 
@@ -709,14 +709,14 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
       && $event.node.data.form == undefined
       && $event.node.data.sense == undefined
       && $event.node.data.etymology == undefined
-      && $event.node.data.lexicalEntryInstanceName != this.selectedNodeId) {
+      && $event.node.data.lexicalEntry != this.selectedNodeId) {
       //this.lexicalService.sendToCoreTab($event.node.data);
-      let idLexicalEntry = $event.node.data.lexicalEntryInstanceName;
+      let idLexicalEntry = $event.node.data.lexicalEntry;
       this.lexicalService.getLexEntryData(idLexicalEntry).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
 
           console.log(data);
-          this.selectedNodeId = $event.node.data.lexicalEntryInstanceName;
+          this.selectedNodeId = $event.node.data.lexicalEntry;
           this.lexicalService.sendToCoreTab(data);
           this.lexicalService.sendToRightTab(data);
           this.lexicalService.sendToEtymologyTab(null);
@@ -764,21 +764,21 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
           }
         },
         error => {
-
+          console.log(error)
         }
       )
     } else if ($event.eventName == 'activate'
       && $event.node.data.form != undefined
-      && $event.node.data.formInstanceName != this.selectedNodeId) {
+      && $event.node.data.form != this.selectedNodeId) {
 
-      let formId = $event.node.data.formInstanceName;
+      let formId = $event.node.data.form;
 
       this.lexicalService.getFormData(formId, 'core').pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           console.log(data)
-          this.selectedNodeId = $event.node.data.formInstanceName;
+          this.selectedNodeId = $event.node.data.form;
           data['parentNodeLabel'] = $event.node.parent.parent.data.label;
-          data['parentNodeInstanceName'] = $event.node.parent.parent.data.lexicalEntryInstanceName;
+          data['parentNodeInstanceName'] = $event.node.parent.parent.data.lexicalEntry;
           this.lexicalService.sendToCoreTab(data)
           this.lexicalService.sendToEtymologyTab(null);
           this.lexicalService.sendToRightTab(data);
@@ -822,15 +822,15 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
 
     } else if ($event.eventName == 'activate'
       && $event.node.data.sense != undefined
-      && $event.node.data.senseInstanceName != this.selectedNodeId) {
+      && $event.node.data.sense != this.selectedNodeId) {
 
-      let senseId = $event.node.data.senseInstanceName;
+      let senseId = $event.node.data.sense;
 
       this.lexicalService.getSenseData(senseId, 'core').pipe(takeUntil(this.destroy$)).subscribe(
         data => {
-          this.selectedNodeId = $event.node.data.senseInstanceName;
+          this.selectedNodeId = $event.node.data.sense;
           data['parentNodeLabel'] = $event.node.parent.parent.data.label;
-          data['parentNodeInstanceName'] = $event.node.parent.parent.data.lexicalEntryInstanceName;
+          data['parentNodeInstanceName'] = $event.node.parent.parent.data.lexicalEntry;
           data['type'] = $event.node.parent.parent.data.type;
           console.log(data)
           this.lexicalService.sendToCoreTab(data)
@@ -875,15 +875,15 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
       )
     } else if ($event.eventName == 'activate'
       && $event.node.data.etymology != undefined
-      && $event.node.data.etymologyInstanceName != this.selectedNodeId) {
+      && $event.node.data.etymology != this.selectedNodeId) {
 
-      let etymologyId = $event.node.data.etymologyInstanceName;
+      let etymologyId = $event.node.data.etymology;
 
       this.lexicalService.getEtymologyData(etymologyId).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
-          this.selectedNodeId = $event.node.data.etymologyInstanceName;
+          this.selectedNodeId = $event.node.data.etymology;
           data['parentNodeLabel'] = $event.node.parent.parent.data.label;
-          data['parentNodeInstanceName'] = $event.node.parent.parent.data.lexicalEntryInstanceName;
+          data['parentNodeInstanceName'] = $event.node.parent.parent.data.lexicalEntry;
           console.log(data)
           data['type'] = $event.node.parent.parent.data.type;
           // this.lexicalService.sendToAttestationPanel(null);
@@ -932,7 +932,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
 
       let compId = $event.node.data.componentInstanceName;
       let parentInstanceLabel = $event.node.parent.parent.data.label;
-      let parentInstanceName = $event.node.parent.parent.data.lexicalEntryInstanceName;
+      let parentInstanceName = $event.node.parent.parent.data.lexicalEntry;
 
       this.lexicalService.getLexEntryData(parentInstanceName).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
@@ -1037,10 +1037,10 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
   async getChildren(node: any) {
     //TODO: chiamare tutti i figli in una sola botta e pusharglierli tutti in una volta 
     let newNodes: any;
-    if (node.data.lexicalEntryInstanceName != undefined) {
+    if (node.data.lexicalEntry != undefined) {
 
       try {
-        let instance = node.data.lexicalEntryInstanceName;
+        let instance = node.data.lexicalEntry;
         let data = await this.lexicalService.getLexEntryElements(instance).toPromise();
         console.log(data['elements'])
         data["elements"] = data["elements"].filter(function (obj) {

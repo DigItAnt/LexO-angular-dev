@@ -41,6 +41,8 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
   definitionData = [];
   definitionMemory = [];
 
+  memoryConfidence = null;
+
   staticDef = [];
 
   senseCore = new FormGroup({
@@ -115,6 +117,8 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
         this.definitionArray.clear();
 
         this.staticDef = [];
+
+        this.memoryConfidence = null;
       }
       this.object = changes.senseData.currentValue;
       if (this.object != null) {
@@ -145,7 +149,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
         if (this.object.confidence == 0) {
           this.senseCore.get('confidence').setValue(true, { emitEvent: false });
         } else {
-          this.senseCore.get('confidence').setValue(false, { emitEvent: false });
+          this.senseCore.get('confidence').setValue(null, { emitEvent: false });
         }
         this.senseCore.get('topic').setValue(this.object.topic, { emitEvent: false })
         this.senseCore.get('usage').setValue(this.object.usage, { emitEvent: false });
@@ -191,7 +195,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
     this.senseCore.get('confidence').valueChanges.pipe(debounceTime(100), startWith(this.senseCore.get('confidence').value), pairwise(), takeUntil(this.destroy$)).subscribe(([prev, next]: [any, any]) => {
       let confidence_value = null;
       console.log(confidence_value);
-      let senseId = this.object.senseInstanceName;
+      let senseId = this.object.sense;
 
       this.senseCore.get('confidence').setValue(next, { emitEvent: false });
 
@@ -204,10 +208,13 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
       };
 
 
-      if (prev !== null) parameters['currentValue'] = oldValue;
+      if (this.memoryConfidence != null) parameters['currentValue'] = oldValue;
+      this.memoryConfidence = oldValue;
 
       this.lexicalService.updateGenericRelation(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
-        data => { },
+        data => { 
+          console.log(data)
+        },
         error => {
           if (error.status == 200) this.toastr.success('Confidence updated', '', { timeOut: 5000 })
           if (error.status != 200) this.toastr.error(error.error, '', { timeOut: 5000 })
@@ -435,7 +442,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
     this.definitionArray = this.senseCore.get('definition') as FormArray;
     const trait = this.definitionArray.at(i).get('propertyID').value;
     const newValue = evt.target.value;
-    const senseId = this.object.senseInstanceName;
+    const senseId = this.object.sense;
     const parameters = { relation: trait, value: newValue }
 
     if (trait != undefined && newValue != '') {
@@ -484,7 +491,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
     this.definitionArray = this.senseCore.get('definition') as FormArray;
     const trait = this.definitionArray.at(object.i).get('propertyID').value;
     const newValue = object.evt.target.value;
-    const senseId = this.object.senseInstanceName;
+    const senseId = this.object.sense;
     const parameters = { relation: trait, value: newValue }
 
     if (trait != undefined) {
@@ -500,28 +507,31 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
         }, error => {
           console.log(error);
           //this.lexicalService.refreshLexEntryTree();
+          
           this.disableAddDef = false;
-          if (trait == 'definition') {
-            const data = this.object;
-            data['whatToSearch'] = 'sense';
-            data['new_definition'] = newValue;
-            data['request'] = 6;
-
-            this.lexicalService.refreshAfterEdit(data);
-
-          }
-
           if (error.status != 200) {
             this.toastr.error(error.error, 'Error', {
               timeOut: 5000,
             });
+            this.lexicalService.spinnerAction('off');
           } else {
+            
+            if (trait == 'definition') {
+              const data = this.object;
+              data['whatToSearch'] = 'sense';
+              data['new_definition'] = newValue;
+              data['request'] = 6;
+
+              this.lexicalService.refreshAfterEdit(data);
+
+            }
+            this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
+            this.lexicalService.spinnerAction('off');
             this.toastr.success('Sense ' + trait + ' changed', '', {
               timeOut: 5000,
             });
           }
-          this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
-          this.lexicalService.spinnerAction('off');
+          
         }
       )
     } else {

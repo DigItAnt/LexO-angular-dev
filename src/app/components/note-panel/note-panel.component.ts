@@ -119,8 +119,8 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
           this.lexicalService.spinnerAction('on');
           console.log(this.object)
           //console.log(this.object)
-          if (this.object.lexicalEntryInstanceName != undefined) {
-            var lexId = this.object.lexicalEntryInstanceName;
+          if (this.object.lexicalEntry != undefined) {
+            var lexId = this.object.lexicalEntry;
             var parameters = {
               relation: "note",
               value: newNote
@@ -149,8 +149,8 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
                 });
               }
             )
-          } else if (this.object.formInstanceName != undefined) {
-            var formId = this.object.formInstanceName;
+          } else if (this.object.form != undefined) {
+            var formId = this.object.form;
             var parameters = {
               relation: "note",
               value: newNote
@@ -179,8 +179,8 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
                 });
               }
             )
-          } else if (this.object.senseInstanceName != undefined) {
-            var senseId = this.object.senseInstanceName;
+          } else if (this.object.sense != undefined) {
+            var senseId = this.object.sense;
             var parameters = {
               relation: "note",
               value: newNote
@@ -209,8 +209,8 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
                 });
               }
             )
-          } else if (this.object.etymologyInstanceName != undefined) {
-            var etymId = this.object.etymologyInstanceName;
+          } else if (this.object.etymology != undefined) {
+            var etymId = this.object.etymology;
             var parameters = {
               relation: "note",
               value: newNote

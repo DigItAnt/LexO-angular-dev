@@ -11,6 +11,7 @@ You should have received a copy of the GNU General Public License along with Epi
 */
 
 import { Component, Input, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 
@@ -30,7 +31,7 @@ export class LinkPanelComponent implements OnInit, OnDestroy {
 
   refresh_subscription : Subscription;
 
-  constructor(private lexicalService: LexicalEntriesService) { }
+  constructor(private lexicalService: LexicalEntriesService, private toastr : ToastrService) { }
 
   ngOnInit(): void {
 
@@ -55,18 +56,18 @@ export class LinkPanelComponent implements OnInit, OnDestroy {
       let lexicalElementId = '';
       let instanceNameType = '';
       let parameters = {};
-      if (this.object.lexicalEntryInstanceName != undefined) {
-        lexicalElementId = this.object.lexicalEntryInstanceName;
-        instanceNameType = 'lexicalEntryInstanceName'
-      } else if (this.object.formInstanceName != undefined) {
-        lexicalElementId = this.object.formInstanceName;
-        instanceNameType = 'formInstanceName'
-      } else if (this.object.senseInstanceName != undefined) {
-        lexicalElementId = this.object.senseInstanceName;
-        instanceNameType = 'senseInstanceName'
-      } else if (this.object.etymologyInstanceName != undefined) {
-        lexicalElementId = this.object.etymologyInstanceName;
-        instanceNameType = 'etymologyInstanceName'
+      if (this.object.lexicalEntry != undefined) {
+        lexicalElementId = this.object.lexicalEntry;
+        instanceNameType = 'lexicalEntry'
+      } else if (this.object.form != undefined) {
+        lexicalElementId = this.object.form;
+        instanceNameType = 'form'
+      } else if (this.object.sense != undefined) {
+        lexicalElementId = this.object.sense;
+        instanceNameType = 'sense'
+      } else if (this.object.etymology != undefined) {
+        lexicalElementId = this.object.etymology;
+        instanceNameType = 'etymology'
       }
       /* //console.log(changes.linkData.currentValue) */
 
@@ -76,22 +77,26 @@ export class LinkPanelComponent implements OnInit, OnDestroy {
         console.log(same_as_data)
         this.sameAsData = {}
         this.sameAsData['array'] = same_as_data;
-        if(instanceNameType == 'lexicalEntryInstanceName'){
+        if(instanceNameType == 'lexicalEntry'){
           this.sameAsData['parentNodeLabel']= this.object['lexicalEntry'];
         }
         this.sameAsData[instanceNameType]= this.object[instanceNameType];
         this.sameAsData['type'] = this.object.type;
       }catch(e){
-        console.log(this.object)
-        this.sameAsData = {}
-        this.sameAsData['array'] = [];
-        if(instanceNameType == 'lexicalEntryInstanceName'){
-          this.sameAsData['parentNodeLabel']= this.object['lexicalEntry'];
+        if(e.status == 200){
+          this.sameAsData = {}
+          this.sameAsData['array'] = [];
+          if(instanceNameType == 'lexicalEntry'){
+            this.sameAsData['parentNodeLabel']= this.object['lexicalEntry'];
+          }
+          this.sameAsData[instanceNameType]= this.object[instanceNameType];
+          this.sameAsData['label']= this.object['label'];
+          this.sameAsData['type'] = this.object.type;
+          console.log(e);
+        }else{
+          this.toastr.info(e.error.text, 'Info', {timeOut: 5000})
         }
-        this.sameAsData[instanceNameType]= this.object[instanceNameType];
-        this.sameAsData['label']= this.object['label'];
-        this.sameAsData['type'] = this.object.type;
-        console.log(e);
+        
       }
       
       try{

@@ -156,35 +156,42 @@
                         (dblclick)="node.mouseAction('dblClick', $event)" [contextMenu]="basicMenu" [contextMenuSubject]="node.data">
     
                         <span
-                            *ngIf="node.data.count == undefined && labelView && node.data.componentInstanceName == undefined && node.data.definition == undefined && node.data.type!='canonicalForm' && node.data.sense == undefined">{{
+                            *ngIf="node.data.count == undefined && labelView && node.data.component == undefined && node.data.etymology == undefined && node.data.definition == undefined && node.data.type!='canonicalForm' && node.data.sense == undefined">{{
                             node.data.label }}</span>
                         <span
-                            *ngIf="node.data.count == undefined && idView && node.data.definition == undefined && node.data.type!='canonicalForm' && node.data.sense == undefined && node.data.etymologyInstanceName == undefined">{{
-                            node.data.lexicalEntryInstanceName }}</span>
+                            *ngIf="node.data.count == undefined && idView && node.data.definition == undefined && node.data.type!='canonicalForm' && node.data.sense == undefined && node.data.etymology == undefined">{{
+                            node.data.lexicalEntry }}</span>
     
                         <span
                             *ngIf="node.data.count == undefined && labelView && node.data.definition == undefined && node.data.type=='canonicalForm' && node.data.sense == undefined"><b>{{
                                 node.data.label }}</b></span>
                         <span
                             *ngIf="node.data.count == undefined && idView && node.data.definition == undefined && node.data.type=='canonicalForm' && node.data.sense == undefined"><b>{{
-                                node.data.formInstanceName }}</b></span>
+                                node.data.form }}</b></span>
                         <span
                             *ngIf="node.data.count == undefined && idView && node.data.definition == undefined && node.data.type!='canonicalForm' && node.data.sense == undefined">{{
-                            node.data.formInstanceName }}</span>
-                        <span *ngIf="node.data.count == undefined && idView && node.data.definition != undefined">{{
-                            node.data.senseInstanceName }}</span>
+                            node.data.form }}</span>
 
-                        <span *ngIf="node.data.count == undefined && idView && node.data.etymologyInstanceName != undefined">{{
-                            node.data.etymologyInstanceName }}</span>
+                        <span *ngIf="node.data.count == undefined && idView && node.data.definition != undefined">
+                            {{ node.data.sense }}</span>
 
-                        <span *ngIf="node.data.count == undefined && labelView && node.data.componentInstanceName != undefined && node.data.label == ''">
+                        <span *ngIf="node.data.count == undefined && labelView && node.data.definition != undefined">
+                                {{ node.data.definition  }}</span>
+
+                        <span *ngIf="node.data.count == undefined && idView && node.data.etymology != undefined">{{
+                            node.data.etymology }}</span>
+
+                        <span *ngIf="node.data.count == undefined && labelView && node.data.etymology != undefined">{{
+                            node.data.etymology }}</span>
+
+                        <span *ngIf="node.data.count == undefined && labelView && node.data.component != undefined && node.data.label == ''">
                            Anonimous component</span>
 
-                        <span *ngIf="node.data.count == undefined && labelView && node.data.componentInstanceName != undefined && node.data.label != ''">
+                        <span *ngIf="node.data.count == undefined && labelView && node.data.component != undefined && node.data.label != ''">
                             {{node.data.label}}</span>
                         
-                        <span *ngIf="node.data.count == undefined && idView && node.data.componentInstanceName != undefined">
-                            {{node.data.componentInstanceName}}</span>
+                        <span *ngIf="node.data.count == undefined && idView && node.data.component != undefined">
+                            {{node.data.component}}</span>
     
                         <span class="lexical-tooltip"
                             *ngIf="node.data.count == undefined && labelView && node.data.definition != undefined && node.data.label != undefined"
@@ -201,13 +208,9 @@
                         <span *ngIf="node.data.writtenRep != ''">{{ node.data.writtenRep }}</span>
                         <sub *ngIf="labelView && node.data.sense == undefined">{{node.data.pos}}</sub>
                         <span *ngIf="node.data.language != null && labelView" class="lang">@{{node.data.language}}</span>
-                        <!-- <span  *ngIf="node.data.count == undefined" >
-                            {{ node.data.name }}
-                        </span> -->
+                        
                     </div>
-                    <!-- <span *ngIf="node.data.count == undefined && node.data.definition == undefined && node.data.type!='canonicalForm' && node.data.sense == undefined && node.data.etymologyInstanceName == undefined">
-                        <button class="btn btn-outline-primary btn-sm" (click)="copyText(node.data.lexicalEntry)" style="padding: 0 0.25rem;"><i style="font-size: 12px;" class="fa fa-copy"></i></button>
-                    </span> -->
+                   
                     
                 </div>
                 
@@ -218,25 +221,25 @@
                             data-html="true" [title]="node.data.note"></i>
                     </div>
                     <div style="width: 30%;">
-                        <i *ngIf="node.data.lexicalEntryInstanceName != undefined && !flagAuthor && node.data.status == 'working'"
+                        <i *ngIf="node.data.lexicalEntry != undefined && !flagAuthor && node.data.status == 'working'"
                             class="fas fa-user lexical-tooltip" data-toggle="tooltip" data-html="true"
                             [title]="node.data.creator"></i>
 
-                        <i *ngIf="node.data.lexicalEntryInstanceName != undefined && !flagAuthor && node.data.status == 'completed'"
+                        <i *ngIf="node.data.lexicalEntry != undefined && !flagAuthor && node.data.status == 'completed'"
                             class="fas fa-user lexical-tooltip" data-toggle="tooltip" data-html="true"
                             [title]="node.data.author"></i>
 
-                        <i *ngIf="node.data.lexicalEntryInstanceName != undefined && !flagAuthor && node.data.status == 'reviewed'"
+                        <i *ngIf="node.data.lexicalEntry != undefined && !flagAuthor && node.data.status == 'reviewed'"
                             class="fas fa-user lexical-tooltip" data-toggle="tooltip" data-html="true"
                             [title]="node.data.revisor"></i>
 
-                        <i *ngIf="node.data.formInstanceName != undefined && node.data.flagAuthor"
+                        <i *ngIf="node.data.form != undefined && node.data.flagAuthor"
                             class="fas fa-user lexical-tooltip" data-toggle="tooltip" data-html="true"
                             [title]="node.data.creator"></i>
-                        <i *ngIf="node.data.senseInstanceName != undefined && node.data.flagAuthor"
+                        <i *ngIf="node.data.sense != undefined && node.data.flagAuthor"
                             class="fas fa-user lexical-tooltip" data-toggle="tooltip" data-html="true"
                             [title]="node.data.creator"></i>
-                            <i *ngIf="node.data.etymologyInstanceName != undefined && node.data.flagAuthor"
+                            <i *ngIf="node.data.etymology != undefined && node.data.flagAuthor"
                             class="fas fa-user lexical-tooltip" data-toggle="tooltip" data-html="true"
                             [title]="node.data.creator"></i>
                     </div>

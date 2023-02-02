@@ -23,6 +23,12 @@
                                                 bindValue="label" class="resizeNgSelect" [items]="searchResults"
                                                 bindLabel="label" placeholder="Search entity" appendTo="body"
                                                 *ngIf="!variable.switch && !isSense" [readonly]="inf.boolean">
+                                                <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                                                    <div>
+                                                        <span>{{item.label}} </span><span style="color: blue;">@{{item.language}}</span>
+                                                    </div>
+                
+                                                </ng-template>
                                             </ng-select>
                                             <ng-select #seeAlso formControlName="entity" name="entity"
                                                 (change)="onChangeSeeAlso(seeAlso, i)" (focus)="deleteData()"

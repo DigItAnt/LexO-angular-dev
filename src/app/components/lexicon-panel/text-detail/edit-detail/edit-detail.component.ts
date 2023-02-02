@@ -67,10 +67,10 @@ export class EditDetailComponent implements OnInit, OnDestroy {
     this.core_data_subscription = this.lexicalService.coreData$.subscribe(
       object => {
         if(object != null){
-          if(object['lexicalEntryInstanceName'] != undefined ||
-             object['formInstanceName'] != undefined ||
-             object['senseInstanceName'] != undefined ||
-             object['etymologyInstanceName'] != undefined){
+          if(object['lexicalEntry'] != undefined ||
+             object['form'] != undefined ||
+             object['sense'] != undefined ||
+             object['etymology'] != undefined){
                setTimeout(() => {
                 var navTabLinks = this.navtabs.nativeElement.querySelectorAll('a')
                 this.object = object;
@@ -163,7 +163,7 @@ export class EditDetailComponent implements OnInit, OnDestroy {
     this.etymology_data_subscription = this.lexicalService.etymologyData$.subscribe(
       object => {
         if(object != null){
-          if(object['etymology']['etymologyInstanceName'] != undefined){
+          if(object['etymology']['etymology'] != undefined){
             this.object = object;
             var navTabLinks = this.navtabs.nativeElement.querySelectorAll('a')
             

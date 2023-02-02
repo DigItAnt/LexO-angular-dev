@@ -172,8 +172,8 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 this.onSearchFilter(data)
             }
         )
-        
-        
+
+
         //this.lexEntryTypesData = await this.lexicalService.getMorphologyData().toPromise();
 
         this.coreForm = this.formBuilder.group({
@@ -208,7 +208,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
         }
     }
 
-    
+
 
     onSearchFilter(data) {
         this.filterLoading = true;
@@ -219,7 +219,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
         this.cognatesArray = this.coreForm.get('cognates') as FormArray;
 
-        if (this.object.lexicalEntryInstanceName != undefined && !this.cognatesArray.at(index).get('lila').value) {
+        if (this.object.lexicalEntry != undefined && !this.cognatesArray.at(index).get('lila').value) {
             let parameters = {
                 text: value,
                 searchMode: "startsWith",
@@ -238,28 +238,27 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 data => {
                     console.log(data)
 
-                    let filter_lang = data.list.filter(this.lexicalService.getMorphologyData().pipe(takeUntil(this.destroy$)).subscribe(
-                        data => {
-                            
-            
-                        },error=>{
-                            console.log(error)
-                        }
-                    )
-                    )
-                    filter_lang.forEach(element => {
-                        element['label_lang'] = element.label + "@" + element.language
-                    });
-                    console.log(filter_lang)
-                    this.searchResults = filter_lang;
-                    this.filterLoading = false;
+                    if (data.list.length > 0) {
+                        let filter_lang = data.list.filter(
+                            element=> element.language != this.object.language
+                        )
+                        filter_lang.forEach(element => {
+                            element['label_lang'] = element.label + "@" + element.language
+                        });
+                        console.log(filter_lang)
+                        this.searchResults = filter_lang;
+                        this.filterLoading = false;
+                    }else{
+                        this.filterLoading = false;
+                    }
+                    
                 }, error => {
                     //console.log(error)
                     this.filterLoading = false;
                 }
             )
 
-        } else if (this.object.lexicalEntryInstanceName != undefined && this.cognatesArray.at(index).get('lila').value) {
+        } else if (this.object.lexicalEntry != undefined && this.cognatesArray.at(index).get('lila').value) {
 
             this.searchResults = [];
             this.lilaService.queryCognate(value).pipe(takeUntil(this.destroy$)).subscribe(
@@ -316,7 +315,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
         this.searchResults = [];
     }
 
-   
+
 
 
     ngOnChanges(changes: SimpleChanges) {
@@ -347,7 +346,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
             if (this.object != null) {
 
-                const lexId = this.object.lexicalEntryInstanceName;
+                const lexId = this.object.lexicalEntry;
                 this.coreForm.get('label').setValue(this.object.label, { emitEvent: false });
                 this.coreForm.get('stemType').setValue(this.object.stemType, { emitEvent: false });
                 if (this.object.type == 'Etymon') {
@@ -402,13 +401,24 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                  //console.log(this.object.morphology) */
                 setTimeout(async () => {
                     this.morphologyData = await this.lexicalService.getMorphologyData().toPromise();
+                    this.valuePos = this.morphologyData.filter(x => {
+                        if (x.propertyId == 'http://www.lexinfo.net/ontology/3.0/lexinfo#partOfSpeech') {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    })
+                    this.valuePos = this.valuePos[0]['propertyValues'];
+                    
                     for (var i = 0; i < this.object.morphology.length; i++) {
                         const trait = this.object.morphology[i]['trait'];
                         const value = this.object.morphology[i]['value'];
 
                         let traitDescription = '';
+                        let labelTrait = this.object.morphology[i]['trait'].split('#')[1];
+                        let labelValue = this.object.morphology[i]['value'].split('#')[1];
                         this.morphologyData.filter(x => {
-                            if (x.propertyId == trait && trait != 'partOfSpeech') {
+                            if (x.propertyId == trait && trait != 'http://www.lexinfo.net/ontology/3.0/lexinfo#partOfSpeech') {
                                 x.propertyValues.filter(y => {
                                     if (y.valueId == value) {
                                         traitDescription = y.valueDescription;
@@ -423,24 +433,20 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                             }
                         })
 
-                        this.memoryValues[i] = value;
-                        this.valuePos = this.morphologyData.filter(x => {
-                            if (x.propertyId == 'partOfSpeech') {
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        })
-                
-                        this.valuePos = this.valuePos[0]['propertyValues'];
+                        this.memoryValues[i] = this.object.morphology[i]['value'];
+                        
+
+                        
                         let pos = this.coreForm.get('pos').value;
                         this.valuePos.forEach(el => {
-                            if (el.valueId == pos) {
-                
+                            if (el.valueId.split('#')[1] == pos) {
+
                                 this.posDescription = el.valueDescription;
                             }
                         })
-                        this.addMorphoTraits(trait, value, traitDescription);
+
+                        this.valuePos.map(element => element.valueId = element.valueId.split('#')[1])
+                        this.addMorphoTraits(trait, value, traitDescription, labelTrait, labelValue);
                         this.onChangeTrait(trait, i);
 
                         this.staticMorpho.push({ trait: trait, value: value });
@@ -448,7 +454,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                     }
                 }, 50);
 
-                
+
 
                 setTimeout(async () => {
                     this.lexEntryTypesData = await this.lexicalService.getLexEntryTypes().toPromise();
@@ -459,7 +465,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                             this.typeDesc = el.valueDescription;
                         }
                     })
-                    
+
 
 
                 }, 100);
@@ -468,7 +474,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                     data => {
                         //console.log(data)
                         for (var i = 0; i < data.length; i++) {
-                            let entity = data[i]['lexicalEntity'];
+                            let entity = data[i]['entity'];
                             let type = data[i]['linkType'];
                             this.addDenotes(entity, type);
                             this.memoryDenotes.push(data[i])
@@ -483,16 +489,16 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                         console.log(data)
                         for (var i = 0; i < data.length; i++) {
                             let label = data[i].label;
-                            let instanceName = data[i]['lexicalEntityInstanceName']
-                            let entity = data[i]['lexicalEntity'];
+                            //let instanceName = data[i]['lexicalEntry']
+                            let entity = data[i]['entity'];
                             let type = data[i]['linkType'];
-                            let lexicalEntryInstanceName = this.object.lexicalEntryInstanceName;
+                            let lexicalEntry = this.object.lexicalEntry;
 
                             if (label == "") {
                                 let tmp = entity.split('/');
                                 label = tmp[tmp.length - 1]
                             }
-                            this.addCognates(label, instanceName, lexicalEntryInstanceName, entity, type);
+                            this.addCognates(label, lexicalEntry, entity, type);
                             this.memoryCognates.push(data[i])
                         }
                     }, error => {
@@ -519,7 +525,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
         });
 
         if (langValue != undefined) {
-            let lexId = this.object.lexicalEntryInstanceName;
+            let lexId = this.object.lexicalEntry;
             let parameters = {
                 relation: 'language',
                 value: langValue
@@ -565,20 +571,20 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
     onChangePos(evt) {
         this.lexicalService.spinnerAction('on');
         let posValue = evt.target.value;
-        let lexId = this.object.lexicalEntryInstanceName;
+        let lexId = this.object.lexicalEntry;
         let parameters;
         if (this.memoryPos == '') {
 
             parameters = {
                 type: "morphology",
-                relation: 'partOfSpeech',
+                relation: 'http://www.lexinfo.net/ontology/3.0/lexinfo#partOfSpeech',
                 value: posValue
             }
 
         } else {
             parameters = {
                 type: "morphology",
-                relation: 'partOfSpeech',
+                relation: 'http://www.lexinfo.net/ontology/3.0/lexinfo#partOfSpeech',
                 value: posValue,
                 currentValue: this.memoryPos
             }
@@ -592,7 +598,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 let data = {};
                 data['request'] = 0;
                 data['new_pos'] = posValue;
-                data['lexicalEntryInstanceName'] = this.object.lexicalEntryInstanceName;
+                data['lexicalEntry'] = this.object.lexicalEntry;
                 //this.lexicalService.updateCoreCard(data)
                 this.lexicalService.spinnerAction('off');
                 this.lexicalService.refreshAfterEdit(data);
@@ -614,19 +620,21 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
             },
             error => {
                 console.log(error);
-                this.memoryPos = posValue;
+                
                 this.lexicalService.spinnerAction('off');
-                const data = this.object;
-                data['request'] = 0;
-                data['new_pos'] = posValue;
-                this.lexicalService.refreshAfterEdit(data);
-                this.lexicalService.refreshFilter({ request: true })
-                this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
-                if (typeof (error.error) != 'object') {
+                
+                if (error.status != 200) {
                     this.toastr.error(error.error, 'Error', {
                         timeOut: 5000,
                     });
                 } else {
+                    const data = this.object;
+                    data['request'] = 0;
+                    data['new_pos'] = posValue;
+                    this.lexicalService.refreshAfterEdit(data);
+                    this.lexicalService.refreshFilter({ request: true })
+                    this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
+                    this.memoryPos = posValue;
                     this.toastr.success('Pos changed correctly for ' + lexId, '', {
                         timeOut: 5000,
                     });
@@ -667,7 +675,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
             this.morphoTraits.at(i).get('value').setValue(newValue, { emitEvent: false });
 
             this.staticMorpho[i] = { trait: trait, value: newValue }
-            let lexId = this.object.lexicalEntryInstanceName;
+            let lexId = this.object.lexicalEntry;
 
             this.lexicalService.updateLinguisticRelation(lexId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
                 data => {
@@ -725,7 +733,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
             }
 
             this.staticMorpho.push({ trait: trait, value: value })
-            let lexId = this.object.lexicalEntryInstanceName;
+            let lexId = this.object.lexicalEntry;
 
             this.lexicalService.updateLinguisticRelation(lexId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
                 data => {
@@ -741,7 +749,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
                         let traitDescription = '';
                         this.morphologyData.filter(x => {
-                            if (x.propertyId == trait && trait != 'partOfSpeech') {
+                            if (x.propertyId == trait && trait != 'http://www.lexinfo.net/ontology/3.0/lexinfo#partOfSpeech') {
                                 x.propertyValues.filter(y => {
                                     if (y.valueId == value) {
                                         traitDescription = y.valueDescription;
@@ -775,7 +783,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
                         let traitDescription = '';
                         this.morphologyData.filter(x => {
-                            if (x.propertyId == trait && trait != 'partOfSpeech') {
+                            if (x.propertyId == trait && trait != 'http://www.lexinfo.net/ontology/3.0/lexinfo#partOfSpeech') {
                                 x.propertyValues.filter(y => {
                                     if (y.valueId == value) {
                                         traitDescription = y.valueDescription;
@@ -825,6 +833,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                     let arrayValues = this.morphologyData.filter(x => {
                         return x['propertyId'] == evt.target.value;
                     })['0']['propertyValues'];
+                    //arrayValues.map(element=>element.valueId = element.valueId.split('#')[1])
                     this.valueTraits[i] = arrayValues;
                     this.memoryTraits[i] = evt.target.value;
                     this.memoryValues[i] = "";
@@ -859,7 +868,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 if (updatedLabel.length >= 2 && updatedLabel.trim() != '') {
                     this.emptyLabelFlag = false;
                     this.lexicalService.spinnerAction('on');
-                    let lexId = this.object.lexicalEntryInstanceName;
+                    let lexId = this.object.lexicalEntry;
                     let parameters = {
                         relation: 'label',
                         value: updatedLabel
@@ -902,8 +911,8 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
         )
 
         this.coreForm.get('confidence').valueChanges.pipe(debounceTime(100), startWith(this.coreForm.get('confidence').value), pairwise(), takeUntil(this.destroy$)).subscribe(([prev, next]: [any, any]) => {
-            
-            let lexId = this.object.lexicalEntryInstanceName;
+
+            let lexId = this.object.lexicalEntry;
 
             this.coreForm.get('confidence').setValue(next, { emitEvent: false });
 
@@ -934,7 +943,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
             updateStem => {
 
                 this.lexicalService.spinnerAction('on');
-                let lexId = this.object.lexicalEntryInstanceName;
+                let lexId = this.object.lexicalEntry;
                 let parameters = {
                     type: 'extension',
                     relation: 'stemType',
@@ -972,7 +981,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
         this.coreForm.get("type").valueChanges.pipe(debounceTime(200), takeUntil(this.destroy$)).subscribe(
             newType => {
                 this.lexicalService.spinnerAction('on');
-                let lexId = this.object.lexicalEntryInstanceName;
+                let lexId = this.object.lexicalEntry;
                 let parameters = {
                     relation: 'type',
                     value: newType
@@ -1044,16 +1053,20 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
     }
 
 
-    createMorphoTraits(t?, v?, d?): FormGroup {
+    createMorphoTraits(t?, v?, d?, lT?, lV?): FormGroup {
         if (t != undefined) {
             return this.formBuilder.group({
                 trait: new FormControl(t, [Validators.required, Validators.minLength(0)]),
+                labelTrait: new FormControl(lT),
+                labelValue: new FormControl(lV),
                 value: new FormControl(v, [Validators.required, Validators.minLength(0)]),
                 description: new FormControl(d, [Validators.required, Validators.minLength(0)]),
             })
         } else {
             return this.formBuilder.group({
                 trait: new FormControl('', [Validators.required, Validators.minLength(0)]),
+                labelTrait: new FormControl(''),
+                labelValue: new FormControl(''),
                 value: new FormControl('', [Validators.required, Validators.minLength(0)]),
                 description: new FormControl(null, [Validators.required, Validators.minLength(0)])
             })
@@ -1087,12 +1100,11 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
         }
     }
 
-    createCognates(l?, iName?, lexName?, e?, t?, lila?): FormGroup {
+    createCognates(l?, lexName?, e?, t?, lila?): FormGroup {
         if (e != undefined) {
             return this.formBuilder.group({
                 label: new FormControl(l, [Validators.required]),
-                instanceName: new FormControl(iName, [Validators.required]),
-                lexicalEntryInstanceName: new FormControl(lexName, [Validators.required]),
+                lexicalEntry: new FormControl(lexName, [Validators.required]),
                 entity: new FormControl(e, [Validators.required, Validators.pattern(this.urlRegex)]),
                 type: t,
                 lila: lila
@@ -1100,8 +1112,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
         } else {
             return this.formBuilder.group({
                 label: new FormControl(null, [Validators.required]),
-                instanceName: new FormControl(null, [Validators.required]),
-                lexicalEntryInstanceName: new FormControl(null, [Validators.required]),
+                lexicalEntry: new FormControl(null, [Validators.required]),
                 entity: new FormControl(null, [Validators.required, Validators.pattern(this.urlRegex)]),
                 type: null,
                 lila: false
@@ -1130,11 +1141,11 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 console.log(evt.selectedItems[0])
                 let label = "";
                 let instanceName = '';
-                if (evt.selectedItems[0]['value']['lexicalEntryInstanceName'] == undefined) {
+                if (evt.selectedItems[0]['value']['lexicalEntry'] == undefined) {
                     label = evt.selectedItems[0]['value']['label'];
                     instanceName = evt.selectedItems[0]['value']['labelValue'];
                 } else {
-                    label = evt.selectedItems[0]['value']['lexicalEntryInstanceName'];
+                    label = evt.selectedItems[0]['value']['lexicalEntry'];
                     instanceName = evt.selectedItems[0]['value']['lexicalEntry'];
                 }
                 this.onChangeCognates({ name: label, i: i, instance_name: instanceName })
@@ -1156,7 +1167,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 value: newValue
             }
             //console.log(parameters)
-            let lexId = this.object.lexicalEntryInstanceName;
+            let lexId = this.object.lexicalEntry;
             this.lexicalService.updateLinguisticRelation(lexId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
                 data => {
                     console.log(data);
@@ -1170,10 +1181,11 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                     /* this.toastr.error(error.error, 'Error', {
                         timeOut: 5000,
                     }); */
-                    this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
+                    
 
                     this.lexicalService.spinnerAction('off');
                     if (error.status == 200) {
+                        this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
                         this.toastr.success('Denotes changed correctly for ' + lexId, '', {
                             timeOut: 5000,
                         });
@@ -1189,7 +1201,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
 
         } else {
-            const oldValue = this.memoryDenotes[index]['lexicalEntity']
+            const oldValue = this.memoryDenotes[index]['entity']
             const newValue = data['name']
             const parameters = {
                 type: "conceptRef",
@@ -1198,7 +1210,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 currentValue: oldValue
             }
 
-            let lexId = this.object.lexicalEntryInstanceName;
+            let lexId = this.object.lexicalEntry;
             //console.log(parameters)
             this.lexicalService.updateLinguisticRelation(lexId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
                 data => {
@@ -1209,23 +1221,22 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                     this.lexicalService.refreshAfterEdit(data);
                 }, error => {
                     console.log(error)
-                    const data = this.object;
-                    data['request'] = 0;
-                    this.toastr.error(error.error, 'Error', {
-                        timeOut: 5000,
-                    });
-                    //this.lexicalService.refreshAfterEdit(data);
-                    this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
-                    this.lexicalService.spinnerAction('off');
-                    if (typeof (error.error) != 'object') {
+                    if(error.status == 200){
+                        const data = this.object;
+                        data['request'] = 0;
+                       
+                        //this.lexicalService.refreshAfterEdit(data);
+                        this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
+                        this.lexicalService.spinnerAction('off');
+                        this.toastr.success('Denotes changed correctly for ' + lexId, '', {
+                            timeOut: 5000,
+                        });
+                    }else{
                         this.toastr.error(error.error, 'Error', {
                             timeOut: 5000,
                         });
-                    } else {
-                        this.toastr.success('Label changed correctly for ' + lexId, '', {
-                            timeOut: 5000,
-                        });
                     }
+                    
                 }
             )
             this.memoryDenotes[index] = data;
@@ -1238,7 +1249,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
         var index = data['i'];
         this.cognatesArray = this.coreForm.get("cognates") as FormArray;
 
-        let existOrNot = this.memoryCognates.some(element => element?.lexicalEntityInstanceName == data.name || element?.name == data.name)
+        let existOrNot = this.memoryCognates.some(element => element?.entity == data.name || element?.name == data.name)
 
         if (this.memoryCognates[index] == undefined && !existOrNot) {
             let newValue = ''
@@ -1256,7 +1267,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 value: newValue
             }
             console.log(parameters)
-            let lexId = this.object.lexicalEntryInstanceName;
+            let lexId = this.object.lexicalEntry;
             this.lexicalService.updateLinguisticRelation(lexId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
                 data => {
                     console.log(data);
@@ -1291,7 +1302,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                         this.cognatesArray.at(index).get('type').setValue('external', { emitEvent: false });
                         this.cognatesArray.at(index).get('lila').setValue(true, { emitEvent: false });
                     } else {
-                        this.cognatesArray.at(index).get('lexicalEntryInstanceName').setValue(data.instanceName, { emitEvent: false });
+                        this.cognatesArray.at(index).get('lexicalEntry').setValue(data.instanceName, { emitEvent: false });
                         //this.cognatesArray.at(index).get('entity').setValue(data.instanceName, {emitEvent : false});
                         this.cognatesArray.at(index).get('type').setValue('internal', { emitEvent: false });
                         this.cognatesArray.at(index).get('lila').setValue(false, { emitEvent: false });
@@ -1304,7 +1315,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
 
         } else if (this.memoryCognates[index] != undefined && !existOrNot) {
-            const oldValue = this.memoryCognates[index]['lexicalEntity']
+            const oldValue = this.memoryCognates[index]['entity']
             const newValue = data['name']
             const parameters = {
                 type: "lexicalRel",
@@ -1313,7 +1324,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 currentValue: oldValue
             }
 
-            let lexId = this.object.lexicalEntryInstanceName;
+            let lexId = this.object.lexicalEntry;
             console.log(parameters)
             this.lexicalService.updateLinguisticRelation(lexId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
                 data => {
@@ -1377,7 +1388,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
     }
 
-    addCognates(l?, iName?, lexIn?, e?, t?) {
+    addCognates(l?, lexIn?, e?, t?) {
 
         setTimeout(() => {
             //@ts-ignore
@@ -1391,7 +1402,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
             if (e.includes('lila')) {
                 lila = true;
             }
-            this.cognatesArray.push(this.createCognates(l, iName, lexIn, e, t, lila));
+            this.cognatesArray.push(this.createCognates(l, lexIn, e, t, lila));
         } else {
             this.disableAddCognates = true;
             this.cognatesArray.push(this.createCognates());
@@ -1401,11 +1412,11 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
 
 
-    addMorphoTraits(t?, v?, d?) {
+    addMorphoTraits(t?, v?, d?, lT?, lV?) {
 
         this.morphoTraits = this.coreForm.get('morphoTraits') as FormArray;
         if (t != undefined) {
-            this.morphoTraits.push(this.createMorphoTraits(t, v, d));
+            this.morphoTraits.push(this.createMorphoTraits(t, v, d, lT, lV));
         } else {
             this.disableAddMorpho = true;
             this.morphoTraits.push(this.createMorphoTraits());
@@ -1427,7 +1438,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
         if (trait != '') {
 
-            let lexId = this.object.lexicalEntryInstanceName;
+            let lexId = this.object.lexicalEntry;
 
             let parameters = {
                 type: 'morphology',
@@ -1474,7 +1485,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
         const entity = this.denotesArray.at(index).get('entity').value;
 
-        let lexId = this.object.lexicalEntryInstanceName;
+        let lexId = this.object.lexicalEntry;
 
         let parameters = {
             relation: 'denotes',
@@ -1512,7 +1523,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
         const entity = this.cognatesArray.at(index).get('entity').value;
 
-        let lexId = this.object.lexicalEntryInstanceName;
+        let lexId = this.object.lexicalEntry;
 
         let parameters = {
             relation: 'cognate',
@@ -1566,7 +1577,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
         }, 700);
 
         this.lexicalService.spinnerAction('on');
-        let lexId = this.object.lexicalEntryInstanceName;
+        let lexId = this.object.lexicalEntry;
         let value = '';
         if (boolean) {
             value = 'Etymon'

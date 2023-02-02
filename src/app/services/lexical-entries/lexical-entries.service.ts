@@ -13,6 +13,7 @@ You should have received a copy of the GNU General Public License along with Epi
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { shareReplay } from 'rxjs/operators';
 
 import { AuthService } from '../auth/auth.service';
 
@@ -25,7 +26,6 @@ export class LexicalEntriesService {
 
   private _coreFormData: BehaviorSubject<object> = new BehaviorSubject(null);
   private _attestationPanelData: BehaviorSubject<object> = new BehaviorSubject(null);
-  /* private _vartransData: BehaviorSubject<object> = new BehaviorSubject(null); */
   private _etymologyData: BehaviorSubject<object> = new BehaviorSubject(null);
   private _rightPanelData: BehaviorSubject<object> = new BehaviorSubject(null);
   private _deleteLexicalEntryReq: BehaviorSubject<any> = new BehaviorSubject(null);
@@ -49,6 +49,9 @@ export class LexicalEntriesService {
   private baseUrl = "/LexO-backend-itant_demo/service/"
   private key = "PRINitant19";
   private author = "";
+  private bibliographyIRI = 'http://lexica/mylexicon/bibliography#'
+  private lexicalIRI = 'http://lexica/mylexicon#';
+  private lexicalPrefix = 'lex'
 
   coreData$ = this._coreFormData.asObservable();
   decompData$ = this._decompData.asObservable();
@@ -166,40 +169,42 @@ export class LexicalEntriesService {
 
   //GET /lexicon/data/{id}/elements --> get elements of lexical entry
   getLexEntryElements(instance: string): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/" + instance + "/elements");
+    return this.http.get(this.baseUrl + "lexicon/data/elements?key=lexodemo&id=" + encodeURIComponent(instance));
   }
 
   //GET ​/lexicon​/data​/{id}​/lexicalEntry --> get specific aspect (morphology, syntax, ...) associated with a given lexical entry
   getLexEntryData(instance: string): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/" + instance + "/lexicalEntry?key=" + this.key + "&aspect=core");
+    return this.http.get(`${this.baseUrl}lexicon/data/lexicalEntry?key=${this.key}&aspect=core&id=${encodeURIComponent(instance)}`).pipe(
+      shareReplay()
+    );
   }
 
   //GET /lexicon/data/{id}/lexicalEntryLinguisticRelation --> This method returns the relations with other lexical entities according to the input type
   getLexEntryLinguisticRelation(lexId: string, property: string): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/" + lexId + "/linguisticRelation?key=" + this.key + "&property=" + property + "");
+    return this.http.get(`${this.baseUrl}lexicon/data/linguisticRelation?key=${this.key}&id=${encodeURIComponent(lexId)}&property=${property}`);
   }
 
 
   //GET /lexicon/data/{id}/forms --> get forms of lexical entry
   getLexEntryForms(instance: string): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/" + instance + "/forms");
+    return this.http.get(this.baseUrl + "lexicon/data/forms?key=lexodemo&id="+encodeURIComponent(instance));
   }
 
 
   //GET /lexicon/data/{id}/form --> get data about a single form 
   getFormData(formId: string, aspect: string): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/" + formId + "/form?key=" + this.key + "&aspect=" + aspect)
+    return this.http.get(this.baseUrl + "lexicon/data/form?key=" + this.key + "&aspect=" + aspect + "&id=" + encodeURIComponent(formId))
   }
 
 
   //GET /lexicon/data/{id}/lexicalSense --> get data about a single form 
   getSenseData(senseId: string, aspect: string): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/" + senseId + "/lexicalSense?key=" + this.key + "&aspect=" + aspect)
+    return this.http.get(this.baseUrl + "lexicon/data/lexicalSense?key=" + this.key + "&aspect=" + aspect + "&id=" + encodeURIComponent(senseId))
   }
 
   //GET /lexicon/data/{id}/senses --> get list of senses of a lexical entry
   getSensesList(instance: any): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/" + instance + "/senses");
+    return this.http.get(this.baseUrl + "lexicon/data/senses?key=lexodemo&id="+encodeURIComponent(instance));
   }
 
   //GET /lexicon/data/languages --> Lexicon languages list
@@ -236,64 +241,64 @@ export class LexicalEntriesService {
   //GET /lexicon/creation/lexicalEntry --> create new lexical entry
   newLexicalEntry(): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.get(this.baseUrl + "lexicon/creation/lexicalEntry?key=" + this.key + "&author=" + this.author);
+    return this.http.get(this.baseUrl + "lexicon/creation/lexicalEntry?key=" + this.key + "&author=" + this.author + "&prefix=" + this.lexicalPrefix + "&baseIRI=" + encodeURIComponent(this.lexicalIRI));
   }
 
 
   //GET /lexicon/delete/{id}/lexicalEntry --> delete lexical entry
   deleteLexicalEntry(lexId): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/delete/" + lexId + "/lexicalEntry?key=" + this.key);
+    return this.http.get(this.baseUrl + "lexicon/delete/lexicalEntry?key=" + this.key + "&id=" + encodeURIComponent(lexId));
   }
 
   //GET /lexicon/delete/{id}/form --> delete lexical entry
   deleteForm(lexId): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/delete/" + lexId + "/form?key=" + this.key);
+    return this.http.get(this.baseUrl + "lexicon/delete/form?key=" + this.key + "&id=" + encodeURIComponent(lexId));
   }
 
   //GET /lexicon/delete/{id}/lexicalSense --> delete lexical entry
   deleteSense(lexId): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/delete/" + lexId + "/lexicalSense?key=" + this.key);
+    return this.http.get(this.baseUrl + "lexicon/delete/lexicalSense?key=" + this.key + "&id=" + encodeURIComponent(lexId));
   }
 
   //GET  /lexicon​/delete​/{id}​/language  --> Lexicon language deletion
   deleteLanguage(langId): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/delete/" + langId + "/language?key=" + this.key);
+    return this.http.get(this.baseUrl + "lexicon/delete/language?key=" + this.key + "&id=" + encodeURIComponent(langId));
   }
 
   //POST  /lexicon​/delete​/{id}​/linguisticRelation  --> delete linguistic relation
   deleteLinguisticRelation(lexId, parameters): Observable<any> {
-    return this.http.post(this.baseUrl + "lexicon/delete/" + lexId + "/relation?key=" + this.key, parameters);
+    return this.http.post(this.baseUrl + "lexicon/delete/relation?key=" + this.key + "&id=" + encodeURIComponent(lexId), parameters);
   }
 
   //POST ​/lexicon​/update​/{id}​/lexicalEntry --> lexical entry update
   updateLexicalEntry(lexId, parameters): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/update/" + lexId + "/lexicalEntry?key=" + this.key + "&user=" + this.author, parameters);
+    return this.http.post(this.baseUrl + "lexicon/update/lexicalEntry?key=" + this.key + "&user=" + this.author + "&id=" + encodeURIComponent(lexId), parameters);
   }
 
 
   //POST ​/lexicon​/update​/{id}​/linguisticRelation --> linguistic Relation update for Core
   updateLinguisticRelation(lexId, parameters): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/update/" + lexId + "/linguisticRelation?key=" + this.key + "&user=" + this.author, parameters);
+    return this.http.post(this.baseUrl + "lexicon/update/linguisticRelation?key=" + this.key + "&user=" + this.author + "&id=" + encodeURIComponent(lexId), parameters);
   }
 
   //POST ​/lexicon​/update​/{id}​/genericRelation --> Generic relation update
   updateGenericRelation(lexId, parameters) : Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/update/" + lexId + "/genericRelation?key=" + this.key + "&user=" + this.author, parameters);
+    return this.http.post(this.baseUrl + "lexicon/update/genericRelation?key=" + this.key + "&user=" + this.author + "&id=" + encodeURIComponent(lexId), parameters);
   }
 
   //POST /lexicon/update/{id}/form --> update form values
   updateForm(formId, parameters): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/update/" + formId + "/form?key=" + this.key + "&user=" + this.author, parameters);
+    return this.http.post(this.baseUrl + "lexicon/update/form?key=" + this.key + "&user=" + this.author, + "&id=" + encodeURIComponent(formId), parameters);
   }
 
   //POST /lexicon/update/{id}/lexicalSense --> update form values
   updateSense(senseId, parameters): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/update/" + senseId + "/lexicalSense?key=" + this.key + "&user=" + this.author, parameters);
+    return this.http.post(this.baseUrl + "lexicon/update/lexicalSense?key=" + this.key + "&user=" + this.author + "&id=" + encodeURIComponent(senseId), parameters);
   }
 
   //GET  /lexinfo/data/morphology --> get data about morphology
@@ -315,13 +320,13 @@ export class LexicalEntriesService {
   //GET /lexicon/creation/form --> create new form
   createNewForm(lexId): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.get(this.baseUrl + "lexicon/creation/form?lexicalEntryID="+ lexId +"&key=" + this.key + "&author=" + this.author);
+    return this.http.get(this.baseUrl + "lexicon/creation/form?lexicalEntryID="+ encodeURIComponent(lexId)  +"&key=" + this.key + "&author=" + this.author + "&prefix=" + this.lexicalPrefix + "&baseIRI=" + encodeURIComponent(this.lexicalIRI));
   }
 
   //GET /lexicon/creation/lexicalSense --> create new sense
   createNewSense(lexId): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.get(this.baseUrl + "lexicon/creation/lexicalSense?lexicalEntryID="+ lexId +"&key=" + this.key + "&author=" + this.author);
+    return this.http.get(this.baseUrl + "lexicon/creation/lexicalSense?lexicalEntryID="+ encodeURIComponent(lexId)  +"&key=" + this.key + "&author=" + this.author + "&prefix=" + this.lexicalPrefix + "&baseIRI=" + encodeURIComponent(this.lexicalIRI));
   }
 
   //GET /lexicon/creation/language --> create new language
@@ -339,40 +344,41 @@ export class LexicalEntriesService {
 
   //BIBLIOGRAPHY
   getBibliographyData(instance: string) : Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/" + instance + "/bibliography?key=lexodemo");
+    return this.http.get(this.baseUrl + "lexicon/data/bibliography?key=lexodemo&id="+encodeURIComponent(instance));
   }
 
   addBibliographyData(instance : string, parameters){
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/creation/bibliography?lexicalEntityID=" + instance + "&key="+ this.key +"&author="+this.author+"", parameters);
+    return this.http.post(this.baseUrl + "lexicon/creation/bibliography?id=" + encodeURIComponent(instance) + "&key="+ this.key +"&author="+this.author+"&prefix=lexbib&baseIRI=" + encodeURIComponent(this.bibliographyIRI), parameters);
   }
 
   removeBibliographyItem(instance: string) {
-    return this.http.get(this.baseUrl + "lexicon/delete/" + instance + "/bibliography?key=PRINitant19");
+    return this.http.get(this.baseUrl + "lexicon/delete/bibliography?key=PRINitant19&id="+encodeURIComponent(instance));
   }
 
   synchronizeBibliographyItem(lexId : string, itemKey : string) : Observable<any> {
-    return this.http.post(this.baseUrl + "lexicon/update/synchronizeBibliography?lexicalEntityID="+lexId+"&key=PRINitant19&author=demo&itemKey="+itemKey,{})
+    this.author = this.auth.getUsername();
+    return this.http.post(this.baseUrl + "lexicon/update/synchronizeBibliography?id="+encodeURIComponent(lexId)+"&key=PRINitant19&author="+this.author+"&itemKey="+itemKey,{})
   }
 
 
   //ETYMOLOGY
   createNewEtymology(instance: string) : Observable<any>{
     this.author = this.auth.getUsername();
-    return this.http.get(this.baseUrl + "lexicon/creation/etymology?lexicalEntryID="+instance+"&key="+this.key+"&author="+this.author+"");
+    return this.http.get(this.baseUrl + "lexicon/creation/etymology?lexicalEntryID="+ encodeURIComponent(instance) +"&key="+this.key+"&author="+this.author+"&prefix=" + this.lexicalPrefix + "&baseIRI=" + encodeURIComponent(this.lexicalIRI));
   }
 
   getEtymologies(instance: string) : Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/" + instance + "/etymologies?key="+this.key+"");
+    return this.http.get(this.baseUrl + "lexicon/data/etymologies?key="+this.key+"&id="+encodeURIComponent(instance));
   }
 
   getEtymologyData(instance: string)  : Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/" + instance + "/etymology?key="+this.key+"");
+    return this.http.get(this.baseUrl + "lexicon/data/etymology?key="+this.key+ "&id=" + encodeURIComponent(instance));
   }
 
   updateEtymology(etymId, parameters): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/update/" + etymId + "/etymology?key=" + this.key + "&author=" + this.author, parameters);
+    return this.http.post(this.baseUrl + "lexicon/update/etymology?key=" + this.key + "&author=" + this.author + "&id=" + encodeURIComponent(etymId), parameters);
   }
 
   createNewEtylink(lexInstance: string, etymInstance : string) : Observable<any>{

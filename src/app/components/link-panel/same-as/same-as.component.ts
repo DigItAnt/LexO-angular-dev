@@ -169,15 +169,15 @@ export class SameAsComponent implements OnInit, OnDestroy {
         }
 
 
-        if (this.object.lexicalEntryInstanceName != undefined) {
+        if (this.object.lexicalEntry != undefined) {
           this.isLexEntry = true;
           this.isForm = false;
           this.isSense = false;
-        } else if (this.object.formInstanceName != undefined) {
+        } else if (this.object.form != undefined) {
           this.isLexEntry = false;
           this.isForm = true;
           this.isSense = false;
-        } else if (this.object.senseInstanceName != undefined) {
+        } else if (this.object.sense != undefined) {
           this.isLexEntry = false;
           this.isForm = false;
           this.isSense = true;
@@ -194,14 +194,14 @@ export class SameAsComponent implements OnInit, OnDestroy {
       var selectedValues = value;
       var lexicalElementId = '';
       let parameters = {};
-      if (this.object.lexicalEntryInstanceName != undefined) {
-        lexicalElementId = this.object.lexicalEntryInstanceName;
-      } else if (this.object.formInstanceName != undefined) {
-        lexicalElementId = this.object.formInstanceName;
-      } else if (this.object.senseInstanceName != undefined) {
-        lexicalElementId = this.object.senseInstanceName;
-      } else if (this.object.etymologyInstanceName != undefined) {
-        lexicalElementId = this.object.etymologyInstanceName;
+      if (this.object.lexicalEntry != undefined) {
+        lexicalElementId = this.object.lexicalEntry;
+      } else if (this.object.form != undefined) {
+        lexicalElementId = this.object.form;
+      } else if (this.object.sense != undefined) {
+        lexicalElementId = this.object.sense;
+      } else if (this.object.etymology != undefined) {
+        lexicalElementId = this.object.etymology;
       }
 
       //console.log(this.memorySameAs[index])
@@ -248,14 +248,14 @@ export class SameAsComponent implements OnInit, OnDestroy {
     console.log(sameAs.selectedItems);
     let lexicalElementId = '';
 
-    if (this.object.lexicalEntryInstanceName != undefined) {
-      lexicalElementId = this.object.lexicalEntryInstanceName;
-    } else if (this.object.formInstanceName != undefined) {
-      lexicalElementId = this.object.formInstanceName;
-    } else if (this.object.senseInstanceName != undefined) {
-      lexicalElementId = this.object.senseInstanceName;
-    } else if (this.object.etymologyInstanceName != undefined) {
-      lexicalElementId = this.object.etymologyInstanceName;
+    if (this.object.lexicalEntry != undefined) {
+      lexicalElementId = this.object.lexicalEntry;
+    } else if (this.object.form != undefined) {
+      lexicalElementId = this.object.form;
+    } else if (this.object.sense != undefined) {
+      lexicalElementId = this.object.sense;
+    } else if (this.object.etymology != undefined) {
+      lexicalElementId = this.object.etymology;
     }
     if (sameAs.selectedItems.length != 0) {
       let parameters = {};
@@ -318,7 +318,7 @@ export class SameAsComponent implements OnInit, OnDestroy {
     let isLila = this.sameAsArray.at(index).get('lila').value;
 
     if (!isLila) {
-      if (this.object.lexicalEntryInstanceName != undefined) {
+      if (this.object.lexicalEntry != undefined) {
         let parameters = {
           text: data,
           searchMode: "startsWith",
@@ -346,7 +346,7 @@ export class SameAsComponent implements OnInit, OnDestroy {
 
 
 
-      } else if (this.object.formInstanceName != undefined) {
+      } else if (this.object.form != undefined) {
         let parameters = {
           text: data,
           searchMode: "startsWith",
@@ -370,7 +370,7 @@ export class SameAsComponent implements OnInit, OnDestroy {
         }
 
 
-      } else if (this.object.senseInstanceName != undefined) {
+      } else if (this.object.sense != undefined) {
         let parameters = {
           text: data,
           searchMode: "startsWith",
@@ -556,14 +556,14 @@ export class SameAsComponent implements OnInit, OnDestroy {
 
     let lexicalElementId = '';
 
-    if (this.object.lexicalEntryInstanceName != undefined) {
-      lexicalElementId = this.object.lexicalEntryInstanceName;
-    } else if (this.object.formInstanceName != undefined) {
-      lexicalElementId = this.object.formInstanceName;
-    } else if (this.object.senseInstanceName != undefined) {
-      lexicalElementId = this.object.senseInstanceName;
-    } else if (this.object.etymologyInstanceName != undefined) {
-      lexicalElementId = this.object.etymologyInstanceName;
+    if (this.object.lexicalEntry != undefined) {
+      lexicalElementId = this.object.lexicalEntry;
+    } else if (this.object.form != undefined) {
+      lexicalElementId = this.object.form;
+    } else if (this.object.sense != undefined) {
+      lexicalElementId = this.object.sense;
+    } else if (this.object.etymology != undefined) {
+      lexicalElementId = this.object.etymology;
     }
     let parameters = {
       relation: 'sameAs',
