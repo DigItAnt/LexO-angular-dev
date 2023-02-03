@@ -13,6 +13,7 @@ You should have received a copy of the GNU General Public License along with Epi
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { timeout } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -144,6 +145,8 @@ export class DocumentSystemService {
 
 
   testConvert(parameters) : Observable<any> {
-    return this.http.post('/leiden_demo/', parameters);
+    return this.http.post('/leiden_demo/', parameters).pipe(
+      timeout(10000)
+    );
   }
 }

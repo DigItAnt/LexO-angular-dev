@@ -220,7 +220,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
           this.selectedEpidocId = 'Unnamed'
         }
       }
-      this.annotatorService.getIdText(this.selectedEpidocId);
+      
 
       this.documentService.getContent(this.selectedNodeId).pipe(takeUntil(this.destroy$)).subscribe(
         data=>{
@@ -361,7 +361,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
                   })
                   
                   this.documentService.sendTranslationToEpigraphyTab(translationArray);
-
+                  this.annotatorService.getIdText(this.selectedEpidocId);
                 } catch (error) {
                   console.log(error)
                   

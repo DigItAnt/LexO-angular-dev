@@ -67,6 +67,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
   filterLoading = false;
 
   memoryLinks = [];
+  memoryConfidence = null;
 
   destroy$ : Subject<boolean> = new Subject();
 
@@ -156,6 +157,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
         //this.cognatesArray.clear();
 
         this.memoryLinks = [];
+        this.memoryConfidence = null;
       }
     }
     this.object = changes.etymData.currentValue;
@@ -166,7 +168,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
       if (this.object.etymology.confidence == 0) {
         this.etyForm.get('confidence').setValue(true, { emitEvent: false });
       } else {
-        this.etyForm.get('confidence').setValue(false, { emitEvent: false });
+        this.etyForm.get('confidence').setValue(null, { emitEvent: false });
       }
 
       if(typeof(this.object.type) == 'string'){
@@ -233,7 +235,8 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
       };
 
 
-      if (prev !== null) parameters['currentValue'] = oldValue;
+      if (this.memoryConfidence != null) parameters['currentValue'] = oldValue;
+      this.memoryConfidence = oldValue;
 
       this.lexicalService.updateGenericRelation(etyId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data => { },
@@ -262,28 +265,6 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
     )
   }
 
-  /* async updateConfidence(confidence_value: any) {
-    this.lexicalService.spinnerAction('on');
-    let etyId = this.object.etymology.etymology;
-    let parameters = {
-      type: "confidence",
-      relation: 'confidence',
-      value: confidence_value
-    }
-    console.log(parameters)
-    try {
-      let update_confidence_req = await this.lexicalService.updateGenericRelation(etyId, parameters).toPromise();
-      this.lexicalService.spinnerAction('off');
-    } catch (error) {
-      if (error.status == 200) {
-        this.toastr.success('Label updated', '', { timeOut: 5000 })
-
-      } else {
-        this.toastr.error(error.error, 'Error', { timeOut: 5000 })
-
-      }
-    }
-  } */
 
   async updateLabel(updatedLabel : string){
     this.lexicalService.spinnerAction('on');
@@ -294,7 +275,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
     }
 
     try {
-      let update_label_req = await this.lexicalService.updateEtymology(etyId, parameters);
+      let update_label_req = await this.lexicalService.updateEtymology(etyId, parameters).toPromise();
       update_label_req['request'] = 0;
       update_label_req['new_label'] = updatedLabel
       this.lexicalService.refreshAfterEdit(update_label_req);

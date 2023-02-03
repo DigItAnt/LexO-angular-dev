@@ -58,6 +58,8 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
     typeDesc = '';
     staticMorpho = [];
 
+    memoryConfidence = null;
+
     interval;
 
     searchResults = [];
@@ -396,6 +398,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 this.memoryDenotes = [];
                 this.memoryCognates = [];
                 this.memoryValues = [];
+                this.memoryConfidence = null;
 
                 /*  //console.log('MORFOLOGIA')
                  //console.log(this.object.morphology) */
@@ -924,9 +927,10 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 value: newValue
             };
 
+            if (this.memoryConfidence != null) parameters['currentValue'] = oldValue;
+            this.memoryConfidence = oldValue;
 
-            if (prev != null) parameters['currentValue'] = oldValue;
-
+            
             this.lexicalService.updateGenericRelation(lexId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
                 data => { },
                 error => {

@@ -118,7 +118,7 @@ export class LanguageManagerComponent implements OnInit, OnDestroy {
     
     if(data['v'].trim() != ''){
       if (data['i'] == "description") {
-        let langId = this.editLangArray['languageInstanceName'];
+        let langId = this.editLangArray['language'];
         let parameters = {
           relation: 'description',
           value: data['v']
@@ -146,7 +146,7 @@ export class LanguageManagerComponent implements OnInit, OnDestroy {
         )
       } else if (data['i'] == "lexvo") {
         //console.log(data)
-        let langId = this.editLangArray['languageInstanceName'];
+        let langId = this.editLangArray['language'];
         let parameters = {
           relation: 'lexvo',
           value: data['v']
@@ -174,7 +174,7 @@ export class LanguageManagerComponent implements OnInit, OnDestroy {
         )
       }else if (data['i'] == "label") {
         if(this.editLangForm.get('label').valid){
-          let langId = this.editLangArray['languageInstanceName'];
+          let langId = this.editLangArray['language'];
           let parameters = {
             relation: 'language',
             value: data['v']
@@ -226,13 +226,13 @@ export class LanguageManagerComponent implements OnInit, OnDestroy {
   }
 
   removeLang(index) {
-    this.removeMessage = this.languageList[index]['languageInstanceName']
+    this.removeMessage = this.languageList[index]['language']
   }
 
   async showLinkedLexicalEntries(index){
     this.linkedLexicalEntries = '';
     console.log(this.languageList[index]);
-    let lexvo = this.languageList[index].lexvo;
+    let lexvo = this.languageList[index].lexvo != '' ? this.languageList[index].lexvo : this.languageList[index].label;
 
     let parameters = {
       text: '',

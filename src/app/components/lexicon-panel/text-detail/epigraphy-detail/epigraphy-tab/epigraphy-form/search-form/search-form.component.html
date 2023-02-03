@@ -17,7 +17,7 @@
                 <!-- <p class="card-subtitle mb-2 text-muted">{{item.type}}</p> -->
                 <small *ngFor="let sub of item.morphology">
                     <span *ngIf="sub.trait == 'case' || sub.trait == 'gender' || sub.trait == 'number' || sub.trait == 'partOfSpeech'">
-                        {{sub.trait}} : {{sub.value}} <br>
+                        {{sub.trait}} : {{sub.value.split('#')[1]}} <br>
                     </span>
                 </small>
                 <small class="card-text">
