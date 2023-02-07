@@ -99,10 +99,10 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
 
         this.object.array.forEach(element => {
           if (element.label != '') {
-            this.addSeeAlsoEntry(element.label, element.inferred, element.lexicalEntityInstanceName, element.linkType)
-            this.memorySeeAlso.push(element.lexicalEntityInstanceName)
+            this.addSeeAlsoEntry(element.label, element.inferred, element.entity, element.linkType)
+            this.memorySeeAlso.push(element.entity)
           } else {
-            this.addSeeAlsoEntry(element.lexicalEntity, element.inferred, element.lexicalEntityInstanceName, element.linkType)
+            this.addSeeAlsoEntry(element.lexicalEntity, element.inferred, element.entity, element.linkType)
             this.memorySeeAlso.push(element.lexicalEntity)
           }
 
@@ -150,7 +150,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
       if (this.memorySeeAlso[index] == "" || this.memorySeeAlso[index] == undefined) {
         let parameters = {
           type: "reference",
-          relation: "seeAlso",
+          relation: "http://www.w3.org/2000/01/rdf-schema#seeAlso",
           value: selectedValues
         }
         try {
@@ -172,7 +172,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         let oldValue = this.memorySeeAlso[index];
         let parameters = {
           type: "reference",
-          relation: "seeAlso",
+          relation: "http://www.w3.org/2000/01/rdf-schema#seeAlso",
           value: selectedValues,
           currentValue: oldValue
         }
@@ -216,7 +216,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
       if (this.memorySeeAlso[index] == undefined) {
         let parameters = {
           type: "reference",
-          relation: "seeAlso",
+          relation: "http://www.w3.org/2000/01/rdf-schema#seeAlso",
           value: selectedValues
         }
         console.log(parameters)
@@ -241,7 +241,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         let oldValue = this.memorySeeAlso[index];
         let parameters = {
           type: "reference",
-          relation: "seeAlso",
+          relation: "http://www.w3.org/2000/01/rdf-schema#seeAlso",
           value: selectedValues,
           currentValue: oldValue
         }
@@ -441,7 +441,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
       let lexId = this.object.lexicalEntry;
 
       let parameters = {
-        relation: 'seeAlso',
+        relation: 'http://www.w3.org/2000/01/rdf-schema#seeAlso',
         value: lexical_entity
       }
 
@@ -470,7 +470,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
       let formId = this.object.form;
 
       let parameters = {
-        relation: 'seeAlso',
+        relation: 'http://www.w3.org/2000/01/rdf-schema#seeAlso',
         value: lexical_entity
       }
 
@@ -495,7 +495,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
 
       let parameters = {
         type: 'morphology',
-        relation: 'seeAlso',
+        relation: 'http://www.w3.org/2000/01/rdf-schema#seeAlso',
         value: lexical_entity
       }
 
@@ -522,7 +522,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
 
       let parameters = {
         type: 'morphology',
-        relation: 'seeAlso',
+        relation: 'http://www.w3.org/2000/01/rdf-schema#seeAlso',
         value: lexical_entity
       }
 

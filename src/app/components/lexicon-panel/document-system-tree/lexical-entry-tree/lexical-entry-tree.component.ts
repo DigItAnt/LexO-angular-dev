@@ -414,7 +414,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
 
                     if (lex.request == 'sense') {
                       data['definition'] = 'no definition';
-                      data.label = 'no definintion'
+                      //data.label = 'no definintion'
                     } else if (lex.request == 'subterm') {
                       data.label = data.label;
                       data.children = null;

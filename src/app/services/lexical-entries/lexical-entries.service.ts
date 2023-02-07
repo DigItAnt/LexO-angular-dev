@@ -292,7 +292,7 @@ export class LexicalEntriesService {
   //POST /lexicon/update/{id}/form --> update form values
   updateForm(formId, parameters): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/update/form?key=" + this.key + "&user=" + this.author, + "&id=" + encodeURIComponent(formId), parameters);
+    return this.http.post(this.baseUrl + "lexicon/update/form?key=" + this.key + "&user=" + this.author + "&id=" + encodeURIComponent(formId), parameters);
   }
 
   //POST /lexicon/update/{id}/lexicalSense --> update form values

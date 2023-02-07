@@ -448,7 +448,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                             }
                         })
 
-                        this.valuePos.map(element => element.valueId = element.valueId.split('#')[1])
+                        //this.valuePos.map(element => element.valueId = element.valueId.split('#')[1])
                         this.addMorphoTraits(trait, value, traitDescription, labelTrait, labelValue);
                         this.onChangeTrait(trait, i);
 
@@ -589,7 +589,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 type: "morphology",
                 relation: 'http://www.lexinfo.net/ontology/3.0/lexinfo#partOfSpeech',
                 value: posValue,
-                currentValue: this.memoryPos
+                currentValue: 'http://www.lexinfo.net/ontology/3.0/lexinfo#'+this.memoryPos
             }
         }
 

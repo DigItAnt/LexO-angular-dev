@@ -163,9 +163,9 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
   onChanges(): void {
     this.senseCore.get('usage').valueChanges.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(newDef => {
       this.lexicalService.spinnerAction('on');
-      let senseId = this.object.senseInstanceName;
+      let senseId = this.object.sense;
       let parameters = {
-        relation: "usage",
+        relation: "http://www.w3.org/ns/lemon/ontolex#usage",
         value: newDef
       }
       this.lexicalService.updateSense(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
@@ -202,8 +202,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
       let oldValue = prev ? 0 : -1;
       let newValue = next ? 0 : -1;
       let parameters = {
-        type: "confidence",
-        relation: 'confidence',
+        relation: 'http://www.lexinfo.net/ontology/3.0/lexinfo#confidence',
         value: newValue
       };
 
@@ -226,9 +225,9 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
     this.senseCore.get('topic').valueChanges.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(newTopic => {
       if (newTopic.trim() != '') {
         this.lexicalService.spinnerAction('on');
-        let senseId = this.object.senseInstanceName;
+        let senseId = this.object.sense;
         let parameters = {
-          relation: "subject",
+          relation: "http://purl.org/dc/terms/subject",
           value: newTopic
         }
         this.lexicalService.updateSense(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
@@ -260,9 +259,9 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
 
     this.senseCore.get('reference').valueChanges.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(newDef => {
       this.lexicalService.spinnerAction('on');
-      let senseId = this.object.senseInstanceName;
+      let senseId = this.object.sense;
       let parameters = {
-        relation: "reference",
+        relation: "http://www.w3.org/ns/lemon/ontolex#reference",
         value: newDef[0]['entity']
       }
       //console.log(senseId)
@@ -290,48 +289,6 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
         }
       )
     })
-  }
-
-  applyUncertain() {
-    this.lexicalService.spinnerAction('on');
-    let oldValue = this.senseCore.get('confidence').value;
-    let senseId = this.object.senseInstanceName;
-    let parameters = {
-      relation: 'confidence',
-      value: 0
-    }
-    console.log(parameters)
-    this.lexicalService.deleteLinguisticRelation(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
-      data => {
-        console.log(data);
-        /* data['request'] = 0;
-        data['new_label'] = confidence_value
-        this.lexicalService.refreshAfterEdit(data); */
-        this.lexicalService.updateCoreCard(data)
-        this.lexicalService.spinnerAction('off');
-        this.senseCore.get('confidence').setValue(-1, { emitEvent: false });
-        this.object.confidence = -1;
-
-        this.toastr.success('Confidence updated', 'Success', { timeOut: 5000 });
-      },
-      error => {
-        console.log(error);
-        /*  const data = this.object.etymology;
-        data['request'] = 0;
-        data['new_label'] = confidence_value;
-        this.lexicalService.refreshAfterEdit(data); */
-        this.lexicalService.spinnerAction('off');
-        this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
-        if (error.status == 200) {
-          this.toastr.success('Confidence updated', '', { timeOut: 5000 })
-          this.senseCore.get('confidence').setValue(-1, { emitEvent: false });
-          this.object.confidence = -1;
-        } else {
-          this.toastr.error(error.error, 'Error', { timeOut: 5000 })
-
-        }
-      }
-    )
   }
 
   onChangeDefinitionTrait(evt, i) {
@@ -378,10 +335,10 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
 
     if (trait != null) {
 
-      let senseId = this.object.senseInstanceName;
+      let senseId = this.object.sense;
 
       let parameters = {
-        relation: trait,
+        relation: 'http://www.lexinfo.net/ontology/3.0/lexinfo#' + trait,
         value: value
       }
 
@@ -443,7 +400,11 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
     const trait = this.definitionArray.at(i).get('propertyID').value;
     const newValue = evt.target.value;
     const senseId = this.object.sense;
-    const parameters = { relation: trait, value: newValue }
+    let namespace = trait == 'definition' ? 'http://www.w3.org/2004/02/skos/core#' : 'http://www.lexinfo.net/ontology/3.0/lexinfo#';
+    const parameters = { 
+      relation: namespace + trait, 
+      value: newValue 
+    }
 
     if (trait != undefined && newValue != '') {
 
@@ -492,7 +453,8 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
     const trait = this.definitionArray.at(object.i).get('propertyID').value;
     const newValue = object.evt.target.value;
     const senseId = this.object.sense;
-    const parameters = { relation: trait, value: newValue }
+    let namespace = trait == 'definition' ? 'http://www.w3.org/2004/02/skos/core#' : 'http://www.lexinfo.net/ontology/3.0/lexinfo#';
+    const parameters = { relation: namespace + trait, value: newValue }
 
     if (trait != undefined) {
 

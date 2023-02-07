@@ -157,10 +157,10 @@
     
                         <span
                             *ngIf="node.data.count == undefined && labelView && node.data.component == undefined && node.data.etymology == undefined && node.data.definition == undefined && node.data.type!='canonicalForm' && node.data.sense == undefined">{{
-                            node.data.label }}</span>
+                            node.data.label}} </span>
                         <span
                             *ngIf="node.data.count == undefined && idView && node.data.definition == undefined && node.data.type!='canonicalForm' && node.data.sense == undefined && node.data.etymology == undefined">{{
-                            node.data.lexicalEntry }}</span>
+                            node.data.lexicalEntry }} </span>
     
                         <span
                             *ngIf="node.data.count == undefined && labelView && node.data.definition == undefined && node.data.type=='canonicalForm' && node.data.sense == undefined"><b>{{
@@ -175,8 +175,7 @@
                         <span *ngIf="node.data.count == undefined && idView && node.data.definition != undefined">
                             {{ node.data.sense }}</span>
 
-                        <span *ngIf="node.data.count == undefined && labelView && node.data.definition != undefined">
-                                {{ node.data.definition  }}</span>
+                       
 
                         <span *ngIf="node.data.count == undefined && idView && node.data.etymology != undefined">{{
                             node.data.etymology }}</span>
@@ -195,11 +194,11 @@
     
                         <span class="lexical-tooltip"
                             *ngIf="node.data.count == undefined && labelView && node.data.definition != undefined && node.data.label != undefined"
-                            data-toggle="tooltip" data-html="true" [title]="node.data.definition">{{node.data.label.length >
+                             placement="top" [ngbTooltip]="node.data.definition">{{node.data.label.length >
                             10 ? (node.data.label | slice:0:10) +'...' : node.data.label}}</span>
                         <span class="lexical-tooltip"
                             *ngIf="node.data.count == undefined && idView && node.data.definition != undefined && node.data.label != undefined"
-                            data-toggle="tooltip" data-html="true" [title]="node.data.definition">{{ node.data.instanceName
+                             placement="top" [ngbTooltip]="node.data.definition">{{ node.data.sense
                             }}</span>
     
                         <span *ngIf="node.data.count != undefined"><i><span

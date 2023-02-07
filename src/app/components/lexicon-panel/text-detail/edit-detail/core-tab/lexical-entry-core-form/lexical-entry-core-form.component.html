@@ -100,10 +100,10 @@
                             <label for="selectPos" class="col-form-label">Part of speech:</label>
                         </div>
                         <div class="input-group col-md-8">
-                            <select class="form-control selectTrait" formControlName="pos" name="pos"
+                            <select class="form-control selectTrait"
                                 style="font-size:12px;" (change)="onChangePos($event)">
                                 <option value="">Select a value...</option>
-                                <option *ngFor="let item of valuePos;" [value]="item.valueId" [selected]="item.valueId == object.pos">
+                                <option *ngFor="let item of valuePos;" [selected]="item.valueId.split('#')[1] == object.pos" [value]="item.valueId">
                                     {{item.valueLabel}}</option>
                             </select>
                             <div class="input-group-append ml-2">
@@ -132,8 +132,8 @@
                                         [selected]="stat['value'] === item.valueId">{{item.valueLabel}}</option>
                                 </select>
                                 <div class="input-group-append ml-2">
-                                    <button *ngIf="coreForm['controls'].morphoTraits?.value[i] != null" class="btn btn-secondary trait-tooltip" type="button" data-toggle="tooltip"
-                                    data-placement="top" data-trigger="hover" [attr.data-original-title]="coreForm.get('morphoTraits').at(i).get('description').value"
+                                    <button *ngIf="coreForm['controls'].morphoTraits?.value[i] != null" class="btn btn-secondary trait-tooltip" type="button"
+                                    placement="top" container="body" [ngbTooltip]="coreForm.get('morphoTraits').at(i).get('description').value"
                                         style="font-size: 12px; border-radius: .25rem;"><i class="fas fa-question"></i></button>
                                         
                                 </div>

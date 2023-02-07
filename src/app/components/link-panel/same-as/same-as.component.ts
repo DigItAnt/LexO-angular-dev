@@ -132,8 +132,8 @@ export class SameAsComponent implements OnInit, OnDestroy {
         console.log(this.object)
 
         this.object.array.forEach(element => {
-          this.addSameAsEntry(element.lexicalEntity, element.linkType == 'external')
-          this.memorySameAs.push(element.lexicalEntity);
+          this.addSameAsEntry(element.entity, element.linkType == 'external')
+          this.memorySameAs.push(element.entity);
         });
 
         //console.log(this.memorySameAs)
@@ -208,7 +208,7 @@ export class SameAsComponent implements OnInit, OnDestroy {
       if (this.memorySameAs[index] == undefined || this.memorySameAs[index] == "") {
         parameters = {
           type: "reference",
-          relation: "sameAs",
+          relation: "http://www.w3.org/2002/07/owl#sameAs",
           value: selectedValues
         }
 
@@ -218,7 +218,7 @@ export class SameAsComponent implements OnInit, OnDestroy {
         let oldValue = this.memorySameAs[index];
         parameters = {
           type: "reference",
-          relation: "sameAs",
+          relation: "http://www.w3.org/2002/07/owl#sameAs",
           value: selectedValues,
           currentValue: oldValue
         }
@@ -269,7 +269,7 @@ export class SameAsComponent implements OnInit, OnDestroy {
       if (this.memorySameAs[index] == undefined || this.memorySameAs[index] == "") {
         parameters = {
           type: "reference",
-          relation: "sameAs",
+          relation: "http://www.w3.org/2002/07/owl#sameAs",
           value: selectedValues
         }
 
@@ -279,7 +279,7 @@ export class SameAsComponent implements OnInit, OnDestroy {
         let oldValue = this.memorySameAs[index];
         parameters = {
           type: "reference",
-          relation: "sameAs",
+          relation: "http://www.w3.org/2002/07/owl#sameAs",
           value: selectedValues,
           currentValue: oldValue
         }
@@ -572,6 +572,10 @@ export class SameAsComponent implements OnInit, OnDestroy {
 
     try{
       let delete_request = await this.lexicalService.deleteLinguisticRelation(lexical_entity, parameters).toPromise();
+
+      this.toastr.success("SameAs Removed", 'Error', {
+        timeOut: 5000,
+      });
     }catch(e){
       if (e.status == 200) {
         this.toastr.success("SameAs Removed", 'Error', {

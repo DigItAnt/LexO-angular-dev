@@ -43,7 +43,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
   formCore = new FormGroup({
     inheritance: new FormArray([this.createInheritance()]),
     type: new FormControl(''),
-    confidence : new FormControl(null),
+    confidence: new FormControl(null),
     label: new FormArray([this.createLabel()]),
     morphoTraits: new FormArray([this.createMorphoTraits()])
   })
@@ -63,14 +63,14 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
   disableAddOther = false;
   disableAddMorpho = false;
 
-  get_morpho_data_subscription : Subscription;
-  subject_label_subscription : Subscription;
-  subject_ex_label_subscription : Subscription;
-  get_form_type_subscription : Subscription;
+  get_morpho_data_subscription: Subscription;
+  subject_label_subscription: Subscription;
+  subject_ex_label_subscription: Subscription;
+  get_form_type_subscription: Subscription;
 
-  destroy$ : Subject<boolean> = new Subject();
+  destroy$: Subject<boolean> = new Subject();
 
-  constructor( private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder, private toastr: ToastrService) { }
+  constructor(private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder, private toastr: ToastrService) { }
 
   ngOnInit() {
     this.get_morpho_data_subscription = this.lexicalService.getMorphologyData().subscribe(
@@ -89,13 +89,13 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
     this.formCore = this.formBuilder.group({
       inheritance: this.formBuilder.array([]),
       type: '',
-      confidence : null,
+      confidence: null,
       label: this.formBuilder.array([]),
       morphoTraits: this.formBuilder.array([]),
     })
 
     this.onChanges();
-    
+
     this.subject_label_subscription = this.subject_label.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onChangeLabel(data)
@@ -145,21 +145,21 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
         this.memoryLabel = [];
         this.labelData = [];
 
-        if(this.object.inheritedMorphology != undefined){
+        if (this.object.inheritedMorphology != undefined) {
           for (var i = 0; i < this.object.inheritedMorphology.length; i++) {
             const trait = this.object.inheritedMorphology[i]['trait'];
             const value = this.object.inheritedMorphology[i]['value'];
-            this.addInheritance(trait, value);
+            this.addInheritance(trait, value.split('#')[1]);
           }
         }
 
-        
 
-        if(this.object.confidence == 0){
+
+        if (this.object.confidence == 0) {
           this.formCore.get('confidence').setValue(true, { emitEvent: false });
-        }else{
+        } else {
           this.formCore.get('confidence').setValue(false, { emitEvent: false });
-      }
+        }
         this.formCore.get('type').setValue(this.object.type, { emitEvent: false });
 
         for (var i = 0; i < this.object.label.length; i++) {
@@ -187,7 +187,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
 
             let traitDescription = '';
             this.morphologyData.filter(x => {
-              if (x.propertyId == trait && trait != 'partOfSpeech') {
+              if (x.propertyId == trait && trait != 'http://www.lexinfo.net/ontology/3.0/lexinfo#partOfSpeech') {
                 x.propertyValues.filter(y => {
                   if (y.valueId == value) {
                     traitDescription = y.valueDescription;
@@ -218,10 +218,10 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
               this.typeDesc = el.valueDescription;
             }
           })
-         
 
 
-        }, 1000);
+
+        }, 1);
 
 
       }
@@ -234,7 +234,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
     this.formCore.get('confidence').valueChanges.pipe(debounceTime(100), startWith(this.formCore.get('confidence').value), pairwise(), takeUntil(this.destroy$)).subscribe(([prev, next]: [any, any]) => {
       let confidence_value = null;
       console.log(confidence_value);
-      let formId = this.object.formInstanceName;
+      let formId = this.object.form;
 
       this.formCore.get('confidence').setValue(next, { emitEvent: false });
 
@@ -242,7 +242,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
       let newValue = next ? 0 : -1;
       let parameters = {
         type: "confidence",
-        relation: 'confidence',
+        relation: 'http://www.lexinfo.net/ontology/3.0/lexinfo#confidence',
         value: newValue
       };
 
@@ -260,13 +260,13 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  
+
 
   onChangeType(evt) {
     this.lexicalService.spinnerAction('on');
     const newType = evt.target.value;
-    const formId = this.object.formInstanceName
-    const parameters = { relation: "type", value: newType }
+    const formId = this.object.form
+    const parameters = {relation: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", value: 'http://www.w3.org/ns/lemon/ontolex#'+newType }
     this.lexicalService.updateForm(formId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         console.log(data)
@@ -357,7 +357,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
       }
 
       this.staticMorpho[i] = { trait: trait, value: newValue }
-      let formId = this.object.formInstanceName;
+      let formId = this.object.form;
       console.log(parameters)
 
       this.lexicalService.updateLinguisticRelation(formId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
@@ -401,7 +401,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
         relation: trait,
         value: value
       }
-      let formId = this.object.formInstanceName;
+      let formId = this.object.form;
 
       let traitDescription = '';
       this.morphologyData.filter(x => {
@@ -495,33 +495,22 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
       }, 500);
     } else {
 
-      var timer = setInterval((val) => {
-        try {
-          var arrayValues = this.morphologyData.filter(x => {
-            return x['propertyId'] == evt;
-          })['0']['propertyValues'];
-          this.valueTraits[i] = arrayValues;
-          this.memoryTraits.push(evt);
-          //console.log("CIAO")
-          if (this.valueTraits != undefined) {
-            clearInterval(timer)
-          }
 
-        } catch (e) {
-          console.log(e)
-        }
-      }, 500)
-
-      /* setTimeout(() => {
-
+      try {
         var arrayValues = this.morphologyData.filter(x => {
           return x['propertyId'] == evt;
         })['0']['propertyValues'];
         this.valueTraits[i] = arrayValues;
-        //console.log(this.valueTraits)
         this.memoryTraits.push(evt);
+        //console.log("CIAO")
 
-      }, 500); */
+
+      } catch (e) {
+        console.log(e)
+      }
+
+
+
     }
   }
 
@@ -556,7 +545,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
       const parameters = { relation: trait, value: newValue }
 
       this.staticOtherDef[i] = { trait: trait, value: newValue }
-      let formId = this.object.formInstanceName;
+      let formId = this.object.form;
 
 
 
@@ -604,7 +593,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
     this.labelArray = this.formCore.get('label') as FormArray;
     const trait = this.labelArray.at(object.i).get('propertyID').value;
     const newValue = object.evt.target.value;
-    const formId = this.object.formInstanceName;
+    const formId = this.object.form;
     const parameters = { relation: trait, value: newValue }
     //console.log(this.object)
 
@@ -625,10 +614,10 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
           this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
 
-          if(error.status == 200){
-            this.toastr.success('Label updated', 'Success', {timeOut: 5000})
-          }else{
-            this.toastr.error(error.message, 'Error', {timeOut: 5000})
+          if (error.status == 200) {
+            this.toastr.success('Label updated', 'Success', { timeOut: 5000 })
+          } else {
+            this.toastr.error(error.message, 'Error', { timeOut: 5000 })
           }
         }
       )
@@ -711,7 +700,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
 
     if (trait != '') {
 
-      let formId = this.object.formInstanceName;
+      let formId = this.object.form;
 
       let parameters = {
         type: 'morphology',
@@ -756,7 +745,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
 
     if (trait != '') {
 
-      let formId = this.object.formInstanceName;
+      let formId = this.object.form;
 
       let parameters = {
         type: 'morphology',
@@ -768,12 +757,12 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
         data => {
           console.log(data)
 
-          this.toastr.success('Label removed', 'Ok', {timeOut: 5000})
+          this.toastr.success('Label removed', 'Ok', { timeOut: 5000 })
           this.lexicalService.updateCoreCard(this.object)
         }, error => {
           console.log(error)
-          if(error.status != 200){
-            this.toastr.error(error.message, 'Error', {timeOut: 5000})
+          if (error.status != 200) {
+            this.toastr.error(error.message, 'Error', { timeOut: 5000 })
           }
         }
       )
@@ -786,13 +775,13 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-      this.get_morpho_data_subscription.unsubscribe();
-      this.subject_label_subscription.unsubscribe();
-      this.subject_ex_label_subscription.unsubscribe();
-      this.get_form_type_subscription.unsubscribe();
+    this.get_morpho_data_subscription.unsubscribe();
+    this.subject_label_subscription.unsubscribe();
+    this.subject_ex_label_subscription.unsubscribe();
+    this.get_form_type_subscription.unsubscribe();
 
-      this.destroy$.next(true);
-      this.destroy$.complete();
-    }
+    this.destroy$.next(true);
+    this.destroy$.complete();
+  }
 
 }
