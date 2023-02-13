@@ -223,7 +223,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
       //console.log("cambio label cambio tutto")
       //console.log(data)
       let instanceName = '';
-      if (data['lexicalEntry'] != undefined) {
+      if (data['lexicalEntry'] != undefined && data['form'] == undefined) {
         instanceName = data['lexicalEntry']
       } else if (data['form'] != undefined) {
         instanceName = data['form']

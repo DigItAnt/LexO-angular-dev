@@ -42,6 +42,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
   searchResults: [];
   memorySeeAlso = [];
   filterLoading = false;
+  disableSeeAlso = false;
 
   seeAlsoForm = new FormGroup({
     seeAlsoArray: new FormArray([this.createSeeAlsoEntry()])
@@ -94,7 +95,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         this.seeAlsoArray = this.seeAlsoForm.get('seeAlsoArray') as FormArray;
         this.seeAlsoArray.clear();
         this.memorySeeAlso = [];
-
+        this.disableSeeAlso = false;
         //console.log(this.object)
 
         this.object.array.forEach(element => {
@@ -102,8 +103,8 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
             this.addSeeAlsoEntry(element.label, element.inferred, element.entity, element.linkType)
             this.memorySeeAlso.push(element.entity)
           } else {
-            this.addSeeAlsoEntry(element.lexicalEntity, element.inferred, element.entity, element.linkType)
-            this.memorySeeAlso.push(element.lexicalEntity)
+            this.addSeeAlsoEntry(element.entity, element.inferred, element.entity, element.linkType)
+            this.memorySeeAlso.push(element.entity)
           }
 
 
@@ -135,7 +136,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
     if (value.trim() != "") {
       var selectedValues = value;
       var lexicalElementId = '';
-      if (this.object.lexicalEntry != undefined) {
+      if (this.object.lexicalEntry != undefined && this.object.form == undefined && this.object.sense == undefined) {
         lexicalElementId = this.object.lexicalEntry;
       } else if (this.object.form != undefined) {
         lexicalElementId = this.object.form;
@@ -194,12 +195,14 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
 
       }
     }
+    this.disableSeeAlso = false;
 
 
   }
 
   async onChangeSeeAlso(seeAlso, index) {
     //console.log(seeAlso.selectedItems)
+    this.disableSeeAlso = false;
     if (seeAlso.selectedItems.length != 0) {
       var selectedValues = seeAlso.selectedItems[0].value.lexicalEntry;
       var lexicalElementId = '';
@@ -419,6 +422,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
     if (e == undefined) {
       this.seeAlsoArray.push(this.createSeeAlsoEntry());
     } else {
+      this.disableSeeAlso = true;
       this.seeAlsoArray.push(this.createSeeAlsoEntry(e, i, le, lt));
     }
 
@@ -544,6 +548,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         this.lexicalService.refreshLinkCounter('-1')
       }
     }
+    this.disableSeeAlso = false;
     this.memorySeeAlso.splice(index, 1)
     this.seeAlsoArray.removeAt(index);
 

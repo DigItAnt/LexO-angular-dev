@@ -56,7 +56,7 @@ export class LinkPanelComponent implements OnInit, OnDestroy {
       let lexicalElementId = '';
       let instanceNameType = '';
       let parameters = {};
-      if (this.object.lexicalEntry != undefined) {
+      if (this.object.lexicalEntry != undefined && this.object.form == undefined && this.object.sense == undefined) {
         lexicalElementId = this.object.lexicalEntry;
         instanceNameType = 'lexicalEntry'
       } else if (this.object.form != undefined) {
@@ -73,7 +73,7 @@ export class LinkPanelComponent implements OnInit, OnDestroy {
 
 
       try{
-        let same_as_data = await this.lexicalService.getLexEntryLinguisticRelation(lexicalElementId, 'sameAs').toPromise()
+        let same_as_data = await this.lexicalService.getLexEntryGenericRelation(lexicalElementId, 'sameAs').toPromise()
         console.log(same_as_data)
         this.sameAsData = {}
         this.sameAsData['array'] = same_as_data;
@@ -100,7 +100,7 @@ export class LinkPanelComponent implements OnInit, OnDestroy {
       }
       
       try{
-        let see_also_data = await this.lexicalService.getLexEntryLinguisticRelation(lexicalElementId, 'seeAlso').toPromise();
+        let see_also_data = await this.lexicalService.getLexEntryGenericRelation(lexicalElementId, 'seeAlso').toPromise();
         console.log(see_also_data)
         this.seeAlsoData = {}
         this.seeAlsoData['array'] = see_also_data;

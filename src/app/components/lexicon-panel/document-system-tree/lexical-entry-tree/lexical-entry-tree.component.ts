@@ -414,7 +414,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
 
                     if (lex.request == 'sense') {
                       data['definition'] = 'no definition';
-                      //data.label = 'no definintion'
+                      data.label = 'no definintion'
                     } else if (lex.request == 'subterm') {
                       data.label = data.label;
                       data.children = null;
@@ -1035,7 +1035,6 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
   }
 
   async getChildren(node: any) {
-    //TODO: chiamare tutti i figli in una sola botta e pusharglierli tutti in una volta 
     let newNodes: any;
     if (node.data.lexicalEntry != undefined) {
 

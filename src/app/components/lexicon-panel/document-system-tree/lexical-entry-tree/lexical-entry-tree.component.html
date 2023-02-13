@@ -193,11 +193,13 @@
                             {{node.data.component}}</span>
     
                         <span class="lexical-tooltip"
-                            *ngIf="node.data.count == undefined && labelView && node.data.definition != undefined && node.data.label != undefined"
-                             placement="top" [ngbTooltip]="node.data.definition">{{node.data.label.length >
-                            10 ? (node.data.label | slice:0:10) +'...' : node.data.label}}</span>
+                            *ngIf="node.data.count == undefined && labelView && node.data.definition != undefined"
+                             placement="top" [ngbTooltip]="node.data.definition">
+                                {{node.data.definition == '' ? node.data.label : ''}}
+                                {{node.data.definition.length > 10 ? (node.data.definition | slice:0:10) +'...' : node.data.definition}}
+                            </span>
                         <span class="lexical-tooltip"
-                            *ngIf="node.data.count == undefined && idView && node.data.definition != undefined && node.data.label != undefined"
+                            *ngIf="node.data.count == undefined && idView && node.data.definition != undefined"
                              placement="top" [ngbTooltip]="node.data.definition">{{ node.data.sense
                             }}</span>
     

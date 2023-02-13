@@ -119,10 +119,10 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
           this.lexicalService.spinnerAction('on');
           console.log(this.object)
           //console.log(this.object)
-          if (this.object.lexicalEntry != undefined) {
+          if (this.object.lexicalEntry != undefined && this.object.form == undefined && this.object.sense == undefined) {
             var lexId = this.object.lexicalEntry;
             var parameters = {
-              relation: "note",
+              relation: "http://www.w3.org/2004/02/skos/core#note",
               value: newNote
             }
             this.lexicalService.updateLexicalEntry(lexId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
@@ -152,7 +152,7 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
           } else if (this.object.form != undefined) {
             var formId = this.object.form;
             var parameters = {
-              relation: "note",
+              relation: "http://www.w3.org/2004/02/skos/core#note",
               value: newNote
             }
             this.lexicalService.updateForm(formId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
@@ -182,7 +182,7 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
           } else if (this.object.sense != undefined) {
             var senseId = this.object.sense;
             var parameters = {
-              relation: "note",
+              relation: "http://www.w3.org/2004/02/skos/core#note",
               value: newNote
             }
             this.lexicalService.updateSense(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
@@ -212,7 +212,7 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
           } else if (this.object.etymology != undefined) {
             var etymId = this.object.etymology;
             var parameters = {
-              relation: "note",
+              relation: "http://www.w3.org/2004/02/skos/core#note",
               value: newNote
             }
             this.lexicalService.updateEtymology(etymId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
@@ -234,9 +234,12 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
                 this.lexicalService.refreshAfterEdit(data);
                 this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
                 this.lexicalService.spinnerAction('off');
-                this.toastr.success('Note updated', '', {
-                  timeOut: 5000,
-                });
+                if(error.status == 200){
+                  this.toastr.success('Note updated', '', {
+                    timeOut: 5000,
+                  });
+                }
+                
               }
             )
           }

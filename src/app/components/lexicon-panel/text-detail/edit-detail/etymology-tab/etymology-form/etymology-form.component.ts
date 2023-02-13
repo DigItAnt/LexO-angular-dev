@@ -303,7 +303,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
     this.lexicalService.spinnerAction('on');
     let etyId = this.object.etymology.etymology;
     let parameters = {
-      relation: 'hypothesisOf',
+      relation: 'http://www.w3.org/2000/01/rdf-schema#comment',
       value: updateAuthor
     }
     try {

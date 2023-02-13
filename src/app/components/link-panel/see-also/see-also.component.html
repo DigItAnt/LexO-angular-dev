@@ -17,12 +17,12 @@
                                     <div class="form-group row ml-2  mr-2 w-100" *ngIf="{switch : seeAlso.get('link_type').value != 'internal'}; let variable">
                                         <div class="input-group" *ngIf="{boolean : seeAlso.get('inferred').value}; let inf">
                                             
-                                            <ng-select #seeAlso formControlName="entity" name="entity"
+                                            <ng-select #seeAlso  formControlName="entity" name="entity"
                                                 (change)="onChangeSeeAlso(seeAlso, i)" (focus)="deleteData()"
-                                                (keyup)="triggerSeeAlso($event)" formControlName="entity" name="entity"
-                                                bindValue="label" class="resizeNgSelect" [items]="searchResults"
-                                                bindLabel="label" placeholder="Search entity" appendTo="body"
-                                                *ngIf="!variable.switch && !isSense" [readonly]="inf.boolean">
+                                                (keyup)="triggerSeeAlso($event)"
+                                                bindValue="entity" class="resizeNgSelect" [items]="searchResults"
+                                                bindLabel="entity" placeholder="Search entity" appendTo="body"
+                                                *ngIf="!variable.switch && !isSense && seeAlso.get('link_type').value != 'external'" [readonly]="inf.boolean">
                                                 <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                                                     <div>
                                                         <span>{{item.label}} </span><span style="color: blue;">@{{item.language}}</span>
@@ -30,12 +30,12 @@
                 
                                                 </ng-template>
                                             </ng-select>
-                                            <ng-select #seeAlso formControlName="entity" name="entity"
+                                            <ng-select #seeAlso 
                                                 (change)="onChangeSeeAlso(seeAlso, i)" (focus)="deleteData()"
                                                 (keyup)="triggerSeeAlso($event)" formControlName="entity" name="entity"
                                                 bindValue="definition" class="resizeNgSelect" [items]="searchResults"
                                                 bindLabel="definition" placeholder="Search entity" appendTo="body"
-                                                *ngIf="!variable.switch && isSense" [readonly]="inf.boolean">
+                                                *ngIf="!variable.switch && isSense && seeAlso.get('link_type').value != 'external'" [readonly]="inf.boolean">
                                             </ng-select>
                                             <input formControlName="entity" name="entity" type="text"
                                                 class="form-control " (keyup)="triggerSeeAlsoInput($event, i)"

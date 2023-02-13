@@ -8,8 +8,11 @@
                 <div class="card-body">
                     <div class="d-flex my-2" formArrayName="inheritance"
                         *ngFor="let inher of formCore.get('inheritance')['controls']; let i = index">
-                        <div class="col-lg-3" [formGroupName]="i">
+                        <div class="col-lg-3" [formGroupName]="i" *ngIf="inher.value['trait'] == 'partOfSpeech'">
                             <span class="col-form-label">{{inher.value['trait']}}</span>
+                        </div>
+                        <div class="col-lg-3" [formGroupName]="i" *ngIf="inher.value['trait'] != 'partOfSpeech'">
+                            <span class="col-form-label">{{inher.value['trait'].split('#')[1]}}</span>
                         </div>
                         <div class="input-group col-lg-7 col-md-12" [formGroupName]="i">
 
@@ -25,7 +28,7 @@
     <div class="form-group row ml-2 mt-3 mr-2">
         <label for="inputType" class="col-lg-3 col-form-label">Type:</label>
         <div class="col-lg-7 input-group">
-            <select formControlName="type" name="type" class="form-control" (change)="onChangeType($event)">
+            <select  class="form-control" (change)="onChangeType($event)">
                 <option *ngFor="let type of typesData" [selected]="object.type === type['valueId']" [value]="type['valueId']">{{type['valueId'] }}
                 </option>
             </select>
@@ -80,7 +83,7 @@
                                 style="font-size: 12px;" (change)="onChangeLabelTrait($event, i)">
                                 <option value="">Select a trait...</option>
                                 <option *ngFor="let ld of labelData" [selected]="l.value['propertyID'] === ld"
-                                    [disabled]="memoryLabel.indexOf(ld) > -1">{{ld}}</option>
+                                    [disabled]="memoryLabel.indexOf(ld) > -1" >{{ld}}</option>
                             </select>
                             <div class="invalid-feedback" *ngIf="l.get('propertyID').invalid" style="display: block;">
                                 Please, don't leave this field blank
@@ -151,7 +154,7 @@
                                 <option value="">Select a trait...</option>
                                 <option *ngFor="let mt of morphologyData"
                                     [selected]="morpho.value['trait'] === mt.propertyId"
-                                    [disabled]="memoryTraits.indexOf(mt.propertyId) > -1" [value]="mt.propertyId">{{mt.propertyValue}}</option>
+                                    [disabled]="memoryTraits.indexOf(mt.propertyId) > -1" [value]="mt.propertyId">{{mt.propertyLabel}}</option>
                             </select>
                             <div class="invalid-feedback" *ngIf="morpho.get('trait').invalid" style="display: block;">
                                 Please, don't leave this field blank
@@ -162,7 +165,7 @@
                                 style="font-size:12px;" (change)="onChangeValue(i)">
                                 <option value="">Select a value...</option>
                                 <option *ngFor="let item of valueTraits[i];" [attr.data-index]="i"
-                                    [selected]="morpho.value['value'] === item.valueId" [value]="mt.propertyId">{{item.valueLabel}}</option>
+                                    [selected]="morpho.value['value'] === item.valueId" [value]="item.valueId">{{item.valueLabel}}</option>
                             </select>
 
                             <div (click)="removeElement(i)" class="input-group-append ml-2"> <button

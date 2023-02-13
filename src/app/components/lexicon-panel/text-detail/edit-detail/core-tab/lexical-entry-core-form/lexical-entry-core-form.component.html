@@ -129,7 +129,7 @@
                                 <select class="form-control selectTrait" style="font-size:12px;"
                                     (change)="onChangeExistingValue($event, i)">
                                     <option *ngFor="let item of valueTraits[i];"
-                                        [selected]="stat['value'] === item.valueId">{{item.valueLabel}}</option>
+                                        [selected]="stat['value'] === item.valueId" [value]="item.valueId">{{item.valueLabel}}</option>
                                 </select>
                                 <div class="input-group-append ml-2">
                                     <button *ngIf="coreForm['controls'].morphoTraits?.value[i] != null" class="btn btn-secondary trait-tooltip" type="button"
@@ -207,7 +207,7 @@
         <div class="input-group col-lg-12">
             <div class="card">
                 <span class="text-id"><b>DENOTES</b></span>
-                <a class="pointer" (click)="addDenotes()"><span class="collapse-icon"><i
+                <a class="pointer" (click)="addDenotes()" [ngClass]="{no_pointer: disableAddDenotes}"><span class="collapse-icon"><i
                             class="fa fa-plus-square"></i></span></a>
                 <div class="card-body">
                     <div class="form-group row m-2" formArrayName="denotes"

@@ -120,7 +120,7 @@ export class LanguageManagerComponent implements OnInit, OnDestroy {
       if (data['i'] == "description") {
         let langId = this.editLangArray['language'];
         let parameters = {
-          relation: 'description',
+          relation: 'http://purl.org/dc/terms/description',
           value: data['v']
         }
   
@@ -148,7 +148,7 @@ export class LanguageManagerComponent implements OnInit, OnDestroy {
         //console.log(data)
         let langId = this.editLangArray['language'];
         let parameters = {
-          relation: 'lexvo',
+          relation: 'http://purl.org/dc/terms/language',
           value: data['v']
         }
   
@@ -176,7 +176,7 @@ export class LanguageManagerComponent implements OnInit, OnDestroy {
         if(this.editLangForm.get('label').valid){
           let langId = this.editLangArray['language'];
           let parameters = {
-            relation: 'language',
+            relation: 'http://www.w3.org/ns/lemon/lime#language',
             value: data['v']
           }
     

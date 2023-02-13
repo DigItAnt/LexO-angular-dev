@@ -173,7 +173,8 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
             this.addLabel(trait, value);
             this.memoryLabel.push(trait);
 
-
+            //TODO: vedere i tratti morfologici per modifica trait con namespace, implementare servizio
+            // usare servizio lexicon/data/representation
             this.staticOtherDef.push({ trait: trait, value: value })
           }
 
@@ -724,10 +725,8 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
           }
         }
       )
-    } else {
-      this.disableAddMorpho = false;
-    }
-
+    } 
+    this.disableAddMorpho = false;
     this.staticMorpho.splice(index, 1);
     this.morphoTraits.removeAt(index);
     this.memoryTraits.splice(index, 1);

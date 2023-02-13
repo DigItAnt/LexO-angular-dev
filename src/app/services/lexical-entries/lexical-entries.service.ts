@@ -184,6 +184,11 @@ export class LexicalEntriesService {
     return this.http.get(`${this.baseUrl}lexicon/data/linguisticRelation?key=${this.key}&id=${encodeURIComponent(lexId)}&property=${property}`);
   }
 
+  //GET /lexicon/data/{id}/lexicalEntryLinguisticRelation --> This method returns the relations with other lexical entities according to the input type
+  getLexEntryGenericRelation(lexId: string, property: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}lexicon/data/genericRelation?key=${this.key}&id=${encodeURIComponent(lexId)}&property=${property}`);
+  }
+
 
   //GET /lexicon/data/{id}/forms --> get forms of lexical entry
   getLexEntryForms(instance: string): Observable<any> {
@@ -235,6 +240,11 @@ export class LexicalEntriesService {
   //GET /lexicon/states --> get states list
   getStatus(): Observable<any> {
     return this.http.get(this.baseUrl + "lexicon/statistics/status?key=" + this.key + "");
+  }
+
+   //GET /lexicon/namespaces --> get namespaces list
+   getNamespaces(): Observable<any> {
+    return this.http.get(this.baseUrl + "lexicon/statistics/namespaces?key=" + this.key + "");
   }
 
 

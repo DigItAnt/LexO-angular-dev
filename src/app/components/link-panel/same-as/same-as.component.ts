@@ -566,12 +566,12 @@ export class SameAsComponent implements OnInit, OnDestroy {
       lexicalElementId = this.object.etymology;
     }
     let parameters = {
-      relation: 'sameAs',
+      relation: 'http://www.w3.org/2002/07/owl#sameAs',
       value: lexical_entity
     }
 
     try{
-      let delete_request = await this.lexicalService.deleteLinguisticRelation(lexical_entity, parameters).toPromise();
+      let delete_request = await this.lexicalService.deleteLinguisticRelation(lexicalElementId, parameters).toPromise();
 
       this.toastr.success("SameAs Removed", 'Error', {
         timeOut: 5000,
