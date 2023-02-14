@@ -231,14 +231,11 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
 
       let oldValue = '';
       fieldType = data['field']
-      if (fieldType == 'note') {
+      if (fieldType == 'http://www.w3.org/2004/02/skos/core#note') {
         oldValue = this.memoryNote[index];
-      } else if (fieldType == 'label') {
+      } else if (fieldType == 'http://www.w3.org/2000/01/rdf-schema#label') {
         oldValue = this.memoryTextualRef[index];
       }
-
-      //this.biblioArray = this.bibliographyForm.get('bibliography') as FormArray;
-
 
 
       let instanceName = this.bibliographyData[index].bibliography;
@@ -370,7 +367,7 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
     this.loadingSynchro[i] = true;
     let lexId = '';
     if (this.object.lexicalEntry != undefined
-      && this.object.sense == undefined) {
+      && this.object.sense == undefined && this.object.form == undefined) {
       console.log(1)
       lexId = this.object.lexicalEntry;
     } else if (this.object.form != undefined) {

@@ -282,7 +282,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
     this.filterLoading = true;
     this.searchResults = [];
     console.log(this.object)
-    if (this.object.lexicalEntry != undefined) {
+    if (this.object.lexicalEntry != undefined && this.object.form == undefined && this.object.sense == undefined) {
       let parameters = {
         text: data,
         searchMode: "startsWith",
@@ -332,6 +332,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         text: data,
         searchMode: "startsWith",
         type: "",
+        field: "definition",
         pos: "",
         formType: "entry",
         author: "",
@@ -341,7 +342,8 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         limit: 500
       }
 
-      let lexical_entries_list = await this.lexicalService.getLexicalEntriesList(parameters).toPromise();
+
+      let lexical_entries_list = await this.lexicalService.getLexicalSensesList(parameters).toPromise();
       if (lexical_entries_list) {
         this.searchResults = lexical_entries_list['list']
         this.filterLoading = false;

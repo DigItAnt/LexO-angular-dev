@@ -199,15 +199,15 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
 
       this.senseCore.get('confidence').setValue(next, { emitEvent: false });
 
-      let oldValue = prev ? 0 : -1;
-      let newValue = next ? 0 : -1;
+      let oldValue = prev ? 1 : 0;
+      let newValue = next ? 1 : 0;
       let parameters = {
         relation: 'http://www.lexinfo.net/ontology/3.0/lexinfo#confidence',
         value: newValue
       };
 
 
-      if (this.memoryConfidence != null) parameters['currentValue'] = oldValue;
+      //if (this.memoryConfidence != null) parameters['currentValue'] = oldValue;
       this.memoryConfidence = oldValue;
 
       this.lexicalService.updateGenericRelation(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(

@@ -201,6 +201,14 @@ export class LexicalEntriesService {
     return this.http.get(this.baseUrl + "lexicon/data/form?key=" + this.key + "&aspect=" + aspect + "&id=" + encodeURIComponent(formId))
   }
 
+  getOntolexRepresentations(): Observable<any> {
+    return this.http.get(this.baseUrl + "ontolex/data/representation")
+  }
+
+  getLexinfoRepresentations(): Observable<any> {
+    return this.http.get(this.baseUrl + "lexinfo/data/representation")
+  }
+
 
   //GET /lexicon/data/{id}/lexicalSense --> get data about a single form 
   getSenseData(senseId: string, aspect: string): Observable<any> {

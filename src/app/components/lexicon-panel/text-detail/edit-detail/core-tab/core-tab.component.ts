@@ -343,7 +343,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
     switch (this.lock) {
       case 0: {
         let parameters = {
-          relation: "status",
+          relation: "http://www.w3.org/2003/06/sw-vocab-status/ns#term_status",
           value: "working"
         }
         this.lexicalService.updateLexicalEntry(lexicalId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
@@ -372,7 +372,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
       }; break;
       case 1: {
         let parameters = {
-          relation: "status",
+          relation: "http://www.w3.org/2003/06/sw-vocab-status/ns#term_status",
           value: "completed"
         }
         this.lexicalService.updateLexicalEntry(lexicalId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
@@ -402,7 +402,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
       }; break;
       case 2: {
         let parameters = {
-          relation: "status",
+          relation: "http://www.w3.org/2003/06/sw-vocab-status/ns#term_status",
           value: "reviewed"
         }
         this.lexicalService.updateLexicalEntry(lexicalId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
@@ -689,14 +689,14 @@ export class CoreTabComponent implements OnInit, OnDestroy {
     this.object['request'] = 'etymology'
     let parentNodeInstanceName = '';
     if (this.object.lexicalEntry != undefined
-      && this.object.senseInstanceName == undefined) {
+      && this.object.sense == undefined && this.object.form == undefined) {
       console.log(1)
       parentNodeInstanceName = this.object.lexicalEntry;
-    } else if (this.object.formInstanceName != undefined) {
+    } else if (this.object.form != undefined) {
       parentNodeInstanceName = this.object.parentNodeInstanceName;
       this.object['lexicalEntry'] = parentNodeInstanceName
       console.log(2)
-    } else if (this.object.senseInstanceName != undefined) {
+    } else if (this.object.sense != undefined) {
       parentNodeInstanceName = this.object.parentNodeInstanceName;
       this.object['lexicalEntry'] = parentNodeInstanceName
       console.log(3)

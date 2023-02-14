@@ -51,6 +51,8 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
   labelData = [];
   memoryLabel = [];
 
+  ontolexRepresentations = [];
+  lexinfoRepresentations = [];
   typeDesc = '';
 
   staticOtherDef = [];
@@ -153,7 +155,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
           }
         }
 
-
+        
 
         if (this.object.confidence == 0) {
           this.formCore.get('confidence').setValue(true, { emitEvent: false });
@@ -175,6 +177,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
 
             //TODO: vedere i tratti morfologici per modifica trait con namespace, implementare servizio
             // usare servizio lexicon/data/representation
+            
             this.staticOtherDef.push({ trait: trait, value: value })
           }
 
@@ -211,6 +214,8 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
 
 
         setTimeout(async () => {
+          this.ontolexRepresentations = await this.lexicalService.getOntolexRepresentations().toPromise();
+          this.lexinfoRepresentations = await this.lexicalService.getLexinfoRepresentations().toPromise();
           this.typesData = await this.lexicalService.getFormTypes().toPromise();
           let type = this.formCore.get('type').value;
           this.typesData.forEach(el => {
@@ -537,15 +542,29 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
   onChangeExistingLabelValue(evt, i) {
     this.lexicalService.spinnerAction('on');
     this.labelArray = this.formCore.get('label') as FormArray;
-    const trait = this.labelArray.at(i).get('propertyID').value;
+    let trait = this.labelArray.at(i).get('propertyID').value;
     const newValue = evt.target.value;
+    this.ontolexRepresentations.forEach(
+      element=> {
+        if(element.valueId.split('#')[1] == trait){
+          trait = element.valueId;
+        }
+      }
+    )
 
+    this.lexinfoRepresentations.forEach(
+      element=> {
+        if(element.valueId.split('#')[1] == trait){
+          trait = element.valueId;
+        }
+      }
+    )
     //console.log(this.object)
 
     if (newValue != '') {
       const parameters = { relation: trait, value: newValue }
 
-      this.staticOtherDef[i] = { trait: trait, value: newValue }
+      this.staticOtherDef[i] = { trait: trait.split('#')[1], value: newValue }
       let formId = this.object.form;
 
 
@@ -592,13 +611,28 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
   onChangeLabel(object) {
 
     this.labelArray = this.formCore.get('label') as FormArray;
-    const trait = this.labelArray.at(object.i).get('propertyID').value;
+    let trait = this.labelArray.at(object.i).get('propertyID').value;
+    this.ontolexRepresentations.forEach(
+      element=> {
+        if(element.valueId.split('#')[1] == trait){
+          trait = element.valueId;
+        }
+      }
+    )
+
+    this.lexinfoRepresentations.forEach(
+      element=> {
+        if(element.valueId.split('#')[1] == trait){
+          trait = element.valueId;
+        }
+      }
+    )
+
     const newValue = object.evt.target.value;
     const formId = this.object.form;
     const parameters = { relation: trait, value: newValue }
     //console.log(this.object)
-
-    this.staticOtherDef.push({ trait: trait, value: newValue })
+    this.staticOtherDef.push({ trait: trait.split('#')[1], value: newValue })
 
     if (trait != undefined && newValue != '') {
       this.lexicalService.updateForm(formId, parameters).pipe(takeUntil(this.destroy$)).subscribe(

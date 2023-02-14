@@ -354,7 +354,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 const lexId = this.object.lexicalEntry;
                 this.coreForm.get('label').setValue(this.object.label, { emitEvent: false });
                 this.coreForm.get('stemType').setValue(this.object.stemType, { emitEvent: false });
-                if (this.object.stemType = ! '') {
+                if (this.object.stemType != '') {
                     this.memoryStem = this.object.stemType;
                 }
                 if (this.object.type == 'Etymon') {
@@ -363,7 +363,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                     this.coreForm.get('type').enable({ onlySelf: true, emitEvent: false })
                 }
 
-                if (this.object.confidence == 0) {
+                if (this.object.confidence == 0)  {
                     this.coreForm.get('confidence').setValue(true, { emitEvent: false });
                 } else {
                     this.coreForm.get('confidence').setValue(null, { emitEvent: false });
@@ -469,7 +469,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                     this.lexEntryTypesData = await this.lexicalService.getLexEntryTypes().toPromise();
                     let type = this.coreForm.get('type').value;
                     this.lexEntryTypesData.forEach(el => {
-                        if (el.valueId == type) {
+                        if (el.valueId.split('#')[1] == type) {
 
                             this.typeDesc = el.valueDescription;
                         }
@@ -925,15 +925,15 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
             this.coreForm.get('confidence').setValue(next, { emitEvent: false });
 
-            let oldValue = prev ? 0 : -1;
-            let newValue = next ? 1 : -1;
+            let oldValue = prev ? 0 : 1;
+            let newValue = next ? 0 : 1;
             let parameters = {
                 type: "confidence",
                 relation: 'http://www.lexinfo.net/ontology/3.0/lexinfo#confidence',
                 value: newValue
             };
 
-            if (this.memoryConfidence != null) parameters['currentValue'] = oldValue;
+            //if (this.memoryConfidence != null) parameters['currentValue'] = oldValue;
             this.memoryConfidence = oldValue;
 
 
@@ -955,13 +955,12 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 if (updateStem != '') {
                     this.lexicalService.spinnerAction('on');
                     let lexId = this.object.lexicalEntry;
-                    //TODO: mettere currentValue tramite un memory, eliminare stemType se la stringa è vuota 
                     let parameters = {
                         type: 'extension',
                         relation: 'https://www.prin-italia-antica.unifi.it#stemType',
                         value: updateStem
                     }
-                    if (this.memoryStem != '') parameters['currentValue'] = this.memoryStem;
+                    //if (this.memoryStem != '') parameters['currentValue'] = this.memoryStem;
                     console.log(parameters)
                     this.lexicalService.updateGenericRelation(lexId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
                         data => {
@@ -1001,7 +1000,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 let lexId = this.object.lexicalEntry;
                 let parameters = {
                     relation: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-                    value: 'http://www.w3.org/ns/lemon/ontolex#' + newType
+                    value: newType
                 }
                 this.lexicalService.updateLexicalEntry(lexId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
                     data => {

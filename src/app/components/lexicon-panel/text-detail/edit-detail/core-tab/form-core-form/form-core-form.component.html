@@ -29,7 +29,7 @@
         <label for="inputType" class="col-lg-3 col-form-label">Type:</label>
         <div class="col-lg-7 input-group">
             <select  class="form-control" (change)="onChangeType($event)">
-                <option *ngFor="let type of typesData" [selected]="object.type === type['valueId']" [value]="type['valueId']">{{type['valueId'] }}
+                <option *ngFor="let type of typesData" [selected]="object.type === type['valueId'].split('#')[1]" [value]="type['valueId']">{{type['valueLabel'] }}
                 </option>
             </select>
             <div class="input-group-append ml-2">
@@ -154,7 +154,7 @@
                                 <option value="">Select a trait...</option>
                                 <option *ngFor="let mt of morphologyData"
                                     [selected]="morpho.value['trait'] === mt.propertyId"
-                                    [disabled]="memoryTraits.indexOf(mt.propertyId) > -1" [value]="mt.propertyId">{{mt.propertyLabel}}</option>
+                                    [disabled]="memoryTraits.indexOf(mt.propertyId) > -1 || mt.propertyId == 'http://www.lexinfo.net/ontology/3.0/lexinfo#partOfSpeech'" [value]="mt.propertyId">{{mt.propertyLabel}}</option>
                             </select>
                             <div class="invalid-feedback" *ngIf="morpho.get('trait').invalid" style="display: block;">
                                 Please, don't leave this field blank

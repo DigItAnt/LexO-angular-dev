@@ -52,9 +52,9 @@
                 <label for="inputType">Type:</label>
             </div>
             <div class="col-lg-9 input-group">
-                <select id="typeSelect" formControlName="type" name="type" class="form-control">
-                    <option *ngFor="let lx of lexEntryTypesData" [selected]="coreForm.get('type').value === lx['valueId']">
-                        {{lx['valueId']}}
+                <select id="typeSelect"  class="form-control">
+                    <option *ngFor="let lx of lexEntryTypesData" [value]="lx['valueId']" [selected]="coreForm.get('type').value === lx['valueId'].split('#')[1]">
+                        {{lx['valueLabel']}}
                     </option>
                 </select>
                 <div class="input-group-append ml-2">
@@ -194,7 +194,7 @@
     <div class="form-group row m-2 mt-3">
         <label for="inputLabel" class="col-lg-3 col-form-label">Stem type:</label>
         <div class="input-group col-lg-7">
-            <input id="stemType" formControlName="stemType" name="stemType" type="text" class="form-control" placeholder=""
+            <input id="stemType" formControlName="stemType" name="stemType" type="text" class="form-control" placeholder="Insert Stem Type..."
                 required>
             <!-- <div class="invalid-feedback" *ngIf="emptyLabelFlag" style="display: block;">
                 Please, insert at least three characters.

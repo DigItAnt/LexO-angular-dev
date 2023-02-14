@@ -16,8 +16,7 @@
                                 <div class="d-flex">
                                     <div class="form-group row ml-2  mr-2 w-100" *ngIf="{switch : seeAlso.get('link_type').value != 'internal'}; let variable">
                                         <div class="input-group" *ngIf="{boolean : seeAlso.get('inferred').value}; let inf">
-                                            
-                                            <ng-select #seeAlso  formControlName="entity" name="entity"
+                                                                                        <ng-select #seeAlso  formControlName="entity" name="entity"
                                                 (change)="onChangeSeeAlso(seeAlso, i)" (focus)="deleteData()"
                                                 (keyup)="triggerSeeAlso($event)"
                                                 bindValue="entity" class="resizeNgSelect" [items]="searchResults"

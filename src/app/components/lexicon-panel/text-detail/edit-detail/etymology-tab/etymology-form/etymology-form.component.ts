@@ -230,7 +230,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
       let newValue = next ? 0 : -1;
       let parameters = {
         type: "confidence",
-        relation: 'confidence',
+        relation: 'http://www.lexinfo.net/ontology/3.0/lexinfo#confidence',
         value: newValue
       };
 
@@ -270,7 +270,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
     this.lexicalService.spinnerAction('on');
     let etyId = this.object.etymology.etymology;
     let parameters = {
-      relation: 'label',
+      relation: 'http://www.w3.org/2000/01/rdf-schema#label',
       value: updatedLabel
     }
 
@@ -334,11 +334,11 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
 
       let oldValue = this.memoryLinks[index].note;
 
-      let instanceName = this.object.etyLinks[index].etymologicalLinkInstanceName;
+      let instanceName = this.object.etyLinks[index].etymologicalLink;
 
 
       let parameters = {
-        relation: 'note',
+        relation: 'http://www.w3.org/2004/02/skos/core#note',
         value: newValue,
         currentValue: oldValue
       };
@@ -375,11 +375,11 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
 
       let oldValue = this.memoryLinks[index].note;
 
-      let instanceName = this.object.etyLinks[index].etymologicalLinkInstanceName;
+      let instanceName = this.object.etyLinks[index].etymologicalLink;
 
 
       let parameters = {
-        relation: 'label',
+        relation: 'http://www.w3.org/2000/01/rdf-schema#label',
         value: newValue,
         currentValue: oldValue
       };
@@ -395,8 +395,13 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
 
       } catch (error) {
         this.lexicalService.spinnerAction('off');
-        this.memoryLinks[index].note = newValue
-        this.toastr.error(error.error, 'Error', { timeOut: 5000 })
+        this.memoryLinks[index].note = newValue;
+        if(error.status != 200){
+          this.toastr.error(error.error, 'Error', { timeOut: 5000 })
+
+        }else{
+          this.toastr.success('Ok', '', {timeOut: 4000})
+        }
       }
     }
   }
@@ -408,14 +413,14 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
     selectedValues = evt.target.value;
 
     if (this.object.etymology.etymology != undefined) {
-      etymId = this.object.etyLinks[index].etymologicalLinkInstanceName;
+      etymId = this.object.etyLinks[index].etymologicalLink;
     }
 
     if (selectedValues != null) {
 
       //let oldValue = this.memoryLinks[index].etySource;
       let parameters = {
-        relation: "etyLinkType",
+        relation: "http://lari-datasets.ilc.cnr.it/lemonEty#etyLinkType",
         value: selectedValues,
       }
       console.log(parameters);
@@ -441,7 +446,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
     if (!this.etyLinkArray.at(index).get('lila').value) {
       if (etyLink.selectedItems != undefined) {
         if (etyLink.selectedItems.length != 0) {
-          selectedValues = etyLink.selectedItems[0].value.lexicalEntryInstanceName;
+          selectedValues = etyLink.selectedItems[0].value.lexicalEntry;
           etySourceLabel = etyLink.selectedItems[0].value.label;
           instanceName = etyLink.selectedItems[0].value.lexicalEntry;
         }
@@ -460,7 +465,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
     //console.log(index);
     //console.log(this.object.etyLinks[index])
     if (this.object.etymology.etymology != undefined) {
-      etymId = this.object.etyLinks[index].etymologicalLinkInstanceName;
+      etymId = this.object.etyLinks[index].etymologicalLink;
     }
 
     let existOrNot = this.memoryLinks.some(element => element.etySource == instanceName);
@@ -471,7 +476,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
         let oldValue = this.memoryLinks[index].etySource;
         let parameters = {
           type: "etyLink",
-          relation: "etySource",
+          relation: "http://lari-datasets.ilc.cnr.it/lemonEty#etySource",
           value: selectedValues,
           currentValue: oldValue
         }
@@ -505,7 +510,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
           this.etyLinkArray.at(index).patchValue({ etySource: lexical_entry });
 
           let parameters = {
-            relation: 'label',
+            relation: 'http://www.w3.org/2000/01/rdf-schema#label',
             value: label_new_lexical_entry
           }
           console.log(parameters);
@@ -518,7 +523,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
             this.lexicalService.spinnerAction('off');
 
             parameters = {
-              relation: 'type',
+              relation: 'http://lari-datasets.ilc.cnr.it/lemonEty#etyLinkType',
               value: 'Etymon'
             }
             
@@ -528,7 +533,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
               let oldValue = this.memoryLinks[index].etySource;
               let parameters = {
                 type: "etyLink",
-                relation: "etySource",
+                relation: "http://lari-datasets.ilc.cnr.it/lemonEty#etySource",
                 value: lexical_entry_in,
                 currentValue: oldValue
               }
@@ -653,7 +658,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
 
   async removeEtyLink(index) {
     this.etyLinkArray = this.etyForm.get('etylink') as FormArray;
-    let etyLinkId = this.memoryLinks[index]['etymologicalLinkInstanceName'];
+    let etyLinkId = this.memoryLinks[index]['etymologicalLink']
 
     try {
       let delete_etylink_req = await this.lexicalService.deleteEtylink(etyLinkId).toPromise();
