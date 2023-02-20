@@ -150,7 +150,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
     if (data['new_note'] != undefined) {
 
       let instanceName = '';
-      if (data['lexicalEntry'] != undefined) {
+      if (data['lexicalEntry'] != undefined && data['form'] == undefined && data['sense'] == undefined) {
         instanceName = data['lexicalEntry']
       } else if (data['form'] != undefined) {
         instanceName = data['form']
@@ -162,7 +162,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
       setTimeout(() => {
         this.lexTree.lexicalEntryTree.treeModel.getNodeBy(
           function (x) {
-            if (data['lexicalEntry'] != undefined) {
+            if (data['lexicalEntry'] != undefined && data['form'] == undefined && data['sense'] == undefined) {
               if (x.data.lexicalEntry == instanceName) {
 
                 x.data.note = data['new_note']

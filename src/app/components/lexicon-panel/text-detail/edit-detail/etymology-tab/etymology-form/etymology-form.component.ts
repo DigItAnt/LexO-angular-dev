@@ -90,6 +90,8 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
     this.onChanges();
     this.triggerTooltip();
 
+    
+
     this.subject_cognates_subscription = this.subject_cognates.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         if (data != null) {
@@ -312,7 +314,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
       this.toastr.success('Author updated', '', { timeOut: 5000 })
     } catch (error) {
       this.lexicalService.spinnerAction('off');
-      //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+      this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
       if (error.status == 200) {
         this.toastr.success('Label updated', '', { timeOut: 5000 })
 

@@ -364,7 +364,9 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 }
 
                 if (this.object.confidence == 0)  {
-                    this.coreForm.get('confidence').setValue(true, { emitEvent: false });
+                    //spento se null o 1
+                    //acceso se 0
+                    this.coreForm.get('confidence').patchValue(true, { emitEvent: false });
                 } else {
                     this.coreForm.get('confidence').setValue(null, { emitEvent: false });
                 }

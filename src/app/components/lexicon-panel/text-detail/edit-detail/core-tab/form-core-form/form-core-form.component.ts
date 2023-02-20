@@ -219,7 +219,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
           this.typesData = await this.lexicalService.getFormTypes().toPromise();
           let type = this.formCore.get('type').value;
           this.typesData.forEach(el => {
-            if (el.valueId == type) {
+            if (el.valueId.split('#')[1] == type) {
 
               this.typeDesc = el.valueDescription;
             }

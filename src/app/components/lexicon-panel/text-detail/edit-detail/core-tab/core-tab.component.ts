@@ -55,6 +55,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
   isForm = false;
   isSense = false;
   isLexicalConcept = false;
+  isEtymology = false;
   searchIconSpinner = false;
   goBack = false;
 
@@ -105,7 +106,6 @@ export class CoreTabComponent implements OnInit, OnDestroy {
           this.lexicalEntryData = null;
           this.formData = null;
           this.senseData = null;
-
 
         }
         this.object = object
@@ -165,8 +165,12 @@ export class CoreTabComponent implements OnInit, OnDestroy {
             this.formData = null;
             this.lexicalEntryData = null;
             this.lexicalConceptData = object;
+          } else if(this.object.lexicalConcept == undefined && this.object.etymology != undefined){
+            this.isEtymology = true;
           }
 
+          this.creationDate = this.object.creationDate;
+          this.lastUpdateDate = this.object.lastUpdate;
 
           switch (this.object.status) {
             case 'working': {

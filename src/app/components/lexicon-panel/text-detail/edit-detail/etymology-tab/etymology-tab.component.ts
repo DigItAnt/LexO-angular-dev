@@ -111,7 +111,8 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
         this.object = object
         //console.log(this.object)
         if (this.object != null) {
-
+          this.creationDate = this.object.etymology.creationDate;
+          this.lastUpdateDate = this.object.etymology.lastUpdate;
           this.creator = this.object['etymology'].creator;
           this.revisor = this.object.revisor;
           this.etymologyData = object;
@@ -184,7 +185,7 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
       }
     );
 
-    /* this.lexicalService.updateLexCardReq$.subscribe(
+    this.lexicalService.updateCoreCardReq$.subscribe(
       data => {
         console.log(data)
         if (data != null) {
@@ -194,7 +195,7 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
           }
         }
       }
-    ) */
+    )
 
     this.spinner_subscription = this.lexicalService.spinnerAction$.subscribe(
       data => {

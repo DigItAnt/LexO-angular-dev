@@ -31,23 +31,23 @@ export class ProfilesTableComponent implements OnInit, OnChanges, OnDestroy {
   users = [];
   private idClient;
   private selected_idUser;
-  private modalRef : NgbModalRef;
-  private temporaryId : string;
+  private modalRef: NgbModalRef;
+  private temporaryId: string;
   public isPopulated = false;
   public creationRequest = false;
   public itsMe = null;
 
-  private initialValue : any;
-  
+  private initialValue: any;
+
 
   selectedRoles = [];
   filterSelectedRoles = [];
   roles: any[] = [];
   //rolesNames = ['ADMIN', 'USER', 'REVIEWER'];
 
-  @ViewChild('user_list') user_list:ElementRef; 
-  @ViewChild('button_create') button_create:ElementRef; 
-  @Input() isNotTheSameId : boolean;
+  @ViewChild('user_list') user_list: ElementRef;
+  @ViewChild('button_create') button_create: ElementRef;
+  @Input() isNotTheSameId: boolean;
 
 
   userDetailForm = new FormGroup({
@@ -59,11 +59,11 @@ export class ProfilesTableComponent implements OnInit, OnChanges, OnDestroy {
     roles: new FormArray([]),
     enabled: new FormControl(null, Validators.required)
   })
-  destroy$ : Subject<boolean> = new Subject();
+  destroy$: Subject<boolean> = new Subject();
   private search_subject: Subject<any> = new Subject();
   roles_array: FormArray;
 
-  constructor(private httpClient: HttpClient, private auth: AuthService, private formBuilder: FormBuilder, private modalService: NgbModal, private keycloakService : KeycloakService) { }
+  constructor(private httpClient: HttpClient, private auth: AuthService, private formBuilder: FormBuilder, private modalService: NgbModal, private keycloakService: KeycloakService) { }
 
 
   ngOnInit(): void {
@@ -71,21 +71,21 @@ export class ProfilesTableComponent implements OnInit, OnChanges, OnDestroy {
     //this.keycloakService.isTokenExpired();
     //this.keycloakService.updateToken(15);
     this.userDetailForm = this.formBuilder.group({
-      id : new FormControl(null),
-      username : new FormControl(null, [Validators.required, Validators.minLength(3)]),
-      email : new FormControl(null, [Validators.required, Validators.minLength(3), Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')]),
-      password : new FormControl(null, [Validators.required, Validators.minLength(8)]),
-      repeat_password : new FormControl(null, [Validators.required]),
-      roles : [],
-      enabled : new FormControl(false, [Validators.required]),
-    }, {validator : ConfirmedValidator('password', 'repeat_password')});
+      id: new FormControl(null),
+      username: new FormControl(null, [Validators.required, Validators.minLength(3)]),
+      email: new FormControl(null, [Validators.required, Validators.minLength(3), Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')]),
+      password: new FormControl(null, [Validators.required, Validators.minLength(8)]),
+      repeat_password: new FormControl(null, [Validators.required]),
+      roles: [],
+      enabled: new FormControl(false, [Validators.required]),
+    }, { validator: ConfirmedValidator('password', 'repeat_password') });
 
     this.auth.getClientsInfo().subscribe(
       data => {
         if (data != undefined && Array.isArray(data)) {
           /* this.idClient = data[0].id; */
           data.forEach(element => {
-            if(element.clientId == 'princlient'){
+            if (element.clientId == 'princlient') {
               this.idClient = element.id;
             }
           })
@@ -94,58 +94,58 @@ export class ProfilesTableComponent implements OnInit, OnChanges, OnDestroy {
       error => { console.log(error) }
     )
 
-    
-    var checkIdTimer = setInterval((val)=>{                 
-      try{
-          if(this.idClient !=undefined){
 
-            this.auth.getAllClientsRoles(this.idClient).subscribe(
-              data => {
-                let array = [];
-                data.forEach((element, i) => {
-                  if (element.name.toUpperCase() == element.name) {
-                    array.push({name: element.name, id: element.id});
-                  };
-                });
-                console.log(array)
-                array.forEach((c, i) => {
-                  this.roles.push({ id: i, name: c.name, role_id: c.id });
-                });
-        
-        
-                this.getUsersByRole(array);
-        
-                // this.selectedRoles = ['ADMIN', 'USER']
-              },
-              error => { console.log(error) }
-            )
-            
-            clearInterval(checkIdTimer)
-          }else{
-            clearInterval(checkIdTimer)
-          }
-          
-      }catch(e){
-          console.log(e)
-      }    
+    var checkIdTimer = setInterval((val) => {
+      try {
+        if (this.idClient != undefined) {
+
+          this.auth.getAllClientsRoles(this.idClient).subscribe(
+            data => {
+              let array = [];
+              data.forEach((element, i) => {
+                if (element.name.toUpperCase() == element.name) {
+                  array.push({ name: element.name, id: element.id });
+                };
+              });
+              console.log(array)
+              array.forEach((c, i) => {
+                this.roles.push({ id: i, name: c.name, role_id: c.id });
+              });
+
+
+              this.getUsersByRole(array);
+
+              // this.selectedRoles = ['ADMIN', 'USER']
+            },
+            error => { console.log(error) }
+          )
+
+          clearInterval(checkIdTimer)
+        } else {
+          clearInterval(checkIdTimer)
+        }
+
+      } catch (e) {
+        console.log(e)
+      }
     }, 500)
 
-    
-    
-    
+
+
+
 
     /* this.rolesNames.forEach((c, i) => {
       this.roles.push({ id: i, name: c });
     }); */
-    
+
 
     this.auth.searchUser().subscribe(
       data => {
         //this.users = data;
-        if(data!= undefined){
-          Array.from(data).forEach((usr:any) => {
-            if(usr.username != undefined){
-              if(usr.username != 'prinadmin'){
+        if (data != undefined) {
+          Array.from(data).forEach((usr: any) => {
+            if (usr.username != undefined) {
+              if (usr.username != 'prinadmin') {
                 this.users.push(usr);
               }
             }
@@ -171,42 +171,42 @@ export class ProfilesTableComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   public getUsersByRole(roles_array) {
-    
+
     roles_array.forEach(element => {
-      
-      
+
+
       this.auth.getUsersByRole(this.idClient, element.name).subscribe(
-        (data : any[])=>{
+        (data: any[]) => {
           //console.log(element, data);
 
           data.forEach(usr => {
             this.users.filter(obj => {
-              if(obj.id == usr.id){
+              if (obj.id == usr.id) {
                 obj[element.name] = true;
                 obj['haveRoles'] = true;
               }
             })
           })
-          
+
         }, error => {
           console.log(error)
         }
       )
     });
-    
+
   }
 
   searchUsers(data?) {
     // console.log(data)
     this.auth.searchUser(data).subscribe(
       data => {
-        //console.log(data);
+        console.log(data);
         this.users = data;
 
         let array = [];
-        
+
         this.roles.forEach(
-          element => { array.push(element.name)}
+          element => { array.push(element) }
         )
         this.getUsersByRole(array)
       }, error => {
@@ -228,21 +228,21 @@ export class ProfilesTableComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   userDetail(id) {
-    if(id != undefined){
+    if (id != undefined) {
       this.selected_idUser = id;
 
       this.button_create.nativeElement.classList.remove('active');
 
       this.auth.getUserInfo(id).subscribe(
-        responseUserInfo=>{
+        responseUserInfo => {
           //console.log(responseUserInfo);
 
           this.auth.getUserRoles(this.selected_idUser, this.idClient).subscribe(
             responseUserRoles => {
               //console.log(responseUserRoles)
 
-              if(responseUserRoles != undefined && Array.isArray(responseUserRoles)){
-                let filter = responseUserRoles.filter(element=> element.name.toUpperCase() === element.name);
+              if (responseUserRoles != undefined && Array.isArray(responseUserRoles)) {
+                let filter = responseUserRoles.filter(element => element.name.toUpperCase() === element.name);
 
                 const extractRoleName = (obj) => {
                   return obj.name;
@@ -260,28 +260,28 @@ export class ProfilesTableComponent implements OnInit, OnChanges, OnDestroy {
               console.log(errorUserRoles)
             }
           )
-        }, error=>{
+        }, error => {
           console.log(error)
         }
       )
     }
   }
 
-  populateForm(id, username, email, roles, enabled){
-    
+  populateForm(id, username, email, roles, enabled) {
+
 
     this.userDetailForm = this.formBuilder.group({
-      id : new FormControl(id),
-      username : new FormControl(username, [Validators.required, Validators.minLength(3)]),
-      email : new FormControl(email, [Validators.required, Validators.minLength(3), Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')]),
-      password : new FormControl(null),
-      repeat_password : new FormControl(null),
-      roles : [],
-      enabled : new FormControl(enabled, [Validators.required]),
-    }, {validator : ConfirmedValidator('password', 'repeat_password')});
+      id: new FormControl(id),
+      username: new FormControl(username, [Validators.required, Validators.minLength(3)]),
+      email: new FormControl(email, [Validators.required, Validators.minLength(3), Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')]),
+      password: new FormControl(null),
+      repeat_password: new FormControl(null),
+      roles: [],
+      enabled: new FormControl(enabled, [Validators.required]),
+    }, { validator: ConfirmedValidator('password', 'repeat_password') });
 
-    
-    
+
+
 
 
     this.selectedRoles = roles;
@@ -295,15 +295,15 @@ export class ProfilesTableComponent implements OnInit, OnChanges, OnDestroy {
 
     this.itsMe = this.auth.getLoggedUser().sub == this.selected_idUser;
 
-    
+
   }
 
-  markAsTouched(){
+  markAsTouched() {
     this.userDetailForm.markAsTouched();
   }
 
-  updateUser(){
-    if(this.userDetailForm.valid && !(JSON.stringify(this.initialValue) == JSON.stringify(this.userDetailForm.value))){
+  updateUser() {
+    if (this.userDetailForm.valid && !(JSON.stringify(this.initialValue) == JSON.stringify(this.userDetailForm.value))) {
       let parameters = {
         enabled: this.userDetailForm.get('enabled').value,
         email: this.userDetailForm.get('email').value,
@@ -312,10 +312,10 @@ export class ProfilesTableComponent implements OnInit, OnChanges, OnDestroy {
       console.log(parameters);
 
       this.auth.updateUser(this.selected_idUser, parameters).subscribe(
-        data=>{
+        data => {
           console.log(data);
 
-          if(JSON.stringify(this.initialValue.roles) != JSON.stringify(this.userDetailForm.get('roles').value)){
+          if (JSON.stringify(this.initialValue.roles) != JSON.stringify(this.userDetailForm.get('roles').value)) {
 
             /* if(this.selectedRoles.length == 0){
               let object = [];
@@ -363,61 +363,61 @@ export class ProfilesTableComponent implements OnInit, OnChanges, OnDestroy {
 
             console.log(difference, removeDiff);
 
-            if(difference.length != 0){
-              difference.forEach(element=>{
+            if (difference.length != 0) {
+              difference.forEach(element => {
 
                 let object = [];
                 let obj = {};
-                this.roles.forEach(roles=>{
-                  if(element == roles.name){
+                this.roles.forEach(roles => {
+                  if (element == roles.name) {
                     obj = {
-                      id : roles.role_id,
+                      id: roles.role_id,
                       name: roles.name
                     }
 
                     object.push(obj);
                     console.log(object)
                     this.auth.assignRolesToUser(this.selected_idUser, this.idClient, object).subscribe(
-                      data=>{
+                      data => {
                         console.log(data);
                         this.users.forEach(element => {
-                          if(element.id == this.selected_idUser){
+                          if (element.id == this.selected_idUser) {
                             element[obj['name']] = true;
                             element['haveRoles'] = true;
                           }
                         });
                         this.userDetail(this.selected_idUser);
                       },
-                      error=>{console.log(error)}
+                      error => { console.log(error) }
                     )
 
                     object = [];
-                    
+
                   }
                 })
 
-                
 
-                
+
+
               });
-            }else if(removeDiff.length != 0){
+            } else if (removeDiff.length != 0) {
               removeDiff.forEach(element => {
                 let object = [];
                 let obj = {};
-                this.roles.forEach(roles=>{
-                  if(element == roles.name){
+                this.roles.forEach(roles => {
+                  if (element == roles.name) {
                     obj = {
-                      id : roles.role_id,
+                      id: roles.role_id,
                       name: roles.name
                     }
                     object.push(obj);
-  
+
                     console.log(object)
                     this.auth.deleteRolesToUser(this.selected_idUser, this.idClient, object).subscribe(
-                      data=>{
+                      data => {
                         console.log(data);
                         this.users.forEach(element => {
-                          if(element.id == this.selected_idUser){
+                          if (element.id == this.selected_idUser) {
                             element[obj['name']] = false;
                             element['haveRoles'] = false;
                           }
@@ -425,33 +425,33 @@ export class ProfilesTableComponent implements OnInit, OnChanges, OnDestroy {
 
                         this.userDetail(this.selected_idUser);
                       },
-                      error=>{console.log(error)}
+                      error => { console.log(error) }
                     );
-    
+
                     object = [];
                   }
-                  
-                  
+
+
                 })
               });
-              
+
             }
           }
         },
-        error=>{
+        error => {
           console.log(error)
         }
       )
-    }else{
+    } else {
       alert("No update. There are same info")
     }
 
   }
 
-  
+
   registerUser() {
     console.log(this.userDetailForm)
-    if(this.userDetailForm.valid){
+    if (this.userDetailForm.valid) {
       let parameters = {
         /* id: this.temporaryId, */
         enabled: this.userDetailForm.get('enabled').value,
@@ -469,28 +469,28 @@ export class ProfilesTableComponent implements OnInit, OnChanges, OnDestroy {
       console.log(parameters);
 
       this.auth.createUser(parameters).subscribe(
-        data=>{
+        data => {
           console.log(data);
 
           this.auth.getUserByUsername(this.userDetailForm.get('username').value).subscribe(
-            data=>{
+            data => {
               console.log(data);
-              if(data != undefined){
-              
+              if (data != undefined) {
+
                 this.cleanActiveLinks();
                 data.forEach(newUser => {
 
-                  if(this.selectedRoles.length > 0){
+                  if (this.selectedRoles.length > 0) {
 
-    
-                    this.selectedRoles.forEach(element=>{
+
+                    this.selectedRoles.forEach(element => {
 
                       let object = [];
                       let obj = {};
-                      this.roles.forEach(roles=>{
-                        if(element == roles.name){
+                      this.roles.forEach(roles => {
+                        if (element == roles.name) {
                           obj = {
-                            id : roles.role_id,
+                            id: roles.role_id,
                             name: roles.name
                           }
 
@@ -498,27 +498,27 @@ export class ProfilesTableComponent implements OnInit, OnChanges, OnDestroy {
                         }
                       })
 
-                      
+
 
                       console.log(object)
                       this.auth.assignRolesToUser(newUser.id, this.idClient, object).subscribe(
-                        data=>{
+                        data => {
                           console.log(data);
                           this.users.forEach(element => {
-                            if(element.id == newUser.id){
+                            if (element.id == newUser.id) {
                               element[obj['name']] = true;
                               element['haveRoles'] = true;
                             }
                           });
                         },
-                        error=>{console.log(error)}
+                        error => { console.log(error) }
                       )
                     });
 
-                    
+
                   }
-                  
-                  
+
+
 
                   this.users.push(newUser);
 
@@ -528,53 +528,53 @@ export class ProfilesTableComponent implements OnInit, OnChanges, OnDestroy {
                   setTimeout(() => {
                     this.activeNewUserLink(this.userDetailForm.get('username').value)
                   }, 100);
-                  
+
                 });
 
-                
-              } 
+
+              }
             },
-            error=>{
+            error => {
               console.log(error)
             }
           )
         },
-        error=>{
+        error => {
           console.log(error)
         }
       )
     }
   }
 
-  resetForm(){
+  resetForm() {
     this.userDetailForm.reset();
     this.userDetailForm.markAsUntouched();
     this.userDetailForm.markAsPristine();
   }
 
-  deleteUser(){
+  deleteUser() {
     console.log(this.selected_idUser);
 
     this.auth.deleteUser(this.selected_idUser).subscribe(
-      data=>{
+      data => {
         console.log(data)
         let filtered = this.users.filter(
-          element=> element.id != this.selected_idUser
+          element => element.id != this.selected_idUser
         )
 
         this.users = filtered;
-    
+
         this.cleanActiveLinks();
         this.userDetailForm.reset();
         this.isPopulated = false;
         this.creationRequest = false;
-    
+
         this.modalRef.close();
       },
-      error=>{console.log(error)}
+      error => { console.log(error) }
     )
 
-    
+
   }
 
 
@@ -588,52 +588,52 @@ export class ProfilesTableComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
 
-  createNewUser(){
+  createNewUser() {
 
     this.cleanActiveLinks();
     this.selected_idUser = null;
 
     const makeId = function makeid() {
-          var result           = '';
-          var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-          var charactersLength = characters.length;
-          for ( var i = 0; i < 9; i++ ) {
-            result += characters.charAt(Math.floor(Math.random() * charactersLength));
-          }
+      var result = '';
+      var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      var charactersLength = characters.length;
+      for (var i = 0; i < 9; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      }
 
-          result += '-'
+      result += '-'
 
-          for ( var j = 0; j < 5; j++ ) {
-            result += characters.charAt(Math.floor(Math.random() * charactersLength));
-          }
+      for (var j = 0; j < 5; j++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      }
 
-          result += '-'
+      result += '-'
 
-          for ( var l = 0; l < 5; l++ ) {
-            result += characters.charAt(Math.floor(Math.random() * charactersLength));
-          }
+      for (var l = 0; l < 5; l++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      }
 
-          result += '-'
+      result += '-'
 
-          for ( var m = 0; m < 13; m++ ) {
-            result += characters.charAt(Math.floor(Math.random() * charactersLength));
-          }
-          
-          return result;
+      for (var m = 0; m < 13; m++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      }
+
+      return result;
     }
 
     this.temporaryId = makeId();
-    
+
 
     this.userDetailForm = this.formBuilder.group({
-      id : new FormControl(this.temporaryId),
-      username : new FormControl(null, [Validators.required, Validators.minLength(3)]),
-      email : new FormControl(null, [Validators.required, Validators.minLength(3), Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')]),
-      password : new FormControl(null, [Validators.required, Validators.minLength(8)]),
-      repeat_password : new FormControl(null, [Validators.required]),
-      roles : [],
-      enabled : new FormControl(false, [Validators.required]),
-    }, {validator : ConfirmedValidator('password', 'repeat_password')});
+      id: new FormControl(this.temporaryId),
+      username: new FormControl(null, [Validators.required, Validators.minLength(3)]),
+      email: new FormControl(null, [Validators.required, Validators.minLength(3), Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')]),
+      password: new FormControl(null, [Validators.required, Validators.minLength(8)]),
+      repeat_password: new FormControl(null, [Validators.required]),
+      roles: [],
+      enabled: new FormControl(false, [Validators.required]),
+    }, { validator: ConfirmedValidator('password', 'repeat_password') });
     this.creationRequest = true;
     this.isPopulated = true;
     this.selectedRoles = [];
@@ -641,23 +641,23 @@ export class ProfilesTableComponent implements OnInit, OnChanges, OnDestroy {
     this.itsMe = false;
   }
 
-  cleanActiveLinks(){
+  cleanActiveLinks() {
     var links = this.user_list.nativeElement.querySelectorAll('a')
     links.forEach(element => {
-      if(element.classList.contains('active')){
+      if (element.classList.contains('active')) {
         element.classList.remove('active');
       }
     });
   }
 
-  activeNewUserLink(username){
+  activeNewUserLink(username) {
     var links = this.user_list.nativeElement.querySelectorAll('a')
     links.forEach(element => {
-//      console.log(element.innerText, username)
-      if(element.innerText == username){
+      //      console.log(element.innerText, username)
+      if (element.innerText == username) {
         element.classList.add('active');
       }
-      
+
     });
   }
 
@@ -666,12 +666,12 @@ export class ProfilesTableComponent implements OnInit, OnChanges, OnDestroy {
     const invalid = [];
     const controls = this.userDetailForm.controls;
     for (const name in controls) {
-        if (controls[name].invalid) {
-            invalid.push(name);
-        }
+      if (controls[name].invalid) {
+        invalid.push(name);
+      }
     }
 
-    
+
     return invalid;
   }
 

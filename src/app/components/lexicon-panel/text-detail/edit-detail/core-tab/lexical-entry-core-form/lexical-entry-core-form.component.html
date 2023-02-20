@@ -35,12 +35,13 @@
             </div>
         </div>
 
-        <div class="form-group row m-2" *ngIf="{confidence : coreForm.get('confidence').value >= 0}; let variable">
+        <div class="form-group row m-2">
             <div class="col-lg-3">
                 <label for="uncertainBox">Uncertain</label>
             </div>
+
             <div class="col-lg-3 input-group uncertain">
-                <input formControlName="confidence" name="confidence" type="checkbox" >
+                <input formControlName="confidence" name="confidence" type="checkbox" [checked]="coreForm.get('confidence').value">
                 <!-- <input *ngIf="variable.confidence" id="attributes"  step="0.1" formControlName="confidence" name="confidence" type="number" min="0" max="1" class="form-control" placeholder="No info" [value]="coreForm.get('confidence').value">
                 <button type="button" class="btn btn-secondary btn-sm ml-2" *ngIf="!variable.confidence" (click)="variable.confidence = !variable.confidence"><i class="fas fa-plus"></i></button>
                 <button type="button" class="btn btn-secondary btn-sm ml-2" *ngIf="variable.confidence" (click)="variable.confidence = !variable.confidence; applyUncertain()"><i class="fas fa-minus"></i></button> -->
