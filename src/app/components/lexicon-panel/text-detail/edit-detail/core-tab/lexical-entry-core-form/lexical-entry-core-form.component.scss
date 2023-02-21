@@ -16,6 +16,11 @@
     font-size: 12px;
 }
 
+.disabled {
+    color: #dfdfdf !important;
+    pointer-events: none;
+}
+
 .btn {
     font-size: 12px;
     height: 32px;

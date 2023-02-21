@@ -421,7 +421,7 @@ export class LexicalEntriesService {
 
   //DECOMP
   getSubTerms(lexicalEntityID: string) : Observable<any>{
-    return this.http.get(this.baseUrl + "lexicon/data/"+lexicalEntityID+"/subTerms?key="+this.key);
+    return this.http.get(this.baseUrl + "lexicon/data/subTerms?key="+this.key+"&id="+encodeURIComponent(lexicalEntityID));
   }
 
   getConstituents(lexicalEntityID: string) : Observable<any>{

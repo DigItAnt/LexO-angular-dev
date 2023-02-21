@@ -513,6 +513,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
     this.lexicalService.deleteForm(lexicalId).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         this.searchIconSpinner = false;
+        this.lexicalService.sendToCoreTab(null)
         this.lexicalService.deleteRequest(this.object);
         this.isForm = false;
         this.object = null;
@@ -530,6 +531,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
             timeOut: 5000,
           });
         }
+        this.lexicalService.sendToCoreTab(null)
 
       }
     )
@@ -546,12 +548,16 @@ export class CoreTabComponent implements OnInit, OnDestroy {
         this.lexicalService.deleteRequest(this.object);
         this.isSense = false;
         this.object = null;
+        this.lexicalService.sendToCoreTab(null)
+
         this.toastr.success(lexicalId + 'deleted correctly', '', {
           timeOut: 5000,
         });
       }, error => {
         console.log(error)
         this.searchIconSpinner = false;
+        this.lexicalService.sendToCoreTab(null)
+
         this.lexicalService.deleteRequest(this.object);
       }
     )

@@ -234,6 +234,53 @@
     </div>
 
     <!-- TODO DECOMPOSITION -->
+    <div class="form-group row ml-2 mt-3 mr-2" *ngIf="isMultiword">
+        <div class="input-group col-xl-12">
+            <div class="card">
+                <span class="text-id"><b>SUBTERM</b></span>
+                <a class="pointer" (click)="addSubterm()"><span class="collapse-icon" [class.disabled]="disableAddSubterm"><i class="fa fa-plus-square"></i></span></a>
+                <!-- <a class="pointer" (click)="removeSubterm(i)"><span class="trash-icon"><i class="fa fa-trash"></i></span></a> -->
+                <div class="card-body">
+
+                    
+            
+                    <!-- SUB-TERM -->
+                    <div formArrayName="subterm" class="col-xl-12">
+                        <div *ngFor="let sub of coreForm['controls'].subterm['controls']; let i = index">
+                            <div [formGroupName]="i" class="d-xl-flex" style="align-items: center;">
+                                <div class="form-group row ml-2 mt-2 mr-2 w-100">
+                                    <div class="input-group">
+                                        <ng-select #select_subterm formControlName="label" name="label" [dropdownPosition]="'top'"
+                                                (keyup)="triggerSubterm($event)" (change)="handleSubterm(select_subterm, i)"
+                                                [items]="searchResults" bindValue="label" (focus)="deleteData()" bindLabel="label"
+                                                placeholder="Search lexical entries" appendTo="body">
+                                                <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                                                    <div>
+                                                        <span>{{item.label}} </span><span style="color: blue;">@{{item.language}}</span>
+                                                    </div>
+
+                                                </ng-template>
+                                            </ng-select>
+                                        
+                                        <!-- <div class="input-group-append ml-2">
+                                            <button class="btn btn-primary" type="button"><i
+                                                    class="fa fa-external-link-alt"></i></button>
+                                        </div> -->
+                                        <div class="input-group-append ml-2">
+                                            <button (click)="removeSubterm(i)" class="btn btn-danger" type="button"><i class="fa fa-trash-alt"></i></button>
+                                        </div>
+                                       <!--  <div class="input-group-append ml-2">
+                                            <button  class="btn btn-outline-primary invisible" type="button"><i class="fa fa-plus"></i></button>
+                                        </div> -->
+                                    </div>
+                                </div>                                                  
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="form-group row m-2">
         <div class="input-group col-lg-12">

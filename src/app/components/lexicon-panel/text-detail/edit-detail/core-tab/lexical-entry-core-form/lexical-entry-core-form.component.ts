@@ -66,9 +66,15 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
     searchResults = [];
     filterLoading = false;
 
+
+
     private denotes_subject: Subject<any> = new Subject();
     private cognates_subject: Subject<any> = new Subject();
     private evokes_subject: Subject<any> = new Subject();
+    private subterm_subject: Subject<any> = new Subject();
+    private ext_subterm_subject_subscription: Subscription;
+
+
 
     /* public urlRegex = /(^|\s)((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)/gi */
     public urlRegex = /(^|\s)((https?:\/\/.+))/;
@@ -77,6 +83,10 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
     emptyFlag = false;
 
     disableAddMorpho = false;
+    disableAddSubterm = false;
+
+    isMultiword = false;
+    memorySubterm = [];
 
     coreForm = new FormGroup({
         label: new FormControl('', [Validators.required, Validators.minLength(2)]),
@@ -90,13 +100,15 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
         denotes: new FormArray([this.createDenotes()]),
         cognates: new FormArray([this.createCognates()]),
         isCognate: new FormControl(null),
-        isEtymon: new FormControl(null)
+        isEtymon: new FormControl(null),
+        subterm: new FormArray([])
     })
 
     morphoTraits: FormArray;
     evokesArray: FormArray;
     denotesArray: FormArray;
     cognatesArray: FormArray;
+    subtermArray: FormArray;
     disableAddCognates = false;
     disableAddDenotes = false;
     arrayComponents = [];
@@ -106,6 +118,8 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
     update_lang_subscription: Subscription;
     get_languages_subscription: Subscription;
     subject_subscription: Subscription;
+    private ext_subterm_subject: Subject<any> = new Subject();
+
 
     constructor(private lexicalService: LexicalEntriesService,
         private formBuilder: FormBuilder,
@@ -132,17 +146,23 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
             }
         )
 
+        this.ext_subterm_subject_subscription = this.ext_subterm_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+            data => {
+              this.onChangeSubterm(data)
+            }
+          )
+
         this.cognates_subject_subscription = this.cognates_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
             data => {
                 this.onChangeCognates(data)
             }
         )
 
-        /* this.evokes_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+        this.subterm_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
             data => {
-                this.onChangeEvokes(data)
+              this.onSearchFilterSubterm(data)
             }
-        ) */
+          )
 
         this.update_lang_subscription = this.lexicalService.updateLangSelect$.subscribe(
             signal => {
@@ -192,7 +212,8 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
             denotes: this.formBuilder.array([this.createDenotes()]),
             cognates: this.formBuilder.array([this.createCognates()]),
             isCognate: false,
-            isEtymon: false
+            isEtymon: false,
+            subterm : this.formBuilder.array([]),
         })
 
         this.onChanges();
@@ -212,7 +233,41 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
         }
     }
 
-
+    onSearchFilterSubterm(data) {
+        this.searchResults = [];
+    
+        if (this.object.lexicalEntry != undefined) {
+          let parameters = {
+            text: data,
+            searchMode: "startsWith",
+            type: "",
+            pos: "",
+            formType: "entry",
+            author: "",
+            lang: "",
+            status: "",
+            offset: 0,
+            limit: 500
+          }
+    
+          /* && data.length >= 3 */
+          
+            this.lexicalService.getLexicalEntriesList(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+                data=> {
+                    console.log(data)
+                    let filter_lang = data.list;
+                    console.log(filter_lang)
+                    this.searchResults = filter_lang;
+                },error=>{
+                    console.log(error)
+                }
+            )
+            
+          
+        } else {
+        }
+    
+      }
 
     onSearchFilter(data) {
         this.filterLoading = true;
@@ -341,10 +396,16 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 this.disableAddDenotes = false;
                 this.disableAddMorpho = false;
 
+                this.subtermArray = this.coreForm.get('subterm') as FormArray;
+                this.subtermArray.clear();
+
                 this.memoryStem = '';
                 this.memoryPos = '';
 
                 this.staticMorpho = []
+
+                this.memorySubterm = [];
+                this.isMultiword = false;
             }
             this.object = changes.lexData.currentValue;
 
@@ -363,7 +424,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                     this.coreForm.get('type').enable({ onlySelf: true, emitEvent: false })
                 }
 
-                if (this.object.confidence == 0)  {
+                if (this.object.confidence == 0) {
                     //spento se null o 1
                     //acceso se 0
                     this.coreForm.get('confidence').patchValue(true, { emitEvent: false });
@@ -382,6 +443,10 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 });
 
                 let isCognate = this.object.type.find(element => element == 'Cognate');
+                this.isMultiword = this.object.type.some(element => element == 'MultiWordExpression');
+                if (this.isMultiword) {
+                    this.getSubterms(lexId);
+                }
                 if (isCognate) {
                     this.coreForm.get('isCognate').setValue(true, { emitEvent: false })
                 } else {
@@ -521,6 +586,31 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
         }, 10)
 
+    }
+
+    async getSubterms(lexId) {
+        try {
+            let get_subterms_req = await this.lexicalService.getSubTerms(this.object.lexicalEntry).toPromise();
+            if (get_subterms_req != undefined) {
+                Array.from(get_subterms_req).forEach((element: any) => {
+                    this.addSubterm(element.lexicalEntry, element.label, element.language);
+                    this.memorySubterm.push(element);
+                })
+            }
+        } catch (error) {
+            console.log(error);
+            if (error.status != 200) {
+                this.toastr.error("Something went wrong on get subterms, please check the log", "Error", { timeOut: 5000 })
+            }
+        }
+    }
+
+    triggerSubterm(evt) {
+        console.log(evt)
+        if (evt.target != undefined) {
+
+            this.subterm_subject.next(evt.target.value)
+        }
     }
 
     onChangeLanguage(evt) {
@@ -1138,6 +1228,36 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
         }
     }
 
+    createSubtermComponent(e?, l?, lang?) {
+        if (e != undefined) {
+            return this.formBuilder.group({
+                entity: e,
+                label: l,
+                language: lang
+            })
+        } else {
+            return this.formBuilder.group({
+                entity: '',
+                label: '',
+                language: ''
+            })
+        }
+
+    }
+
+    addSubterm(e?, label?, lang?) {
+        this.subtermArray = this.coreForm.get('subterm') as FormArray;
+
+        if (e != undefined) {
+            this.subtermArray.push(this.createSubtermComponent(e, label, lang));
+            this.disableAddSubterm = false;
+        } else {
+            this.subtermArray.push(this.createSubtermComponent());
+            this.disableAddSubterm = true;
+        }
+
+
+    }
 
     handleDenotes(evt, i) {
 
@@ -1172,6 +1292,117 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
             let label = evt.target.value;
             this.cognates_subject.next({ name: label, i: i })
         }
+    }
+
+    handleSubterm(evt, i) {
+
+        if (evt instanceof NgSelectComponent) {
+            if (evt.selectedItems.length > 0) {
+                console.log(evt.selectedItems[0])
+                let label = evt.selectedItems[0]['value']['label'];
+                let lexId = evt.selectedItems[0]['value']['lexicalEntry'];
+                this.onChangeSubterm({ name: label, lexicalEntry : lexId, i: i, object: evt.selectedItems[0]['value'] })
+            }
+        } else {
+            let label = evt.target.value;
+            this.ext_subterm_subject.next({ lexicalEntry: label, i: i })
+        }
+    }
+
+    async onChangeSubterm(data) {
+        var index = data['i'];
+        this.subtermArray = this.coreForm.get("subterm") as FormArray;
+        if (this.memorySubterm[index] == undefined) {
+            const newValue = data['lexicalEntry']
+            const parameters = {
+                type: "decomp",
+                relation: "http://www.w3.org/ns/lemon/decomp#subterm",
+                value: newValue
+            }
+            console.log(parameters)
+
+            this.object['request'] = 'subterm'
+            let lexId = this.object.lexicalEntry;
+
+            try {
+                let change_subterm_req = await this.lexicalService.updateLinguisticRelation(lexId, parameters).toPromise();
+                console.log(change_subterm_req);
+                this.lexicalService.spinnerAction('off');
+                /* data['request'] = 0;
+                this.lexicalService.refreshAfterEdit(data); */
+                //this.lexicalService.updateLexCard(data) TODO: inserire updater per decomp qua
+                this.memorySubterm[index] = change_subterm_req;
+
+                this.subtermArray.at(index).patchValue({ entity: change_subterm_req.object.label, label: change_subterm_req['label'], language: change_subterm_req['language'] })
+                this.disableAddSubterm = false;
+
+                this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': change_subterm_req });
+            } catch (error) {
+                this.lexicalService.spinnerAction('off');
+                if (error.status == 200) {
+
+                    this.toastr.success('Subterm changed correctly for ' + lexId, '', {
+                        timeOut: 5000,
+                    });
+
+                    this.disableAddSubterm = false;
+                    this.memorySubterm[index] = this.object;
+                    data['request'] = 'subterm';
+                    this.subtermArray.at(index).patchValue({ entity: newValue, label: data.object.label, language: data.object.language })
+                    this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': data['object'] });
+                    //this.lexicalService.updateLexCard({ lastUpdate: error.error.text })
+
+                } else {
+                    this.toastr.error(error.error, 'Error', {
+                        timeOut: 5000,
+                    });
+
+                }
+            }
+
+        } else {
+            const oldValue = this.memorySubterm[index]['lexicalEntry']
+            const newValue = data['lexicalEntry']
+            const parameters = {
+                type: "decomp",
+                relation: "http://www.w3.org/ns/lemon/decomp#subterm",
+                value: newValue,
+                currentValue: oldValue
+            }
+
+            let lexId = this.object.lexicalEntry;
+            console.log(parameters);
+
+            try {
+                let change_subterm_req = await this.lexicalService.updateLinguisticRelation(lexId, parameters).toPromise();
+                console.log(change_subterm_req);
+                this.lexicalService.spinnerAction('off');
+                change_subterm_req['request'] = 0;
+                this.lexicalService.refreshAfterEdit(change_subterm_req);
+            } catch (error) {
+                console.log(error)
+                const data = this.object;
+                data['request'] = 0;
+
+
+
+                this.lexicalService.spinnerAction('off');
+                if (error.status == 200) {
+                    this.toastr.success('Label changed correctly for ' + lexId, '', {
+                        timeOut: 5000,
+                    });
+                } else {
+                    this.toastr.error(error.error, 'Error', {
+                        timeOut: 5000,
+                    });
+                }
+            }
+
+
+            this.memorySubterm[index] = data;
+        }
+
+
     }
 
     onChangeDenotes(data) {
@@ -1416,6 +1647,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
         }
 
     }
+
 
     addCognates(l?, lexIn?, e?, t?) {
 
@@ -1703,13 +1935,53 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
     }
 
+    async removeSubterm(index) {
+
+
+        if (this.object.lexicalEntry != undefined) {
+          this.subtermArray = this.coreForm.get('subterm') as FormArray;
+    
+          let entity = this.subtermArray.at(index).get('entity').value;
+          let lexId = this.object.lexicalEntry;
+    
+          let parameters = {
+            relation: "http://www.w3.org/ns/lemon/decomp#subterm",
+            value: entity
+          }
+    
+          try {
+            let delete_linguistic_rel_req = await this.lexicalService.deleteLinguisticRelation(lexId, parameters).toPromise();
+            console.log(delete_linguistic_rel_req);
+            this.toastr.info('Subterm removed correctly', 'Info', {
+              timeOut: 5000
+            })
+            this.lexicalService.deleteRequest({ subterm: entity, parentNode: this.object.lexicalEntry });
+          } catch (error) {
+            console.log(error)
+            if(error.status == 200){
+              this.toastr.info('Subterm removed correctly', 'Info', {
+                timeOut: 5000
+              })
+              this.lexicalService.deleteRequest({ subterm: entity, parentNode: this.object.lexicalEntry });
+            }else{
+              this.toastr.error("Something went wrong, please check the log", "Error", {timeOut : 5000})
+            }
+          }
+          
+        }
+    
+        this.subtermArray.removeAt(index);
+        this.memorySubterm.splice(index, 1);
+        this.disableAddSubterm = false;
+      }
+
     ngOnDestroy(): void {
         this.denotes_subject_subscription.unsubscribe();
         this.cognates_subject_subscription.unsubscribe();
         this.update_lang_subscription.unsubscribe();
         this.get_languages_subscription.unsubscribe();
         this.subject_subscription.unsubscribe();
-
+        this.subterm_subject.unsubscribe();
         this.destroy$.next(true);
         this.destroy$.complete();
     }

@@ -1073,6 +1073,14 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
               etymology_data.forEach(etym => {
                 element.children.push(etym);
               });
+            } else if (element.label == 'subterm') {
+              let subterm_data = await this.lexicalService.getSubTerms(instance).toPromise();
+              element.isExpanded = true;
+              element.children = [];
+              subterm_data.forEach(subterm => {
+                subterm.hasChildren = false;
+                element.children.push(subterm);
+              });
             }
 
           }
