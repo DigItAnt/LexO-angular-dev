@@ -100,7 +100,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       this.creator = this.auth.getLoggedUser()['preferred_username'];
     }
 
-    this.search_subscription = this.search_lex_entries_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.search_lex_entries_subject.pipe(debounceTime(1000)).subscribe(
       data => {
         this.onSearchLexicalEntriesFilter(data)
       }
@@ -128,7 +128,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         let morphoData = data;
 
         this.morphologyData = morphoData.filter((x : any) => {
-          if (x.propertyId == 'partOfSpeech') {
+          if (x.propertyId == 'http://www.lexinfo.net/ontology/3.0/lexinfo#partOfSpeech') {
             return true;
           } else {
             return false;
@@ -303,8 +303,8 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       if (evt.selectedItems.length > 0) {
         /* console.log(evt.selectedItems[0]) */
         let label;
-        if (evt.selectedItems[0]['value']['formInstanceName'] != undefined) {
-          label = evt.selectedItems[0]['value']['formInstanceName'];
+        if (evt.selectedItems[0]['value']['form'] != undefined) {
+          label = evt.selectedItems[0]['value']['form'];
         } else {
           label = evt.selectedItems[0].label;
         }
@@ -350,7 +350,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         externalRef: "",
         node_id: tokenData.id,
         label: data.label,
-        form_id: data.formInstanceName
+        form_id: data.form
       };
       parameters["spans"] = [
         {
@@ -374,7 +374,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         externalRef: "",
         node_id: tokenData.id,
         label: data.label,
-        form_id: data.formInstanceName
+        form_id: data.form
       };
       parameters["spans"] = [
         {
@@ -398,7 +398,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         externalRef: "",
         node_id: tokenData.id,
         label: data.label,
-        form_id: data.formInstanceName
+        form_id: data.form
       };
       parameters["spans"] = selectionSpan
       parameters["id"] = tokenData.node;
@@ -416,7 +416,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         externalRef: "",
         node_id: undefined,
         label: data.label,
-        form_id: data.formInstanceName
+        form_id: data.form
       };
       parameters["spans"] = [
         {
@@ -646,10 +646,10 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         this.statusForm.get('attachingLanguage').patchValue('pending', { emitEvent: false })
 
         //attaching language
-        let lexId = new_lex_entry_request['lexicalEntryInstanceName'];
+        let lexId = new_lex_entry_request['lexicalEntry'];
         let lang = this.stepThreeForm.get('language').value;
         let parameters = {
-          relation: 'language',
+          relation: 'http://www.w3.org/ns/lemon/lime#entry',
           value: lang
         }
 
@@ -663,7 +663,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
             this.statusForm.get('attachingType').patchValue('pending', { emitEvent: false });
             let type = this.stepThreeForm.get('type').value;
             let parameters = {
-              relation: 'type',
+              relation: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
               value: type
             }
 
@@ -677,7 +677,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
                 //attaching label
                 let label = this.stepThreeForm.get('label').value;
                 let parameters = {
-                  relation: 'label',
+                  relation: 'http://www.w3.org/2000/01/rdf-schema#label',
                   value: label
                 };
 
@@ -693,7 +693,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
                     let pos = this.stepThreeForm.get('pos').value;
                     let parameters = {
                       type: 'morphology',
-                      relation: 'partOfSpeech',
+                      relation: 'http://www.lexinfo.net/ontology/3.0/lexinfo#partOfSpeech',
                       value: pos
                     }
 
@@ -709,7 +709,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
                         try {
                           let create_form = await this.lexicalService.createNewForm(lexId).toPromise();
                           console.log(create_form);
-                          let formId = create_form.formInstanceName;
+                          let formId = create_form.form;
 
                           this.statusForm.get('creatingForm').patchValue('ok', { emitEvent: false });
 
@@ -718,7 +718,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
                           this.statusForm.get('attachingWrittenForm').patchValue('pending', { emitEvent: false });
                           let writtenRep = this.stepFourForm.get('writtenForm').value;
                           let parameters = {
-                            relation: 'writtenRep',
+                            relation: 'http://www.w3.org/ns/lemon/ontolex#writtenRep',
                             value: writtenRep
                           }
 
@@ -732,7 +732,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
                               let typeForm = this.stepFourForm.get('type').value;
 
                               let parameters = {
-                                relation: 'type',
+                                relation: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
                                 value: typeForm
                               }
 
@@ -787,7 +787,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         let create_new_form = await this.lexicalService.createNewForm(lexId).toPromise();
         console.log(create_new_form);
 
-        let formId = create_new_form.formInstanceName;
+        let formId = create_new_form.form;
 
         this.statusForm.get('creatingForm').patchValue('ok', { emitEvent: false });
 
@@ -796,7 +796,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         this.statusForm.get('attachingWrittenForm').patchValue('pending', { emitEvent: false });
         let writtenRep = this.stepFourForm.get('writtenForm').value;
         let parameters = {
-          relation: 'writtenRep',
+          relation: 'http://www.w3.org/ns/lemon/ontolex#writtenRep',
           value: writtenRep
         }
 
@@ -810,7 +810,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
             let typeForm = this.stepFourForm.get('type').value;
 
             let parameters = {
-              relation: 'type',
+              relation: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
               value: typeForm
             }
 
@@ -839,7 +839,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.search_subscription.unsubscribe();
+    //this.search_subscription.unsubscribe();
     this.get_languages_subscription.unsubscribe();
     this.get_morphology_subscription.unsubscribe();
     this.get_lex_entry_type_subscription.unsubscribe();

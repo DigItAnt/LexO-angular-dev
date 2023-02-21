@@ -474,12 +474,35 @@ export class CoreTabComponent implements OnInit, OnDestroy {
       }, error => {
         //console.log(error)
         this.searchIconSpinner = false;
-        //this.lexicalService.deleteRequest(this.object);
-        //this.lexicalService.refreshLangTable();
-        //this.lexicalService.refreshFilter({request : true})
-        this.toastr.error(error.error, 'Error', {
-          timeOut: 5000,
-        });
+        
+        
+
+        if(error.status != 200){
+          this.toastr.error(error.error, 'Error', {
+            timeOut: 5000,
+          });
+        }else{
+          this.toastr.success(lexicalId + 'deleted correctly', '', {
+            timeOut: 5000,
+          });
+        }
+
+        this.searchIconSpinner = false;
+        this.lexicalService.deleteRequest(this.object);
+        this.lexicalEntryData = null;
+        this.isLexicalEntry = false;
+        this.object = null;
+        this.lexicalService.refreshLangTable();
+        this.lexicalService.refreshFilter({ request: true })
+        this.lexicalService.sendToCoreTab(null);
+        this.lexicalService.sendToRightTab(null);
+        this.biblioService.sendDataToBibliographyPanel(null);
+
+        this.expand.expandCollapseEdit(false);
+        this.expand.openCollapseEdit(false)
+        if (this.expand.isEpigraphyOpen) {
+          this.expand.expandCollapseEpigraphy();
+        }
       }
     )
   }
@@ -502,7 +525,12 @@ export class CoreTabComponent implements OnInit, OnDestroy {
         this.lexicalService.deleteRequest(this.object);
         if (error.status != 200) {
           this.toastr.error(error.message, 'Error', { timeOut: 5000 })
+        }else {
+          this.toastr.success(lexicalId + 'deleted correctly', '', {
+            timeOut: 5000,
+          });
         }
+
       }
     )
   }

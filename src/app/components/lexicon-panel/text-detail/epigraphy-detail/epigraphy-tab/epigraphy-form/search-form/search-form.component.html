@@ -72,11 +72,12 @@
     </form>
 
     <form [formGroup]="stepTwoForm"  *ngIf="modalStep == 2">
+        {{stepTwoForm.value | json}}
         <div class="modal-body">
             <!-- {{modalStep}} -->
             <p>Choose a lexical entry:</p>
             <div class="input-group searchSelect">
-                <ng-select #search_lexicalEntry formControlName="lexicalEntry" name="lexicalEntry" [clearable]="false" (focus)="true" bindValue="lexicalEntryInstanceName"
+                <ng-select #search_lexicalEntry formControlName="lexicalEntry" name="lexicalEntry" [clearable]="false" (focus)="true" bindValue="lexicalEntry"
                 bindLabel="label" placeholder="Search form" appendTo="body" (keyup)="triggerSearchLexicalEntries($event)"
                 [items]="lex_searchResuts" [loading]="loader"> </ng-select>
                 

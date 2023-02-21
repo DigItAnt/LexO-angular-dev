@@ -175,9 +175,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
             this.addLabel(trait, value);
             this.memoryLabel.push(trait);
 
-            //TODO: vedere i tratti morfologici per modifica trait con namespace, implementare servizio
-            // usare servizio lexicon/data/representation
-            
+           
             this.staticOtherDef.push({ trait: trait, value: value })
           }
 
@@ -272,7 +270,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
     this.lexicalService.spinnerAction('on');
     const newType = evt.target.value;
     const formId = this.object.form
-    const parameters = {relation: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", value: 'http://www.w3.org/ns/lemon/ontolex#'+newType }
+    const parameters = {relation: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", value: newType }
     this.lexicalService.updateForm(formId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         console.log(data)
