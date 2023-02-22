@@ -289,7 +289,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
                   let HTML =  new DOMParser().parseFromString(raw, "text/html");
                   console.log(HTML)
 
-                  let domNodes = new DOMParser().parseFromString(raw, "text/html").querySelectorAll('#edition .textpart');
+                  let domNodes = new DOMParser().parseFromString(raw, "text/html").querySelectorAll('#edition #edition .textpart');
                   let childNodes = [];
                   if(Array.from(domNodes).length > 1){
                     Array.from(domNodes).forEach(childNode=> {
