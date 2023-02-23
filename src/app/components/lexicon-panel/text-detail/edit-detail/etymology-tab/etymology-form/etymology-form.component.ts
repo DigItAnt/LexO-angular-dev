@@ -228,8 +228,8 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
 
       this.etyForm.get('confidence').setValue(next, { emitEvent: false });
 
-      let oldValue = prev ? 0 : -1;
-      let newValue = next ? 0 : -1;
+      let oldValue = prev ? 0 : 1;
+      let newValue = next ? 0 : 1;
       let parameters = {
         type: "confidence",
         relation: 'http://www.lexinfo.net/ontology/3.0/lexinfo#confidence',

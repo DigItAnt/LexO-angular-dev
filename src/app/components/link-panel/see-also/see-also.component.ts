@@ -278,7 +278,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
 
 
 
-  async onSearchFilter(data) {
+  onSearchFilter(data) {
     this.filterLoading = true;
     this.searchResults = [];
     console.log(this.object)
@@ -296,17 +296,24 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         limit: 500
       }
       //console.log(data.length)
-
-      let lexical_entries_list = await this.lexicalService.getLexicalEntriesList(parameters).toPromise();
-      if (lexical_entries_list) {
-        lexical_entries_list.list.forEach(element => {
-          element['label_lang'] = element.label + "@" + element.language;
-        });
-        this.searchResults = lexical_entries_list['list']
-        this.filterLoading = false;
-      } else {
-        this.filterLoading = false;
-      }
+      this.lexicalService.getLexicalEntriesList(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+        data=> {
+          console.log(data)
+          if(data){
+            let filter_lang = data.list;
+            
+            filter_lang.forEach(element => {
+              element['label_lang'] = element.label + "@" + element.language;
+            });
+            console.log(filter_lang);
+            this.searchResults = data.list;
+          }
+        }, error=> { 
+          console.log(error)
+        } 
+      )
+      
+      
 
 
     } else if (this.object.form != undefined) {
@@ -319,13 +326,22 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         offset: 0,
         limit: 500
       }
-      let form_list = await this.lexicalService.getFormList(parameters).toPromise();
-      if (form_list) {
-        this.searchResults = form_list['list']
-        this.filterLoading = false;
-      } else {
-        this.filterLoading = false;
-      }
+      this.lexicalService.getFormList(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+        data=> {
+          console.log(data)
+          if(data){
+            let filter_lang = data.list;
+            
+            filter_lang.forEach(element => {
+              element['label_lang'] = element.label + "@" + element.language;
+            });
+            console.log(filter_lang);
+            this.searchResults = data.list;
+          }
+        }, error=> { 
+          console.log(error)
+        } 
+      )
     } else if (this.object.sense != undefined) {
 
       let parameters = {
@@ -343,14 +359,22 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
       }
 
 
-      let lexical_entries_list = await this.lexicalService.getLexicalSensesList(parameters).toPromise();
-      if (lexical_entries_list) {
-        this.searchResults = lexical_entries_list['list']
-        this.filterLoading = false;
-      } else {
-        this.filterLoading = false;
-      }
-
+      this.lexicalService.getLexicalSensesList(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+        data=> {
+          console.log(data)
+          if(data){
+            let filter_lang = data.list;
+            
+            filter_lang.forEach(element => {
+              element['label_lang'] = element.label + "@" + element.language;
+            });
+            console.log(filter_lang);
+            this.searchResults = data.list;
+          }
+        }, error=> { 
+          console.log(error)
+        } 
+      )
     } else if (this.object.etymology != undefined) {
 
       let parameters = {
@@ -365,13 +389,22 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         offset: 0,
         limit: 500
       }
-      let lexical_entries_list = await this.lexicalService.getLexicalEntriesList(parameters).toPromise();
-      if (lexical_entries_list) {
-        this.searchResults = lexical_entries_list['list']
-        this.filterLoading = false;
-      } else {
-        this.filterLoading = false;
-      }
+      this.lexicalService.getLexicalEntriesList(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+        data=> {
+          console.log(data)
+          if(data){
+            let filter_lang = data.list;
+            
+            filter_lang.forEach(element => {
+              element['label_lang'] = element.label + "@" + element.language;
+            });
+            console.log(filter_lang);
+            this.searchResults = data.list;
+          }
+        }, error=> { 
+          console.log(error)
+        } 
+      )
     }
     else {
       this.filterLoading = false;
@@ -464,9 +497,16 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         this.lexicalService.refreshLinkCounter('-1')
 
       } catch (e) {
-        this.toastr.error(e.error, 'Error', {
-          timeOut: 5000,
-        });
+        if(e.status == 200){
+          this.toastr.success('SeeAlso deleted', '', {
+            timeOut: 5000,
+          });
+        }else{
+          this.toastr.error(e.error, 'Error', {
+            timeOut: 5000,
+          });
+        }
+        
         this.lexicalService.refreshLinkCounter('-1')
 
       }

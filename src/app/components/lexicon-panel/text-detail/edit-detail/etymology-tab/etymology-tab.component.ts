@@ -267,6 +267,25 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
       });
     } catch (error) {
       console.log(error);
+      if(error.status == 200){
+        this.searchIconSpinner = false;
+        this.lexicalService.deleteRequest(this.object);
+        this.lexicalEntryData = null;
+        this.isLexicalEntry = false;
+        this.object = null;
+        this.lexicalService.refreshLangTable();
+        this.lexicalService.refreshFilter({ request: true })
+        this.lexicalService.sendToCoreTab(null);
+        this.lexicalService.sendToRightTab(null);
+        this.biblioService.sendDataToBibliographyPanel(null);
+        this.toastr.success(etymId + ' deleted correctly', '', {
+          timeOut: 5000,
+        });
+      }else{
+        this.toastr.success(error.error, '', {
+          timeOut: 5000,
+        });
+      }
     }
   }
 

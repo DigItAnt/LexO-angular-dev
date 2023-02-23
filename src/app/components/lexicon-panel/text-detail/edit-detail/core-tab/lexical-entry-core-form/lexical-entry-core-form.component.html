@@ -53,8 +53,8 @@
                 <label for="inputType">Type:</label>
             </div>
             <div class="col-lg-9 input-group">
-                <select id="typeSelect"  class="form-control">
-                    <option *ngFor="let lx of lexEntryTypesData" [value]="lx['valueId']" [selected]="coreForm.get('type').value === lx['valueId'].split('#')[1]">
+                <select id="typeSelect"  class="form-control" formControlName="type">
+                    <option *ngFor="let lx of lexEntryTypesData" [value]="lx['valueId']" [selected]="coreForm.get('type').value === lx['valueId']">
                         {{lx['valueLabel']}}
                     </option>
                 </select>

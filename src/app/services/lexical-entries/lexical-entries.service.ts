@@ -159,7 +159,7 @@ export class LexicalEntriesService {
 
   //POST: /lexicon/lexicalSenses ---> get lexical entries list
   getLexicalSensesList(parameters: any): Observable<any> {
-    return this.http.post(this.baseUrl + "lexicon/data/lexicalSenses", parameters);
+    return this.http.post(this.baseUrl + "lexicon/data/filteredSense", parameters);
   }
 
   //POST: /lexicon/data/forms ---> get form list

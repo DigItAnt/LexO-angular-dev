@@ -537,7 +537,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                     let type = this.coreForm.get('type').value;
                     this.lexEntryTypesData.forEach(el => {
                         if (el.valueId.split('#')[1] == type) {
-
+                            this.coreForm.get('type').setValue(el.valueId, {emitEvent : false});
                             this.typeDesc = el.valueDescription;
                         }
                     })
@@ -1845,7 +1845,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
         let lexId = this.object.lexicalEntry;
         let value = '';
         if (boolean) {
-            value = 'Etymon'
+            value = 'http://lari-datasets.ilc.cnr.it/lemonEty#Etymon'
             this.coreForm.get('type').setValue('Etymon', { emitEvent: false });
             this.coreForm.get('type').disable({ onlySelf: true, emitEvent: false })
             if (typeof (this.object.type != 'string')) {
@@ -1854,7 +1854,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 this.object.type = 'Etymon'
             }
         } else {
-            value = 'LexicalEntry'
+            value = 'http://www.w3.org/ns/lemon/ontolex#LexicalEntry'
             this.coreForm.get('type').setValue('LexicalEntry', { emitEvent: false });
             this.coreForm.get('type').enable({ onlySelf: true, emitEvent: false })
             if (typeof (this.object.type != 'string')) {
@@ -1868,7 +1868,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
         }
 
         let parameters = {
-            relation: 'type',
+            relation: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
             value: value
         }
 
@@ -1898,7 +1898,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                     })
                     this.lexicalService.triggerSameAs(this.object.type)
                 } else {
-                    this.toastr.error(error.error.text, '', { timeOut: 5000 })
+                    this.toastr.error(error.error, '', { timeOut: 5000 })
                 }
 
 

@@ -241,10 +241,10 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
 
       let annotation = data?.annotation; 
 
-      if(property == 'confidence' && newValue == 'true'){
+      if(property == 'confidence' && data.event.target.checked == true){
         annotation.attributes.confidence = 0; 
-      }else if(property == 'confidence' && newValue == 'false'){
-        annotation.attributes.confidence = -1; 
+      }else if(property == 'confidence' && data.event.target.checked == false){
+        annotation.attributes.confidence = 1; 
       }else{
         annotation.attributes[property] = newValue;
       }
