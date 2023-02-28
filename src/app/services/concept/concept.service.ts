@@ -13,14 +13,32 @@ You should have received a copy of the GNU General Public License along with Epi
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map, shareReplay } from 'rxjs/operators';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ConceptService {
 
+  private baseUrl = "/LexO-backend-itant_demo/service/"
+  private key = "PRINitant19";
+  private author = "";
+  private lexicalIRI = 'http://lexica/mylexicon#';
+  private lexicalPrefix = 'lex'
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private auth: AuthService) { }
 
-  
+  getConceptSets(): Observable<any> {
+    return this.http.get(this.baseUrl + "lexicon/data/conceptSets");
+  }
+
+  getRootConceptSets(): Observable<any> {
+    return this.http.get(this.baseUrl + "lexicon/data/conceptSets?id=root");
+  }
+
+  createNewConceptSet(): Observable<any> {
+    this.author = this.auth.getUsername();
+    return this.http.get(this.baseUrl + "lexicon/creation/conceptSet?key="+this.key+"&author="+this.author+"&prefix="+encodeURIComponent(this.lexicalPrefix)+"&baseIRI="+encodeURIComponent(this.lexicalIRI));
+  }
 }

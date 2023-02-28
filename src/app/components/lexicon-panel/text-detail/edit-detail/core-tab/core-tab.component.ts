@@ -96,7 +96,12 @@ export class CoreTabComponent implements OnInit, OnDestroy {
   @ViewChild('table_body') tableBody: ElementRef;
   @ViewChild('searchBiblio') searchBiblio: ElementRef;
 
-  constructor(private lexicalService: LexicalEntriesService, private biblioService: BibliographyService, private expand: ExpanderService, private rend: Renderer2, private toastr: ToastrService) { }
+  constructor(private lexicalService: LexicalEntriesService, 
+              private biblioService: BibliographyService, 
+              private expand: ExpanderService, 
+              private rend: Renderer2, 
+              private toastr: ToastrService) 
+  { }
 
   ngOnInit(): void {
 

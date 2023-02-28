@@ -76,7 +76,6 @@ import { SearchFormComponent } from './components/lexicon-panel/text-detail/epig
 import { AuthService } from './services/auth/auth.service';;
 import { UnauthorizedPageComponent } from './views/unauthorized-page/unauthorized-page/unauthorized-page.component'
 ;
-import { ConceptTreeComponent } from './components/lexicon-panel/document-system-tree/concept-tree/concept-tree.component'
 ;
 import { FormPanelComponent } from './components/attestation-panel/form-panel/form-panel.component'
 import { CognatePanelComponent } from './components/lexicon-panel/text-detail/edit-detail/core-tab/lexical-entry-core-form/cognate-panel/cognate-panel.component';;
@@ -127,7 +126,6 @@ import { SkosTreeComponent } from './components/lexicon-panel/document-system-tr
     EpigraphyFormComponent,
     SearchFormComponent,
     UnauthorizedPageComponent ,
-    ConceptTreeComponent ,
     FormPanelComponent,
     CognatePanelComponent,
     SkosTreeComponent

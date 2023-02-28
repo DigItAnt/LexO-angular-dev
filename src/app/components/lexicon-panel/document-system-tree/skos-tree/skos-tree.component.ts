@@ -2,7 +2,7 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/co
 import { FormGroup, FormControl, FormBuilder } from '@angular/forms';
 import { IActionMapping, TREE_ACTIONS, KEYS, ITreeState, ITreeOptions, TreeModel } from '@circlon/angular-tree-component';
 import { Subject } from 'rxjs';
-import { debounceTime, takeUntil } from 'rxjs/operators';
+import { debounceTime, takeUntil, tap } from 'rxjs/operators';
 import { ConceptService } from 'src/app/services/concept/concept.service';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { v4 } from 'uuid';
@@ -44,6 +44,7 @@ const actionMapping: IActionMapping = {
   }
 };
 
+
 @Component({
   selector: 'app-skos-tree',
   templateUrl: './skos-tree.component.html',
@@ -52,7 +53,7 @@ const actionMapping: IActionMapping = {
 export class SkosTreeComponent implements OnInit, OnDestroy {
 
   state!: ITreeState;
-  @ViewChild('skosConcept') skosConcept: any;
+  @ViewChild('skosTree') skosTree: any;
   selectedNodeId;
   destroy$ : Subject<boolean> = new Subject();
   options: ITreeOptions = {
@@ -85,6 +86,8 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
   modalShow: boolean;
   limit: any;
 
+  
+
   constructor(private element: ElementRef,
     private formBuilder: FormBuilder,
     private lexicalService: LexicalEntriesService,
@@ -103,6 +106,8 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
 
 
   onChanges() {
+
+    //TODO: filtri
     this.skosFilterForm.valueChanges.pipe(debounceTime(500), takeUntil(this.destroy$)).subscribe(searchParams => {
       console.log(searchParams)
       this.searchFilter(searchParams)
@@ -111,7 +116,8 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
 
   onEvent = ($event: any) => {
     console.log($event);
-
+    
+    //TODO: inserire logica quando clicco su un nodo
     if ($event.eventName == 'activate' && $event.node.data.type != 'directory' && this.selectedNodeId != $event.node.data['element-id']) {
       this.selectedNodeId = $event.node.data['element-id'];
       /* //@ts-ignore
@@ -136,6 +142,8 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
   }
 
   moveNode(evt){
+
+    //TODO: ridefinire drag and drop
     if(evt != undefined){
       //console.log(evt);
       let element_id = evt.node['element-id'];
@@ -161,9 +169,33 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
     }
   }
 
-  loadTree(){
-    
+  async loadTree(){
+    //TODO: caricamento albero
+    let conceptSets, rootConceptSets;
 
+    try {
+      conceptSets = await this.conceptService.getConceptSets().toPromise().then(
+
+      );
+        
+    } catch (error) {
+      console.log(error)
+    }
+
+
+    try {
+      rootConceptSets = await this.conceptService.getRootConceptSets().toPromise();
+        
+    } catch (error) {
+      console.log(error)
+    }
+
+
+    //TODO: se conceptSets è vuoto, usare rootConceptSets
+    console.log(conceptSets, rootConceptSets)
+
+    //TODO: update nodes;
+    //this.nodes = conceptSets.list;
   }
 
   ngOnDestroy(): void {
@@ -173,6 +205,8 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
 
   onScrollDown(treeModel: TreeModel) {
 
+
+    //TODO: check lazy loading questo componente, non vorrei ci siano informazioni su altri componenti
     this.offset += 500;
     this.modalShow = true;
 
@@ -195,7 +229,7 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
           this.nodes.push(data['list'][i]);
         };
         //this.counter = this.nodes.length;
-        this.skosConcept.treeModel.update();
+        this.skosTree.treeModel.update();
         this.updateTreeView();
         this.modalShow = false;
 
@@ -220,7 +254,7 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
     }, 300);
     
     setTimeout(() => {
-      this.skosConcept.sizeChanged();
+      this.skosTree.sizeChanged();
       //@ts-ignore
       $('.lexical-tooltip').tooltip();
     }, 1000);
@@ -230,7 +264,7 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
     this.skosFilterForm.reset(this.initialValues, {emitEvent : false});
     setTimeout(() => {
       this.loadTree();
-      this.skosConcept.treeModel.update();
+      this.skosTree.treeModel.update();
       this.updateTreeView();
       
     }, 500);  

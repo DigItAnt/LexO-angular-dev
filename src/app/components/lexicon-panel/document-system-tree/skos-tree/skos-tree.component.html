@@ -10,8 +10,7 @@
         </span>
       </div>
       <div id="buttons-container" class="input-group-append">
-        <!-- <button class="btn btn-info btn-block filter-button" type="button" data-toggle="popover" data-placement="bottom"
-          data-trigger="hover"><i class="fa fa-question"></i></button> -->
+        
         <button class="btn btn-sm btn-secondary btn-block filter-button" type="button" value="Filter" title="Filter"
           data-toggle="collapse" data-target="#conceptFilterCollapse" aria-expanded="false"
           aria-controls="conceptFilterCollapse"><i class="fa fa-filter"></i></button>
@@ -48,7 +47,7 @@
   
   </form>
   
-  <div class="d-flex flex-wrap mt-3 col-md-12">
+  <!-- <div class="d-flex flex-wrap mt-3 col-md-12">
     <div class="input-group justify-content-end">
       <div class="input-group-append">
         <button class="btn btn-light btn-block filter-button" title="Add new child for selected node"><i
@@ -63,15 +62,15 @@
   
       </div>
     </div>
-  </div>
+  </div> -->
   
   
   <div class="col-md-12 mt-3 rounded border border-secondary tree-view" infiniteScroll [infiniteScrollDistance]="0.4"
     [infiniteScrollThrottle]="150"  [fromRoot]="true"
-    (scrolled)="onScrollDown(skosConcept.treeModel)"> <!-- [infiniteScrollContainer]="'.search-results'" -->
+    (scrolled)="onScrollDown(skosTree.treeModel)"> <!-- [infiniteScrollContainer]="'.search-results'" -->
     <p *ngIf="show">Nessun risultato</p>
   
-    <tree-root #skosConcept [nodes]="nodes" [(state)]="state" [options]="options" [focused]="true"
+    <tree-root #skosTree [nodes]="nodes" [(state)]="state" [options]="options" [focused]="true"
       (activate)="onEvent($event)" (moveNode)="onMoveNode($event)" [focused]="true" (activate)="onEvent($event)"
       (deactivate)="onEvent($event)" class="lexicalConceptTree">
   

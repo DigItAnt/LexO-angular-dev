@@ -73,19 +73,19 @@
     </div>
 
     <!-- ONTOLOGY -->
-    <div class="card">
+    <!-- <div class="card">
         <div class="card-header" id="headingFour">
             <h5 class="mb-0 d-flex flex-wrap justify-content-between align-items-center">
                 <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#ontologia"
                     aria-expanded="false" aria-controls="ontologia">
                     <i class="fa"></i> Ontology
                 </button>
-                <!-- <div class="icons-container">
+                <div class="icons-container">
                     <button class="btn btn-link"><i class="fa fa-plus"></i></button>
                     <button class="btn btn-link"><i class="fa fa-file-import"></i></button>
                     <button class="btn btn-link"><i class="fa fa-download"></i></button>
                     <button class="btn btn-link" title="Language"><i class="fa fa-globe-americas"></i></button>
-                </div> -->
+                </div>
             </h5>
         </div>
         <div id="ontologia" class="collapse" aria-labelledby="headingFour" data-parent="#tree-accordion">
@@ -93,7 +93,7 @@
                 <app-concept-tree #conceptTree></app-concept-tree>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- SKOS -->
     <div class="card">
@@ -101,14 +101,14 @@
             <h5 class="mb-0 d-flex flex-wrap justify-content-between align-items-center">
                 <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#skos"
                     aria-expanded="false" aria-controls="skos">
-                    <i class="fa"></i> SKOS
+                    <i class="fa"></i> Lexical Concept
                 </button>
-                <!-- <div class="icons-container">
-                    <button class="btn btn-link"><i class="fa fa-plus"></i></button>
-                    <button class="btn btn-link"><i class="fa fa-file-import"></i></button>
+                <div class="icons-container">
+                    <button class="btn btn-link" placement="top" ngbTooltip="Add new Concept Sets" (click)="addNewConceptSet()"><i class="fa fa-plus"></i></button>
+                    <!-- <button class="btn btn-link"><i class="fa fa-file-import"></i></button>
                     <button class="btn btn-link"><i class="fa fa-download"></i></button>
-                    <button class="btn btn-link" title="Language"><i class="fa fa-globe-americas"></i></button>
-                </div> -->
+                    <button class="btn btn-link" title="Language"><i class="fa fa-globe-americas"></i></button> -->
+                </div>
             </h5>
         </div>
         <div id="skos" class="collapse" aria-labelledby="headingSkos" data-parent="#tree-accordion">

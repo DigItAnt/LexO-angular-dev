@@ -19,6 +19,7 @@ import { ExpanderService } from 'src/app/services/expander/expander.service';
 import {saveAs as importedSaveAs} from "file-saver";
 import { Subject, Subscription } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
+import { ConceptService } from 'src/app/services/concept/concept.service';
 
 
 @Component({
@@ -39,7 +40,12 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
   refresh_after_edit_subscription : Subscription;
   trigger_lex_tree_subscription : Subscription;
 
-  constructor(private exp: ExpanderService, private lexicalService: LexicalEntriesService, private toastr: ToastrService, private renderer: Renderer2, private documentService: DocumentSystemService) { }
+  constructor(private exp: ExpanderService, 
+              private lexicalService: LexicalEntriesService, 
+              private toastr: ToastrService, 
+              private renderer: Renderer2, 
+              private documentService: DocumentSystemService,
+              private conceptService : ConceptService) { }
 
   ngOnInit(): void {
     this.refresh_after_edit_subscription = this.refresh_after_edit_subscription = this.lexicalService.refreshAfterEdit$.subscribe(
@@ -777,6 +783,16 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
     const url= window.URL.createObjectURL(blob);
     window.open(url);
   } */
+
+  addNewConceptSet(){
+    this.conceptService.createNewConceptSet().pipe(takeUntil(this.destroy$)).subscribe(
+      data=>{
+        console.log(data);
+      },error=> {
+        console.log(error)
+      }
+    )
+  }
 
   ngOnDestroy(): void {
       this.refresh_after_edit_subscription.unsubscribe();

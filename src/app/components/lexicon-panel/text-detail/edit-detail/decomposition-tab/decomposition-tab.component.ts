@@ -124,21 +124,6 @@ export class DecompositionTabComponent implements OnInit, OnDestroy {
       }
     );
 
-    /* 
-
-    TODO: inserire updater per decomposition e etymology
-    
-    this.lexicalService.updateLexCardReq$.subscribe(
-      data => {
-        console.log(data)
-        if(data != null){
-          this.lastUpdate = data['lastUpdate']
-          if(data['creationDate'] != undefined){
-            this.creationDate = data['creationDate']
-          }
-        }
-      }
-    ) */
 
     this.expand_edit_subscription = this.expand.expEdit$.subscribe(
       trigger => {

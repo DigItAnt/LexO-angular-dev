@@ -15,7 +15,7 @@
                         <span *ngIf="isForm">
                             Form
                         </span>
-                        <span *ngIf="isForm">
+                        <span *ngIf="isEtymology">
                             Etymology
                         </span>
                         CREATED BY {{creator}} ON {{creationDate | date :'dd/MM/yyyy hh:mm:ss'}}
@@ -62,8 +62,7 @@
 
                 </div>
             </div>
-            <app-lexical-entry-core-form [lexData]="lexicalEntryData" *ngIf="isLexicalEntry">
-            </app-lexical-entry-core-form>
+            <app-lexical-entry-core-form [lexData]="lexicalEntryData" *ngIf="isLexicalEntry"></app-lexical-entry-core-form>
             <app-form-core-form [formData]="formData" *ngIf="isForm"></app-form-core-form>
             <app-sense-core-form [senseData]="senseData" *ngIf="isSense"></app-sense-core-form>
             <app-lexical-concept-form [lexicalConceptData]="lexicalConceptData" *ngIf="isLexicalConcept">
