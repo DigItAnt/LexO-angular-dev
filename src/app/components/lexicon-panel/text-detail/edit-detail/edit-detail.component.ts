@@ -70,7 +70,9 @@ export class EditDetailComponent implements OnInit, OnDestroy {
           if(object['lexicalEntry'] != undefined ||
              object['form'] != undefined ||
              object['sense'] != undefined ||
-             object['etymology'] != undefined){
+             object['etymology'] != undefined ||
+             object['conceptSet'] != undefined ||
+             object['lexicalConcept'] != undefined){
                setTimeout(() => {
                 var navTabLinks = this.navtabs.nativeElement.querySelectorAll('a')
                 this.object = object;

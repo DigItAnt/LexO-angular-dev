@@ -592,7 +592,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
         }
       )
 
-      if (trait == 'writtenRep') {
+      if (trait.split('#')[1] == 'writtenRep') {
         const data = this.object;
         data['whatToSearch'] = 'form';
         data['new_label'] = newValue;
@@ -637,7 +637,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
         data => {
           console.log(data)
           this.lexicalService.spinnerAction('off');
-          /* this.lexicalService.refreshAfterEdit(data); */
+          this.lexicalService.refreshAfterEdit(data);
           this.lexicalService.updateCoreCard(data)
           this.disableAddOther = false;
         }, error => {

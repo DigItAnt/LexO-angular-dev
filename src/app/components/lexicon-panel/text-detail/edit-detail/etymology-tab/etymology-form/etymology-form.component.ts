@@ -658,22 +658,28 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
     )
   }
 
-  async removeEtyLink(index) {
+  removeEtyLink(index) {
     this.etyLinkArray = this.etyForm.get('etylink') as FormArray;
     let etyLinkId = this.memoryLinks[index]['etymologicalLink']
-
-    try {
-      let delete_etylink_req = await this.lexicalService.deleteEtylink(etyLinkId).toPromise();
-      this.toastr.success('Etylink removed', '', { timeOut: 5000 });
-      this.etyLinkArray.removeAt(index);
-     this.memoryLinks.splice(index, 1)
-    } catch (error) {
-      if(error.status != 200){
-        this.toastr.error(error.error, 'Error', { timeOut: 5000 })
-        this.etyLinkArray.removeAt(index);
-        this.memoryLinks.splice(index, 1)
+    
+    this.lexicalService.deleteEtylink(etyLinkId).pipe(takeUntil(this.destroy$)).subscribe(
+      data=>{
+        console.log(data)
+      },error=>{
+        if(error.status == 200){
+          this.toastr.success('Etylink removed', '', { timeOut: 5000 });
+          this.etyLinkArray.removeAt(index);
+          this.memoryLinks.splice(index, 1)
+        }else{
+          this.toastr.error(error.error, 'Error', { timeOut: 5000 })
+        }
       }
-    }
+    );
+    
+  
+    
+      
+    
     
   }
 

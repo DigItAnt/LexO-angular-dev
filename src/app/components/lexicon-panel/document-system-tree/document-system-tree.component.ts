@@ -264,7 +264,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
               }
             } else if (data['sense'] != undefined) {
 
-              if (x.data.seame == instanceName) {
+              if (x.data.sense == instanceName) {
                 x.data.label = data['new_label']
                 //x.setActiveAndVisible()
                 x.scrollIntoView();
@@ -411,7 +411,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
           function (x) {
             if (data['lexicalEntry'] != undefined) {
               if (x.data.lexicalEntry == instanceName) {
-                x.data.pos = data['new_pos']
+                x.data.pos = data['new_pos'].split('#')[1]
                 //x.setActiveAndVisible()
                 x.scrollIntoView();
                 data['new_pos'] = undefined
@@ -422,7 +422,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
             } else if (data['form'] != undefined) {
 
               if (x.data.form == instanceName) {
-                x.data.pos = data['new_pos']
+                x.data.pos = data['new_pos'].split('#')[1]
                 //x.setActiveAndVisible()
                 x.scrollIntoView();
                 data['new_pos'] = undefined
@@ -432,8 +432,8 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
               }
             } else if (data['sense'] != undefined) {
 
-              if (x.data.seame == instanceName) {
-                x.data.pos = data['new_pos']
+              if (x.data.sense == instanceName) {
+                x.data.pos = data['new_pos'].split('#')[1]
                 //x.setActiveAndVisible()
                 x.scrollIntoView();
                 data['new_pos'] = undefined
@@ -455,16 +455,12 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
   changeSenseDefinition(data) {
     var that = this;
     setTimeout(() => {
-      this.lexTree.lexicalEntryTree.treeModel.getNodeBy(
+      that.lexTree.lexicalEntryTree.treeModel.getNodeBy(
         function (x) {
           if (x.data.sense != undefined) {
             if (x.data.sense == data['sense']) {
-              if(data['new_definition'] == ''){
-                x.data.label = 'no definition';
-              }else{
-                x.data.label = data['new_definition'];
-
-              }
+              
+              x.data.definition = data['new_definition'] != '' ? data['new_definition'] : 'no definition';
               that.lexTree.lexicalEntryTree.treeModel.update();
               that.lexTree.updateTreeView();
               return true;
@@ -788,8 +784,46 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
     this.conceptService.createNewConceptSet().pipe(takeUntil(this.destroy$)).subscribe(
       data=>{
         console.log(data);
+        if (data != undefined) {
+          this.toastr.info('New Concept Set added', '', {
+            timeOut: 5000,
+          });
+          data['hasChildren'] = true;
+          this.skosTree.nodes.push(data);
+          this.skosTree.updateTreeView();
+          this.skosTree.skosTree.treeModel.update();
+          this.skosTree.skosTree.treeModel.getNodeById(data.id).setActiveAndVisible();
+        }
+       
       },error=> {
         console.log(error)
+        this.toastr.error('Error when creating new Concept Set', '', {
+          timeOut: 5000,
+        });
+      }
+    )
+  }
+
+  addNewLexicalConcept(){
+    this.conceptService.createNewLexicalConcept().pipe(takeUntil(this.destroy$)).subscribe(
+      data=>{
+        console.log(data);
+        if (data != undefined) {
+          this.toastr.info('New Concept Set added', '', {
+            timeOut: 5000,
+          });
+          data['hasChildren'] = true;
+          this.skosTree.nodes.push(data);
+          this.skosTree.updateTreeView();
+          this.skosTree.skosTree.treeModel.update();
+          this.skosTree.skosTree.treeModel.getNodeById(data.id).setActiveAndVisible();
+        }
+       
+      },error=> {
+        console.log(error)
+        this.toastr.error('Error when creating new Concept Set', '', {
+          timeOut: 5000,
+        });
       }
     )
   }

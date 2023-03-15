@@ -72,7 +72,7 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
           this.scheme.clear();
         }
       }
-      this.loadPeople();
+      //this.loadPeople();
       this.object = changes.lexicalConceptData.currentValue;
       if(this.object != null){
         this.lexicalConceptForm.get('label').setValue(this.object.label, {emitEvent:false});

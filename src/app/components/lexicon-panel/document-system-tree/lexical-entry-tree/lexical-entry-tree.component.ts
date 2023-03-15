@@ -25,7 +25,6 @@ import { debounceTime, take, takeUntil } from 'rxjs/operators';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
 import { Subject, Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 
 
 const actionMapping: IActionMapping = {
@@ -136,7 +135,11 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
   get_pos_subscription : Subscription;
   get_status_subscription : Subscription;
 
-  constructor(private expander: ExpanderService, private renderer: Renderer2, private element: ElementRef, private lexicalService: LexicalEntriesService, private toastr: ToastrService) {
+  constructor(private expander: ExpanderService, 
+              private renderer: Renderer2, 
+              private element: ElementRef, 
+              private lexicalService: LexicalEntriesService, 
+              private toastr: ToastrService) {
 
     var refreshTooltip = setInterval((val) => {
       //console.log('called'); 
@@ -465,166 +468,165 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
   lexEntryDeleteReq(signal?) {
 
 
-    setTimeout(() => {
 
-      this.lexicalEntryTree.treeModel.getNodeBy(x => {
-        if (signal.lexicalEntry != undefined && signal.form == undefined) {
-          if (x.data.lexicalEntry === signal.lexicalEntry) {
+    this.lexicalEntryTree.treeModel.getNodeBy(x => {
+      if (signal.lexicalEntry != undefined && signal.form == undefined && signal.sense == undefined) {
+        if (x.data.lexicalEntry === signal.lexicalEntry) {
 
-            x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
+          x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
 
-            let countSubterm = x.parent.data.count;
-            if (countSubterm != 0) {
-              x.parent.data.count--;
-              countSubterm--;
-            }
-
-            //this.lexicalEntryTree.treeModel.update();
-            if (this.nodes.length == 0) {
-              this.lexicalEntriesFilter(this.parameters);
-            }
-
-
-
-            if (countSubterm == 0) {
-              x.parent.parent.data.children.splice(x.parent.parent.data.children.indexOf(x.parent.data), 1)
-            }
-            console.log(x.parent)
-
-            this.lexicalEntryTree.treeModel.update()
-
-            return true;
-          } else {
-            return false;
+          let countSubterm = x.parent.data.count;
+          if (countSubterm != 0) {
+            x.parent.data.count--;
+            countSubterm--;
           }
-        } else if (signal.form != undefined) {
-          if (x.data.form === signal.form) {
 
-            x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
-            let countForm = x.parent.data.count;
-            if (countForm != 0) {
-              x.parent.data.count--;
-              countForm--;
-            }
-
-            if (countForm == 0) {
-              x.parent.parent.data.children.splice(x.parent.parent.data.children.indexOf(x.parent.data), 1)
-            }
-            console.log(x.parent)
-
-            this.lexicalEntryTree.treeModel.update()
-
-            return true;
-          } else {
-            return false;
+          //this.lexicalEntryTree.treeModel.update();
+          if (this.nodes.length == 0) {
+            this.lexicalEntriesFilter(this.parameters);
           }
-        } else if (signal.sense != undefined) {
-          if (x.data.sense === signal.sense) {
 
-            x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
-            let countSense = x.parent.data.count;
-            if (countSense != 0) {
-              x.parent.data.count--;
-              countSense--;
-            }
 
-            if (countSense == 0) {
-              x.parent.parent.data.children.splice(x.parent.parent.data.children.indexOf(x.parent.data), 1)
-            }
-            console.log(x.parent)
 
-            this.lexicalEntryTree.treeModel.update()
-
-            return true;
-          } else {
-            return false;
+          if (countSubterm == 0) {
+            x.parent.parent.data.children.splice(x.parent.parent.data.children.indexOf(x.parent.data), 1)
           }
-        } else if (signal.etymology != undefined) {
-          if (x.data.etymology === signal.etymology.etymology) {
-            x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
-            let countSense = x.parent.data.count;
-            if (countSense != 0) {
-              x.parent.data.count--;
-              countSense--;
-            }
+          console.log(x.parent)
 
-            if (countSense == 0) {
-              x.parent.parent.data.children.splice(x.parent.parent.data.children.indexOf(x.parent.data), 1)
-            }
-            console.log(x.parent)
+          this.lexicalEntryTree.treeModel.update()
 
-            this.lexicalEntryTree.treeModel.update()
-
-            return true;
-          } else {
-            return false;
-          }
-        } else if (signal.componentInstanceName != undefined) {
-          if (x.data.componentInstanceName === signal.componentInstanceName) {
-            x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
-            let countSense = x.parent.data.count;
-            if (countSense != 0) {
-              x.parent.data.count--;
-              countSense--;
-            }
-
-            if (countSense == 0) {
-              x.parent.parent.data.children.splice(x.parent.parent.data.children.indexOf(x.parent.data), 1)
-            }
-            console.log(x.parent)
-
-            this.lexicalEntryTree.treeModel.update()
-
-            return true;
-          } else {
-            return false;
-          }
-        } else if (signal.subtermInstanceName != undefined) {
-          let parent = signal.parentNodeInstanceName;
-          if (x.data.lexicalEntry == signal.parentNodeInstanceName) {
-            console.log(x)
-            let children = x.data.children;
-
-            if (children.length >= 1) {
-              Array.from(children).forEach((y: any) => {
-                if (y.lexicalEntry == signal.subtermInstanceName) {
-
-                  console.log(y, x)
-
-                  x.data.children.splice(x.data.children.indexOf(y), 1);
-
-                  let countSubterm = x.data.count;
-                  if (countSubterm != 0) {
-                    x.data.count--;
-                    countSubterm--;
-                  }
-
-                  if (this.nodes.length == 0) {
-                    this.lexicalEntriesFilter(this.parameters);
-                  }
-
-
-
-                  if (countSubterm == 0) {
-                    x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1)
-                  }
-
-                  this.lexicalEntryTree.treeModel.update()
-                  return true
-
-                } else {
-                  return false
-                }
-              })
-            }
-          }
+          return true;
         } else {
           return false;
         }
-        return false;
-      })
+      } else if (signal.form != undefined) {
+        if (x.data.form === signal.form) {
 
-    }, 300);
+          x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
+          let countForm = x.parent.data.count;
+          if (countForm != 0) {
+            x.parent.data.count--;
+            countForm--;
+          }
+
+          if (countForm == 0) {
+            x.parent.parent.data.children.splice(x.parent.parent.data.children.indexOf(x.parent.data), 1)
+          }
+          console.log(x.parent)
+
+          this.lexicalEntryTree.treeModel.update()
+
+          return true;
+        } else {
+          return false;
+        }
+      } else if (signal.sense != undefined) {
+        if (x.data.sense === signal.sense) {
+
+          x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
+          let countSense = x.parent.data.count;
+          if (countSense != 0) {
+            x.parent.data.count--;
+            countSense--;
+          }
+
+          if (countSense == 0) {
+            x.parent.parent.data.children.splice(x.parent.parent.data.children.indexOf(x.parent.data), 1)
+          }
+          console.log(x.parent)
+
+          this.lexicalEntryTree.treeModel.update()
+
+          return true;
+        } else {
+          return false;
+        }
+      } else if (signal.etymology != undefined) {
+        if (x.data.etymology === signal.etymology.etymology) {
+          x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
+          let countSense = x.parent.data.count;
+          if (countSense != 0) {
+            x.parent.data.count--;
+            countSense--;
+          }
+
+          if (countSense == 0) {
+            x.parent.parent.data.children.splice(x.parent.parent.data.children.indexOf(x.parent.data), 1)
+          }
+          console.log(x.parent)
+
+          this.lexicalEntryTree.treeModel.update()
+
+          return true;
+        } else {
+          return false;
+        }
+      } else if (signal.componentInstanceName != undefined) {
+        if (x.data.componentInstanceName === signal.componentInstanceName) {
+          x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
+          let countSense = x.parent.data.count;
+          if (countSense != 0) {
+            x.parent.data.count--;
+            countSense--;
+          }
+
+          if (countSense == 0) {
+            x.parent.parent.data.children.splice(x.parent.parent.data.children.indexOf(x.parent.data), 1)
+          }
+          console.log(x.parent)
+
+          this.lexicalEntryTree.treeModel.update()
+
+          return true;
+        } else {
+          return false;
+        }
+      } else if (signal.subtermInstanceName != undefined) {
+        let parent = signal.parentNodeInstanceName;
+        if (x.data.lexicalEntry == signal.parentNodeInstanceName) {
+          console.log(x)
+          let children = x.data.children;
+
+          if (children.length >= 1) {
+            Array.from(children).forEach((y: any) => {
+              if (y.lexicalEntry == signal.subtermInstanceName) {
+
+                console.log(y, x)
+
+                x.data.children.splice(x.data.children.indexOf(y), 1);
+
+                let countSubterm = x.data.count;
+                if (countSubterm != 0) {
+                  x.data.count--;
+                  countSubterm--;
+                }
+
+                if (this.nodes.length == 0) {
+                  this.lexicalEntriesFilter(this.parameters);
+                }
+
+
+
+                if (countSubterm == 0) {
+                  x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1)
+                }
+
+                this.lexicalEntryTree.treeModel.update()
+                return true
+
+              } else {
+                return false
+              }
+            })
+          }
+        }
+      } else {
+        return false;
+      }
+      return false;
+    })
+
+
   }
 
   lexicalEntriesFilter(newPar) {
@@ -722,16 +724,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
           this.lexicalService.sendToEtymologyTab(null);
           this.lexicalService.updateCoreCard({ lastUpdate: data['lastUpdate'], creationDate: data['creationDate'] });
 
-          //this.lexicalService.sendToAttestationPanel(null);
-          //this.lexicalService.triggerAttestationPanel(false);
-
-
-          /* if(this.expander.isEpigraphyTabExpanded() && !this.expander.isEditTabExpanded()){
-            this.expander.expandCollapseEdit(false);
-            this.expander.expandCollapseEpigraphy(false);
-          }else if(!this.expander.isEpigraphyTabExpanded() && !this.expander.isEditTabExpanded()){
-            this.expander.expandCollapseEdit(true);
-          } */
+          
 
           if (!this.expander.isEditTabOpen() && !this.expander.isEpigraphyTabOpen()) {
             if (!this.expander.isEditTabExpanded() && !this.expander.isEpigraphyTabExpanded()) {
@@ -791,6 +784,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
           $('body').removeClass("modal-open")
           $('body').css("padding-right", "");
 
+          //TODO:  /api/public/search per ottenere le attestazioni delle forme da mandare nell'attestation panel
           // this.lexicalService.sendToAttestationPanel(null);
           // this.lexicalService.triggerAttestationPanel(false);
 

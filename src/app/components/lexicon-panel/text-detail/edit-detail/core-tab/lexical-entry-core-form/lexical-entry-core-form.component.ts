@@ -148,9 +148,9 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
         this.ext_subterm_subject_subscription = this.ext_subterm_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
             data => {
-              this.onChangeSubterm(data)
+                this.onChangeSubterm(data)
             }
-          )
+        )
 
         this.cognates_subject_subscription = this.cognates_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
             data => {
@@ -160,9 +160,9 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
         this.subterm_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
             data => {
-              this.onSearchFilterSubterm(data)
+                this.onSearchFilterSubterm(data)
             }
-          )
+        )
 
         this.update_lang_subscription = this.lexicalService.updateLangSelect$.subscribe(
             signal => {
@@ -213,7 +213,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
             cognates: this.formBuilder.array([this.createCognates()]),
             isCognate: false,
             isEtymon: false,
-            subterm : this.formBuilder.array([]),
+            subterm: this.formBuilder.array([]),
         })
 
         this.onChanges();
@@ -235,39 +235,42 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
     onSearchFilterSubterm(data) {
         this.searchResults = [];
-    
+
         if (this.object.lexicalEntry != undefined) {
-          let parameters = {
-            text: data,
-            searchMode: "startsWith",
-            type: "",
-            pos: "",
-            formType: "entry",
-            author: "",
-            lang: "",
-            status: "",
-            offset: 0,
-            limit: 500
-          }
-    
-          /* && data.length >= 3 */
-          
+            let parameters = {
+                text: data,
+                searchMode: "startsWith",
+                type: "",
+                pos: "",
+                formType: "entry",
+                author: "",
+                lang: "",
+                status: "",
+                offset: 0,
+                limit: 500
+            }
+
+            /* && data.length >= 3 */
+
             this.lexicalService.getLexicalEntriesList(parameters).pipe(takeUntil(this.destroy$)).subscribe(
-                data=> {
+                data => {
                     console.log(data)
-                    let filter_lang = data.list;
+                    let filter_lang = data.list.filter(
+                        element => element.lexicalEntry != this.object.lexicalEntry
+                    )
+
                     console.log(filter_lang)
                     this.searchResults = filter_lang;
-                },error=>{
+                }, error => {
                     console.log(error)
                 }
             )
-            
-          
+
+
         } else {
         }
-    
-      }
+
+    }
 
     onSearchFilter(data) {
         this.filterLoading = true;
@@ -376,6 +379,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
 
 
+    //TODO: inserire un wizard per la creazione di multiword al volo
 
     ngOnChanges(changes: SimpleChanges) {
         setTimeout(() => {
@@ -537,7 +541,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                     let type = this.coreForm.get('type').value;
                     this.lexEntryTypesData.forEach(el => {
                         if (el.valueId.split('#')[1] == type) {
-                            this.coreForm.get('type').setValue(el.valueId, {emitEvent : false});
+                            this.coreForm.get('type').setValue(el.valueId, { emitEvent: false });
                             this.typeDesc = el.valueDescription;
                         }
                     })
@@ -1301,7 +1305,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 console.log(evt.selectedItems[0])
                 let label = evt.selectedItems[0]['value']['label'];
                 let lexId = evt.selectedItems[0]['value']['lexicalEntry'];
-                this.onChangeSubterm({ name: label, lexicalEntry : lexId, i: i, object: evt.selectedItems[0]['value'] })
+                this.onChangeSubterm({ name: label, lexicalEntry: lexId, i: i, object: evt.selectedItems[0]['value'] })
             }
         } else {
             let label = evt.target.value;
@@ -1939,41 +1943,47 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
 
         if (this.object.lexicalEntry != undefined) {
-          this.subtermArray = this.coreForm.get('subterm') as FormArray;
-    
-          let entity = this.subtermArray.at(index).get('entity').value;
-          let lexId = this.object.lexicalEntry;
-    
-          let parameters = {
-            relation: "http://www.w3.org/ns/lemon/decomp#subterm",
-            value: entity
-          }
-    
-          try {
-            let delete_linguistic_rel_req = await this.lexicalService.deleteLinguisticRelation(lexId, parameters).toPromise();
-            console.log(delete_linguistic_rel_req);
-            this.toastr.info('Subterm removed correctly', 'Info', {
-              timeOut: 5000
-            })
-            this.lexicalService.deleteRequest({ subterm: entity, parentNode: this.object.lexicalEntry });
-          } catch (error) {
-            console.log(error)
-            if(error.status == 200){
-              this.toastr.info('Subterm removed correctly', 'Info', {
-                timeOut: 5000
-              })
-              this.lexicalService.deleteRequest({ subterm: entity, parentNode: this.object.lexicalEntry });
-            }else{
-              this.toastr.error("Something went wrong, please check the log", "Error", {timeOut : 5000})
+            this.subtermArray = this.coreForm.get('subterm') as FormArray;
+
+            let entity = this.subtermArray.at(index).get('entity').value;
+            let lexId = this.object.lexicalEntry;
+
+            let parameters = {
+                relation: "http://www.w3.org/ns/lemon/decomp#subterm",
+                value: entity
             }
-          }
-          
+
+            if (entity != '') {
+                try {
+                    let delete_linguistic_rel_req = await this.lexicalService.deleteLinguisticRelation(lexId, parameters).toPromise();
+                    console.log(delete_linguistic_rel_req);
+                    this.toastr.info('Subterm removed correctly', 'Info', {
+                        timeOut: 5000
+                    })
+                    this.lexicalService.deleteRequest({ subterm: entity, parentNode: this.object.lexicalEntry });
+                } catch (error) {
+                    console.log(error)
+                    if (error.status == 200) {
+                        this.toastr.info('Subterm removed correctly', 'Info', {
+                            timeOut: 5000
+                        })
+                        this.lexicalService.deleteRequest({ subterm: entity, parentNode: this.object.lexicalEntry });
+                    } else {
+                        this.toastr.error("Something went wrong, please check the log", "Error", { timeOut: 5000 })
+                    }
+                }
+            }else{
+                //null
+            }
+
+            
+
         }
-    
+
         this.subtermArray.removeAt(index);
         this.memorySubterm.splice(index, 1);
         this.disableAddSubterm = false;
-      }
+    }
 
     ngOnDestroy(): void {
         this.denotes_subject_subscription.unsubscribe();

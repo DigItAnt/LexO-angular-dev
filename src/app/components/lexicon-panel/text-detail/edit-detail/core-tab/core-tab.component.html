@@ -1,6 +1,6 @@
 ﻿
-
 <div id="cardsAccordion" class="accordion" [hidden]="object == null">
+
     <div class="card my-2">
         <div class="card-header">
             <h5 class="mb-0 w-100 d-flex justify-content-between align-self-center">
@@ -18,6 +18,12 @@
                         <span *ngIf="isEtymology">
                             Etymology
                         </span>
+                        <span *ngIf="isConceptSet">
+                            Concept Set
+                        </span>
+                        <span *ngIf="isLexicalConcept">
+                            Lexical Concept
+                        </span>
                         CREATED BY {{creator}} ON {{creationDate | date :'dd/MM/yyyy hh:mm:ss'}}
                     </span>
                 </div>
@@ -32,6 +38,14 @@
                         <i class="fa fa-trash"></i>
                     </button>
                     <button class="btn btn-link" *ngIf="isSense" title="delete sense"
+                        (click)="removeElementModal.show()">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                    <button class="btn btn-link" *ngIf="isConceptSet" title="delete conceptSet"
+                        (click)="removeElementModal.show()">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                    <button class="btn btn-link" *ngIf="isLexicalConcept" title="delete lexical Concept"
                         (click)="removeElementModal.show()">
                         <i class="fa fa-trash"></i>
                     </button>
@@ -65,8 +79,8 @@
             <app-lexical-entry-core-form [lexData]="lexicalEntryData" *ngIf="isLexicalEntry"></app-lexical-entry-core-form>
             <app-form-core-form [formData]="formData" *ngIf="isForm"></app-form-core-form>
             <app-sense-core-form [senseData]="senseData" *ngIf="isSense"></app-sense-core-form>
-            <app-lexical-concept-form [lexicalConceptData]="lexicalConceptData" *ngIf="isLexicalConcept">
-            </app-lexical-concept-form>
+            <app-lexical-concept-form [lexicalConceptData]="lexicalConceptData" *ngIf="isLexicalConcept"></app-lexical-concept-form>
+            <app-concept-set-core-form [conceptSetData]="conceptSetData" *ngIf="isConceptSet"></app-concept-set-core-form>
         </div>
         <div class="card-footer text-muted">
             <div class="w-100 d-flex justify-content-between align-items-center">
@@ -77,10 +91,12 @@
                     <button class="btn btn-success" type="button" id="dropdownAddLemma" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false"> <i class="fas fa-plus"></i> </button>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownAddLemma">
-                        <button class="dropdown-item" title="add new form" (click)="addNewForm()">Add Form</button>
-                        <button class="dropdown-item" title="add new sense" (click)="addNewSense()">Add Sense</button>
-                        <button class="dropdown-item" title="add new etymology" (click)="addNewEtymology()">Add Etymology</button>
-                        <button class="dropdown-item" title="add new bibliography item" (click)="showBiblioModal()">Add Bibliography</button>
+                        <button class="dropdown-item" *ngIf="!isConceptSet" title="add new form" (click)="addNewForm()">Add Form</button>
+                        <button class="dropdown-item" *ngIf="!isConceptSet" title="add new sense" (click)="addNewSense()">Add Sense</button>
+                        <button class="dropdown-item" *ngIf="!isConceptSet" title="add new etymology" (click)="addNewEtymology()">Add Etymology</button>
+                        <button class="dropdown-item" *ngIf="!isConceptSet" title="add new bibliography item" (click)="showBiblioModal()">Add Bibliography</button>
+                        <button class="dropdown-item" *ngIf="isConceptSet" title="add new Lexical Concept (child)" (click)="addLexicalConcept()">Add Lexical Concept (child)</button>
+                        <button class="dropdown-item" *ngIf="isLexicalConcept" title="add new Lexical Concept (sibling)" (click)="addLexicalConcept()">Add Lexical Concept (sibling)</button>
                     </div>
                 </div>
             </div>
@@ -107,12 +123,32 @@
                         style="font-size: 12px; text-align: center">Are you sure to delete
                         {{object.sense}}?</label>
                 </div>
+                <div class="form-group row ml-2 mt-3 mr-2" *ngIf="isConceptSet">
+                    <label for="inputLabel" class="col-lg-12 col-form-label"
+                        style="font-size: 12px; text-align: center">Are you sure to delete
+                        {{object.conceptSet}}?</label>
+                </div>
+                <div class="form-group row ml-2 mt-3 mr-2" *ngIf="isLexicalConcept">
+                    <label for="inputLabel" class="col-lg-12 col-form-label"
+                        style="font-size: 12px; text-align: center">Are you sure to delete
+                        {{object.lexicalConcept}}?</label>
+                </div>
                 <div class="form-group row ml-2 mt-3 mr-2 justify-content-md-center">
                     <div class="input-group col-lg-5 justify-content-md-center"
                         style="align-items: center; text-align: center;">
                         <div class="input-group-append ml-2" *ngIf="isLexicalEntry">
                             <button class="btn btn-success" type="button"
                                 (click)="deleteLexicalEntry(); removeElementModal.hide()"><i
+                                    class="fas fa-check"></i></button>
+                        </div>
+                        <div class="input-group-append ml-2" *ngIf="isConceptSet">
+                            <button class="btn btn-success" type="button"
+                                (click)="deleteConceptSet(); removeElementModal.hide()"><i
+                                    class="fas fa-check"></i></button>
+                        </div>
+                        <div class="input-group-append ml-2" *ngIf="isConceptSet">
+                            <button class="btn btn-success" type="button"
+                                (click)="deleteLexicalConcept(); removeElementModal.hide()"><i
                                     class="fas fa-check"></i></button>
                         </div>
                         <div class="input-group-append ml-2" *ngIf="isForm">

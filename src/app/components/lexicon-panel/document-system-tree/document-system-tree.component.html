@@ -9,7 +9,7 @@
             <h5 class="mb-0 d-flex justify-content-between align-items-center">
                 <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#epigraphyCollapse" aria-expanded="false"
                     aria-controls="epigraphyCollapse">
-                    <i class="fa"></i> Text
+                    <i class="fa"></i> Inscriptions
                 </button>
                 <div class="icons-container dropdown">
                     <button container="body" placement="right" ngbTooltip="Add new file / folder / empty file" class="btn btn-link" type="button" id="textTreeActionDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-plus"></i></button>
@@ -22,7 +22,7 @@
                         <a class="dropdown-item" (click)="addNewFolder()" style="cursor: pointer;">Add new folder</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" (click)="createNewFile()" style="cursor: pointer;">Create empty file</a>
-                      </div>
+                    </div>
                 </div>
                
             </h5>
@@ -103,12 +103,15 @@
                     aria-expanded="false" aria-controls="skos">
                     <i class="fa"></i> Lexical Concept
                 </button>
-                <div class="icons-container">
-                    <button class="btn btn-link" placement="top" ngbTooltip="Add new Concept Sets" (click)="addNewConceptSet()"><i class="fa fa-plus"></i></button>
-                    <!-- <button class="btn btn-link"><i class="fa fa-file-import"></i></button>
-                    <button class="btn btn-link"><i class="fa fa-download"></i></button>
-                    <button class="btn btn-link" title="Language"><i class="fa fa-globe-americas"></i></button> -->
+                
+                <div class="icons-container dropdown">
+                    <button container="body" placement="right" ngbTooltip="Show actions" class="btn btn-link" type="button" id="skosTreeDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-plus"></i></button>
+                    <div class="dropdown-menu" aria-labelledby="skosTreeDropdown">
+                        <a class="dropdown-item" style="cursor: pointer;" (click)="addNewConceptSet()">Add new Concept Set</a>
+                        <a class="dropdown-item" style="cursor: pointer;" (click)="addNewLexicalConcept()">Add new root Lexical Concept</a>
+                    </div>
                 </div>
+                
             </h5>
         </div>
         <div id="skos" class="collapse" aria-labelledby="headingSkos" data-parent="#tree-accordion">

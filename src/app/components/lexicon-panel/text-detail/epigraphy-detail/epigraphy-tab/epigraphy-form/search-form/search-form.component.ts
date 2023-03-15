@@ -350,7 +350,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         externalRef: "",
         node_id: tokenData.id,
         label: data.label,
-        form_id: data.form
+        lexicalEntry: data.lexicalEntry
       };
       parameters["spans"] = [
         {
@@ -360,7 +360,6 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       ];
       parameters["id"] = tokenData.node;
     } else if (textSelection == '' && !Array.isArray(selectionSpan) && !this.bind.isEmptyFile) {
-      //console.log(222)
       parameters["value"] = formValue;
       parameters["layer"] = "attestation";
       parameters["attributes"] = {
@@ -374,7 +373,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         externalRef: "",
         node_id: tokenData.id,
         label: data.label,
-        form_id: data.form
+        lexicalEntry: data.lexicalEntry
       };
       parameters["spans"] = [
         {
@@ -384,7 +383,6 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       ];
       parameters["id"] = tokenData.node;
     } else if (Array.isArray(selectionSpan)) { //MULTIWORD
-      //console.log(333)
       parameters["value"] = formValue;
       parameters["layer"] = "attestation";
       parameters["attributes"] = {
@@ -398,7 +396,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         externalRef: "",
         node_id: tokenData.id,
         label: data.label,
-        form_id: data.form
+        lexicalEntry: data.lexicalEntry
       };
       parameters["spans"] = selectionSpan
       parameters["id"] = tokenData.node;
@@ -416,7 +414,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         externalRef: "",
         node_id: undefined,
         label: data.label,
-        form_id: data.form
+        lexicalEntry: data.lexicalEntry
       };
       parameters["spans"] = [
         {

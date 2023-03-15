@@ -39,10 +39,18 @@ tree-node-content {
     background: none;
 }
 
-/* .toggle-children {
-    height: 7px !important;
-    width: 7px !important;
-} */
+#skos-tree{
+    .node-content-wrapper{
+        display: inline-flex !important;
+        flex: 1 !important;
+      
+        tree-node-content {
+          display: flex;
+          flex: 1;
+          justify-content: space-between;
+        }
+      }
+}
 
 .lexicalEntryTreeNodeExpander {
     .toggle-children-wrapper {

@@ -277,7 +277,6 @@ export class LexicalEntryDecompFormComponent implements OnInit, OnDestroy {
       //console.log(this.componentArray.at(index))
       console.log(parameters)
 
-      //TODO: fare check sulla confidence
       try {
         let update_comp_req = await this.lexicalService.updateGenericRelation(instanceName, parameters).toPromise();
         console.log(update_comp_req);

@@ -12,7 +12,7 @@ You should have received a copy of the GNU General Public License along with Epi
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
 
@@ -27,18 +27,44 @@ export class ConceptService {
   private lexicalIRI = 'http://lexica/mylexicon#';
   private lexicalPrefix = 'lex'
 
+  private _deleteConceptSetReq: BehaviorSubject<any> = new BehaviorSubject(null);
+  deleteSkosReq$ = this._deleteConceptSetReq.asObservable();
+
+
   constructor(private http: HttpClient, private auth: AuthService) { }
+
+  deleteRequest(request? : any) {
+    this._deleteConceptSetReq.next(request);
+  }
 
   getConceptSets(): Observable<any> {
     return this.http.get(this.baseUrl + "lexicon/data/conceptSets");
   }
 
-  getRootConceptSets(): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/conceptSets?id=root");
+  getRootLexicalConcepts(): Observable<any> {
+    return this.http.get(this.baseUrl + "lexicon/data/lexicalConcepts?id=root");
+  }
+
+  getLexicalConcepts(instance : string): Observable<any> {
+    return this.http.get(this.baseUrl + "lexicon/data/lexicalConcepts?id="+encodeURIComponent(instance));
   }
 
   createNewConceptSet(): Observable<any> {
     this.author = this.auth.getUsername();
     return this.http.get(this.baseUrl + "lexicon/creation/conceptSet?key="+this.key+"&author="+this.author+"&prefix="+encodeURIComponent(this.lexicalPrefix)+"&baseIRI="+encodeURIComponent(this.lexicalIRI));
+  }
+
+  createNewLexicalConcept(): Observable<any> {
+    this.author = this.auth.getUsername();
+    return this.http.get(this.baseUrl + "lexicon/creation/lexicalConcept?key="+this.key+"&author="+this.author+"&prefix="+encodeURIComponent(this.lexicalPrefix)+"&baseIRI="+encodeURIComponent(this.lexicalIRI));
+  }
+
+
+  linkLexicalConceptTo(parameters) : Observable<any> {
+    return this.http.post(this.baseUrl + "lexicon/creation/lexicalConcept?key="+this.key, parameters);
+  }
+
+  deleteConceptSet(conceptSetID) : Observable<any> {
+    return this.http.get(this.baseUrl + "lexicon/delete/conceptSet?key="+this.key + "&id="+encodeURIComponent(conceptSetID));
   }
 }

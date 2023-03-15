@@ -1510,6 +1510,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
 
   searchFilter(newPar) {
     
+    //TODO: implementare funzione di search di CASH che si trova su api/public/search
     setTimeout(() => {
       const viewPort_prova = this.element.nativeElement.querySelector('tree-viewport') as HTMLElement;
       viewPort_prova.scrollTop = 0

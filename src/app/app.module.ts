@@ -74,12 +74,14 @@ import { EpigraphyFormComponent } from './components/lexicon-panel/text-detail/e
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SearchFormComponent } from './components/lexicon-panel/text-detail/epigraphy-detail/epigraphy-tab/epigraphy-form/search-form/search-form.component';
 import { AuthService } from './services/auth/auth.service';;
-import { UnauthorizedPageComponent } from './views/unauthorized-page/unauthorized-page/unauthorized-page.component'
-;
-;
+import { UnauthorizedPageComponent } from './views/unauthorized-page/unauthorized-page/unauthorized-page.component';
+
+import { ConceptSetCoreFormComponent } from './components/lexicon-panel/text-detail/edit-detail/core-tab/concept-set-core-form/concept-set-core-form.component';
+
 import { FormPanelComponent } from './components/attestation-panel/form-panel/form-panel.component'
 import { CognatePanelComponent } from './components/lexicon-panel/text-detail/edit-detail/core-tab/lexical-entry-core-form/cognate-panel/cognate-panel.component';;
-import { SkosTreeComponent } from './components/lexicon-panel/document-system-tree/skos-tree/skos-tree.component'
+import { SkosTreeComponent } from './components/lexicon-panel/document-system-tree/skos-tree/skos-tree.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -129,7 +131,8 @@ import { SkosTreeComponent } from './components/lexicon-panel/document-system-tr
     FormPanelComponent,
     CognatePanelComponent,
     SkosTreeComponent
-  ],
+,
+    ConceptSetCoreFormComponent  ],
   imports: [
     ContextMenuModule.forRoot({useBootstrap4: true}),
     BrowserModule,

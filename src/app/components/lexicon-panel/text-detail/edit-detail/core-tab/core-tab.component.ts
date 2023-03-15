@@ -26,6 +26,7 @@ import { debounceTime, take, takeUntil } from 'rxjs/operators';
 import { ModalComponent } from 'ng-modal-lib';
 import { BibliographyService } from 'src/app/services/bibliography-service/bibliography.service';
 import { Subject, Subscription } from 'rxjs';
+import { ConceptService } from 'src/app/services/concept/concept.service';
 
 @Component({
   selector: 'app-core-tab',
@@ -56,6 +57,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
   isSense = false;
   isLexicalConcept = false;
   isEtymology = false;
+  isConceptSet = false;
   searchIconSpinner = false;
   goBack = false;
 
@@ -68,6 +70,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
   formData: any;
   senseData: any;
   lexicalConceptData: any;
+  conceptSetData : any;
 
   lastUpdateDate: any;
   creationDate: any;
@@ -100,7 +103,8 @@ export class CoreTabComponent implements OnInit, OnDestroy {
               private biblioService: BibliographyService, 
               private expand: ExpanderService, 
               private rend: Renderer2, 
-              private toastr: ToastrService) 
+              private toastr: ToastrService,
+              private conceptService : ConceptService) 
   { }
 
   ngOnInit(): void {
@@ -109,6 +113,8 @@ export class CoreTabComponent implements OnInit, OnDestroy {
       object => {
         if (this.object != object) {
           this.lexicalEntryData = null;
+          this.conceptSetData = null;
+          this.lexicalConceptData = null;
           this.formData = null;
           this.senseData = null;
 
@@ -144,6 +150,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
             this.formData = null;
             this.lexicalConceptData = null;
             this.isLexicalConcept = false;
+            this.isConceptSet = false;
           } else if (this.object.form != undefined && this.object.sense == undefined) {
             this.isLexicalEntry = false;
             this.isForm = true;
@@ -152,6 +159,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
             this.lexicalEntryData = null;
             this.lexicalConceptData = null;
             this.isLexicalConcept = false;
+            this.isConceptSet = false;
           } else if (this.object.sense != undefined) {
             this.isLexicalEntry = false;
             this.isForm = false;
@@ -161,6 +169,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
             this.lexicalEntryData = null;
             this.lexicalConceptData = null;
             this.isLexicalConcept = false;
+            this.isConceptSet = false;
           } else if (this.object.lexicalConcept != undefined && this.object.sense == undefined) {
             this.isLexicalEntry = false;
             this.isForm = false;
@@ -170,8 +179,22 @@ export class CoreTabComponent implements OnInit, OnDestroy {
             this.formData = null;
             this.lexicalEntryData = null;
             this.lexicalConceptData = object;
-          } else if(this.object.lexicalConcept == undefined && this.object.etymology != undefined){
+            this.isConceptSet = false;
+          } else if(this.object.conceptSet != undefined){
+            this.isConceptSet = true;
+            this.isLexicalEntry = false;
+            this.isForm = false;
+            this.isSense = false;
+            this.isLexicalConcept = false;
+            this.conceptSetData = object;
+            this.senseData = null;
+            this.formData = null;
+            this.lexicalEntryData = null;
+            this.lexicalConceptData = null;
+          }else if(this.object.lexicalConcept == undefined && this.object.etymology != undefined){
             this.isEtymology = true;
+            this.isConceptSet = false;
+            this.isLexicalConcept = false;
           }
 
           this.creationDate = this.object.creationDate;
@@ -451,6 +474,66 @@ export class CoreTabComponent implements OnInit, OnDestroy {
 
   }
 
+  deleteConceptSet(){
+    this.searchIconSpinner = true;
+    let conceptSetId = this.object.conceptSet
+    this.conceptService.deleteConceptSet(conceptSetId).pipe(takeUntil(this.destroy$)).subscribe(
+      data => {
+        //console.log(data)
+        this.searchIconSpinner = false;
+        this.conceptService.deleteRequest(this.object);
+        this.conceptSetData = null;
+        this.isConceptSet = false;
+        this.object = null;
+        this.lexicalService.sendToCoreTab(null);
+        this.lexicalService.sendToRightTab(null);
+        this.biblioService.sendDataToBibliographyPanel(null);
+
+        this.expand.expandCollapseEdit(false);
+        this.expand.openCollapseEdit(false)
+        if (this.expand.isEpigraphyOpen) {
+          this.expand.expandCollapseEpigraphy();
+        }
+        
+      }, error => {
+        //console.log(error)
+        this.searchIconSpinner = false;
+        
+        
+
+        if(error.status != 200){
+          this.toastr.error(error.error, 'Error', {
+            timeOut: 5000,
+          });
+        }else{
+          this.toastr.success(conceptSetId + 'deleted correctly', '', {
+            timeOut: 5000,
+          });
+          this.searchIconSpinner = false;
+          this.conceptService.deleteRequest(this.object);
+          this.conceptSetData = null;
+          this.isConceptSet = false;
+          this.object = null;
+          this.lexicalService.sendToCoreTab(null);
+          this.lexicalService.sendToRightTab(null);
+          this.biblioService.sendDataToBibliographyPanel(null);
+
+          this.expand.expandCollapseEdit(false);
+          this.expand.openCollapseEdit(false)
+          if (this.expand.isEpigraphyOpen) {
+            this.expand.expandCollapseEpigraphy();
+          }
+        }
+
+        
+      }
+    )
+  }
+
+  deleteLexicalConcept(){
+    //TODO: aggiungere logica per rimozione lexical concept da core tab
+  }
+
   deleteLexicalEntry() {
     this.searchIconSpinner = true;
     let lexicalId = this.object.lexicalEntry
@@ -549,7 +632,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
     this.lexicalService.deleteSense(lexicalId).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         console.log(data)
-        this.searchIconSpinner = false;
+        /* this.searchIconSpinner = false;
         this.lexicalService.deleteRequest(this.object);
         this.isSense = false;
         this.object = null;
@@ -557,13 +640,23 @@ export class CoreTabComponent implements OnInit, OnDestroy {
 
         this.toastr.success(lexicalId + 'deleted correctly', '', {
           timeOut: 5000,
-        });
+        }); */
       }, error => {
         console.log(error)
-        this.searchIconSpinner = false;
-        this.lexicalService.sendToCoreTab(null)
+        if(error.status == 200){
+          this.searchIconSpinner = false;
+          this.toastr.success(lexicalId + 'deleted correctly', '', {
+            timeOut: 5000,
+          });
+          this.lexicalService.deleteRequest(this.object);
+          this.lexicalService.sendToCoreTab(null)
 
-        this.lexicalService.deleteRequest(this.object);
+        }else{
+          this.toastr.error('Error on deleting' + lexicalId, '', {
+            timeOut: 5000,
+          });
+        }
+        
       }
     )
   }
