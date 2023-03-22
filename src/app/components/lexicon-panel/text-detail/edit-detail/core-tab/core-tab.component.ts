@@ -531,7 +531,39 @@ export class CoreTabComponent implements OnInit, OnDestroy {
   }
 
   deleteLexicalConcept(){
-    //TODO: aggiungere logica per rimozione lexical concept da core tab
+    this.searchIconSpinner = true;
+    let lexicalConceptID = this.object.lexicalConcept;
+
+    this.conceptService.deleteLexicalConcept(lexicalConceptID).pipe(takeUntil(this.destroy$)).subscribe(
+      data=> {
+        console.log(data)
+      },error=>{
+        console.log(error);
+        if(error.status != 200){
+          this.toastr.error(error.error, 'Error', {
+            timeOut: 5000,
+          });
+        }else{
+          this.toastr.success(lexicalConceptID + 'deleted correctly', '', {
+            timeOut: 5000,
+          });
+          this.searchIconSpinner = false;
+          this.conceptService.deleteRequest(this.object);
+          this.conceptSetData = null;
+          this.isConceptSet = false;
+          this.object = null;
+          this.lexicalService.sendToCoreTab(null);
+          this.lexicalService.sendToRightTab(null);
+          this.biblioService.sendDataToBibliographyPanel(null);
+
+          this.expand.expandCollapseEdit(false);
+          this.expand.openCollapseEdit(false)
+          if (this.expand.isEpigraphyOpen) {
+            this.expand.expandCollapseEpigraphy();
+          }
+        }
+      }
+    )
   }
 
   deleteLexicalEntry() {

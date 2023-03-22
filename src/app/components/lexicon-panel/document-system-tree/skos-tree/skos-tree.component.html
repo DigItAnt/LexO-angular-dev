@@ -77,11 +77,11 @@
 
       <div [contextMenu]="skosMenu" [contextMenuSubject]="node.data">
         <span  *ngIf="node.data.conceptSet != undefined">
-          <i class="fas fa-cubes fa-lg"></i> <b class="ml-2">{{ node.data.defaultLabel.split('#')[1] }} </b>
+          <i class="fas fa-cubes fa-lg"></i> <b class="ml-2">{{ node.data.defaultLabel.split('#')[1] == undefined ? node.data.defaultLabel : node.data.defaultLabel.split('#')[1] }} </b>
         </span>
   
         <span  *ngIf="node.data.lexicalConcept != undefined">
-          <i class="fas fa-cube fa-lg"></i> <span class="font-italic ml-2">{{ node.data.lexicalConcept.split('#')[1] }} </span>
+          <i class="fas fa-cube fa-lg"></i> <span class="font-italic ml-2">{{ node.data.defaultLabel.split('#')[1] == undefined ? node.data.defaultLabel : node.data.defaultLabel.split('#')[1] }} </span>
         </span>
       </div>
      
@@ -99,14 +99,11 @@
   <context-menu>
 
     <!-- FOLDER CONTEXT MENU -->
-    <ng-template contextMenuItem let-item [visible]="isConceptSet" (execute)="addLexicalConcept($event.item)">
+    <ng-template contextMenuItem let-item [visible]="isConceptSet" (execute)="addLexicalConcept($event.item, 'conceptSet')">
       Add Lexical Concept (child)
     </ng-template>
-    <ng-template contextMenuItem let-item [visible]="isConceptSet" (execute)="addNewConceptSet()">
-      Add Concept Set (sibling)
-    </ng-template>
 
-    <ng-template contextMenuItem let-item [visible]="isLexicalConcept" (execute)="addLexicalConcept($event.item)">
+    <ng-template contextMenuItem let-item [visible]="isLexicalConcept" (execute)="addLexicalConcept($event.item, 'lexicalConcept')">
       Add Lexical Concept (child)
     </ng-template>
     

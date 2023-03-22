@@ -237,59 +237,97 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
         instanceName = data['sense']
       } else if (data['etymology'] != undefined) {
         instanceName = data['etymology']
-      };;
+      } else if (data['conceptSet'] != undefined){
+        instanceName = data['conceptSet']
+      }else if (data['lexicalConcept'] != undefined){
+        instanceName = data['lexicalConcept']
+      };
+      
       setTimeout(() => {
-        this.lexTree.lexicalEntryTree.treeModel.getNodeBy(
-          function (x) {
-            if (data['lexicalEntry'] != undefined) {
-              if (x.data.lexicalEntry == instanceName) {
-                x.data.label = data['new_label']
-                //x.setActiveAndVisible()
-                x.scrollIntoView();
-                data['new_label'] = undefined
-                return true;
-              } else {
-                return false;
+        if(data['conceptSet'] == undefined && data['lexicalConcept'] == undefined){
+          this.lexTree.lexicalEntryTree.treeModel.getNodeBy(
+            function (x) {
+              if (data['lexicalEntry'] != undefined) {
+                if (x.data.lexicalEntry == instanceName) {
+                  x.data.label = data['new_label']
+                  //x.setActiveAndVisible()
+                  x.scrollIntoView();
+                  data['new_label'] = undefined
+                  return true;
+                } else {
+                  return false;
+                }
+              } else if (data['form'] != undefined) {
+  
+                if (x.data.form == instanceName) {
+                  x.data.label = data['new_label']
+                  //x.setActiveAndVisible()
+                  x.scrollIntoView();
+                  data['new_label'] = undefined
+                  return true;
+                } else {
+                  return false;
+                }
+              } else if (data['sense'] != undefined) {
+  
+                if (x.data.sense == instanceName) {
+                  x.data.label = data['new_label']
+                  //x.setActiveAndVisible()
+                  x.scrollIntoView();
+                  data['new_label'] = undefined
+                  return true;
+                } else {
+                  return false;
+                }
+              } else if (data['etymology'] != undefined) {
+  
+                if (x.data.etymology == instanceName) {
+                  x.data.label = data['new_label']
+                  //x.setActiveAndVisible()
+                  x.scrollIntoView();
+                  data['new_label'] = undefined
+                  return true;
+                } else {
+                  return false;
+                }
               }
-            } else if (data['form'] != undefined) {
-
-              if (x.data.form == instanceName) {
-                x.data.label = data['new_label']
-                //x.setActiveAndVisible()
-                x.scrollIntoView();
-                data['new_label'] = undefined
-                return true;
-              } else {
-                return false;
-              }
-            } else if (data['sense'] != undefined) {
-
-              if (x.data.sense == instanceName) {
-                x.data.label = data['new_label']
-                //x.setActiveAndVisible()
-                x.scrollIntoView();
-                data['new_label'] = undefined
-                return true;
-              } else {
-                return false;
-              }
-            } else if (data['etymology'] != undefined) {
-
-              if (x.data.etymology == instanceName) {
-                x.data.label = data['new_label']
-                //x.setActiveAndVisible()
-                x.scrollIntoView();
-                data['new_label'] = undefined
-                return true;
-              } else {
+              else {
                 return false;
               }
             }
-            else {
-              return false;
+          );
+        }else{
+          this.skosTree.skosTree.treeModel.getNodeBy(
+            function (x) {
+              if (data['conceptSet'] != undefined) {
+                if (x.data.conceptSet == instanceName) {
+                  x.data.defaultLabel = data['new_label']
+                  //x.setActiveAndVisible()
+                  x.scrollIntoView();
+                  data['new_label'] = undefined
+                  return true;
+                } else {
+                  return false;
+                }
+              } else if (data['lexicalConcept'] != undefined) {
+  
+                if (x.data.lexicalConcept == instanceName) {
+                  x.data.defaultLabel = data['new_label']
+                  //x.setActiveAndVisible()
+                  x.scrollIntoView();
+                  data['new_label'] = undefined
+                  return true;
+                } else {
+                  return false;
+                }
+              }
+              else {
+                return false;
+              }
             }
-          }
-        );
+          );
+        }
+        
       }, 500);
     } else if (data['new_type'] != undefined) {
       //console.log("cambio type cambio tutto")

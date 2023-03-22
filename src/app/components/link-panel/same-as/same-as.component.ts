@@ -231,7 +231,7 @@ export class SameAsComponent implements OnInit, OnDestroy {
         console.log(e)
         if (e.status == 200) {
           this.memorySameAs.push(selectedValues)
-          this.toastr.success('SeeAlso updated', '', {
+          this.toastr.success('sameAs updated', '', {
             timeOut: 5000,
           });
         } else {

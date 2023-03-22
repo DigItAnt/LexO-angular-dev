@@ -294,7 +294,7 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
     this.object['request'] = 'etymology'
 
     let parentNodeInstanceName = this.object.parentNodeInstanceName;
-    this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
+    this.object['lexicalEntry'] = parentNodeInstanceName
     this.object['request'] = 'etymology'
 
     console.log(this.object, parentNodeInstanceName);
@@ -493,7 +493,7 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
 
     let parentNodeInstanceName = this.object.parentNodeInstanceName;
     this.object['request'] = 'form';
-    this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
+    this.object['lexicalEntry'] = parentNodeInstanceName
     //console.log(this.object);
 
     try {
@@ -505,7 +505,7 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
       }
       this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': create_new_form_req });
       this.searchIconSpinner = false;
-      this.toastr.success(create_new_form_req['formInstanceName'] + ' added correctly', '', {
+      this.toastr.success(create_new_form_req['form'] + ' added correctly', '', {
         timeOut: 5000,
       });
     } catch (error) {
@@ -524,7 +524,7 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
     this.object['request'] = 'sense'
 
     let parentNodeInstanceName = this.object.parentNodeInstanceName;
-    this.object['lexicalEntryInstanceName'] = parentNodeInstanceName
+    this.object['lexicalEntry'] = parentNodeInstanceName
     this.object['request'] = 'sense'
     console.log(this.object);
 
@@ -537,7 +537,7 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
       }
       this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': create_new_sense });
       this.searchIconSpinner = false;
-      this.toastr.success(create_new_sense['senseInstanceName'] + ' added correctly', '', {
+      this.toastr.success(create_new_sense['sense'] + ' added correctly', '', {
         timeOut: 5000,
       });
     } catch (error) {

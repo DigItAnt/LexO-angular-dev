@@ -91,12 +91,12 @@
                     <button class="btn btn-success" type="button" id="dropdownAddLemma" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false"> <i class="fas fa-plus"></i> </button>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownAddLemma">
-                        <button class="dropdown-item" *ngIf="!isConceptSet" title="add new form" (click)="addNewForm()">Add Form</button>
-                        <button class="dropdown-item" *ngIf="!isConceptSet" title="add new sense" (click)="addNewSense()">Add Sense</button>
-                        <button class="dropdown-item" *ngIf="!isConceptSet" title="add new etymology" (click)="addNewEtymology()">Add Etymology</button>
-                        <button class="dropdown-item" *ngIf="!isConceptSet" title="add new bibliography item" (click)="showBiblioModal()">Add Bibliography</button>
+                        <button class="dropdown-item" *ngIf="!isConceptSet && !isLexicalConcept" title="add new form" (click)="addNewForm()">Add Form</button>
+                        <button class="dropdown-item" *ngIf="!isConceptSet && !isLexicalConcept" title="add new sense" (click)="addNewSense()">Add Sense</button>
+                        <button class="dropdown-item" *ngIf="!isConceptSet && !isLexicalConcept" title="add new etymology" (click)="addNewEtymology()">Add Etymology</button>
+                        <button class="dropdown-item" *ngIf="!isConceptSet && !isLexicalConcept" title="add new bibliography item" (click)="showBiblioModal()">Add Bibliography</button>
                         <button class="dropdown-item" *ngIf="isConceptSet" title="add new Lexical Concept (child)" (click)="addLexicalConcept()">Add Lexical Concept (child)</button>
-                        <button class="dropdown-item" *ngIf="isLexicalConcept" title="add new Lexical Concept (sibling)" (click)="addLexicalConcept()">Add Lexical Concept (sibling)</button>
+                        <button class="dropdown-item" *ngIf="isLexicalConcept" title="add new Lexical Concept (child)" (click)="addLexicalConcept()">Add Lexical Concept (child)</button>
                     </div>
                 </div>
             </div>
@@ -146,7 +146,7 @@
                                 (click)="deleteConceptSet(); removeElementModal.hide()"><i
                                     class="fas fa-check"></i></button>
                         </div>
-                        <div class="input-group-append ml-2" *ngIf="isConceptSet">
+                        <div class="input-group-append ml-2" *ngIf="isLexicalConcept">
                             <button class="btn btn-success" type="button"
                                 (click)="deleteLexicalConcept(); removeElementModal.hide()"><i
                                     class="fas fa-check"></i></button>

@@ -15,7 +15,9 @@ import { Subject, Subscription } from 'rxjs';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 
 import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
-import { debounceTime, takeUntil } from 'rxjs/operators';
+import { debounceTime, pairwise, startWith, takeUntil } from 'rxjs/operators';
+import { ConceptService } from 'src/app/services/concept/concept.service';
+import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-lexical-concept-form',
   templateUrl: './lexical-concept-form.component.html',
@@ -34,48 +36,50 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
 
   lexicalConceptForm = new FormGroup({
     label: new FormControl(''),
-    definition : new FormControl(''),
-    hierachicalRelation: new FormArray([this.createHierachicalRelation()]),
+    //definition : new FormControl(''),
+    /* hierachicalRelation: new FormArray([this.createHierachicalRelation()]),
     scheme: new FormArray([this.createScheme()]),
-    conceptReference: new FormArray([this.createConceptReference()])
+    conceptReference: new FormArray([this.createConceptReference()]) */
   })
 
-  hierachicalRelation: FormArray;
+  /* hierachicalRelation: FormArray;
   scheme: FormArray;
-  conceptReference: FormArray;
+  conceptReference: FormArray; */
 
   destroy$ : Subject<boolean> = new Subject();
 
-  constructor(private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder) {
+  constructor(private lexicalService: LexicalEntriesService, 
+              private formBuilder: FormBuilder,
+              private conceptService : ConceptService,
+              private toastr : ToastrService) {
   }
 
   ngOnInit() {
     
     this.lexicalConceptForm = this.formBuilder.group({
-      label: '',
-      definition : '',
-      hierachicalRelation: this.formBuilder.array([this.createHierachicalRelation()]),
+      defaultLabel: '',
+      //definition : '',
+      /* hierachicalRelation: this.formBuilder.array([this.createHierachicalRelation()]),
       scheme: this.formBuilder.array([this.createScheme()]),
-      conceptReference: this.formBuilder.array([this.createConceptReference()])
+      conceptReference: this.formBuilder.array([this.createConceptReference()]) */
     })
     this.onChanges();
-    this.loadPeople();
     this.triggerTooltip();
   }
 
   ngOnChanges(changes: SimpleChanges) {
     setTimeout(()=> {
       if(this.object != changes.lexicalConceptData.currentValue){
-        if(this.conceptReference != null){
+        /* if(this.conceptReference != null){
           this.conceptReference.clear();
           this.hierachicalRelation.clear();
           this.scheme.clear();
-        }
+        } */
       }
       //this.loadPeople();
       this.object = changes.lexicalConceptData.currentValue;
       if(this.object != null){
-        this.lexicalConceptForm.get('label').setValue(this.object.label, {emitEvent:false});
+        this.lexicalConceptForm.get('defaultLabel').setValue(this.object.defaultLabel, {emitEvent:false});
       }
       this.triggerTooltip();
   }, 10)
@@ -90,21 +94,50 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
     }, 500);
   }
 
-  private loadPeople() {
-    this.peopleLoading = true;
-    /* this.dataService.getPeople().subscribe(x => {
-      this.people = x;
-      this.peopleLoading = false;
-    }); */
-  }
+ 
 
   onChanges(): void {
-    this.lexicalConceptForm.valueChanges.pipe(debounceTime(200), takeUntil(this.destroy$)).subscribe(searchParams => {
-      //console.log(searchParams)
+    this.lexicalConceptForm.get('defaultLabel').valueChanges.pipe(debounceTime(1000), startWith(this.lexicalConceptForm.get('defaultLabel').value), pairwise(), takeUntil(this.destroy$)).subscribe(([prev, next]: [any, any]) => {
+      if(next != '') {
+        let parameters = {
+          relation: "http://www.w3.org/2004/02/skos/core#prefLabel",
+          source: this.object.lexicalConcept,
+          target: next,
+          oldTarget: prev == '' ? this.object.defaultLabel : prev,
+          targetLanguage: this.object.language,
+          oldTargetLanguage : this.object.language
+        }
+
+
+        this.conceptService.updateSkosLabel(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+          data=> {
+            console.log(data)
+          }, error=> {
+            console.log(error);
+            
+            //this.lexicalService.changeDecompLabel(next)
+            if (error.status != 200) {
+                this.toastr.error(error.error, 'Error', {
+                    timeOut: 5000,
+                });
+            } else {
+              const data = this.object;
+              data['request'] = 0;
+              data['new_label'] = next;
+              this.lexicalService.refreshAfterEdit(data);
+              this.lexicalService.spinnerAction('off');
+              this.lexicalService.updateCoreCard({ lastUpdate: error.error.text });
+              this.toastr.success('Label changed correctly for ' + this.object.lexicalConcept, '', {
+                  timeOut: 5000,
+              });
+            }
+          }
+        )
+      }
     })
   }
 
-  createScheme(): FormGroup {
+  /* createScheme(): FormGroup {
     return this.formBuilder.group({
       target: ''
     })
@@ -155,7 +188,7 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
     return this.formBuilder.group({
       target: ''
     })
-  }
+  } */
 
   ngOnDestroy(): void {
     this.destroy$.next(true);

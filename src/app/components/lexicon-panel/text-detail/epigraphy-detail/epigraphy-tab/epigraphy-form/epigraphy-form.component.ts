@@ -616,7 +616,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
                     }
 
                     try {
-                      let convert_to_leiden = await this.documentService.testConvert(object).toPromise();
+                      let convert_to_leiden = await this.documentService.testConvertItAnt(object).toPromise();
                       console.log(convert_to_leiden);
                       let raw = convert_to_leiden['xml'];
                       let bodyResponse = new DOMParser().parseFromString(raw, "text/html").body;

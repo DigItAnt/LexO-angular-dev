@@ -1,10 +1,10 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder } from '@angular/forms';
-import { IActionMapping, TREE_ACTIONS, KEYS, ITreeState, ITreeOptions, TreeModel } from '@circlon/angular-tree-component';
+import { IActionMapping, TREE_ACTIONS, KEYS, ITreeState, ITreeOptions, TreeModel, TreeNode } from '@circlon/angular-tree-component';
 import { ContextMenuComponent } from 'ngx-contextmenu';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
-import { debounceTime, takeUntil, tap } from 'rxjs/operators';
+import { debounceTime, takeUntil, tap, timeout } from 'rxjs/operators';
 import { ConceptService } from 'src/app/services/concept/concept.service';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
@@ -105,14 +105,14 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.loadTree();
+    
     this.skosFilterForm = this.formBuilder.group({
       search_text: new FormControl(null),
       search_mode: new FormControl('starts')
     })
     this.onChanges();
     this.initialValues = this.skosFilterForm.value
-
+    this.loadTree();
     this.conceptService.deleteSkosReq$.pipe(takeUntil(this.destroy$)).subscribe(
       signal => {
 
@@ -137,7 +137,6 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
   onEvent = ($event: any) => {
     console.log($event);
 
-    //TODO: inserire logica quando clicco su un nodo
     if ($event.eventName == 'activate' &&
       $event.node.data.conceptSet != undefined &&
       this.selectedNodeId != $event.node.data.conceptSet) {
@@ -195,25 +194,19 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
 
   onMoveNode($event) {
     console.log($event);
-    let node_type = $event.node.type;
-    let target_type = $event.to.parent.type;
-    this.moveNode($event);
-
-  }
-
-  moveNode(evt) {
-
-    //TODO: ridefinire drag and drop
-    if (evt != undefined) {
+    
+    if ($event != undefined) {
       //console.log(evt);
-      let element_id = evt.node['element-id'];
-      let target_id = evt.to.parent['element-id'];
-      let parameters = {
+      
+
+      let node_source = $event.node.lexicalConcept;
+      let node_target = $event.to.parent.lexicalConcept != undefined ? $event.to.parent.lexicalConcept : $event.to.parent.conceptSet;
+      /* let parameters = {
         "requestUUID": "string",
         "user-id": 0,
         "element-id": element_id,
         "target-id": target_id
-      }
+      } */
 
 
       /* this.documentService.moveFolder(parameters).subscribe(
@@ -227,10 +220,13 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
         }
       ) */
     }
+
   }
 
   async loadTree() {
-    let conceptSets, rootConceptSets;
+    let conceptSets = []
+    let rootConceptSets = [];
+    let tmp = [];
 
     try {
       conceptSets = await this.conceptService.getConceptSets().toPromise().then(
@@ -259,14 +255,18 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
       this.nodes = conceptSets;
     }
 
-    if (rootConceptSets.length > 0) {
+    if (rootConceptSets.length > 0 && conceptSets.length == 0) {
       rootConceptSets.map(
-        element => element['hasChildren'] = true
+        element => {
+          element['hasChildren'] = true,
+          element['children'] = undefined;
+        },
       )
-      rootConceptSets.forEach(
-        element => { this.nodes.push(element) }
-      );
+
+      this.nodes = rootConceptSets;
     }
+
+    
 
     this.counter = this.nodes.length;
   }
@@ -279,7 +279,6 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
   onScrollDown(treeModel: TreeModel) {
 
 
-    //TODO: check lazy loading questo componente, non vorrei ci siano informazioni su altri componenti
     this.offset += 500;
     this.modalShow = true;
 
@@ -293,7 +292,7 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
     parameters['offset'] = this.offset;
     parameters['limit'] = this.limit;
 
-    this.lexicalService.getLexicalEntriesList(parameters).pipe(debounceTime(200), takeUntil(this.destroy$)).subscribe(
+    /* this.lexicalService.getLexicalEntriesList(parameters).pipe(debounceTime(200), takeUntil(this.destroy$)).subscribe(
       data => {
         //@ts-ignore
         $('#lazyLoadingModal').modal('hide');
@@ -315,7 +314,7 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
       error => {
 
       }
-    )
+    ) */
   }
 
   updateTreeView() {
@@ -373,53 +372,24 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
       try {
         let instance = node.data.conceptSet != undefined ? node.data.conceptSet : node.data.lexicalConcept;
 
-        let data = await this.conceptService.getLexicalConcepts(instance).toPromise().then(
-          response => response.list
-        );
+        let data = await this.conceptService.getLexicalConcepts(instance).toPromise();
         console.log(data)
 
-        newNodes = data.map((c) => Object.assign({}, c));
+        newNodes = data['list'].map((c) => Object.assign({}, c));
 
         if (Object.keys(newNodes).length > 0) {
 
           for (const element of newNodes) {
 
-            /* if (element.label == 'form') {
-              let form_data = await this.lexicalService.getLexEntryForms(instance).toPromise();
-              element.isExpanded = true;
-              element.children = [];
-
-              form_data.forEach(form => {
-                element.children.push(form);
-              });
-            } else if (element.label == 'sense') {
-              let sense_data = await this.lexicalService.getSensesList(instance).toPromise();
-              element.isExpanded = true;
-              element.children = [];
-              sense_data.forEach(sense => {
-                element.children.push(sense);
-              });
-            } else if (element.label == 'etymology') {
-              let etymology_data = await this.lexicalService.getEtymologies(instance).toPromise();
-              element.isExpanded = true;
-              element.children = [];
-              etymology_data.forEach(etym => {
-                element.children.push(etym);
-              });
-            } else if (element.label == 'subterm') {
-              let subterm_data = await this.lexicalService.getSubTerms(instance).toPromise();
-              element.isExpanded = true;
-              element.children = [];
-              subterm_data.forEach(subterm => {
-                subterm.hasChildren = false;
-                element.children.push(subterm);
-              });
-            } */
+            element['children'] = undefined;
+            element['hasChildren'] = true;
+            
 
           }
           return newNodes;
         } else {
           this.toastr.info('No childs for this node', 'Info', { timeOut: 5000 });
+          
           return newNodes;
         }
 
@@ -448,6 +418,10 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
 
           this.skosTree.treeModel.update()
 
+          setTimeout(() => {
+            this.counter = this.skosTree.treeModel.nodes.length;
+          }, 1000);
+
           return true;
         } else {
           return false;
@@ -458,6 +432,9 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
           x.parent.data.children.splice(x.parent.data.children.indexOf(x.data), 1);
 
           this.skosTree.treeModel.update()
+          setTimeout(() => {
+            this.counter = this.skosTree.treeModel.nodes.lenght;
+          }, 1000);
 
           return true;
         } else {
@@ -472,8 +449,111 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
 
   }
 
-  addLexicalConcept(parentNode: any) {
-    console.log(parentNode)
+  addLexicalConcept(parentNode: any, type : string) {
+
+    if(parentNode){
+      let relation = type == 'conceptSet' ? "http://www.w3.org/2004/02/skos/core#inScheme" : "http://www.w3.org/2004/02/skos/core#narrower";
+      
+      this.conceptService.createNewLexicalConcept().pipe(takeUntil(this.destroy$)).subscribe(
+        data => {
+          console.log(data);
+          if (data != undefined) {
+            /* this.toastr.info('New Concept Set added', '', {
+              timeOut: 5000,
+            }); */
+            
+            let parameters = {
+              relation : relation,
+              source : data['defaultLabel'],
+              target : parentNode['defaultLabel']
+            }
+
+            data['hasChildren'] = true;  
+            
+            if(type == 'conceptSet'){
+              this.conceptService.updateSchemeProperty(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+                data=> {
+                  console.log(data);
+                },error=>{
+                  console.log(error);
+                  if(error.status == 200){
+                    if(parentNode.children == undefined) parentNode.children = [];
+                    parentNode.children.push(data);
+                    this.toastr.success('Added Lexical Concept', '', {timeOut : 5000});
+                    this.skosTree.treeModel.update()
+                    this.skosTree.treeModel.getNodeBy(y => {
+                      if (y.data.lexicalConcept != undefined) {    
+                        if (y.data.lexicalConcept === data.lexicalConcept) {
+                          y.setActiveAndVisible();
+                          return true;
+                        } else {
+                          return false;
+                        }
+                      } else {
+                        return false;
+                      }
+                    })
+                    setTimeout(() => {
+                      this.counter = this.skosTree.treeModel.nodes.length;
+                    }, 1000);
+                  }
+                }
+              );
+            }else{
+              this.conceptService.updateSemanticRelation(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+                data=> {
+                  console.log(data);
+                },error=>{
+                  console.log(error);
+                  if(error.status == 200){
+                    if(parentNode.children == undefined) parentNode.children = [];
+                    parentNode.children.push(data);
+                    this.toastr.success('Added Lexical Concept', '', {timeOut : 5000});
+                    this.skosTree.treeModel.update()
+                    this.skosTree.treeModel.getNodeBy(y => {
+                      if (y.data.lexicalConcept != undefined) {    
+                        if (y.data.lexicalConcept === data.lexicalConcept) {
+                          y.setActiveAndVisible();
+                          return true;
+                        } else {
+                          return false;
+                        }
+                      } else {
+                        return false;
+                      }
+                    })
+                    setTimeout(() => {
+                      this.counter = this.skosTree.treeModel.nodes.length;
+                    }, 1000);
+                  }
+                }
+              );
+            }
+            
+            
+
+            /* this.nodes.push(data);
+            this.updateTreeView();
+            this.skosTree.treeModel.update();
+            this.skosTree.treeModel.getNodeById(data.id).setActiveAndVisible(); */
+          }
+  
+        }, error => {
+          console.log(error)
+          this.toastr.error('Error when creating new Concept Set', '', {
+            timeOut: 5000,
+          });
+        }
+      )
+
+      /* let parameters = {
+        relation : relation,
+        source : //nuovo lexical concept,
+        target : //conceptSet target
+      }
+      this.conceptService.updateSchemeProperty() */
+    }
+    
   }
 
   addNewConceptSet() {

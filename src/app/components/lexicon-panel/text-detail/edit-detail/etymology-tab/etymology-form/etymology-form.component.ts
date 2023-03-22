@@ -506,7 +506,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
           console.log(new_lexical_entry_req);
 
           let lexical_entry = new_lexical_entry_req['lexicalEntry'];
-          let lexical_entry_in = new_lexical_entry_req['lexicalEntryInstanceName'];
+          let lexical_entry_in = new_lexical_entry_req['lexicalEntry'];
           this.memoryLinks[index]['etySourceLabel'] = etySourceLabel;
           this.etyLinkArray.at(index).patchValue({ lex_entity: label_new_lexical_entry });
           this.etyLinkArray.at(index).patchValue({ etySource: lexical_entry });

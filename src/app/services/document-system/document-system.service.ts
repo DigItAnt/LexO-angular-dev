@@ -145,7 +145,13 @@ export class DocumentSystemService {
 
 
   testConvert(parameters) : Observable<any> {
-    return this.http.post('/leiden_demo/', parameters).pipe(
+    return this.http.post('/leiden_itant/', parameters).pipe(
+      timeout(10000)
+    );
+  }
+
+  testConvertItAnt(parameters) : Observable<any> {
+    return this.http.post('/leiden_itant/', parameters).pipe(
       timeout(10000)
     );
   }

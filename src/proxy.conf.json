@@ -17,7 +17,7 @@
         "changeOrigin": true,
         "logLevel": "debug"
     },
-    "/leiden/*": {
+    "/leiden_*/*": {
         "target": "https://digitant.ilc.cnr.it",
         "secure": false,
         "changeOrigin": true,

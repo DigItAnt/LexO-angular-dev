@@ -33,6 +33,11 @@ export class ConceptService {
 
   constructor(private http: HttpClient, private auth: AuthService) { }
 
+
+  getLexicalIRI(){
+    return this.lexicalIRI;
+  }
+
   deleteRequest(request? : any) {
     this._deleteConceptSetReq.next(request);
   }
@@ -66,5 +71,21 @@ export class ConceptService {
 
   deleteConceptSet(conceptSetID) : Observable<any> {
     return this.http.get(this.baseUrl + "lexicon/delete/conceptSet?key="+this.key + "&id="+encodeURIComponent(conceptSetID));
+  }
+
+  deleteLexicalConcept(lexicalConceptID) : Observable<any> {
+    return this.http.get(this.baseUrl + "lexicon/delete/lexicalConcept?key="+this.key + "&id="+encodeURIComponent(lexicalConceptID));
+  }
+
+  updateSkosLabel(parameters) : Observable<any> {
+    return this.http.post(this.baseUrl + "skos/updateLexicalLabel?key="+this.key, parameters);
+  }
+
+  updateSchemeProperty(parameters) : Observable<any> {
+    return this.http.post(this.baseUrl + "skos/updateSchemeProperty?key="+this.key, parameters);
+  }
+
+  updateSemanticRelation(parameters) : Observable<any> {
+    return this.http.post(this.baseUrl + "skos/updateSemanticRelation?key="+this.key, parameters);
   }
 }
