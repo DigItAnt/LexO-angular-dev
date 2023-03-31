@@ -348,7 +348,7 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
         console.log(evt.selectedItems[0])
 
         let entity = evt.selectedItems[0].value['lexicalEntry'];
-        let label = evt.selectedItems[0].value['lemma'];
+        let label = evt.selectedItems[0].value['label'];
         this.onChangeIsEvokedBy({ name: entity, i: i, label: label })
       }
     }
@@ -361,7 +361,7 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
         console.log(evt.selectedItems[0])
 
         let entity = evt.selectedItems[0].value['sense'];
-        let label = evt.selectedItems[0].value['label'];
+        let label = evt.selectedItems[0].value['lemma'];
         this.onChangeLexicalizedSense({ name: entity, i: i, label: label })
       }
     }
@@ -435,9 +435,9 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
         currentValue: oldValue
       }
 
-      let senseId = this.object.sense;
+      let conceptId = this.object.lexicalConcept;
       console.log(parameters)
-      this.lexicalService.updateLinguisticRelation(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
+      this.lexicalService.updateLinguisticRelation(conceptId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           console.log(data);
           this.lexicalService.spinnerAction('off');
@@ -453,7 +453,7 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
           this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
           if (error.status == 200) {
-            this.toastr.success('Lexical Concept changed correctly for ' + senseId, '', {
+            this.toastr.success('Lexical Concept changed correctly for ' + conceptId, '', {
               timeOut: 5000,
             });
           } else {
@@ -511,7 +511,7 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
             this.toastr.success('Lexicalized sense added correctly for ' + conceptId, '', {
               timeOut: 5000,
             });
-            this.lexicalizedSensesArray.at(index).get('label').setValue(data.lemma, { emitEvent: false });
+            this.lexicalizedSensesArray.at(index).get('label').setValue(data.label, { emitEvent: false });
             this.lexicalizedSensesArray.at(index).get('entity').setValue(data.name, { emitEvent: false });
             this.lexicalizedSensesArray.at(index).get('type').setValue('internal', { emitEvent: false });
             this.lexicalizedSensesArray.at(index).get('inferred').setValue(false, { emitEvent: false });
@@ -541,10 +541,10 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
         value: newValue,
         currentValue: oldValue
       }
-
-      let senseId = this.object.sense;
+      let raw_data = data;
+      let conceptId = this.object.lexicalConcept;
       console.log(parameters)
-      this.lexicalService.updateLinguisticRelation(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
+      this.lexicalService.updateLinguisticRelation(conceptId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           console.log(data);
           this.lexicalService.spinnerAction('off');
@@ -553,14 +553,14 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
           this.lexicalService.refreshAfterEdit(data);
         }, error => {
           console.log(error)
-          const data = this.object;
+          const data = raw_data;
           data['request'] = 0;
 
           //this.lexicalService.refreshAfterEdit(data);
           this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
           if (error.status == 200) {
-            this.toastr.success('Lexicalized sense changed correctly for ' + senseId, '', {
+            this.toastr.success('Lexicalized sense changed correctly for ' + conceptId, '', {
               timeOut: 5000,
             });
             this.lexicalizedSensesArray.at(index).get('label').setValue(data.label, { emitEvent: false });

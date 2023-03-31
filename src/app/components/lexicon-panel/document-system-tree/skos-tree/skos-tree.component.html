@@ -11,9 +11,9 @@
     </div>
     <div id="buttons-container" class="input-group-append">
 
-      <button class="btn btn-sm btn-secondary btn-block filter-button" type="button" value="Filter" title="Filter"
+      <!-- <button class="btn btn-sm btn-secondary btn-block filter-button" type="button" value="Filter" title="Filter"
         data-toggle="collapse" data-target="#conceptFilterCollapse" aria-expanded="false"
-        aria-controls="conceptFilterCollapse"><i class="fa fa-filter"></i></button>
+        aria-controls="conceptFilterCollapse"><i class="fa fa-filter"></i></button> -->
       <button class="btn btn-sm btn-danger btn-block reset-button" type="button" value="Reset" title="Reset"
         (click)="resetFields();" style="border-top-right-radius: .25rem; border-bottom-right-radius: .25rem;"><i
           class="fa fa-times"></i></button>
@@ -27,7 +27,7 @@
     <div class="col-md-6 col-sm-6">
       <div class="form-check">
         <input formControlName="search_mode" class="form-check-input" type="radio" name="search_mode" id="startsRadio"
-          value="starts">
+          value="startsWith">
         <label class="form-check-label" for="startsRadio">
           Starts
         </label>

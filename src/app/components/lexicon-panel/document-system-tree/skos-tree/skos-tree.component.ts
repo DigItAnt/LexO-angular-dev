@@ -126,7 +126,7 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
     
     this.skosFilterForm = this.formBuilder.group({
       search_text: new FormControl(null),
-      search_mode: new FormControl('starts')
+      search_mode: new FormControl('startsWith')
     })
     this.onChanges();
     this.initialValues = this.skosFilterForm.value
@@ -423,18 +423,40 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
     let search_text = newPar.search_text != null ? newPar.search_text : '';
     this.searchIconSpinner = true;
     let parameters = {
-      "requestUUID": "string",
-      "contains": newPar.search_mode == 'contains' ? true : false,
-      "metadata": {},
-      "search-text": search_text,
-      "start-with": newPar.search_mode == 'start' ? true : false,
-      "user-id": 0,
-      "exact-date": newPar.date_mode == 'exact' ? true : false,
-      "from-date": newPar.date_mode == 'from' ? true : false,
-      "util-date": newPar.date_mode == 'until' ? true : false
-    };
+      text: search_text,
+      searchMode: newPar.search_mode,
+      labelType: "prefLabel",
+      author: "",
+      offset: 0,
+      limit: 500
+    }
 
-    console.log(parameters)
+    this.conceptService.conceptFilter(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+      data => {
+        console.log(data)
+
+        if (data.list.length > 0) {
+          let filter_lang = [];
+          filter_lang = data.list.filter(
+            element => element.language != 'null'
+          )
+
+          filter_lang.forEach(
+            el=> el['hasChildren'] = true
+          )
+
+          console.log(filter_lang)
+          this.nodes = filter_lang;
+          
+        } 
+
+      }, error => {
+        console.log(error)
+        
+      }
+    )
+
+    
     this.searchIconSpinner = false;
 
 
