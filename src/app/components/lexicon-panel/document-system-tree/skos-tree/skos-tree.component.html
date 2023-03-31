@@ -99,13 +99,51 @@
   <context-menu>
 
     <!-- FOLDER CONTEXT MENU -->
-    <ng-template contextMenuItem let-item [visible]="isConceptSet" (execute)="addLexicalConcept($event.item, 'conceptSet')">
-      Add Lexical Concept (child)
-    </ng-template>
+    
 
     <ng-template contextMenuItem let-item [visible]="isLexicalConcept" (execute)="addLexicalConcept($event.item, 'lexicalConcept')">
       Add Lexical Concept (child)
     </ng-template>
+
+
+    <ng-template contextMenuItem let-item [visible]="isLexicalConcept" (execute)="deleteLexicalConcept($event.item)">
+      Delete Lexical Concept
+
+     
+    </ng-template>
     
   </context-menu>
 </div>
+
+
+<ng-template #lexicalConceptRemoverModal let-modal *ngIf="nodeToRemove != null">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Profile update</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.close('')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    You want to delete only {{nodeToRemove.defaultLabel}} or ALL their children?
+
+    <form [formGroup]="processRequestForm">
+      <div class="form-check">
+        <input class="form-check-input" type="radio" formControlName="oneOrAll" id="onlyOne" value="one" checked>
+        <label class="form-check-label" for="onlyOne">
+          Delete only {{nodeToRemove.defaultLabel}}
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" formControlName="oneOrAll" id="allChildren" value="all">
+        <label class="form-check-label" for="allChildren">
+          Delete {{nodeToRemove.defaultLabel}} and all their children
+        </label>
+      </div>
+    </form>
+    
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close('')">Cancel</button>
+    <button type="button" class="btn btn-danger" (click)="processRequest(); modal.close()">Yes</button>
+  </div>
+</ng-template>

@@ -21,7 +21,7 @@
     </div>
   </div>
 
-  <div class="d-flex flex-wrap mt-3">
+  <!-- <div class="d-flex flex-wrap mt-3">
     <div class="col-md-6 col-sm-3">
       <div class="form-check">
         <input formControlName="search_mode" class="form-check-input" type="radio" name="search_mode" id="startRadio"
@@ -40,9 +40,9 @@
         </label>
       </div>
     </div>
-  </div>
+  </div> -->
 
-  <div class="collapse multi-collapse" id="metadataFilterCollapse">
+  <!-- <div class="collapse multi-collapse" id="metadataFilterCollapse">
 
     <div class="d-flex flex-wrap mt-3">
       <div class="col-md-12">
@@ -74,7 +74,7 @@
 
       </div>
     </div>
-  </div>
+  </div> -->
 </form>
 
 
@@ -166,6 +166,9 @@
     <ng-template contextMenuItem let-item [visible]="isFile" (execute)="downloadFile($event.item)">
       Download File
     </ng-template>
+    <ng-template contextMenuItem let-item [visible]="isFile " (execute)="triggerFileMetadataUploader($event.item)">
+      Upload File Metadata
+    </ng-template>
 
     <!-- <ng-template contextMenuItem [visible]="enableMetadata" divider="true"></ng-template> -->
     <!-- METADATA -->
@@ -206,6 +209,7 @@
   </ng-container>
 </app-modal>
 <input #uploadFile type="file" onclick="this.value = null" accept=".xml" hidden (change)="addFile($event)" multiple>
+<input #updateFileMetadata type="file" onclick="this.value = null" accept=".xml" hidden (change)="updateFileMetadataHandler($event)">
 
 <!-- <app-modal #renameFolderModel class="add_languages_modal">
   <ng-container class="app-modal-header"></ng-container>

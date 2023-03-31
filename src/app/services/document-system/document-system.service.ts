@@ -128,9 +128,9 @@ export class DocumentSystemService {
     return this.http.post(this.baseUrl_document + "crud/deleteMetadata", parameters)
   }
 
-  //POST ​/api​/crud​/searchFiles --> move file to another folder
+  //POST ​/api​/public/search --> move file to another folder
   searchFiles(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "public/searchFiles", parameters)
+    return this.http.post(this.baseUrl_document + "public/search", parameters)
   }
 
   //POST ​/api​/crud​/createFile --> create file
@@ -154,5 +154,9 @@ export class DocumentSystemService {
     return this.http.post('/leiden_itant/', parameters).pipe(
       timeout(10000)
     );
+  }
+
+  updateFileMetadata(parameters, element_id, request_uuid): Observable<any> {
+    return this.http.post(this.baseUrl_document + "crud/updateFileMetadata?requestUUID="+request_uuid+"&element-id="+element_id+"", parameters)
   }
 }

@@ -68,6 +68,9 @@ export class LinkPanelComponent implements OnInit, OnDestroy {
       } else if (this.object.etymology != undefined) {
         lexicalElementId = this.object.etymology;
         instanceNameType = 'etymology'
+      } else if(this.object.lexicalConcept != undefined) {
+        lexicalElementId = this.object.lexicalConcept;
+        instanceNameType = 'lexicalConcept'
       }
       /* //console.log(changes.linkData.currentValue) */
 
@@ -94,7 +97,7 @@ export class LinkPanelComponent implements OnInit, OnDestroy {
           this.sameAsData['type'] = this.object.type;
           console.log(e);
         }else{
-          this.toastr.info(e.error.text, 'Info', {timeOut: 5000})
+          //this.toastr.info(e.error.text, 'Info', {timeOut: 5000})
         }
         
       }
@@ -115,15 +118,18 @@ export class LinkPanelComponent implements OnInit, OnDestroy {
       
 
       //console.log(this.object)
-      this.object.links.forEach(element => {
-        if(element.type != undefined){
-          if(element.type == 'Reference'){
-            element.elements.forEach(sub => {
-              this.counterElement += sub.count;
-            });
+      if(this.object.links != undefined){
+        this.object.links.forEach(element => {
+          if(element.type != undefined){
+            if(element.type == 'Reference'){
+              element.elements.forEach(sub => {
+                this.counterElement += sub.count;
+              });
+            }
           }
-        }
-      });
+        });
+      }
+      
     
       
     }else{

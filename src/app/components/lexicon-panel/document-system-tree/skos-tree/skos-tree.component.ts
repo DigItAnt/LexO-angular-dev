@@ -1,10 +1,12 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder } from '@angular/forms';
 import { IActionMapping, TREE_ACTIONS, KEYS, ITreeState, ITreeOptions, TreeModel, TreeNode } from '@circlon/angular-tree-component';
+import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ContextMenuComponent } from 'ngx-contextmenu';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, takeUntil, tap, timeout } from 'rxjs/operators';
+import { BibliographyService } from 'src/app/services/bibliography-service/bibliography.service';
 import { ConceptService } from 'src/app/services/concept/concept.service';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
@@ -57,6 +59,7 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
 
   state!: ITreeState;
   @ViewChild('skosTree') skosTree: any;
+  @ViewChild('lexicalConceptRemoverModal') lexicalConceptRemoverModal;
   @ViewChild(ContextMenuComponent) public skosMenu: ContextMenuComponent;
 
   selectedNodeId;
@@ -78,6 +81,10 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
   modalShow: boolean;
   limit: any;
 
+  processRequestForm : FormGroup;
+
+  nodeToRemove : any;
+
   options: ITreeOptions = {
     getChildren: this.getChildren.bind(this),
     actionMapping,
@@ -95,6 +102,8 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
       name: `copy of ${node.data.name}`
     })
   };
+  
+  
 
   constructor(private element: ElementRef,
     private formBuilder: FormBuilder,
@@ -102,9 +111,18 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
     private conceptService: ConceptService,
     private expander: ExpanderService,
     private toastr: ToastrService,
+    private biblioService : BibliographyService,
+    private modalService: NgbModal,
+
   ) { }
 
   ngOnInit(): void {
+
+    this.processRequestForm = this.formBuilder.group(
+      {
+        oneOrAll : new FormControl('one'),
+      }
+    )
     
     this.skosFilterForm = this.formBuilder.group({
       search_text: new FormControl(null),
@@ -122,12 +140,20 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
 
       }
     )
+
+    this.conceptService.addSubReq$.subscribe(
+      signal => {
+
+        if (signal != null) {
+          this.addSubElement(signal)
+        }
+      }
+    )
   }
 
 
   onChanges() {
 
-    //TODO: filtri
     this.skosFilterForm.valueChanges.pipe(debounceTime(500), takeUntil(this.destroy$)).subscribe(searchParams => {
       console.log(searchParams)
       this.searchFilter(searchParams)
@@ -138,12 +164,13 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
     console.log($event);
 
     if ($event.eventName == 'activate' &&
-      $event.node.data.conceptSet != undefined &&
-      this.selectedNodeId != $event.node.data.conceptSet) {
+      $event.node.data.conceptSet != undefined /* &&
+      this.selectedNodeId != $event.node.data.conceptSet */) {
 
-      setTimeout(() => {
+      /* setTimeout(() => {
         this.selectedNodeId = $event.node.data.conceptSet;
         this.lexicalService.sendToCoreTab($event.node.data);
+        this.lexicalService.sendToRightTab($event.node.data);
         this.lexicalService.updateCoreCard({ lastUpdate: $event.node.data['lastUpdate'], creationDate: $event.node.data['creationDate'] })
         if (!this.expander.isEditTabOpen() && !this.expander.isEpigraphyTabOpen()) {
           if (!this.expander.isEditTabExpanded() && !this.expander.isEpigraphyTabExpanded()) {
@@ -157,30 +184,45 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
             this.expander.openCollapseEdit(true)
           }
         }
-      }, 10);
+      }, 10); */
     } else if ($event.eventName == 'activate' &&
-      $event.node.data.lexicalConcept != undefined &&
-      this.selectedNodeId != $event.node.data.lexicalConcept) {
+      $event.node.data.lexicalConcept != undefined /* &&
+      this.selectedNodeId != $event.node.data.lexicalConcept */) {
 
+      let instance = $event.node.data.lexicalConcept;
+      this.conceptService.getLexicalConceptData(instance).pipe(takeUntil(this.destroy$)).subscribe(
+        data=> {
+          this.selectedNodeId = data.lexicalConcept;
+          this.lexicalService.sendToCoreTab(data);
+          this.lexicalService.sendToRightTab(data);
+          console.log(data)
+          this.lexicalService.updateCoreCard({ lastUpdate: data['lastUpdate'], creationDate: $event.node.data['creationDate'] })
+          if (!this.expander.isEditTabOpen() && !this.expander.isEpigraphyTabOpen()) {
+            if (!this.expander.isEditTabExpanded() && !this.expander.isEpigraphyTabExpanded()) {
 
-      setTimeout(() => {
-        this.selectedNodeId = $event.node.data.lexicalConcept;
-        this.lexicalService.sendToCoreTab($event.node.data);
-        this.lexicalService.updateCoreCard({ lastUpdate: $event.node.data['lastUpdate'], creationDate: $event.node.data['creationDate'] })
-        if (!this.expander.isEditTabOpen() && !this.expander.isEpigraphyTabOpen()) {
-          if (!this.expander.isEditTabExpanded() && !this.expander.isEpigraphyTabExpanded()) {
-
-            this.expander.expandCollapseEdit(true);
-            this.expander.openCollapseEdit(true);
+              this.expander.expandCollapseEdit(true);
+              this.expander.openCollapseEdit(true);
+            }
+          } else if (!this.expander.isEditTabOpen() && this.expander.isEpigraphyTabOpen()) {
+            if (!this.expander.isEditTabExpanded() && this.expander.isEpigraphyTabExpanded()) {
+              this.expander.expandCollapseEpigraphy(false);
+              this.expander.openCollapseEdit(true)
+            }
           }
-        } else if (!this.expander.isEditTabOpen() && this.expander.isEpigraphyTabOpen()) {
-          if (!this.expander.isEditTabExpanded() && this.expander.isEpigraphyTabExpanded()) {
-            this.expander.expandCollapseEpigraphy(false);
-            this.expander.openCollapseEdit(true)
+
+          if (data.note != undefined) {
+            if (data.note != "") {
+              this.lexicalService.triggerNotePanel(true);
+            } else {
+              this.lexicalService.triggerNotePanel(false);
+            }
           }
+        },
+        
+        error=>{
+          console.log(error)
         }
-      }, 10);
-
+      );
     }
   }
 
@@ -200,25 +242,58 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
       
 
       let node_source = $event.node.lexicalConcept;
-      let node_target = $event.to.parent.lexicalConcept != undefined ? $event.to.parent.lexicalConcept : $event.to.parent.conceptSet;
-      /* let parameters = {
-        "requestUUID": "string",
-        "user-id": 0,
-        "element-id": element_id,
-        "target-id": target_id
-      } */
+      let node_target = $event.to.parent.lexicalConcept;
 
+      let parameters = {
+        relation : "http://www.w3.org/2004/02/skos/core#narrower",
+        source : node_source,
+        target : node_target
+      }
 
-      /* this.documentService.moveFolder(parameters).subscribe(
-        data=>{
-          this.toastr.info('Folder '+ evt.node['name'] +' moved', '', {
-            timeOut: 5000,
-          });
-          //console.log(data);
-        },error=>{
-          console.log(error)
+      if(node_target != undefined){
+        this.conceptService.updateSemanticRelation(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+          next=>{
+            console.log(next);
+          },error=>{
+            console.log(error);
+            if(error.status == 200){
+              this.toastr.success('Lexical concept moved', '', {timeOut : 5000})
+            }else{
+              this.toastr.error(error.error, '', {timeOut : 5000})
+            }
+          },()=>{
+            console.log('complete')
+          }
+        )
+      }else{
+        let from_node = $event.from.parent.lexicalConcept;
+
+        let parameters = {
+          relation : "http://www.w3.org/2004/02/skos/core#narrower",
+          value : from_node,
+
         }
-      ) */
+
+        if(from_node != undefined){
+          this.conceptService.deleteRelation(node_source, parameters).pipe(takeUntil(this.destroy$)).subscribe(
+            data=>{
+              console.log(data);
+              this.toastr.success('Lexical Concept moved', '', {timeOut : 5000})
+            },
+            error=>{
+              console.log(error);
+              if(error.status == 200){
+                this.toastr.success('Lexical Concept moved', '', {timeOut : 5000})
+              }else{
+                this.toastr.error('Error on moving Lexical Concept')
+              }
+            }
+          )
+        }
+        
+      }
+
+      
     }
 
   }
@@ -228,14 +303,14 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
     let rootConceptSets = [];
     let tmp = [];
 
-    try {
+    /* try {
       conceptSets = await this.conceptService.getConceptSets().toPromise().then(
         response => response.list
       );
 
     } catch (error) {
       console.log(error)
-    }
+    } */
 
 
     try {
@@ -248,12 +323,12 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
     }
 
 
-    if (conceptSets.length > 0) {
+    /* if (conceptSets.length > 0) {
       conceptSets.map(
         element => element['hasChildren'] = true
       )
       this.nodes = conceptSets;
-    }
+    } */
 
     if (rootConceptSets.length > 0 && conceptSets.length == 0) {
       rootConceptSets.map(
@@ -406,6 +481,154 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
 
   }
 
+ 
+
+  processRequest(){
+    
+    let request = this.processRequestForm.get('oneOrAll').value;
+    if(request == 'one'){
+      this.deleteLexicalConcept(this.nodeToRemove, true);
+    }else{
+      this.deleteLexicalConceptRecursive(this.nodeToRemove)
+      return;
+      
+    }
+  }
+  
+  deleteLexicalConceptRecursive(item){
+    
+    let lexicalConceptID = item.lexicalConcept;
+    this.searchIconSpinner = true;
+
+    this.conceptService.deleteLexicalConcept(lexicalConceptID, true).pipe(takeUntil(this.destroy$)).subscribe(
+      data=> {
+        console.log(data)
+      },error=>{
+        console.log(error);
+        if(error.status != 200){
+          this.toastr.error(error.error, 'Error', {
+            timeOut: 5000,
+          });
+        }else{
+          this.toastr.success(lexicalConceptID + ' and all his children deleted correctly', '', {
+            timeOut: 5000,
+          });
+          this.searchIconSpinner = false;
+          this.conceptService.deleteRequest(item);
+          this.lexicalService.sendToCoreTab(null);
+          this.lexicalService.sendToRightTab(null);
+          this.biblioService.sendDataToBibliographyPanel(null);
+
+          this.expander.expandCollapseEdit(false);
+          this.expander.openCollapseEdit(false)
+          if (this.expander.isEpigraphyOpen) {
+            this.expander.expandCollapseEpigraphy();
+          }
+          this.nodeToRemove = null;
+        }
+      }
+    )
+  }
+
+  deleteLexicalConcept(item, force?){
+    
+    let lexicalConceptID = item.lexicalConcept;
+    this.searchIconSpinner = true;
+
+    if(item.children != undefined && item.children.length > 0 && (force == undefined)){
+      this.nodeToRemove = item;
+      setTimeout(() => {
+        this.modalService.open(this.lexicalConceptRemoverModal, {centered: true})
+
+      }, 1000);
+      
+    }else if(item.children == undefined && (force == undefined)){
+      this.conceptService.getLexicalConcepts(lexicalConceptID).pipe(takeUntil(this.destroy$)).subscribe(
+        data=>{
+          console.log(data);
+          
+          if(data!= undefined){
+            if(data.list.length > 0){
+              this.nodeToRemove = item;
+              setTimeout(() => {
+                this.modalService.open(this.lexicalConceptRemoverModal, {centered: true})
+
+              }, 100);
+            }else{
+              this.conceptService.deleteLexicalConcept(lexicalConceptID).pipe(takeUntil(this.destroy$)).subscribe(
+                data=> {
+                  console.log(data)
+                },error=>{
+                  console.log(error);
+                  if(error.status != 200){
+                    this.toastr.error(error.error, 'Error', {
+                      timeOut: 5000,
+                    });
+                  }else{
+                    this.toastr.success(lexicalConceptID + 'deleted correctly', '', {
+                      timeOut: 5000,
+                    });
+                    this.searchIconSpinner = false;
+                    this.conceptService.deleteRequest(item);
+                    this.lexicalService.sendToCoreTab(null);
+                    this.lexicalService.sendToRightTab(null);
+                    this.biblioService.sendDataToBibliographyPanel(null);
+          
+                    this.expander.expandCollapseEdit(false);
+                    this.expander.openCollapseEdit(false)
+                    if (this.expander.isEpigraphyOpen) {
+                      this.expander.expandCollapseEpigraphy();
+                    }
+                  }
+                }
+              )
+            }
+          }
+          
+        },error=>{
+          console.log(error);
+          if(error.status == 200){
+            setTimeout(() => {
+              this.modalService.open(this.lexicalConceptRemoverModal, {centered: true})
+
+            }, 100);
+          }else{
+            this.toastr.error(error.error, 'Error', {timeOut : 5000})
+          }
+        }
+      )
+    }else{
+      this.conceptService.deleteLexicalConcept(lexicalConceptID).pipe(takeUntil(this.destroy$)).subscribe(
+        data=> {
+          console.log(data)
+        },error=>{
+          console.log(error);
+          if(error.status != 200){
+            this.toastr.error(error.error, 'Error', {
+              timeOut: 5000,
+            });
+          }else{
+            this.toastr.success(lexicalConceptID + 'deleted correctly', '', {
+              timeOut: 5000,
+            });
+            this.searchIconSpinner = false;
+            this.conceptService.deleteRequest(item);
+            this.lexicalService.sendToCoreTab(null);
+            this.lexicalService.sendToRightTab(null);
+            this.biblioService.sendDataToBibliographyPanel(null);
+  
+            this.expander.expandCollapseEdit(false);
+            this.expander.openCollapseEdit(false)
+            if (this.expander.isEpigraphyOpen) {
+              this.expander.expandCollapseEpigraphy();
+            }
+          }
+        }
+      )
+    }
+    
+  }
+
   skosDeleteRequest(signal?) {
 
 
@@ -433,7 +656,7 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
 
           this.skosTree.treeModel.update()
           setTimeout(() => {
-            this.counter = this.skosTree.treeModel.nodes.lenght;
+            this.counter = this.skosTree.treeModel.nodes.length;
           }, 1000);
 
           return true;
@@ -449,10 +672,56 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
 
   }
 
+  addSubElement(signal?) {
+
+    setTimeout(() => {
+      let instanceName;
+      let lex = signal.lex;
+      let data = signal.data;
+      console.log(lex)
+      console.log(data)
+      
+      this.skosTree.treeModel.getNodeBy(x => {
+        if (lex.lexicalConcept != undefined) {
+          if (x.data.lexicalConcept === lex.lexicalConcept) {
+            if (x.data.children == undefined) {
+              x.data.children = [];
+              x.data.children.push(data);
+              x.expand();
+              
+              this.skosTree.treeModel.update();
+              this.skosTree.treeModel.getNodeBy(y => {
+                if (y.data.lexicalConcept != undefined && y.data.lexicalConcept === data.lexicalConcept) {
+                  y.setActiveAndVisible();
+                }
+              })
+              
+              return true;
+            } else {
+              x.data.children.push(data);
+              x.expand();
+              this.skosTree.treeModel.update();
+              this.skosTree.treeModel.getNodeBy(y => {
+                if (y.data.lexicalConcept != undefined && y.data.lexicalConcept === data.lexicalConcept) {
+                  y.setActiveAndVisible();
+                }
+              })
+              return true;
+            }
+          } else {
+            return false;
+          }
+        } else {
+          return false;
+        }
+      })
+    }, 300);
+  }
+
   addLexicalConcept(parentNode: any, type : string) {
 
     if(parentNode){
-      let relation = type == 'conceptSet' ? "http://www.w3.org/2004/02/skos/core#inScheme" : "http://www.w3.org/2004/02/skos/core#narrower";
+      let relation = "http://www.w3.org/2004/02/skos/core#narrower";
       
       this.conceptService.createNewLexicalConcept().pipe(takeUntil(this.destroy$)).subscribe(
         data => {
@@ -464,8 +733,8 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
             
             let parameters = {
               relation : relation,
-              source : data['defaultLabel'],
-              target : parentNode['defaultLabel']
+              source : data['lexicalConcept'],
+              target : parentNode['lexicalConcept']
             }
 
             data['hasChildren'] = true;  

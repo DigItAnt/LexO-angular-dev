@@ -773,6 +773,53 @@ export class CoreTabComponent implements OnInit, OnDestroy {
 
   }
 
+  addLexicalConcept(){
+    this.searchIconSpinner = true;
+    this.object['request'] = 'lexicalConcept';
+
+    this.conceptService.createNewLexicalConcept().pipe(takeUntil(this.destroy$)).subscribe(
+      data=>{
+        if (data['creator'] == this.object.creator) {
+          data['flagAuthor'] = false;
+        } else {
+          data['flagAuthor'] = true;
+        }
+
+        let parameters = {
+          relation : "http://www.w3.org/2004/02/skos/core#narrower",
+          source : data['lexicalConcept'],
+          target : this.object['lexicalConcept']
+        }
+        this.conceptService.updateSemanticRelation(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+          data=> {
+            console.log(data);
+          },error=>{
+            console.log(error);
+            if(error.status == 200){
+              data['children'] = undefined;
+              data['hasChildren'] = true;
+              this.conceptService.addSubElementRequest({ 'lex': this.object, 'data': data });
+              this.searchIconSpinner = false;
+              this.toastr.success('Lexical Concept added correctly', '', {
+                timeOut: 5000,
+              });
+            }else{
+              this.toastr.error(error.error, 'Error', {
+                timeOut: 5000,
+              });
+            }
+          }
+        );
+
+      },error=> {
+        this.searchIconSpinner = false;
+        this.toastr.error(error.error, 'Error', {
+          timeOut: 5000,
+        });
+      }
+    )
+  }
+
   addNewSense() {
     this.searchIconSpinner = true;
     this.object['request'] = 'sense'

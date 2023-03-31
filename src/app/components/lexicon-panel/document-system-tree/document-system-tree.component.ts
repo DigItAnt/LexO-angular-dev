@@ -847,7 +847,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
       data=>{
         console.log(data);
         if (data != undefined) {
-          this.toastr.info('New Concept Set added', '', {
+          this.toastr.info('New Lexical Concept added', '', {
             timeOut: 5000,
           });
           data['hasChildren'] = true;

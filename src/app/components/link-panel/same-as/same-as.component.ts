@@ -291,7 +291,9 @@ export class SameAsComponent implements OnInit, OnDestroy {
       } catch (e) {
         console.log(e)
         if (e.status == 200) {
-          this.memorySameAs.push(selectedValues)
+          this.memorySameAs.push(selectedValues);
+          this.sameAsArray.at(index).get('entity').setValue(selectedValues, {emitEvent: false});
+          this.sameAsArray.at(index).get('inferred').setValue(true, {emitEvent: false})
           this.toastr.success('SeeAlso updated', '', {
             timeOut: 5000,
           });

@@ -28,11 +28,16 @@ export class ConceptService {
   private lexicalPrefix = 'lex'
 
   private _deleteConceptSetReq: BehaviorSubject<any> = new BehaviorSubject(null);
-  deleteSkosReq$ = this._deleteConceptSetReq.asObservable();
+  private _addSubElementReq: BehaviorSubject<any> = new BehaviorSubject(null);
 
+  deleteSkosReq$ = this._deleteConceptSetReq.asObservable();
+  addSubReq$ = this._addSubElementReq.asObservable();
 
   constructor(private http: HttpClient, private auth: AuthService) { }
 
+  addSubElementRequest(request?: any){
+    this._addSubElementReq.next(request);
+  }
 
   getLexicalIRI(){
     return this.lexicalIRI;
@@ -54,6 +59,10 @@ export class ConceptService {
     return this.http.get(this.baseUrl + "lexicon/data/lexicalConcepts?id="+encodeURIComponent(instance));
   }
 
+  getLexicalConceptData(instance : string) : Observable<any>{
+    return this.http.get(this.baseUrl + "lexicon/data/lexicalConcept?id="+encodeURIComponent(instance));
+  }
+
   createNewConceptSet(): Observable<any> {
     this.author = this.auth.getUsername();
     return this.http.get(this.baseUrl + "lexicon/creation/conceptSet?key="+this.key+"&author="+this.author+"&prefix="+encodeURIComponent(this.lexicalPrefix)+"&baseIRI="+encodeURIComponent(this.lexicalIRI));
@@ -73,8 +82,12 @@ export class ConceptService {
     return this.http.get(this.baseUrl + "lexicon/delete/conceptSet?key="+this.key + "&id="+encodeURIComponent(conceptSetID));
   }
 
-  deleteLexicalConcept(lexicalConceptID) : Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/delete/lexicalConcept?key="+this.key + "&id="+encodeURIComponent(lexicalConceptID));
+  deleteLexicalConcept(lexicalConceptID, recursive?) : Observable<any> {
+    if(recursive == undefined){
+      return this.http.get(this.baseUrl + "lexicon/delete/lexicalConcept?key="+this.key + "&id="+encodeURIComponent(lexicalConceptID)+"&recursive=false");
+    }else{
+      return this.http.get(this.baseUrl + "lexicon/delete/lexicalConcept?key="+this.key + "&id="+encodeURIComponent(lexicalConceptID)+"&recursive=true");
+    }
   }
 
   updateSkosLabel(parameters) : Observable<any> {
@@ -87,5 +100,17 @@ export class ConceptService {
 
   updateSemanticRelation(parameters) : Observable<any> {
     return this.http.post(this.baseUrl + "skos/updateSemanticRelation?key="+this.key, parameters);
+  }
+
+  updateNoteProperty(parameters) : Observable<any> {
+    return this.http.post(this.baseUrl + "skos/updateNoteProperty?key="+this.key, parameters);
+  }
+
+  deleteRelation(instance, parameters) : Observable<any> {
+    return this.http.post(this.baseUrl + "lexicon/delete/relation?key="+this.key+"&id="+encodeURIComponent(instance), parameters);
+  }
+
+  conceptFilter(parameters: any): Observable<any> {
+    return this.http.post(this.baseUrl + "lexicon/data/filteredLexicalConcepts", parameters);
   }
 }

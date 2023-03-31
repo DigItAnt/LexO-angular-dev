@@ -148,6 +148,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
 /*   @ViewChild('renameFolderInput') renameFolder_input:ElementRef; 
   @ViewChild('renameFileInput') renameFile_input:ElementRef;  */
   @ViewChild('uploadFile') uploadFile_input:ElementRef; 
+  @ViewChild('updateFileMetadata') updateFileMetadata_input:ElementRef; 
   @ViewChild('renameNodeInput') renameNode_input:ElementRef; 
   /* @ViewChild('renameFolderModel', {static: false}) renameFolderModal: ModalComponent; */
   @ViewChild('editMetadata', {static: false}) editMetadataModal: ModalComponent;
@@ -875,10 +876,74 @@ export class TextTreeComponent implements OnInit, OnDestroy {
     
   }
 
+  updateFileMetadataHandler(evt){
+    console.log(evt)
+    let element_id = this.updateFileMetadata_input.nativeElement['element-id'];
+
+    this.treeText.treeModel.getNodeBy(x => {
+      if(x.data['element-id'] === element_id){
+        //console.log(x)
+        if(x.parent.data['element-id'] == undefined){
+          element_id = 0;
+        } 
+      }
+    })    
+
+    if(evt.target.files != undefined){
+      
+      const formData = new FormData();
+      formData.append('file', evt.target.files[0])
+      this.documentService.updateFileMetadata(formData, element_id, 11).pipe(takeUntil(this.destroy$)).subscribe(
+        data=>{
+          console.log(data)
+          let metadata = data.node.metadata;
+          metadata['path'] = data.node.path;
+          metadata['element-id'] = data.node['element-id'];
+          if(metadata != undefined && Object.keys(metadata).length > 5){
+            this.documentService.sendToMetadataPanel(metadata);
+            this.documentService.triggerMetadataPanel(true)
+          }else{
+            this.documentService.sendToMetadataPanel(null);
+            this.documentService.triggerMetadataPanel(false)
+          }
+          this.toastr.info('Metadata file updated', 'Info', {timeOut : 5000})
+          this.treeText.treeModel.getNodeBy(x => {
+            if(x.data['element-id'] === this.updateFileMetadata_input.nativeElement['element-id']){
+              
+              //this.treeText.treeModel.getNodeById(data.node['element-id']).setActiveAndVisible();
+              x.setActiveAndVisible();
+            }
+          })    
+          
+          
+          
+        },error=>{
+          console.log(error);
+          if(error.status != 200){
+            if(error.error != undefined){
+              this.toastr.error('Change the name of file, there are some files with the same name', 'Error', {timeOut: 5000})
+            }
+          }
+        }
+      )
+      
+    }
+        
+    
+    
+  }
+
   triggerUploader(evt){
     let element_id = evt['element-id']
     this.renderer.setProperty(this.uploadFile_input.nativeElement, 'element-id', element_id)
     this.uploadFile_input.nativeElement.click();
+    
+  }
+
+  triggerFileMetadataUploader(evt){
+    let element_id = evt['element-id']
+    this.renderer.setProperty(this.updateFileMetadata_input.nativeElement, 'element-id', element_id)
+    this.updateFileMetadata_input.nativeElement.click();
     
   }
 
@@ -1516,10 +1581,14 @@ export class TextTreeComponent implements OnInit, OnDestroy {
       viewPort_prova.scrollTop = 0
     }, 300);
 
-    let search_text = newPar.search_text != null ? newPar.search_text : '';
-    let date_pipe = this.datePipe.transform(newPar.import_date, 'yyyy-MM-ddThh:mm:ss.zzzZ')
+    let parameters = [];
+
+    
+
+    //let search_text = newPar.search_text != null ? newPar.search_text : '';
+    //let date_pipe = this.datePipe.transform(newPar.import_date, 'yyyy-MM-ddThh:mm:ss.zzzZ')
     this.searchIconSpinner = true;
-    let parameters = {
+    /* let parameters = {
       "requestUUID" : "string",
       "contains" : newPar.search_mode == 'contains' ? true : false,
       "metadata" : {},
@@ -1530,7 +1599,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
       "exact-date": newPar.date_mode == 'exact' ? true : false,
       "from-date":  newPar.date_mode == 'from' ? true : false,
       "util-date":  newPar.date_mode == 'until' ? true : false
-    };
+    }; */
     
     console.log(parameters)
     

@@ -21,6 +21,7 @@ import { debounceTime, distinctUntilChanged, pairwise, startWith, take, takeUnti
 import { NgSelectComponent } from '@ng-select/ng-select';
 import { LilaService } from 'src/app/services/lila/lila.service';
 import { CognatePanelComponent } from './cognate-panel/cognate-panel.component';
+import { ConceptService } from 'src/app/services/concept/concept.service';
 
 
 @Component({
@@ -111,6 +112,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
     subtermArray: FormArray;
     disableAddCognates = false;
     disableAddDenotes = false;
+    disableAddEvokes = false;
     arrayComponents = [];
 
     denotes_subject_subscription: Subscription;
@@ -119,13 +121,16 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
     get_languages_subscription: Subscription;
     subject_subscription: Subscription;
     private ext_subterm_subject: Subject<any> = new Subject();
+    subject_evokes_search: Subject<any> = new Subject();
+    searchResultsConcepts: any;
 
 
     constructor(private lexicalService: LexicalEntriesService,
         private formBuilder: FormBuilder,
         private toastr: ToastrService,
         private lilaService: LilaService,
-        private factory: ComponentFactoryResolver) {
+        private factory: ComponentFactoryResolver,
+        private conceptService : ConceptService) {
 
     }
 
@@ -143,6 +148,12 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
         this.denotes_subject_subscription = this.denotes_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
             data => {
                 this.onChangeDenotes(data)
+            }
+        )
+
+        this.evokes_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+            data=>{
+                this.onChangeEvokes(data);
             }
         )
 
@@ -197,6 +208,13 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
             }
         )
 
+        this.subject_evokes_search.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+            data => {
+                this.onSearchLexicalConcept(data)
+            }
+        )
+        
+
 
         //this.lexEntryTypesData = await this.lexicalService.getMorphologyData().toPromise();
 
@@ -230,6 +248,15 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
         if (evt.target != undefined) {
 
             this.subject.next({ value: evt.target.value, index: i })
+        }
+    }
+
+
+    triggerEvokes(evt, i) {
+        console.log(evt)
+        if (evt.target != undefined) {
+
+            this.subject_evokes_search.next({ value: evt.target.value, index: i })
         }
     }
 
@@ -373,6 +400,100 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
     }
 
+    onSearchLexicalConcept(data) {
+        this.filterLoading = true;
+        this.searchResults = [];
+
+        let value = data.value;
+        let index = data.index;
+
+        this.evokesArray = this.coreForm.get('evokes') as FormArray;
+
+        if (this.object.lexicalEntry != undefined) {
+            let parameters = {
+                text: value,
+                searchMode: "startsWith",
+                labelType: "prefLabel",
+                author: "",
+                offset: 0,
+                limit: 500
+            }
+
+            /* && data.length >= 3 */
+            this.conceptService.conceptFilter(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+                data => {
+                    console.log(data)
+
+                    if (data.list.length > 0) {
+                        let filter_lang = data.list.filter(
+                            element => element.language != 'null'
+                        )
+    
+                        console.log(filter_lang)
+                        this.searchResults = filter_lang;
+                    } else {
+                        this.filterLoading = false;
+                    }
+
+                }, error => {
+                    //console.log(error)
+                    this.filterLoading = false;
+                }
+            )
+
+        } else if (this.object.lexicalEntry != undefined && this.cognatesArray.at(index).get('lila').value) {
+
+            this.searchResults = [];
+            this.lilaService.queryCognate(value).pipe(takeUntil(this.destroy$)).subscribe(
+                data => {
+                    console.log(data);
+                    if (data.list.length > 0) {
+
+
+                        const map = data.list.map(element => (
+                            {
+                                label: element[2].value,
+                                labelValue: element[0].value,
+                                pos: element[1].value
+                            })
+                        )
+
+                        map.forEach(element => {
+                            let tmpLblVal = element.labelValue.split('/');
+                            let labelValue = tmpLblVal[tmpLblVal.length - 1];
+
+                            let tmpLblPos = element.pos.split('/');
+                            let pos = tmpLblPos[tmpLblPos.length - 1];
+
+
+                            element.labelElement = labelValue;
+                            element.labelPos = pos;
+
+                        });
+
+
+
+                        this.searchResults = map;
+                        console.log(this.searchResults)
+                        this.filterLoading = false;
+
+
+                    }
+                },
+                error => {
+                    console.log(error)
+                    this.filterLoading = false;
+                }
+            )
+
+        } else {
+            this.filterLoading = false;
+
+
+        }
+
+    }
+
     deleteData() {
         this.searchResults = [];
     }
@@ -399,7 +520,8 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 this.disableAddCognates = false;
                 this.disableAddDenotes = false;
                 this.disableAddMorpho = false;
-
+                this.disableAddEvokes = false;
+                
                 this.subtermArray = this.coreForm.get('subterm') as FormArray;
                 this.subtermArray.clear();
 
@@ -409,6 +531,9 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 this.staticMorpho = []
 
                 this.memorySubterm = [];
+                
+                this.memoryCognates = [];
+                
                 this.isMultiword = false;
             }
             this.object = changes.lexData.currentValue;
@@ -475,6 +600,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 this.memoryDenotes = [];
                 this.memoryCognates = [];
                 this.memoryValues = [];
+                this.memoryEvokes = [];
                 this.memoryConfidence = null;
 
                 /*  //console.log('MORFOLOGIA')
@@ -537,7 +663,9 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
 
                 setTimeout(async () => {
-                    this.lexEntryTypesData = await this.lexicalService.getLexEntryTypes().toPromise();
+                    if(this.lexEntryTypesData.length == 0) {
+                        this.lexEntryTypesData = await this.lexicalService.getLexEntryTypes().toPromise();
+                    }
                     let type = this.coreForm.get('type').value;
                     this.lexEntryTypesData.forEach(el => {
                         if (el.valueId.split('#')[1] == type) {
@@ -561,6 +689,22 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                         }
                     }, error => {
                         //console.log(error)
+                    }
+                )
+
+                this.lexicalService.getLexEntryLinguisticRelation(lexId, 'evokes').pipe(takeUntil(this.destroy$)).subscribe(
+                    data => {
+                        console.log(data)
+                        for (var i = 0; i < data.length; i++) {
+                            let entity = data[i]['entity'];
+                            let type = data[i]['linkType'];
+                            let label = data[i]['label'];
+                            let inferred = data[i]['inferred'];
+                            this.addEvokes(entity, type, inferred, label);
+                            this.memoryEvokes.push(data[i])
+                        }
+                    }, error => {
+                        console.log(error)
                     }
                 )
 
@@ -1024,7 +1168,6 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
             let oldValue = prev ? 0 : 1;
             let newValue = next ? 0 : 1;
             let parameters = {
-                type: "confidence",
                 relation: 'http://www.lexinfo.net/ontology/3.0/lexinfo#confidence',
                 value: newValue
             };
@@ -1033,7 +1176,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
             this.memoryConfidence = oldValue;
 
 
-            this.lexicalService.updateGenericRelation(lexId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
+            this.lexicalService.updateLexicalEntry(lexId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
                 data => { },
                 error => {
                     if (error.status == 200) this.toastr.success('Confidence updated', '', { timeOut: 5000 })
@@ -1185,15 +1328,21 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
         }
     }
 
-    createEvokes(e?): FormGroup {
+    createEvokes(e?, t?, i?, l?): FormGroup {
 
         if (e != undefined) {
             return this.formBuilder.group({
-                entity: new FormControl(e, [Validators.required, Validators.pattern(this.urlRegex)])
+                entity: e,
+                inferred : i,
+                label : l,
+                type: t,
             })
         } else {
             return this.formBuilder.group({
-                entity: new FormControl('', [Validators.required, Validators.pattern(this.urlRegex)])
+                entity: new FormControl(''),
+                inferred : new FormControl(false),
+                label : new FormControl(''),
+                type : new FormControl(''),
             })
         }
     }
@@ -1508,6 +1657,108 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
     }
 
+    onChangeEvokes(data) {
+
+        if (data['name'] != '') {
+            var index = data['i'];
+            this.evokesArray = this.coreForm.get("evokes") as FormArray;
+            if (this.memoryEvokes[index] == undefined) {
+                const newValue = data['name']
+                const parameters = {
+                    type: "conceptRel",
+                    relation: "http://www.w3.org/ns/lemon/ontolex#evokes",
+                    value: newValue
+                }
+                //console.log(parameters)
+                let lexId = this.object.lexicalEntry;
+
+                this.lexicalService.updateLinguisticRelation(lexId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
+                    data => {
+                        console.log(data);
+                        this.disableAddDenotes = false;
+                        this.lexicalService.spinnerAction('off');
+                        data['request'] = 0;
+                        this.lexicalService.refreshAfterEdit(data);
+                        this.lexicalService.updateCoreCard(data)
+                    }, error => {
+                        console.log(error)
+
+                        /* this.toastr.error(error.error, 'Error', {
+                            timeOut: 5000,
+                        }); */
+
+
+                        this.lexicalService.spinnerAction('off');
+                        if (error.status == 200) {
+                            this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
+                            this.toastr.success('Evokes changed correctly for ' + lexId, '', {
+                                timeOut: 5000,
+                            });
+                            this.disableAddEvokes = false;
+                            this.memoryEvokes[index] = data;
+                        } else {
+                            this.toastr.error(error.error, 'Error', {
+                                timeOut: 5000,
+                            });
+
+                        }
+                    }
+                )
+                
+
+
+            } else {
+                const oldValue = this.memoryEvokes[index]['entity'] == undefined ? this.memoryEvokes[index]['name'] : this.memoryEvokes[index]['entity'];
+                const newValue = data['name']
+                const parameters = {
+                    type: "conceptRel",
+                    relation: "http://www.w3.org/ns/lemon/ontolex#evokes",
+                    value: newValue,
+                    currentValue: oldValue
+                }
+
+                let lexId = this.object.lexicalEntry;
+                //console.log(parameters)
+                this.lexicalService.updateLinguisticRelation(lexId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
+                    data => {
+                        console.log(data);
+                        this.lexicalService.spinnerAction('off');
+                        this.lexicalService.updateCoreCard(data)
+                        data['request'] = 0;
+                        this.lexicalService.refreshAfterEdit(data);
+                        this.disableAddEvokes = false;
+                    }, error => {
+                        console.log(error)
+                        if (error.status == 200) {
+                            const data = this.object;
+                            data['request'] = 0;
+
+                            //this.lexicalService.refreshAfterEdit(data);
+                            this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
+                            this.lexicalService.spinnerAction('off');
+                            this.toastr.success('Denotes changed correctly for ' + lexId, '', {
+                                timeOut: 5000,
+                            });
+                            this.disableAddEvokes = false;
+                            this.memoryEvokes[index] = data;
+                        } else {
+                            this.toastr.error(error.error, 'Error', {
+                                timeOut: 5000,
+                            });
+                        }
+
+                    }
+                )
+                
+            }
+        } else {
+            this.toastr.error('Empty value not allowed')
+        }
+
+
+
+    }
+
     onChangeCognates(data) {
         var index = data['i'];
         this.cognatesArray = this.coreForm.get("cognates") as FormArray;
@@ -1624,12 +1875,12 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
     }
 
-    /*  handleEvokes(evt, i) {
+     handleEvokes(evt, i) {
  
          if (evt instanceof NgSelectComponent) {
              if (evt.selectedItems.length > 0) {
-                 let label = evt.selectedItems[0].label
-                 this.onChangeDenotes({ name: label, i: i })
+                 let label = evt.selectedItems[0].value['lexicalConcept']
+                 this.onChangeEvokes({ name: label, i: i })
              }
          } else {
              let label = evt.target.value;
@@ -1637,7 +1888,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
          }
  
      }
-  */
+ 
 
 
     addDenotes(e?, t?) {
@@ -1648,6 +1899,18 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
         } else {
             this.disableAddDenotes = true;
             this.denotesArray.push(this.createDenotes());
+        }
+
+    }
+
+    addEvokes(e?, t?, i?, l?) {
+
+        this.evokesArray = this.coreForm.get("evokes") as FormArray;
+        if (e != undefined) {
+            this.evokesArray.push(this.createEvokes(e, t, i, l));
+        } else {
+            this.disableAddEvokes = true;
+            this.evokesArray.push(this.createEvokes());
         }
 
     }
@@ -1757,7 +2020,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
         let lexId = this.object.lexicalEntry;
 
         let parameters = {
-            relation: 'denotes',
+            relation: 'http://www.w3.org/ns/lemon/ontolex#denotes',
             value: entity
         }
 
@@ -1783,6 +2046,52 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
 
         this.denotesArray.removeAt(index);
+
+        this.memoryDenotes.splice(index, 1)
+    }
+
+    removeEvokes(index) {
+        this.disableAddEvokes = false;
+        this.evokesArray = this.coreForm.get('evokes') as FormArray;
+
+        const entity = this.evokesArray.at(index).get('entity').value;
+
+        let lexId = this.object.lexicalEntry;
+
+        let parameters = {
+            relation: 'http://www.w3.org/ns/lemon/ontolex#evokes',
+            value: entity
+        }
+
+
+        if (entity != '') {
+            this.lexicalService.deleteLinguisticRelation(lexId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
+                data => {
+                    console.log(data)
+                    this.lexicalService.updateCoreCard(this.object);
+                    this.toastr.success("Evokes removed", '', {
+                        timeOut: 5000,
+                    });
+
+                }, error => {
+                    console.log(error)
+                    //this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
+                    if(error.status == 200){
+                        this.toastr.success('Evokes deleted correctly', '', {
+                            timeOut: 5000,
+                        });
+                    }else{
+                        this.toastr.error(error.error, 'Error', {
+                            timeOut: 5000,
+                        });
+                    }
+                    
+                }
+            )
+        }
+
+
+        this.evokesArray.removeAt(index);
 
         this.memoryDenotes.splice(index, 1)
     }
@@ -1823,9 +2132,16 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 }, error => {
                     console.log(error)
                     //this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
-                    this.toastr.error(error.error, 'Error', {
-                        timeOut: 5000,
-                    });
+                    if(error.status == 200){
+                        this.toastr.success("Cognate removed correctly", 'Error', {
+                            timeOut: 5000,
+                        });
+                    }else{
+                        this.toastr.error(error.error, 'Error', {
+                            timeOut: 5000,
+                        });
+                    }
+                    
                 }
             )
         }

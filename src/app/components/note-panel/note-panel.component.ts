@@ -15,6 +15,7 @@ import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
+import { ConceptService } from 'src/app/services/concept/concept.service';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 
 @Component({
@@ -107,7 +108,9 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
       ]
     ]
   };
-  constructor(private lexicalService: LexicalEntriesService, private toastr: ToastrService) { }
+  constructor(private lexicalService: LexicalEntriesService, 
+              private toastr: ToastrService,
+              private conceptService : ConceptService) { }
 
   ngOnInit(): void {
     this.editorConfig.editable = false;
@@ -249,7 +252,44 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
                 
               }
             )
-          }
+          }else if(this.object.lexicalConcept !=undefined){
+            let lexicalConceptID = this.object.lexicalConcept;
+
+            let parameters = {
+              relation: "http://www.w3.org/2004/02/skos/core#note",
+              source: this.object.lexicalConcept,
+              target: newNote,
+              oldTarget: this.object.note ,
+              targetLanguage: this.object.language,
+              oldTargetLanguage : this.object.language
+            }
+    
+    
+            this.conceptService.updateNoteProperty(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+              data=> {
+                console.log(data)
+              }, error=> {
+                console.log(error);
+                
+                //this.lexicalService.changeDecompLabel(next)
+                if (error.status != 200) {
+                    this.toastr.error(error.error, 'Error', {
+                        timeOut: 5000,
+                    });
+                } else {
+                  
+                  this.lexicalService.spinnerAction('off');
+                  this.lexicalService.updateCoreCard({ lastUpdate: error.error.text });
+                  this.toastr.success('Definition changed correctly for ' + this.object.lexicalConcept, '', {
+                      timeOut: 5000,
+                  });
+
+                  this.object.note = newNote;
+                }
+              }
+            )
+
+          } 
         }
       }
     )
@@ -272,6 +312,9 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.editorConfig.editable = true;
       this.noteData = changes.noteData.currentValue.note;
+      /* if(changes.noteData.currentValue.lexicalConcept){
+        this.noteData = '';
+      } */
       this.object = changes.noteData.currentValue;
     }
 
@@ -287,11 +330,7 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    /* this.note_subscription.unsubscribe();
-    this.lex_entry_update_subscription.unsubscribe();
-    this.form_update_subscription.unsubscribe();
-    this.sense_update_subscription.unsubscribe();
-    this.etymology_update_subscription.unsubscribe(); */
+   
     this.destroy$.next(true);
     this.destroy$.complete();
   }

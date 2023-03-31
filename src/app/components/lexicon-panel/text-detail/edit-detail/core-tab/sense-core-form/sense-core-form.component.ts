@@ -16,6 +16,8 @@ import { Subject, Subscription } from 'rxjs';
 import { debounceTime, pairwise, startWith, take, takeUntil } from 'rxjs/operators';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { ToastrService } from 'ngx-toastr';
+import { NgSelectComponent } from '@ng-select/ng-select';
+import { ConceptService } from 'src/app/services/concept/concept.service';
 
 
 @Component({
@@ -51,7 +53,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
     usage: new FormControl('', [Validators.required, Validators.minLength(5)]),
     topic: new FormControl('', [Validators.required, Validators.minLength(5)]),
     reference: new FormArray([this.createReference()]),
-    lexical_concept: new FormArray([this.createLexicalConcept()]),
+    lexical_concept: new FormArray([]),
     sense_of: new FormControl('', [Validators.required, Validators.minLength(5)])
   })
 
@@ -61,8 +63,16 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
   subject_def_subscription: Subscription;
   subject_ex_def_subscription: Subscription;
   destroy$: Subject<boolean> = new Subject();
+  searchResults: any[] = [];
+  filterLoading: boolean = false;
+  lexical_concept_subject: Subject<any> = new Subject();
+  memoryLexicalConcept: any[] = [];
+  disableAddLexicalConcept: boolean;
 
-  constructor(private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder, private toastr: ToastrService) { }
+  constructor(private lexicalService: LexicalEntriesService,
+    private formBuilder: FormBuilder,
+    private toastr: ToastrService,
+    private conceptService: ConceptService) { }
 
   ngOnInit() {
     setTimeout(() => {
@@ -82,6 +92,12 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
     this.subject_ex_def_subscription = this.subject_ex_def.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onChangeExistingDefinition(data['evt'], data['i'])
+      }
+    )
+
+    this.lexical_concept_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+      data => {
+        this.onSearchFilter(data)
       }
     )
 
@@ -117,8 +133,8 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
         this.definitionArray.clear();
 
         this.staticDef = [];
-
-        this.memoryConfidence = null;
+        this.memoryLexicalConcept = [];
+        this.memoryConfidence = [];
       }
       this.object = changes.senseData.currentValue;
       if (this.object != null) {
@@ -153,8 +169,24 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
         }
         this.senseCore.get('topic').setValue(this.object.topic, { emitEvent: false })
         this.senseCore.get('usage').setValue(this.object.usage, { emitEvent: false });
-        this.addLexicalConcept(this.object.concept);
+        /* this.addLexicalConcept(this.object.concept); */
         this.senseCore.get('sense_of').setValue(this.object.sense, { emitEvent: false });
+        const senseId = this.object.sense;
+        this.lexicalService.getLexEntryLinguisticRelation(senseId, 'isLexicalizedSenseOf').pipe(takeUntil(this.destroy$)).subscribe(
+          data => {
+            console.log(data)
+            for (var i = 0; i < data.length; i++) {
+              let entity = data[i]['entity'];
+              let type = data[i]['linkType'];
+              let label = data[i]['label'];
+              let inferred = data[i]['inferred'];
+              this.addLexicalConcept(entity, type, inferred, label);
+              this.memoryLexicalConcept.push(data[i])
+            }
+          }, error => {
+            console.log(error)
+          }
+        )
       }
     }, 10)
   }
@@ -211,7 +243,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
       this.memoryConfidence = oldValue;
 
       this.lexicalService.updateGenericRelation(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
-        data => { 
+        data => {
           console.log(data)
         },
         error => {
@@ -394,6 +426,196 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
 
   }
 
+  onSearchFilter(data) {
+    this.filterLoading = true;
+    this.searchResults = [];
+
+    let value = data.value;
+    let index = data.index;
+
+    this.lexicalConceptArray = this.senseCore.get('lexical_concept') as FormArray;
+
+    if (this.object.sense != undefined) {
+      let parameters = {
+        text: value,
+        searchMode: "startsWith",
+        labelType: "prefLabel",
+        author: "",
+        offset: 0,
+        limit: 500
+      }
+
+      /* && data.length >= 3 */
+
+      this.conceptService.conceptFilter(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+        data => {
+          console.log(data)
+
+          if (data.list.length > 0) {
+            let filter_lang = [];
+            filter_lang = data.list.filter(
+              element => element.language != 'null'
+            )
+
+            console.log(filter_lang)
+            this.searchResults = filter_lang;
+            this.filterLoading = false;
+          } else {
+            this.filterLoading = false;
+          }
+
+        }, error => {
+          //console.log(error)
+          this.filterLoading = false;
+        }
+      )
+
+    } else {
+      this.filterLoading = false;
+
+
+    }
+
+  }
+
+  triggerLexicalConcept(evt, i) {
+    console.log(evt)
+    if (evt.target != undefined) {
+
+      this.lexical_concept_subject.next({ value: evt.target.value, index: i })
+    }
+  }
+
+  handleLexicalConcept(evt, i) {
+
+    if (evt instanceof NgSelectComponent) {
+      if (evt.selectedItems.length > 0) {
+        console.log(evt.selectedItems[0])
+
+        let label = evt.selectedItems[0].value['lexicalConcept'];
+        let prefLabel = evt.selectedItems[0].value['defaultLabel'];
+        
+        this.onChangeLexicalConcept({ name: label, i: i, defaultLabel: prefLabel })
+      }
+    } else {
+      let label = evt.target.value;
+      this.lexical_concept_subject.next({ name: label, i: i })
+    }
+  }
+
+  onChangeLexicalConcept(data) {
+    var index = data['i'];
+    this.lexicalConceptArray = this.senseCore.get("lexical_concept") as FormArray;
+    let existOrNot = this.memoryLexicalConcept.some(element => element?.entity == data.name || element?.name == data.name)
+
+    if (this.memoryLexicalConcept[index] == undefined && !existOrNot) {
+      let newValue = data.name;
+
+
+      const parameters = {
+        type: "conceptRel",
+        relation: "http://www.w3.org/ns/lemon/ontolex#isLexicalizedSenseOf",
+        value: newValue
+      }
+      console.log(parameters)
+      let senseId = this.object.sense;
+      this.lexicalService.updateLinguisticRelation(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
+        data => {
+          console.log(data);
+          this.lexicalService.spinnerAction('off');
+          data['request'] = 0;
+          this.lexicalService.refreshAfterEdit(data);
+          this.lexicalService.updateCoreCard(data)
+          this.disableAddLexicalConcept = false;
+        }, error => {
+          console.log(error)
+
+          /* this.toastr.error(error.error, 'Error', {
+              timeOut: 5000,
+          }); */
+          this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
+          this.lexicalService.spinnerAction('off');
+          if (error.status == 200) {
+            this.disableAddLexicalConcept = false;
+            this.toastr.success('Lexical concept added correctly for ' + senseId, '', {
+              timeOut: 5000,
+            });
+            this.lexicalConceptArray.at(index).get('label').setValue(data.defaultLabel, { emitEvent: false });
+            this.lexicalConceptArray.at(index).get('entity').setValue(data.name, { emitEvent: false });
+            this.lexicalConceptArray.at(index).get('type').setValue('internal', { emitEvent: false });
+            this.lexicalConceptArray.at(index).get('inferred').setValue(false, { emitEvent: false });
+          } else {
+            this.toastr.error(error.error, 'Error', {
+              timeOut: 5000,
+            });
+
+          }
+
+
+          
+
+
+
+        }
+      )
+      this.memoryLexicalConcept[index] = data;
+
+
+    } else if (this.memoryLexicalConcept[index] != undefined) {
+      const oldValue = this.memoryLexicalConcept[index]['entity'] == undefined ? this.memoryLexicalConcept[index]['name'] : this.memoryLexicalConcept[index]['entity']
+      const newValue = data['name']
+      const parameters = {
+        type: "conceptRel",
+        relation: "http://www.w3.org/ns/lemon/ontolex#isLexicalizedSenseOf",
+        value: newValue,
+        currentValue: oldValue
+      }
+
+      let senseId = this.object.sense;
+      console.log(parameters);
+
+      let raw_data = data;
+      this.lexicalService.updateLinguisticRelation(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
+        data => {
+          console.log(data);
+          this.lexicalService.spinnerAction('off');
+          this.lexicalService.updateCoreCard(data)
+          data['request'] = 0;
+          this.lexicalService.refreshAfterEdit(data);
+        }, error => {
+          console.log(error)
+          const data = raw_data;
+          data['request'] = 0;
+
+          //this.lexicalService.refreshAfterEdit(data);
+          this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
+          this.lexicalService.spinnerAction('off');
+          if (error.status == 200) {
+            this.toastr.success('Lexical Concept changed correctly for ' + senseId, '', {
+              timeOut: 5000,
+            });
+
+            this.lexicalConceptArray.at(index).get('label').setValue(raw_data.defaultLabel, { emitEvent: false });
+            this.lexicalConceptArray.at(index).get('entity').setValue(raw_data.name, { emitEvent: false });
+            this.lexicalConceptArray.at(index).get('type').setValue('internal', { emitEvent: false });
+            this.lexicalConceptArray.at(index).get('inferred').setValue(false, { emitEvent: false });
+          } else {
+            this.toastr.error(error.error, 'Error', {
+              timeOut: 5000,
+            });
+          }
+        }
+      )
+      this.memoryLexicalConcept[index] = data;
+    } else if (existOrNot) {
+      this.toastr.error('This lexical concept already exist in this lexical entry', 'Error', {
+        timeOut: 5000
+      })
+    }
+
+
+  }
+
   onChangeExistingDefinition(evt, i) {
 
     this.definitionArray = this.senseCore.get('definition') as FormArray;
@@ -401,9 +623,9 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
     const newValue = evt.target.value;
     const senseId = this.object.sense;
     let namespace = trait == 'definition' ? 'http://www.w3.org/2004/02/skos/core#' : 'http://www.lexinfo.net/ontology/3.0/lexinfo#';
-    const parameters = { 
-      relation: namespace + trait, 
-      value: newValue 
+    const parameters = {
+      relation: namespace + trait,
+      value: newValue
     }
 
     if (trait != undefined && newValue != '') {
@@ -469,7 +691,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
         }, error => {
           console.log(error);
           //this.lexicalService.refreshLexEntryTree();
-          
+
           this.disableAddDef = false;
           if (error.status != 200) {
             this.toastr.error(error.error, 'Error', {
@@ -477,7 +699,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
             });
             this.lexicalService.spinnerAction('off');
           } else {
-            
+
             if (trait == 'definition') {
               const data = this.object;
               data['whatToSearch'] = 'sense';
@@ -493,7 +715,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
               timeOut: 5000,
             });
           }
-          
+
         }
       )
     } else {
@@ -507,31 +729,79 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
     referenceArray.removeAt(index)
   }
 
-  createLexicalConcept(e?) {
+  createLexicalConcept(e?, t?, i?, l?) {
     if (e != undefined) {
       return this.formBuilder.group({
-        lex_concept: new FormControl(e, [Validators.required, Validators.minLength(5)])
+        entity: e,
+        inferred: i,
+        label: l,
+        type: t
       })
     } else {
       return this.formBuilder.group({
-        lex_concept: new FormControl(null, [Validators.required, Validators.minLength(5)])
+        entity: '',
+        inferred: false,
+        label: '',
+        type: null
       })
     }
 
   }
 
-  addLexicalConcept(entity?) {
+  addLexicalConcept(entity?, type?, inferred?, label?) {
     this.lexicalConceptArray = this.senseCore.get('lexical_concept') as FormArray;
     if (entity != undefined) {
-      this.lexicalConceptArray.push(this.createLexicalConcept(entity));
+      this.lexicalConceptArray.push(this.createLexicalConcept(entity, type, inferred, label));
     } else {
+      this.disableAddLexicalConcept = true;
       this.lexicalConceptArray.push(this.createLexicalConcept());
     }
   }
 
   removeLexicalConcept(index) {
     this.lexicalConceptArray = this.senseCore.get('lexical_concept') as FormArray;
+
+    this.disableAddLexicalConcept = false;
+    const entity = this.lexicalConceptArray.at(index).get('entity').value;
+
+    let senseId = this.object.sense;
+
+    let parameters = {
+      relation: 'http://www.w3.org/ns/lemon/ontolex#isLexicalizedSenseOf',
+      value: entity
+    }
+
+
+    if (entity != '') {
+      this.lexicalService.deleteLinguisticRelation(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
+        data => {
+          console.log(data)
+          this.lexicalService.updateCoreCard(this.object);
+          this.toastr.success("Lexical Concept removed", '', {
+            timeOut: 5000,
+          });
+
+        }, error => {
+          console.log(error)
+          //this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
+          if (error.status == 200) {
+            this.toastr.success('Lexical Concept deleted correctly', 'Error', {
+              timeOut: 5000,
+            });
+          } else {
+            this.toastr.error(error.error, 'Error', {
+              timeOut: 5000,
+            });
+          }
+
+        }
+      )
+    }
+
+
     this.lexicalConceptArray.removeAt(index);
+
+    this.memoryLexicalConcept.splice(index, 1)
   }
 
   ngOnDestroy(): void {

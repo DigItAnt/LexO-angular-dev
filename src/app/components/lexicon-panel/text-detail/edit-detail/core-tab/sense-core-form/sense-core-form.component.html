@@ -124,29 +124,27 @@
         <div class="input-group col-xl-12">
             <div class="card">
                 <span class="text-id"><b>LEXICAL CONCEPT</b></span>
-                <a class="pointer" (click)="addLexicalConcept()"><span class="collapse-icon"><i
+                <a class="pointer" [ngClass]="{no_pointer: disableAddLexicalConcept}" (click)="addLexicalConcept()"><span class="collapse-icon"><i
                             class="fa fa-plus-square"></i></span></a>
 
                 <div class="card-body">
                     <div class="form-group row ml-2 mt-3 mr-2" formArrayName="lexical_concept"
-                        *ngFor="let trans of senseCore.get('lexical_concept')['controls']; let i = index">
-                        <div class="input-group col-xl-12" *ngIf="{switch : false}; let variable" [formGroupName]="i">
-                            <ng-select formControlName="lex_concept" name="lex_concept" [items]="people"
-                                bindValue="name" bindLabel="name" placeholder="Search entity" appendTo="body"
-                                [loading]="peopleLoading" *ngIf="!variable.switch">
+                        *ngFor="let concept of senseCore.get('lexical_concept')['controls']; let i = index">
+                        <div class="input-group col-xl-12"  [formGroupName]="i">
+                            <ng-select #select_lexicalConcept formControlName="label" name="label" [items]="searchResults" 
+                                (keyup)="triggerLexicalConcept($event, i)" (change)="handleLexicalConcept(select_lexicalConcept, i)"
+                                bindValue="defaultLabel" bindLabel="defaultLabel" placeholder="Search entity" appendTo="body" [clearable]="false"
+                                >
+                                
+                                <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                                    <div>
+                                        <span>{{item.defaultLabel}} </span><span style="color: blue;">@{{item.language}}</span>
+                                    </div>
+
+                                </ng-template>
                             </ng-select>
-                            <input formControlName="lex_concept" name="lex_concept" type="text" class="form-control"
-                                placeholder="Insert URI" *ngIf="variable.switch">
-                            <div class="input-group-append ml-3 form-check" style="align-items: center;">
-                                <input class="form-check-input vartrans-tooltip" type="checkbox"
-                                    (change)="variable.switch=!variable.switch" data-toggle="tooltip"
-                                    data-placement="bottom" data-trigger="hover"
-                                    title="Clicca per inserire un URI manualmente">
-                            </div>
-                            <div class="input-group-append ml-2">
-                                <button class="btn btn-primary" type="button"><i
-                                        class="fa fa-external-link-alt"></i></button>
-                            </div>
+                            
+                            
                             <div class="input-group-append ml-2">
                                 <button (click)="removeLexicalConcept(i)" class="btn btn-danger" type="button"><i
                                         class="fa fa-trash-alt"></i></button>
