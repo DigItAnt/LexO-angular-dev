@@ -46,6 +46,9 @@ export class SameAsComponent implements OnInit, OnDestroy {
   isSense;
   isForm;
   isLexEntry;
+  isLexicalConcept;
+
+  disableAddSameAs = false;
 
   sameAsForm = new FormGroup({
     sameAsArray: new FormArray([this.createSameAsEntry()]),
@@ -130,6 +133,7 @@ export class SameAsComponent implements OnInit, OnDestroy {
 
         this.memorySameAs = [];
         console.log(this.object)
+        this.disableAddSameAs = false;
 
         this.object.array.forEach(element => {
           this.addSameAsEntry(element.entity, element.linkType == 'external')
@@ -173,14 +177,22 @@ export class SameAsComponent implements OnInit, OnDestroy {
           this.isLexEntry = true;
           this.isForm = false;
           this.isSense = false;
+          this.isLexicalConcept = false;
         } else if (this.object.form != undefined) {
           this.isLexEntry = false;
           this.isForm = true;
           this.isSense = false;
+          this.isLexicalConcept = false;
         } else if (this.object.sense != undefined) {
           this.isLexEntry = false;
           this.isForm = false;
           this.isSense = true;
+          this.isLexicalConcept = false;
+        } else if (this.object.lexicalConcept != undefined) {
+          this.isLexEntry = false;
+          this.isForm = false;
+          this.isSense = false;
+          this.isLexicalConcept = true;
         }
 
       } else {
@@ -202,6 +214,8 @@ export class SameAsComponent implements OnInit, OnDestroy {
         lexicalElementId = this.object.sense;
       } else if (this.object.etymology != undefined) {
         lexicalElementId = this.object.etymology;
+      } else if (this.object.lexicalConcept != undefined) {
+        lexicalElementId = this.object.lexicalConcept;
       }
 
       //console.log(this.memorySameAs[index])
@@ -229,8 +243,9 @@ export class SameAsComponent implements OnInit, OnDestroy {
         let data = await this.lexicalService.updateGenericRelation(lexicalElementId, parameters).toPromise();
       } catch (e) {
         console.log(e)
+        this.disableAddSameAs = false;
         if (e.status == 200) {
-          this.memorySameAs.push(selectedValues)
+          this.memorySameAs.push(selectedValues);
           this.toastr.success('sameAs updated', '', {
             timeOut: 5000,
           });
@@ -245,6 +260,7 @@ export class SameAsComponent implements OnInit, OnDestroy {
   }
 
   async onChangeSameAs(sameAs, index) {
+    //TODO: lexical concept
     console.log(sameAs.selectedItems);
     let lexicalElementId = '';
 
@@ -540,6 +556,7 @@ export class SameAsComponent implements OnInit, OnDestroy {
 
     this.sameAsArray = this.sameAsForm.get('sameAsArray') as FormArray;
     if (e == undefined) {
+      this.disableAddSameAs = true;
       this.sameAsArray.push(this.createSameAsEntry());
     } else {
       this.sameAsArray.push(this.createSameAsEntry(e, i));
@@ -555,7 +572,7 @@ export class SameAsComponent implements OnInit, OnDestroy {
   async removeElement(index) {
     this.sameAsArray = this.sameAsForm.get('sameAsArray') as FormArray;
     const lexical_entity = this.sameAsArray.at(index).get('entity').value;
-
+    this.disableAddSameAs = false;
     let lexicalElementId = '';
 
     if (this.object.lexicalEntry != undefined) {
@@ -566,6 +583,8 @@ export class SameAsComponent implements OnInit, OnDestroy {
       lexicalElementId = this.object.sense;
     } else if (this.object.etymology != undefined) {
       lexicalElementId = this.object.etymology;
+    } else if (this.object.lexicalConcept != undefined) {
+      lexicalElementId = this.object.lexicalConcept;
     }
     let parameters = {
       relation: 'http://www.w3.org/2002/07/owl#sameAs',
@@ -575,12 +594,12 @@ export class SameAsComponent implements OnInit, OnDestroy {
     try{
       let delete_request = await this.lexicalService.deleteLinguisticRelation(lexicalElementId, parameters).toPromise();
 
-      this.toastr.success("SameAs Removed", 'Error', {
+      this.toastr.success("SameAs Removed", '', {
         timeOut: 5000,
       });
     }catch(e){
       if (e.status == 200) {
-        this.toastr.success("SameAs Removed", 'Error', {
+        this.toastr.success("SameAs Removed", '', {
           timeOut: 5000,
         });
       } else {

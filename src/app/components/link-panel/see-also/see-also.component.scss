@@ -84,3 +84,11 @@ a {
 .resizeNgSelect {
     width: 15%;
 }
+
+.no_pointer {
+    pointer-events: none;
+
+    .collapse-icon{
+        color: #8c8c8c;
+    }
+}

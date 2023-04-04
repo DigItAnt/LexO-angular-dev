@@ -314,11 +314,18 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
           timeOut: 5000,
         });
       }, error => {
-        //console.log(error)
+        console.log(error)
         this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
-        this.toastr.error(error.error, 'Error', {
-          timeOut: 5000,
-        });
+        if(error.status == 200){
+          this.toastr.success('Element removed', '', {
+            timeOut: 5000,
+          });
+        }else{
+          this.toastr.error(error.error, 'Error', {
+            timeOut: 5000,
+          });
+        }
+        
       }
     )
 

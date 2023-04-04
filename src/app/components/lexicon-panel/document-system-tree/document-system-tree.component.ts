@@ -152,19 +152,19 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
   lexEdit(data) {
 
     var that = this;
-
+    let instanceName = '';
+    if (data['lexicalEntry'] != undefined && data['form'] == undefined && data['sense'] == undefined) {
+      instanceName = data['lexicalEntry']
+    } else if (data['form'] != undefined) {
+      instanceName = data['form']
+    } else if (data['sense'] != undefined) {
+      instanceName = data['sense']
+    } else if (data['etymology'] != undefined) {
+      instanceName = data['etymology']
+    };
     if (data['new_note'] != undefined) {
 
-      let instanceName = '';
-      if (data['lexicalEntry'] != undefined && data['form'] == undefined && data['sense'] == undefined) {
-        instanceName = data['lexicalEntry']
-      } else if (data['form'] != undefined) {
-        instanceName = data['form']
-      } else if (data['sense'] != undefined) {
-        instanceName = data['sense']
-      } else if (data['etymology'] != undefined) {
-        instanceName = data['etymology']
-      };
+      
       setTimeout(() => {
         this.lexTree.lexicalEntryTree.treeModel.getNodeBy(
           function (x) {
@@ -480,6 +480,30 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
                 return false;
               }
             }
+            else {
+              return false;
+            }
+          }
+        );
+      }, 500);
+    } else if (data['new_status'] != undefined){
+      setTimeout(() => {
+        this.lexTree.lexicalEntryTree.treeModel.getNodeBy(
+          function (x) {
+            if (data['lexicalEntry'] != undefined && data['form'] == undefined && data['sense'] == undefined) {
+              if (x.data.lexicalEntry == instanceName) {
+
+                x.data.status = data['new_status']
+                that.lexTree.lexicalEntryTree.treeModel.update();
+                that.lexTree.updateTreeView();
+
+                
+
+                return true;
+              } else {
+                return false;
+              }
+            } 
             else {
               return false;
             }

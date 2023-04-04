@@ -393,6 +393,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
             this.searchIconSpinner = false;
             const data = this.object;
             data['request'] = 0;
+            data['new_status'] = 'working'
             this.lexicalService.refreshAfterEdit(data);
             this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
             setTimeout(() => {
@@ -423,6 +424,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
             this.searchIconSpinner = false;
             const data = this.object;
             data['request'] = 0;
+            data['new_status'] = 'completed'
             this.lexicalService.refreshAfterEdit(data);
             this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
             setTimeout(() => {
@@ -441,6 +443,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
           data => {
             this.searchIconSpinner = false;
             data['request'] = 0;
+            data['new_status'] = 'reviewed'
             this.lexicalService.updateCoreCard(data)
             this.lexicalService.refreshAfterEdit(data);
             setTimeout(() => {

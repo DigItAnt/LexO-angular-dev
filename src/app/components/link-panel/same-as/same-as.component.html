@@ -5,7 +5,7 @@
         <div class="input-group col-sm-12">
             <div class="card">
                 <span class="text-id">SAME AS</span>
-                <a (click)="addSameAsEntry()" class="pointer"><span class="collapse-icon"><i
+                <a (click)="addSameAsEntry()" [ngClass]="{no_pointer: disableAddSameAs}" class="pointer"><span class="collapse-icon"><i
                             class="fa fa-plus-square"></i></span></a>
                 <div class="card-body">
                     <div formArrayName="sameAsArray" class="mt-3">

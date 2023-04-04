@@ -785,6 +785,8 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
           $('body').css("padding-right", "");
 
           //TODO:  /api/public/search per ottenere le attestazioni delle forme da mandare nell'attestation panel
+
+          
           // this.lexicalService.sendToAttestationPanel(null);
           // this.lexicalService.triggerAttestationPanel(false);
 

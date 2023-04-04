@@ -38,6 +38,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
   isSense;
   isForm;
   isLexEntry;
+  isLexicalConcept;
 
   searchResults: [];
   memorySeeAlso = [];
@@ -114,14 +115,22 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
           this.isLexEntry = true;
           this.isForm = false;
           this.isSense = false;
+          this.isLexicalConcept = false;
         } else if (this.object.form != undefined) {
           this.isLexEntry = false;
           this.isForm = true;
           this.isSense = false;
+          this.isLexicalConcept = false;
         } else if (this.object.sense != undefined) {
           this.isLexEntry = false;
           this.isForm = false;
           this.isSense = true;
+          this.isLexicalConcept = false;
+        } else if (this.object.lexicalConcept != undefined) {
+          this.isLexEntry = false;
+          this.isForm = false;
+          this.isSense = false;
+          this.isLexicalConcept = true;
         }
 
       } else {
@@ -133,6 +142,7 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
 
   async onChangeSeeAlsoByInput(value, index) {
 
+    //TODO: lexical concept
     if (value.trim() != "") {
       var selectedValues = value;
       var lexicalElementId = '';
@@ -144,6 +154,8 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         lexicalElementId = this.object.sense;
       } else if (this.object.etymology != undefined) {
         lexicalElementId = this.object.etymology;
+      } else if (this.object.lexicalConcept != undefined) {
+        lexicalElementId = this.object.lexicalConcept;
       }
 
       console.log(this.object)
@@ -455,9 +467,10 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
     this.seeAlsoArray = this.seeAlsoForm.get('seeAlsoArray') as FormArray;
 
     if (e == undefined) {
+      this.disableSeeAlso = true;
+
       this.seeAlsoArray.push(this.createSeeAlsoEntry());
     } else {
-      this.disableSeeAlso = true;
       this.seeAlsoArray.push(this.createSeeAlsoEntry(e, i, le, lt));
     }
 
@@ -587,6 +600,40 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
         this.toastr.error(e.error, 'Error', {
           timeOut: 5000,
         });
+        this.lexicalService.refreshLinkCounter('-1')
+      }
+    } else if (this.object.lexicalConcept != undefined) {
+      let conceptId = this.object.lexicalConcept;
+      this.lexicalService.refreshLinkCounter('-1')
+
+      let parameters = {
+        type: 'morphology',
+        relation: 'http://www.w3.org/2000/01/rdf-schema#seeAlso',
+        value: lexical_entity
+      }
+
+      //console.log(parameters)
+
+      try {
+        let delete_see_also = await this.lexicalService.deleteLinguisticRelation(conceptId, parameters).toPromise();
+
+        this.lexicalService.updateCoreCard(this.object)
+        this.toastr.success('SeeAlso deleted', '', {
+          timeOut: 5000,
+        });
+        this.lexicalService.refreshLinkCounter('-1')
+
+      } catch (e) {
+        if(e.status == 200){
+          this.toastr.success('See also deleted correctly', '', {
+            timeOut: 5000,
+          });
+        }else{
+          this.toastr.error(e.error, 'Error', {
+            timeOut: 5000,
+          });
+        }
+        
         this.lexicalService.refreshLinkCounter('-1')
       }
     }
