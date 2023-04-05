@@ -1575,7 +1575,6 @@ export class TextTreeComponent implements OnInit, OnDestroy {
 
   searchFilter(newPar) {
     
-    //TODO: implementare funzione di search di CASH che si trova su api/public/search
     setTimeout(() => {
       const viewPort_prova = this.element.nativeElement.querySelector('tree-viewport') as HTMLElement;
       viewPort_prova.scrollTop = 0
@@ -1603,7 +1602,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
     
     console.log(parameters)
     
-    this.documentService.searchFiles(newPar).pipe(takeUntil(this.destroy$)).subscribe(
+    /* this.documentService.searchFiles(newPar).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         if(data['files'].length > 0){
           this.show = false;
@@ -1625,7 +1624,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
           timeOut : 5000
         })
       }
-    )
+    ) */
   }
 
   addTagFn(name) {

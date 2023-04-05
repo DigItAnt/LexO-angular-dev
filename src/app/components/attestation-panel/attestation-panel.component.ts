@@ -156,6 +156,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
           this.typeDesc = '';
           this.staticOtherDef = [];
           this.labelData = [];
+          this.fileId = null;
         }
         this.formData = changes.attestationData.currentValue;
         console.log(this.formData)

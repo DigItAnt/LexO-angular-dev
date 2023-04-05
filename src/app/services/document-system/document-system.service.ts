@@ -129,8 +129,8 @@ export class DocumentSystemService {
   }
 
   //POST ​/api​/public/search --> move file to another folder
-  searchFiles(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "public/search", parameters)
+  searchAttestations(formId): Observable<any> {
+    return this.http.post(this.baseUrl_document + "public/search?query="+encodeURIComponent('[attestation="'+formId+'"]'), null)
   }
 
   //POST ​/api​/crud​/createFile --> create file

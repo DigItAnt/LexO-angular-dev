@@ -260,7 +260,6 @@ export class SameAsComponent implements OnInit, OnDestroy {
   }
 
   async onChangeSameAs(sameAs, index) {
-    //TODO: lexical concept
     console.log(sameAs.selectedItems);
     let lexicalElementId = '';
 

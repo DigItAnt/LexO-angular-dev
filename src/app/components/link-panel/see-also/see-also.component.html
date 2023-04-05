@@ -14,7 +14,6 @@
                         <div *ngFor="let seeAlso of seeAlsoForm.get('seeAlsoArray')['controls']; let i = index">
                             <div [formGroupName]="i">
                                 <div class="d-flex">
-                                    <!-- TODO: see also solo input esterno per lexical concept -->
                                     <div class="form-group row ml-2  mr-2 w-100" *ngIf="{switch : seeAlso.get('link_type').value != 'internal'}; let variable">
                                         <div class="input-group" *ngIf="{boolean : seeAlso.get('inferred').value}; let inf">
                                               

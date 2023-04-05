@@ -12,10 +12,12 @@ You should have received a copy of the GNU General Public License along with Epi
 
 import { Component, Input, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { Form, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { Subject, Subscription } from 'rxjs';
+import { forkJoin, Observable, Subject, Subscription } from 'rxjs';
 import { debounceTime, pairwise, startWith, take, takeUntil } from 'rxjs/operators';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { ToastrService } from 'ngx-toastr';
+import { DocumentSystemService } from 'src/app/services/document-system/document-system.service';
+import { AnnotatorService } from 'src/app/services/annotator/annotator.service';
 
 @Component({
   selector: 'app-form-core-form',
@@ -72,7 +74,11 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
 
   destroy$: Subject<boolean> = new Subject();
 
-  constructor(private lexicalService: LexicalEntriesService, private formBuilder: FormBuilder, private toastr: ToastrService) { }
+  constructor(private lexicalService: LexicalEntriesService, 
+              private formBuilder: FormBuilder, 
+              private toastr: ToastrService,
+              private documentService : DocumentSystemService,
+              private annotatorService : AnnotatorService) { }
 
   ngOnInit() {
     this.get_morpho_data_subscription = this.lexicalService.getMorphologyData().subscribe(
@@ -181,6 +187,8 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
 
         }
 
+
+
         setTimeout(async () => {
           this.morphologyData = await this.lexicalService.getMorphologyData().toPromise();
           for (var i = 0; i < this.object.morphology.length; i++) {
@@ -227,10 +235,95 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
 
         }, 1);
 
+        let formId = this.object.form;
+        this.documentService.searchAttestations(formId).pipe(takeUntil(this.destroy$)).subscribe(
+          data=>{
+            console.log(data);
+            if(data!= undefined){
+              let rows = data.rows;
+              if(data.rows.length > 0){
 
+                let ids = new Set();
+                let tokensId = new Set();
+                rows.forEach(element => {
+                  let path = element.nodePath.split('/');
+                  let tokenId = null;
+                  element.tokens.forEach(token => {
+                    if(token.id != undefined) {
+                      tokenId = token.id;
+                      return;
+                    }
+                  });
+                  path = path[path.length-1];
+                  ids.add(JSON.stringify({nodeId: element.nodeId}));
+                  tokensId.add(JSON.stringify({tokenId : tokenId, nodePath: path}))
+                });
+
+                console.log(ids, tokensId);
+                if(ids.size > 0){
+                  this.getAnnotations(ids, tokensId);
+                }
+              }else{
+                this.lexicalService.triggerAttestationPanel(false);
+                this.lexicalService.sendToAttestationPanel(null);
+              }
+            }
+          },error=>{
+            console.log(error)
+          }
+        );
       }
     }, 1)
 
+  }
+
+  getAnnotations(setIds, tokensId){
+    console.log(setIds);
+    let annotation_array = [];
+
+    const requests : Observable<any>[] = [];
+    setIds.forEach(element => {
+      let elem = JSON.parse(element);
+      requests.push(this.annotatorService.getAnnotation(elem.nodeId));
+    });
+
+    forkJoin(requests).pipe(takeUntil(this.destroy$)).subscribe(
+      (data : any)=>{
+        console.log(data);
+
+        if(data!=undefined){
+          let filter_anno = [];
+          
+          data.forEach(element => {
+            if(element.annotations != undefined){
+              let annotations = element.annotations;
+
+              annotations.forEach(anno => {
+                if(anno.layer == 'attestation'){
+                  if(anno.value == this.object.form){
+                    if(anno.attributes.bibliography == undefined) anno.attributes['bibliography'] = [];
+                    tokensId.forEach(element => {
+                      let elem = JSON.parse(element);
+                      if(elem.tokenId == anno.attributes.node_id) anno.attributes['fileId'] = elem.nodePath;
+                      //console.log(element, anno)
+                    });
+                    filter_anno.push(anno)
+                  }
+                  
+                }
+              });
+            }
+          });
+
+          console.log(filter_anno);
+          this.lexicalService.triggerAttestationPanel(true);
+          this.lexicalService.sendToAttestationPanel(filter_anno);
+        }
+      },error=> {
+        console.log(error)
+      }
+    )
+    
   }
 
   onChanges(): void {

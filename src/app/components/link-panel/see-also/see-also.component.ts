@@ -142,7 +142,6 @@ export class SeeAlsoComponent implements OnInit, OnDestroy {
 
   async onChangeSeeAlsoByInput(value, index) {
 
-    //TODO: lexical concept
     if (value.trim() != "") {
       var selectedValues = value;
       var lexicalElementId = '';
