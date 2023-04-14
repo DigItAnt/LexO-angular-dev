@@ -159,7 +159,7 @@
                             *ngIf="node.data.count == undefined && labelView && node.data.component == undefined && node.data.etymology == undefined && node.data.definition == undefined && node.data.type!='canonicalForm' && node.data.sense == undefined">{{
                             node.data.label}} </span>
                         <span
-                            *ngIf="node.data.count == undefined && idView && node.data.definition == undefined && node.data.type!='canonicalForm' && node.data.sense == undefined && node.data.etymology == undefined">{{
+                            *ngIf="node.data.count == undefined && idView && node.data.definition == undefined && node.data.form == undefined && node.data.type!='canonicalForm' && node.data.sense == undefined && node.data.etymology == undefined">{{
                             node.data.lexicalEntry }} </span>
     
                         <span
@@ -172,8 +172,8 @@
                             *ngIf="node.data.count == undefined && idView && node.data.definition == undefined && node.data.type!='canonicalForm' && node.data.sense == undefined">{{
                             node.data.form }}</span>
 
-                        <span *ngIf="node.data.count == undefined && idView && node.data.definition != undefined">
-                            {{ node.data.sense }}</span>
+                        <!-- <span *ngIf="node.data.count == undefined && idView && node.data.definition != undefined">
+                            {{ node.data.sense }}</span> -->
 
                        
 

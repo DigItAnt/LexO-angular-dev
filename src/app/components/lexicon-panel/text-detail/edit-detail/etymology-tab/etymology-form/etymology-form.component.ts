@@ -190,7 +190,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
         }
       }
       
-
+      
       let isEtymon = this.object.type.find(element => element == 'Etymon');
       if (isEtymon) {
         this.etyForm.get('isEtymon').setValue(true, { emitEvent: false })
@@ -231,7 +231,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
       let oldValue = prev ? 0 : 1;
       let newValue = next ? 0 : 1;
       let parameters = {
-        type: "confidence",
+       /*  type: "confidence", */
         relation: 'http://www.lexinfo.net/ontology/3.0/lexinfo#confidence',
         value: newValue
       };

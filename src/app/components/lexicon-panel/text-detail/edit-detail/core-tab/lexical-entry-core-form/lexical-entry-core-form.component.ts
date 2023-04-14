@@ -1190,7 +1190,6 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
         this.coreForm.get("stemType").valueChanges.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
             updateStem => {
-
                 if (updateStem != '') {
                     this.lexicalService.spinnerAction('on');
                     let lexId = this.object.lexicalEntry;
@@ -1199,7 +1198,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                         relation: 'https://www.prin-italia-antica.unifi.it#stemType',
                         value: updateStem
                     }
-                    //if (this.memoryStem != '') parameters['currentValue'] = this.memoryStem;
+                    if (this.memoryStem != '') parameters['currentValue'] = this.memoryStem;
                     console.log(parameters)
                     this.lexicalService.updateGenericRelation(lexId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
                         data => {
@@ -1219,6 +1218,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                                     timeOut: 5000,
                                 });
                             } else {
+                                this.memoryStem = updateStem;
                                 this.toastr.success('stemType changed correctly for ' + lexId, '', {
                                     timeOut: 5000,
                                 });
@@ -1443,7 +1443,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
             }
         } else {
             let label = evt.target.value;
-            this.cognates_subject.next({ name: label, i: i })
+            this.cognates_subject.next({ instance_name: label, i: i, external: true })
         }
     }
 
@@ -1760,10 +1760,12 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
     }
 
     onChangeCognates(data) {
+
+        //TODO: verificare cognates
         var index = data['i'];
         this.cognatesArray = this.coreForm.get("cognates") as FormArray;
 
-        let existOrNot = this.memoryCognates.some(element => element?.entity == data.name || element?.name == data.name)
+        let existOrNot = this.memoryCognates.some(element => element?.entity == data.instance_name || element?.name == data.instance_name)
 
         if (this.memoryCognates[index] == undefined && !existOrNot) {
             let newValue = ''
@@ -1771,7 +1773,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                 newValue = data.instance_name
 
             } else {
-                newValue = data.name
+                newValue = data.instance_name
 
             }
 
@@ -1803,6 +1805,23 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                         this.toastr.success('Cognates changed correctly for ' + lexId, '', {
                             timeOut: 5000,
                         });
+
+                        if (this.cognatesArray.at(index).get('lila').value) {
+                            this.cognatesArray.at(index).get('entity').setValue(data.instance_name, { emitEvent: false });
+                            this.cognatesArray.at(index).get('type').setValue('external', { emitEvent: false });
+                            this.cognatesArray.at(index).get('lila').setValue(true, { emitEvent: false });
+                        } else {
+                            this.cognatesArray.at(index).get('lexicalEntry').setValue(this.object.lexicalEntry, { emitEvent: false });
+                            this.cognatesArray.at(index).get('entity').setValue(data.instance_name, { emitEvent: false });
+                            if(data.external){
+                                this.cognatesArray.at(index).get('type').setValue('external', { emitEvent: false });
+                            }else{
+                                this.cognatesArray.at(index).get('type').setValue('internal', { emitEvent: false });
+                            }
+                            
+                            this.cognatesArray.at(index).get('lila').setValue(false, { emitEvent: false });
+    
+                        }
                     } else {
                         this.toastr.error(error.error, 'Error', {
                             timeOut: 5000,
@@ -1810,17 +1829,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
                     }
 
-                    if (this.cognatesArray.at(index).get('lila').value) {
-                        this.cognatesArray.at(index).get('entity').setValue(data.instance_name, { emitEvent: false });
-                        this.cognatesArray.at(index).get('type').setValue('external', { emitEvent: false });
-                        this.cognatesArray.at(index).get('lila').setValue(true, { emitEvent: false });
-                    } else {
-                        this.cognatesArray.at(index).get('lexicalEntry').setValue(this.object.lexicalEntry, { emitEvent: false });
-                        this.cognatesArray.at(index).get('entity').setValue(data.instance_name, { emitEvent: false });
-                        this.cognatesArray.at(index).get('type').setValue('internal', { emitEvent: false });
-                        this.cognatesArray.at(index).get('lila').setValue(false, { emitEvent: false });
-
-                    }
+                    
 
                 }
             )
@@ -1829,7 +1838,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
         } else if (this.memoryCognates[index] != undefined && !existOrNot) {
             const oldValue = this.memoryCognates[index]['entity'] == undefined ? this.memoryCognates[index]['instance_name'] : this.memoryCognates[index]['entity']
-            const newValue = data['name']
+            const newValue = data['instance_name']
             const parameters = {
                 type: "lexicalRel",
                 relation: "http://lari-datasets.ilc.cnr.it/lemonEty#cognate",
@@ -1848,8 +1857,8 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                     this.lexicalService.refreshAfterEdit(data);
                 }, error => {
                     console.log(error)
-                    const data = this.object;
-                    data['request'] = 0;
+                    /* const data = this.object;
+                    data['request'] = 0; */
 
                     //this.lexicalService.refreshAfterEdit(data);
                     this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
@@ -1858,6 +1867,23 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                         this.toastr.success('Label changed correctly for ' + lexId, '', {
                             timeOut: 5000,
                         });
+
+                        if (this.cognatesArray.at(index).get('lila').value) {
+                            this.cognatesArray.at(index).get('entity').setValue(data.instance_name, { emitEvent: false });
+                            this.cognatesArray.at(index).get('type').setValue('external', { emitEvent: false });
+                            this.cognatesArray.at(index).get('lila').setValue(true, { emitEvent: false });
+                        } else {
+                            this.cognatesArray.at(index).get('lexicalEntry').setValue(this.object.lexicalEntry, { emitEvent: false });
+                            this.cognatesArray.at(index).get('entity').setValue(data.instance_name, { emitEvent: false });
+                            if(data.external){
+                                this.cognatesArray.at(index).get('type').setValue('external', { emitEvent: false });
+                            }else{
+                                this.cognatesArray.at(index).get('type').setValue('internal', { emitEvent: false });
+                            }
+                            
+                            this.cognatesArray.at(index).get('lila').setValue(false, { emitEvent: false });
+    
+                        }
                     } else {
                         this.toastr.error(error.error, 'Error', {
                             timeOut: 5000,
@@ -2133,7 +2159,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
                     console.log(error)
                     //this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
                     if(error.status == 200){
-                        this.toastr.success("Cognate removed correctly", 'Error', {
+                        this.toastr.success("Cognate removed correctly", '', {
                             timeOut: 5000,
                         });
                     }else{

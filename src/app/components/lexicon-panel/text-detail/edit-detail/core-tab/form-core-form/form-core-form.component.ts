@@ -338,7 +338,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
       let oldValue = prev ? 0 : 1;
       let newValue = next ? 0 : 1;
       let parameters = {
-        type: "confidence",
+        /* type: "confidence", */
         relation: 'http://www.lexinfo.net/ontology/3.0/lexinfo#confidence',
         value: newValue
       };

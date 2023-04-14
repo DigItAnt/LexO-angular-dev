@@ -111,7 +111,7 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
       this.object = changes.lexicalConceptData.currentValue;
       if (this.object != null) {
         this.lexicalConceptForm.get('defaultLabel').setValue(this.object.defaultLabel, { emitEvent: false });
-        this.lexicalConceptForm.get('definition').setValue(this.object.definiton, { emitEvent: false });
+        this.lexicalConceptForm.get('definition').setValue(this.object.definition, { emitEvent: false });
 
         const conceptId = this.object.lexicalConcept;
         this.lexicalService.getLexEntryLinguisticRelation(conceptId, 'isEvokedBy').pipe(takeUntil(this.destroy$)).subscribe(
@@ -207,7 +207,7 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
           relation: "http://www.w3.org/2004/02/skos/core#definition",
           source: this.object.lexicalConcept,
           target: next,
-          oldTarget: prev == null ? this.object.definiton : prev,
+          oldTarget: prev == null ? this.object.definition : prev,
           targetLanguage: this.object.language,
           oldTargetLanguage: this.object.language
         }
@@ -273,6 +273,8 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
           console.log(filter_lang)
           this.searchResults = filter_lang;
         } else {
+          let filter_lang = [];
+          this.searchResults = filter_lang;
         }
 
       }, error => {

@@ -75,7 +75,7 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
   })
 
   counter = 0;
-  nodes = [];
+  skos_nodes = [];
   show = false;
   offset: number;
   modalShow: boolean;
@@ -327,7 +327,7 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
       conceptSets.map(
         element => element['hasChildren'] = true
       )
-      this.nodes = conceptSets;
+      this.skos_nodes = conceptSets;
     } */
 
     if (rootConceptSets.length > 0 && conceptSets.length == 0) {
@@ -338,12 +338,12 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
         },
       )
 
-      this.nodes = rootConceptSets;
+      this.skos_nodes = rootConceptSets;
     }
 
     
 
-    this.counter = this.nodes.length;
+    this.counter = this.skos_nodes.length;
   }
 
   ngOnDestroy(): void {
@@ -373,9 +373,9 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
         $('#lazyLoadingModal').modal('hide');
         $('.modal-backdrop').remove();
         for (var i = 0; i < data['list'].length; i++) {
-          this.nodes.push(data['list'][i]);
+          this.skos_nodes.push(data['list'][i]);
         };
-        //this.counter = this.nodes.length;
+        //this.counter = this.skos_nodes.length;
         this.skosTree.treeModel.update();
         this.updateTreeView();
         this.modalShow = false;
@@ -396,7 +396,7 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
 
 
     setTimeout(() => {
-      this.counter = this.nodes.length;
+      this.counter = this.skos_nodes.length;
       this.skosTree.sizeChanged();
 
     }, 1000);
@@ -414,6 +414,8 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
 
 
   searchFilter(newPar) {
+    
+    this.skos_nodes = [];
 
     setTimeout(() => {
       const viewPort_prova = this.element.nativeElement.querySelector('tree-viewport') as HTMLElement;
@@ -442,13 +444,20 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
           )
 
           filter_lang.forEach(
-            el=> el['hasChildren'] = true
+            el=> {
+              el['hasChildren'] = true;
+              el['children'] = [];
+            }
           )
 
           console.log(filter_lang)
-          this.nodes = filter_lang;
+          this.skos_nodes = filter_lang;
+
           
-        } 
+          
+        } else{
+          this.skos_nodes = [];
+        }
 
       }, error => {
         console.log(error)
@@ -823,7 +832,7 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
             
             
 
-            /* this.nodes.push(data);
+            /* this.skos_nodes.push(data);
             this.updateTreeView();
             this.skosTree.treeModel.update();
             this.skosTree.treeModel.getNodeById(data.id).setActiveAndVisible(); */
@@ -856,7 +865,7 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
             timeOut: 5000,
           });
           data['hasChildren'] = true;
-          this.nodes.push(data);
+          this.skos_nodes.push(data);
           this.updateTreeView();
           this.skosTree.treeModel.update();
           this.skosTree.treeModel.getNodeById(data.id).setActiveAndVisible();

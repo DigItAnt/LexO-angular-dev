@@ -333,7 +333,7 @@
                                 (keyup)="triggerCognates($event, i)" (change)="handleCognates(select_cognates, i)"
                                 [items]="searchResults" bindValue="label" (focus)="deleteData()" bindLabel="label"
                                 placeholder="Search cognates" appendTo="body"
-                                *ngIf="!variable.switch || cog.get('lila').value">
+                                *ngIf="!variable.switch || cog.get('lila').value && cog.get('type').value == 'internal'">
                                 <ng-template ng-option-tmp let-item="item" let-search="searchTerm"
                                     *ngIf="!cog.get('lila').value">
                                     <div>

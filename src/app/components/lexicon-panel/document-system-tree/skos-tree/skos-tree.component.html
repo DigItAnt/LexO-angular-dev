@@ -71,7 +71,7 @@
   <!-- [infiniteScrollContainer]="'.search-results'" -->
   <p *ngIf="show">Nessun risultato</p>
 
-  <tree-root #skosTree [nodes]="nodes" [options]="options" [focused]="true" (activate)="onEvent($event)"
+  <tree-root #skosTree [nodes]="skos_nodes" [options]="options" [focused]="true" (activate)="onEvent($event)"
     (moveNode)="onMoveNode($event)">
     <ng-template #treeNodeTemplate let-node let-index="index">
 

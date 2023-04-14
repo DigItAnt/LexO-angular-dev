@@ -227,7 +227,7 @@ export class SameAsComponent implements OnInit, OnDestroy {
         }
 
 
-        this.memorySameAs[index] = selectedValues;
+        
       } else {
         let oldValue = this.memorySameAs[index];
         parameters = {
@@ -245,10 +245,15 @@ export class SameAsComponent implements OnInit, OnDestroy {
         console.log(e)
         this.disableAddSameAs = false;
         if (e.status == 200) {
+          this.memorySameAs[index] = selectedValues;
           this.memorySameAs.push(selectedValues);
           this.toastr.success('sameAs updated', '', {
             timeOut: 5000,
           });
+
+          this.sameAsArray.at(index).get('entity').setValue(selectedValues, {emitEvent: false});
+          this.sameAsArray.at(index).get('inferred').setValue(true, {emitEvent: false})
+          this.sameAsArray.at(index).get('lila').setValue(false, {emitEvent: false})
         } else {
           this.toastr.error(e.error, 'Error', {
             timeOut: 5000,
@@ -289,7 +294,7 @@ export class SameAsComponent implements OnInit, OnDestroy {
         }
 
 
-        this.memorySameAs[index] = selectedValues;
+       
       } else {
         let oldValue = this.memorySameAs[index];
         parameters = {
@@ -306,6 +311,7 @@ export class SameAsComponent implements OnInit, OnDestroy {
       } catch (e) {
         console.log(e)
         if (e.status == 200) {
+          this.memorySameAs[index] = selectedValues;
           this.memorySameAs.push(selectedValues);
           this.sameAsArray.at(index).get('entity').setValue(selectedValues, {emitEvent: false});
           this.sameAsArray.at(index).get('inferred').setValue(true, {emitEvent: false})

@@ -220,6 +220,7 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
   }
 
 
+  //TODO: sistemare bibliography panel
   onChanges(data) {
     let fieldType = '';
     console.log(data)
@@ -289,9 +290,9 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
       )
 
 
-      if (fieldType == 'note') {
+      if (fieldType == 'http://www.w3.org/2004/02/skos/core#note') {
         this.memoryNote[index] = newValue;
-      } else if (fieldType == 'label') {
+      } else if (fieldType == 'http://www.w3.org/2000/01/rdf-schema#label') {
         this.memoryTextualRef[index] = newValue;
       }
 
