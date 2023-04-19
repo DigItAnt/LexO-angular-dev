@@ -165,7 +165,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
         if (this.object.confidence == 0) {
           this.senseCore.get('confidence').setValue(true, { emitEvent: false });
         } else {
-          this.senseCore.get('confidence').setValue(null, { emitEvent: false });
+          this.senseCore.get('confidence').setValue(false, { emitEvent: false });
         }
         this.senseCore.get('topic').setValue(this.object.topic, { emitEvent: false })
         this.senseCore.get('usage').setValue(this.object.usage, { emitEvent: false });
@@ -242,7 +242,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
       //if (this.memoryConfidence != null) parameters['currentValue'] = oldValue;
       this.memoryConfidence = oldValue;
 
-      this.lexicalService.updateGenericRelation(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
+      this.lexicalService.updateSense(senseId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data => {
           console.log(data)
         },

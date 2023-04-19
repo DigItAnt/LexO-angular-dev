@@ -346,7 +346,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
 
       if (prev !== null) parameters['currentValue'] = oldValue;
 
-      this.lexicalService.updateGenericRelation(formId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
+      this.lexicalService.updateForm(formId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data => { },
         error => {
           if (error.status == 200) this.toastr.success('Confidence updated', '', { timeOut: 5000 })
