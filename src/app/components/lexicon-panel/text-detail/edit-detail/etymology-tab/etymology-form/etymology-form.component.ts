@@ -170,7 +170,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
       if (this.object.etymology.confidence == 0) {
         this.etyForm.get('confidence').setValue(true, { emitEvent: false });
       } else {
-        this.etyForm.get('confidence').setValue(null, { emitEvent: false });
+        this.etyForm.get('confidence').setValue(false, { emitEvent: false });
       }
 
       if(typeof(this.object.type) == 'string'){
@@ -240,7 +240,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
       if (this.memoryConfidence != null) parameters['currentValue'] = oldValue;
       this.memoryConfidence = oldValue;
 
-      this.lexicalService.updateGenericRelation(etyId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
+      this.lexicalService.updateEtymology(etyId, parameters).pipe(takeUntil(this.destroy$)).subscribe(
         data => { },
         error => {
           if (error.status == 200) this.toastr.success('Confidence updated', '', { timeOut: 5000 })
