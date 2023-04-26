@@ -569,7 +569,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
       let oldValue = this.memoryLinks[index].etySource;
       let parameters = {
         type: "etyLink",
-        relation: "etySource",
+        relation: "http://lari-datasets.ilc.cnr.it/lemonEty#etySource",
         value: selectedValues,
         currentValue: oldValue
       }

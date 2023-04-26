@@ -35,7 +35,8 @@ export class LilaService {
       ?lemma a lila:Lemma ;
       ontolex:writtenRep ?wr ;
       lila:hasPOS ?pos .
-      FILTER regex(?wr, "^`+label+`", "i") }`)+'&endpoint='+this.endpoint, null)
+      FILTER regex(?wr, "^`+label+`", "i") }
+    LIMIT 500`)+'&endpoint='+this.endpoint, null)
   }
 
   queryEtymon(label: string): Observable<any> {
@@ -49,6 +50,7 @@ export class LilaService {
       rdfs:label ?label ;
       rdfs:comment ?comment ;
       lime:language ?language .
-    FILTER regex(?label, "^\\\\*`+label+`", "i")}`)+'&endpoint='+this.endpoint, null)
+    FILTER regex(?label, "^\\\\*`+label+`", "i")}
+    LIMIT 500`)+'&endpoint='+this.endpoint, null)
   }
 }

@@ -12,7 +12,9 @@
     <div id="attestationCollapse" class="collapse" aria-labelledby="attestationHeading" #accordion>
         <div class="card-body">
             <div *ngIf="formData != null">
+               
                 <div class="card mb-4 pt-4" *ngFor="let item of formData; let i = index">
+                    
                     <a class="attestationCollapse" data-toggle="collapse" [attr.data-target]="'#attestation_collapse-'+i"
                         aria-expanded="true" [attr.aria-controls]="'#attestation_collapse-'+i" ><span class="text-id pointer"> <!-- (click)="getForm(item?.value, i)" --><b
                                 class="badge badge-primary">{{fileId == undefined ? item?.attributes.fileId : fileId}} - {{item?.attributes.label != undefined ? item?.attributes.label : ''}}</b></span></a>

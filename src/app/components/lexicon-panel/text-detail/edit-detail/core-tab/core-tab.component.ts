@@ -422,15 +422,22 @@ export class CoreTabComponent implements OnInit, OnDestroy {
           },
           error => {
             this.searchIconSpinner = false;
-            const data = this.object;
-            data['request'] = 0;
-            data['new_status'] = 'completed'
-            this.lexicalService.refreshAfterEdit(data);
-            this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
-            setTimeout(() => {
-              //@ts-ignore
-              $('.locked-tooltip').tooltip('disable');
-            }, 10);
+            if(error.status == 200){
+              const data = this.object;
+              data['request'] = 0;
+              data['new_status'] = 'completed'
+              this.lexicalService.refreshAfterEdit(data);
+              this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
+              setTimeout(() => {
+                //@ts-ignore
+                $('.locked-tooltip').tooltip('disable');
+              }, 10);
+
+              this.toastr.success('Status changed correctly', '', {timeOut: 5000})
+            }else{
+              this.toastr.error(error.error, 'Error', {timeOut: 5000})
+            }
+            
           }
         )
       }; break;

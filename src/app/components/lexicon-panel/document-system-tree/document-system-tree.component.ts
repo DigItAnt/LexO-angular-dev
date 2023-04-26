@@ -875,10 +875,19 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
             timeOut: 5000,
           });
           data['hasChildren'] = true;
-          this.skosTree.nodes.push(data);
+          
+          this.skosTree.skos_nodes.push(data);
           this.skosTree.updateTreeView();
           this.skosTree.skosTree.treeModel.update();
-          this.skosTree.skosTree.treeModel.getNodeById(data.id).setActiveAndVisible();
+
+          setTimeout(() => {
+            this.skosTree.skosTree.treeModel.getNodeBy(element=>{
+              if(element.data.lexicalConcept == data.lexicalConcept){
+                element.setActiveAndVisible();
+              }
+            })  
+          }, 300);
+          
         }
        
       },error=> {
