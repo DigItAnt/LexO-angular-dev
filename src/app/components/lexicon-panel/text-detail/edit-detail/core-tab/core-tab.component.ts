@@ -467,6 +467,7 @@ export class CoreTabComponent implements OnInit, OnDestroy {
             this.searchIconSpinner = false;
             const data = this.object;
             data['request'] = 0;
+            data['new_status'] = 'reviewed'
             this.lexicalService.refreshAfterEdit(data);
             this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
             setTimeout(() => {

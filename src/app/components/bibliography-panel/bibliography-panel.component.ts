@@ -220,7 +220,6 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
   }
 
 
-  //TODO: sistemare bibliography panel
   onChanges(data) {
     let fieldType = '';
     console.log(data)

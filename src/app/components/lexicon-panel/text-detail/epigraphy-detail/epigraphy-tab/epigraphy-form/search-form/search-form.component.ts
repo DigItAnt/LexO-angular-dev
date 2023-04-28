@@ -20,6 +20,7 @@ import { Subject, Subscription } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import { AnnotatorService } from 'src/app/services/annotator/annotator.service';
 import { AuthService } from 'src/app/services/auth/auth.service';
+import { DocumentSystemService } from 'src/app/services/document-system/document-system.service';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 
@@ -47,7 +48,15 @@ export class SearchFormComponent implements OnInit, OnDestroy {
   get_lex_entry_type_subscription: Subscription;
   get_form_type_subscription: Subscription;
 
-  constructor(private formBuilder: FormBuilder, private modalService: NgbModal, private toastr: ToastrService, private annotatorService: AnnotatorService, private lexicalService: LexicalEntriesService, private expander: ExpanderService, private renderer: Renderer2, private auth: AuthService) { }
+  constructor(private formBuilder: FormBuilder, 
+              private modalService: NgbModal, 
+              private toastr: ToastrService, 
+              private annotatorService: AnnotatorService, 
+              private lexicalService: LexicalEntriesService, 
+              private expander: ExpanderService, 
+              private renderer: Renderer2, 
+              private auth: AuthService,
+              private documentService : DocumentSystemService) { }
 
   @Input() bind;
   @ViewChild('addFormModal') addFormModal: any;
@@ -297,18 +306,18 @@ export class SearchFormComponent implements OnInit, OnDestroy {
 
 
 
-  handleForm(evt) {
+  handleForm(ngSelect, $event) {
 
-    if (evt instanceof NgSelectComponent) {
-      if (evt.selectedItems.length > 0) {
-        /* console.log(evt.selectedItems[0]) */
+    if (ngSelect instanceof NgSelectComponent) {
+      if (ngSelect.selectedItems.length > 0) {
+        /* console.log(ngSelect.selectedItems[0]) */
         let label;
-        if (evt.selectedItems[0]['value']['form'] != undefined) {
-          label = evt.selectedItems[0]['value']['form'];
+        if (ngSelect.selectedItems[0]['value']['form'] != undefined) {
+          label = ngSelect.selectedItems[0]['value']['form'];
         } else {
-          label = evt.selectedItems[0].label;
+          label = ngSelect.selectedItems[0].label;
         }
-        this.onChangeForm(evt.selectedItems[0]['value'])
+        this.onChangeForm(ngSelect.selectedItems[0]['value'])
       }
     } /* else {
         let label = evt.target.value;
@@ -319,7 +328,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
 
   async onChangeForm(data) {
 
-
+    //TODO: aggiungere leiden
 
     let parameters = {}
     let idPopover = this.bind.selectedPopover.tokenId;
@@ -328,6 +337,33 @@ export class SearchFormComponent implements OnInit, OnDestroy {
     let textSelection = this.bind.message;
     let selectionSpan = this.bind.spanSelection;
     let formValue = data.form;
+
+
+    let xmlNode = this.bind.epiData.xmlDoc.querySelectorAll('[*|id=\'' + tokenData.xmlid + '\']')[0].outerHTML;
+    let object = {
+      xmlString: xmlNode
+    }
+    let leidenToken = '';
+    try {
+      let convert_to_leiden = await this.documentService.testConvertItAnt(object).toPromise();
+      console.log(convert_to_leiden);
+      let raw = convert_to_leiden['xml'];
+      let bodyResponse = new DOMParser().parseFromString(raw, "text/html").body;
+      
+      bodyResponse.childNodes.forEach(
+        x => {
+          if (x.nodeName != undefined) {
+            if (x.nodeName == '#text') {
+              leidenToken += x.nodeValue.replace('\n', '');
+            }
+          }
+        }
+      )
+    } catch (error) {
+
+    }
+
+
 
     if (this.creator == undefined) {
       this.creator = '';
@@ -348,6 +384,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         bibliography: [],
         validity: "",
         externalRef: "",
+        leiden : leidenToken,
         node_id: tokenData.id,
         label: data.label,
         lexicalEntry: data.lexicalEntry
@@ -369,6 +406,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         confidence: 1,
         timestamp: new Date().getTime().toString(),
         bibliography: [],
+        leiden : leidenToken,
         validity: "",
         externalRef: "",
         node_id: tokenData.id,
@@ -394,6 +432,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         bibliography: [],
         validity: "",
         externalRef: "",
+        leiden : leidenToken,
         node_id: tokenData.id,
         label: data.label,
         lexicalEntry: data.lexicalEntry
@@ -411,6 +450,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         timestamp: new Date().getTime().toString(),
         bibliography: [],
         validity: "",
+        leiden : leidenToken,
         externalRef: "",
         node_id: undefined,
         label: data.label,
@@ -631,6 +671,8 @@ export class SearchFormComponent implements OnInit, OnDestroy {
 
   async wizardFactory() {
 
+    //TODO: attaccargli token alla fine
+
     //nuova lexical entry
     if (this.stepThreeForm.touched) {
 
@@ -708,7 +750,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
                           let create_form = await this.lexicalService.createNewForm(lexId).toPromise();
                           console.log(create_form);
                           let formId = create_form.form;
-
+                          let formData = create_form;
                           this.statusForm.get('creatingForm').patchValue('ok', { emitEvent: false });
 
 
@@ -742,6 +784,113 @@ export class SearchFormComponent implements OnInit, OnDestroy {
                                 if (error.status == 200) {
                                   this.statusForm.get('attachingFormType').patchValue('ok', { emitEvent: false });
                                   this.statusForm.get('finish').patchValue('ok', { emitEvent: false });
+
+
+                                  let parameters = {}
+                                  let idPopover = this.bind.selectedPopover.tokenId;
+                                  let tokenData = this.bind.object[idPopover];
+                                  let element_id = this.bind.epiData.element_id;
+                                  let textSelection = this.bind.message;
+                                  let selectionSpan = this.bind.spanSelection;
+                                  let formValue = formId;
+
+                                  let xmlNode = this.bind.epiData.xmlDoc.querySelectorAll('[*|id=\'' + tokenData.xmlid + '\']')[0].outerHTML;
+                                  let object = {
+                                    xmlString: xmlNode
+                                  }
+                                  let leidenToken = '';
+                                  try {
+                                    let convert_to_leiden = await this.documentService.testConvertItAnt(object).toPromise();
+                                    console.log(convert_to_leiden);
+                                    let raw = convert_to_leiden['xml'];
+                                    let bodyResponse = new DOMParser().parseFromString(raw, "text/html").body;
+                                    
+                                    bodyResponse.childNodes.forEach(
+                                      x => {
+                                        if (x.nodeName != undefined) {
+                                          if (x.nodeName == '#text') {
+                                            leidenToken += x.nodeValue.replace('\n', '');
+                                          }
+                                        }
+                                      }
+                                    )
+                                  } catch (error) {
+
+                                  }
+
+
+
+                                  if (this.creator == undefined) {
+                                    this.creator = '';
+                                  }
+
+
+                                  parameters["value"] = formValue;
+                                  parameters["layer"] = "attestation";
+                                  parameters["attributes"] = {
+                                    author: this.creator,
+                                    creator: this.creator,
+                                    note: "",
+                                    confidence: 1,
+                                    timestamp: new Date().getTime().toString(),
+                                    bibliography: [],
+                                    leiden : leidenToken,
+                                    validity: "",
+                                    externalRef: "",
+                                    node_id: tokenData.id,
+                                    label: writtenRep,
+                                    lexicalEntry: formData.lexicalEntry
+                                  };
+                                  parameters["spans"] = [
+                                    {
+                                      start: tokenData.begin.toString(),
+                                      end: tokenData.end.toString()
+                                    }
+                                  ];
+                                  parameters["id"] = tokenData.node;
+
+
+                                  let identifier;
+
+                                  if (!this.bind.isEmptyFile) {
+                                    identifier = tokenData.node;
+                                  } else {
+                                    identifier = element_id
+                                  }
+
+                                  try {
+                                    let add_annotation_request = await this.annotatorService.addAnnotation(parameters, identifier).toPromise()
+                                    console.log(data);
+                                    this.bind.annotationArray.push(add_annotation_request.annotation);
+                              
+                                    if (!this.bind.isEmptyFile) {
+                                      this.bind.populateLocalAnnotation(tokenData);
+                                    } else {
+                                      this.bind.populateLocalAnnotation(add_annotation_request.annotation)
+                                    }
+                              
+                              
+                                    if (!this.bind.isEmptyFile) {
+                                      this.bind.object.forEach(element => {
+                                        if (add_annotation_request.annotation.attributes.node_id == element.id) {
+                                          let positionElement = element.position;
+                                          let elementHTML = document.getElementsByClassName('token-' + (positionElement - 1))[0]
+                                          this.renderer.addClass(elementHTML, 'annotation');
+                                        }
+                                      });
+                                    }
+                              
+                              
+                                    this.toastr.success('New attestation created', 'Info', {
+                                      timeOut: 5000
+                                    })
+                                  } catch (error) {
+                                    if (error.status != 200) {
+                                      this.toastr.error('Error on create new attestation', 'Error', {
+                                        timeOut: 5000
+                                      })
+                                    }
+                                  }
                                 } else {
                                   this.toastr.error("Error on attaching form type", "Error", { timeOut: 5000 })
                                 }
@@ -820,6 +969,113 @@ export class SearchFormComponent implements OnInit, OnDestroy {
               if (error.status == 200) {
                 this.statusForm.get('attachingFormType').patchValue('ok', { emitEvent: false });
                 this.statusForm.get('finish').patchValue('ok', { emitEvent: false });
+
+
+                let parameters = {}
+                let idPopover = this.bind.selectedPopover.tokenId;
+                let tokenData = this.bind.object[idPopover];
+                let element_id = this.bind.epiData.element_id;
+                let textSelection = this.bind.message;
+                let selectionSpan = this.bind.spanSelection;
+                let formValue = formId;
+
+                let xmlNode = this.bind.epiData.xmlDoc.querySelectorAll('[*|id=\'' + tokenData.xmlid + '\']')[0].outerHTML;
+                let object = {
+                  xmlString: xmlNode
+                }
+                let leidenToken = '';
+                try {
+                  let convert_to_leiden = await this.documentService.testConvertItAnt(object).toPromise();
+                  console.log(convert_to_leiden);
+                  let raw = convert_to_leiden['xml'];
+                  let bodyResponse = new DOMParser().parseFromString(raw, "text/html").body;
+                  
+                  bodyResponse.childNodes.forEach(
+                    x => {
+                      if (x.nodeName != undefined) {
+                        if (x.nodeName == '#text') {
+                          leidenToken += x.nodeValue.replace('\n', '');
+                        }
+                      }
+                    }
+                  )
+                } catch (error) {
+
+                }
+
+
+
+                if (this.creator == undefined) {
+                  this.creator = '';
+                }
+
+
+                parameters["value"] = formValue;
+                parameters["layer"] = "attestation";
+                parameters["attributes"] = {
+                  author: this.creator,
+                  creator: this.creator,
+                  note: "",
+                  confidence: 1,
+                  timestamp: new Date().getTime().toString(),
+                  bibliography: [],
+                  leiden : leidenToken,
+                  validity: "",
+                  externalRef: "",
+                  node_id: tokenData.id,
+                  label: writtenRep,
+                  lexicalEntry: lexId
+                };
+                parameters["spans"] = [
+                  {
+                    start: tokenData.begin.toString(),
+                    end: tokenData.end.toString()
+                  }
+                ];
+                parameters["id"] = tokenData.node;
+
+
+                let identifier;
+
+                if (!this.bind.isEmptyFile) {
+                  identifier = tokenData.node;
+                } else {
+                  identifier = element_id
+                }
+
+                try {
+                  let add_annotation_request = await this.annotatorService.addAnnotation(parameters, identifier).toPromise()
+                  console.log(data);
+                  this.bind.annotationArray.push(add_annotation_request.annotation);
+            
+                  if (!this.bind.isEmptyFile) {
+                    this.bind.populateLocalAnnotation(tokenData);
+                  } else {
+                    this.bind.populateLocalAnnotation(add_annotation_request.annotation)
+                  }
+            
+            
+                  if (!this.bind.isEmptyFile) {
+                    this.bind.object.forEach(element => {
+                      if (add_annotation_request.annotation.attributes.node_id == element.id) {
+                        let positionElement = element.position;
+                        let elementHTML = document.getElementsByClassName('token-' + (positionElement - 1))[0]
+                        this.renderer.addClass(elementHTML, 'annotation');
+                      }
+                    });
+                  }
+            
+            
+                  this.toastr.success('New attestation created', 'Info', {
+                    timeOut: 5000
+                  })
+                } catch (error) {
+                  if (error.status != 200) {
+                    this.toastr.error('Error on create new attestation', 'Error', {
+                      timeOut: 5000
+                    })
+                  }
+                }
               } else {
                 this.toastr.error("Error on attaching type", "Error", { timeOut: 5000 })
               }

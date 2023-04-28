@@ -784,7 +784,6 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
           $('body').removeClass("modal-open")
           $('body').css("padding-right", "");
 
-          //TODO:  /api/public/search per ottenere le attestazioni delle forme da mandare nell'attestation panel
 
           
           // this.lexicalService.sendToAttestationPanel(null);
@@ -1039,7 +1038,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
         let data = await this.lexicalService.getLexEntryElements(instance).toPromise();
         console.log(data['elements'])
         data["elements"] = data["elements"].filter(function (obj) {
-          return obj.count != 0;
+          return obj.count != 0 && (obj.label != 'lexicalConcept' && obj.label != 'concept');
         })
         newNodes = data["elements"].map((c) => Object.assign({}, c));
 

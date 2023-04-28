@@ -1761,7 +1761,6 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
     onChangeCognates(data) {
 
-        //TODO: verificare cognates
         var index = data['i'];
         this.cognatesArray = this.coreForm.get("cognates") as FormArray;
 

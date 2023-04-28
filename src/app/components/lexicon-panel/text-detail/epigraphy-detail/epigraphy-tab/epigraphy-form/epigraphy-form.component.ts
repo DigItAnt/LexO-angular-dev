@@ -600,53 +600,65 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
               let startElement = element.begin;
               let endElement = element.end;
 
+              
               for (const annotation of this.annotationArray) {
-                if (annotation.spans.length == 1) {
-                  let startAnnotation = annotation.spans[0].start;
-                  let endAnnotation = annotation.spans[0].end;
 
-                  if (startAnnotation >= startElement && endAnnotation <= endElement) {
-                    let positionElement = element.position;
-                    let elementHTML = document.getElementsByClassName('token-' + (positionElement - 1))[0]
-                    var that = this;
-
-                    let xmlNode = xmlDoc.querySelectorAll('[*|id=\'' + element.xmlid + '\']')[0].outerHTML;
-                    let object = {
-                      xmlString: xmlNode
-                    }
-
-                    try {
-                      let convert_to_leiden = await this.documentService.testConvertItAnt(object).toPromise();
-                      console.log(convert_to_leiden);
-                      let raw = convert_to_leiden['xml'];
-                      let bodyResponse = new DOMParser().parseFromString(raw, "text/html").body;
-                      let leidenToken = '';
-                      bodyResponse.childNodes.forEach(
-                        x => {
-                          if (x.nodeName != undefined) {
-                            if (x.nodeName == '#text') {
-                              leidenToken += x.nodeValue.replace('\n', '');
-                            }
-                          }
-                        }
-                      )
-                      if (leidenToken != '') {
-                        annotation.attributes['leiden'] = leidenToken;
-                      } else {
-                        annotation.attributes['leiden'] = '';
+                
+                  if (annotation.spans.length == 1) {
+                    let startAnnotation = annotation.spans[0].start;
+                    let endAnnotation = annotation.spans[0].end;
+  
+                    if (startAnnotation >= startElement && endAnnotation <= endElement) {
+                      let positionElement = element.position;
+                      let elementHTML = document.getElementsByClassName('token-' + (positionElement - 1))[0]
+                      var that = this;
+  
+                      let xmlNode = xmlDoc.querySelectorAll('[*|id=\'' + element.xmlid + '\']')[0].outerHTML;
+                      let object = {
+                        xmlString: xmlNode
                       }
+
                       if (elementHTML != undefined) {
                         that.renderer.addClass(elementHTML, 'annotation');
                       }
-                    } catch (error) {
-
+                      
+                      if(annotation.attributes.leiden == undefined){
+                        try {
+                          let convert_to_leiden = await this.documentService.testConvertItAnt(object).toPromise();
+                          console.log(convert_to_leiden);
+                          let raw = convert_to_leiden['xml'];
+                          let bodyResponse = new DOMParser().parseFromString(raw, "text/html").body;
+                          let leidenToken = '';
+                          bodyResponse.childNodes.forEach(
+                            x => {
+                              if (x.nodeName != undefined) {
+                                if (x.nodeName == '#text') {
+                                  leidenToken += x.nodeValue.replace('\n', '');
+                                }
+                              }
+                            }
+                          )
+    
+                          //TODO: check leiden
+                          if (leidenToken != '') {
+                            annotation.attributes['leiden'] = leidenToken;
+                          } else {
+                            annotation.attributes['leiden'] = '';
+                          }
+                          
+                        } catch (error) {
+    
+                        }
+                      }
+                      
+  
+  
+  
+  
                     }
-
-
-
-
                   }
-                }
+                
+                
               }
             }
 

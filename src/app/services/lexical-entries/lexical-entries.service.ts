@@ -291,7 +291,7 @@ export class LexicalEntriesService {
   //POST ​/lexicon​/update​/{id}​/lexicalEntry --> lexical entry update
   updateLexicalEntry(lexId, parameters): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/update/lexicalEntry?key=" + this.key + "&user=" + this.author + "&id=" + encodeURIComponent(lexId), parameters);
+    return this.http.post(this.baseUrl + "lexicon/update/lexicalEntry?key=" + this.key + "&author=" + this.author + "&id=" + encodeURIComponent(lexId), parameters);
   }
 
 
@@ -310,13 +310,13 @@ export class LexicalEntriesService {
   //POST /lexicon/update/{id}/form --> update form values
   updateForm(formId, parameters): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/update/form?key=" + this.key + "&user=" + this.author + "&id=" + encodeURIComponent(formId), parameters);
+    return this.http.post(this.baseUrl + "lexicon/update/form?key=" + this.key + "&id=" + encodeURIComponent(formId), parameters);
   }
 
   //POST /lexicon/update/{id}/lexicalSense --> update form values
   updateSense(senseId, parameters): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/update/lexicalSense?key=" + this.key + "&user=" + this.author + "&id=" + encodeURIComponent(senseId), parameters);
+    return this.http.post(this.baseUrl + "lexicon/update/lexicalSense?key=" + this.key + "&id=" + encodeURIComponent(senseId), parameters);
   }
 
   //GET  /lexinfo/data/morphology --> get data about morphology
@@ -356,7 +356,7 @@ export class LexicalEntriesService {
   //POST /lexicon/update/{id}/language --> update language
   updateLanguage(langId, parameters): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/update/language?key=" + this.key + "&author=" + this.author + "&id=" + encodeURIComponent(langId), parameters);
+    return this.http.post(this.baseUrl + "lexicon/update/language?key=" + this.key + "&id=" + encodeURIComponent(langId), parameters);
   }
   
 
@@ -396,7 +396,7 @@ export class LexicalEntriesService {
 
   updateEtymology(etymId, parameters): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/update/etymology?key=" + this.key + "&author=" + this.author + "&id=" + encodeURIComponent(etymId), parameters);
+    return this.http.post(this.baseUrl + "lexicon/update/etymology?key=" + this.key + "&id=" + encodeURIComponent(etymId), parameters);
   }
 
   createNewEtylink(lexInstance: string, etymInstance : string) : Observable<any>{
@@ -411,7 +411,7 @@ export class LexicalEntriesService {
 
   updateEtylink(etymId, parameters): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/update/etymologicalLink?key=" + this.key + "&author=" + this.author + "&id=" + encodeURIComponent(etymId), parameters);
+    return this.http.post(this.baseUrl + "lexicon/update/etymologicalLink?key=" + this.key + "&id=" + encodeURIComponent(etymId), parameters);
   }
 
   deleteEtylink(etyLinkInstance: string) : Observable<any>{
