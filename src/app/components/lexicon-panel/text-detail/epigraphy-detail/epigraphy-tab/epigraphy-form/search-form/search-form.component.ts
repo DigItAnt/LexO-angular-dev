@@ -338,30 +338,33 @@ export class SearchFormComponent implements OnInit, OnDestroy {
     let selectionSpan = this.bind.spanSelection;
     let formValue = data.form;
 
-
-    let xmlNode = this.bind.epiData.xmlDoc.querySelectorAll('[*|id=\'' + tokenData.xmlid + '\']')[0].outerHTML;
-    let object = {
-      xmlString: xmlNode
-    }
     let leidenToken = '';
-    try {
-      let convert_to_leiden = await this.documentService.testConvertItAnt(object).toPromise();
-      console.log(convert_to_leiden);
-      let raw = convert_to_leiden['xml'];
-      let bodyResponse = new DOMParser().parseFromString(raw, "text/html").body;
+    if(tokenData != undefined){
+      let xmlNode = this.bind.epiData.xmlDoc.querySelectorAll('[*|id=\'' + tokenData.xmlid + '\']')[0].outerHTML;
+      let object = {
+        xmlString: xmlNode
+      }
       
-      bodyResponse.childNodes.forEach(
-        x => {
-          if (x.nodeName != undefined) {
-            if (x.nodeName == '#text') {
-              leidenToken += x.nodeValue.replace('\n', '');
+      try {
+        let convert_to_leiden = await this.documentService.testConvertItAnt(object).toPromise();
+        console.log(convert_to_leiden);
+        let raw = convert_to_leiden['xml'];
+        let bodyResponse = new DOMParser().parseFromString(raw, "text/html").body;
+        
+        bodyResponse.childNodes.forEach(
+          x => {
+            if (x.nodeName != undefined) {
+              if (x.nodeName == '#text') {
+                leidenToken += x.nodeValue.replace('\n', '');
+              }
             }
           }
-        }
-      )
-    } catch (error) {
-
+        )
+        } catch (error) {
+  
+      }
     }
+    
 
 
 
@@ -384,7 +387,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         bibliography: [],
         validity: "",
         externalRef: "",
-        leiden : leidenToken,
+        leiden : leidenToken != '' ? leidenToken : null,
         node_id: tokenData.id,
         label: data.label,
         lexicalEntry: data.lexicalEntry

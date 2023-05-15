@@ -313,74 +313,71 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
 
 
-  @HostListener('window:keydown', ['$event'])
-  enableMultiword(event: KeyboardEvent) {
-    /* console.log(event) */
-    if (event.altKey && event.ctrlKey) {
-      this.multiWordMode = true;
-      if (this.object != undefined) {
-        this.object.forEach(element => {
-          element.editing = false;
-          this.selectedPopover.htmlNodeName = '';
-          this.selectedPopover.tokenId = ''
-        });
-      }
-
-    } else if (event.code == 'Escape') {
-
-      let htmlNode = document.getElementById(this.selectedPopover.htmlNodeName)
-      let tokenId = this.selectedPopover.tokenId;
-
-      if (this.object != undefined) {
-        this.object.forEach(element => {
-          if (element.id != tokenId) {
-
+    /* @HostListener('window:keydown', ['$event'])
+    enableMultiword(event: KeyboardEvent) {
+    
+      if (event.altKey && event.ctrlKey) {
+        this.multiWordMode = true;
+        if (this.object != undefined) {
+          this.object.forEach(element => {
             element.editing = false;
-
             this.selectedPopover.htmlNodeName = '';
             this.selectedPopover.tokenId = ''
-          }
-        });
-
-        let parentMarkElement = document.getElementsByClassName('token-' + tokenId)[0];
-        if (parentMarkElement != null) {
-          let i = 0;
-          Array.from(parentMarkElement.children).forEach(
-            element => {
-              console.log(element)
-              if (element.classList.contains('mark')) {
-
-                let textMarkElement = element.textContent;
-                const text = this.renderer.createText(textMarkElement)
-                //parentMarkElement.textContent = parentMarkElement.textContent.trim();
-                //let innerText = parentMarkElement.textContent;
-                this.renderer.insertBefore(parentMarkElement, text, element)
-                this.renderer.removeChild(parentMarkElement, element);
-                //parentMarkElement.insertBefore(text, parentMarkElement.childNodes[i+1]);
-                //let children = parentMarkElement.children;
-                //parentMarkElement.textContent = innerText
-                i++;
-                return;
-              }
-              i++;
-            }
-          );
-
+          });
         }
+
+      } else if (event.code == 'Escape') {
+
+        let htmlNode = document.getElementById(this.selectedPopover.htmlNodeName)
+        let tokenId = this.selectedPopover.tokenId;
+
+        if (this.object != undefined) {
+          this.object.forEach(element => {
+            if (element.id != tokenId) {
+
+              element.editing = false;
+
+              this.selectedPopover.htmlNodeName = '';
+              this.selectedPopover.tokenId = ''
+            }
+          });
+
+          let parentMarkElement = document.getElementsByClassName('token-' + tokenId)[0];
+          if (parentMarkElement != null) {
+            let i = 0;
+            Array.from(parentMarkElement.children).forEach(
+              element => {
+                console.log(element)
+                if (element.classList.contains('mark')) {
+
+                  let textMarkElement = element.textContent;
+                  const text = this.renderer.createText(textMarkElement)
+                  
+                  this.renderer.insertBefore(parentMarkElement, text, element)
+                  this.renderer.removeChild(parentMarkElement, element);
+                  
+                  i++;
+                  return;
+                }
+                i++;
+              }
+            );
+
+          }
+        }
+
+
+
+
       }
-
-
-
-
     }
-  }
 
-  @HostListener('window:keyup', ['$event'])
-  disableMultiword(event: KeyboardEvent) {
-    if (!event.altKey && !event.ctrlKey) {
-      this.multiWordMode = false;
-    }
-  }
+    @HostListener('window:keyup', ['$event'])
+    disableMultiword(event: KeyboardEvent) {
+      if (!event.altKey && !event.ctrlKey) {
+        this.multiWordMode = false;
+      }
+    } */
 
   constructor(private router: Router, private annotatorService: AnnotatorService, private expander: ExpanderService, private renderer: Renderer2, private documentService: DocumentSystemService, private formBuilder: FormBuilder, private toastr: ToastrService, private lexicalService: LexicalEntriesService, private config: NgbPopoverConfig) {
     /* this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe((val) => {
