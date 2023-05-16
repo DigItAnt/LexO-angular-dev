@@ -45,8 +45,10 @@
             {{usr.username}}
             <span class="badge badge-primary badge-pill" *ngIf="usr.haveRoles != undefined">
               <div class="d-flex justify-content-between align-items-center">
-                <i class="fas fa-crown m-2" *ngIf="usr.ADMIN"></i>
-                <i class="fas fa-user m-2" *ngIf="usr.USER"></i>
+                <i class="fas fa-user-cog m-2" *ngIf="usr.ADMIN"></i>
+                <i class="fas fa-user-lock m-2" *ngIf="usr.USER"></i>
+                <i class="fas fa-user-edit m-2" *ngIf="usr.EDITOR"></i>
+                <i class="fas fa-user-check m-2" *ngIf="usr.REVIEWER"></i>
               </div>
             </span>
           </a>
