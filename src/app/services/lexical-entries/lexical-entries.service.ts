@@ -174,7 +174,7 @@ export class LexicalEntriesService {
 
   //GET ​/lexicon​/data​/{id}​/lexicalEntry --> get specific aspect (morphology, syntax, ...) associated with a given lexical entry
   getLexEntryData(instance: string): Observable<any> {
-    return this.http.get(`${this.baseUrl}lexicon/data/lexicalEntry?key=${this.key}&aspect=core&id=${encodeURIComponent(instance)}`).pipe(
+    return this.http.get(`${this.baseUrl}lexicon/data/lexicalEntry?key=${this.key}&module=core&id=${encodeURIComponent(instance)}`).pipe(
       shareReplay()
     );
   }
@@ -198,7 +198,7 @@ export class LexicalEntriesService {
 
   //GET /lexicon/data/{id}/form --> get data about a single form 
   getFormData(formId: string, aspect: string): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/form?key=" + this.key + "&aspect=" + aspect + "&id=" + encodeURIComponent(formId))
+    return this.http.get(this.baseUrl + "lexicon/data/form?key=" + this.key + "&module=" + aspect + "&id=" + encodeURIComponent(formId))
   }
 
   getOntolexRepresentations(): Observable<any> {
@@ -212,7 +212,7 @@ export class LexicalEntriesService {
 
   //GET /lexicon/data/{id}/lexicalSense --> get data about a single form 
   getSenseData(senseId: string, aspect: string): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/lexicalSense?key=" + this.key + "&aspect=" + aspect + "&id=" + encodeURIComponent(senseId))
+    return this.http.get(this.baseUrl + "lexicon/data/lexicalSense?key=" + this.key + "&module=" + aspect + "&id=" + encodeURIComponent(senseId))
   }
 
   //GET /lexicon/data/{id}/senses --> get list of senses of a lexical entry

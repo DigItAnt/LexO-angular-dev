@@ -115,7 +115,7 @@ export class DocumentSystemService {
 
   //POST ​/api​/crud​/downloadFile --> move file to another folder
   downloadFile(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "crud/downloadFile", parameters)
+    return this.http.post(this.baseUrl_document + "public/crud/downloadFile", parameters)
   }
 
   //POST ​/api​/crud​/updateMetadata --> move file to another folder
