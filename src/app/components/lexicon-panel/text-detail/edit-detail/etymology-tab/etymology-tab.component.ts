@@ -228,7 +228,7 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
     $('body').removeClass("modal-open")
     $('body').css("padding-right", "");
 
-    this.bootstrap_bibliography_subscription = this.biblioService.bootstrapData(this.start, this.sortField, this.direction).subscribe(
+    this.bootstrap_bibliography_subscription = this.biblioService.bootstrapData(this.start, this.sortField, this.direction).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         this.memorySort = { field: this.sortField, direction: this.direction }
         this.bibliography = data;
@@ -636,7 +636,7 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
     this.direction = 'asc';
     this.tableBody.nativeElement.scrollTop = 0;
     this.memorySort = { field: this.sortField, direction: this.direction }
-    this.biblioService.bootstrapData(this.start, this.sortField, this.direction).subscribe(
+    this.biblioService.bootstrapData(this.start, this.sortField, this.direction).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         this.bibliography = data;
         this.bibliography.forEach(element => {

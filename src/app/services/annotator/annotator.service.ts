@@ -85,6 +85,10 @@ export class AnnotatorService {
     return this.http.delete(this.baseUrl + 'annotate?requestUUID=test123&annotationID='+id);
   }
 
+  deleteAnnotationByValue(formId : string) : Observable<any> {
+    return this.http.delete(`${this.baseUrl}annotationbyvalue?requestUUID=test123&value=${encodeURIComponent(formId)}`);
+  }
+
   updateAnnotation(annotation : object) : Observable<any>{
     return this.http.put(this.baseUrl + 'annotation?requestUUID=test123', annotation);
   }

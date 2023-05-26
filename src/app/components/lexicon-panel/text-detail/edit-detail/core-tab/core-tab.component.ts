@@ -27,6 +27,7 @@ import { ModalComponent } from 'ng-modal-lib';
 import { BibliographyService } from 'src/app/services/bibliography-service/bibliography.service';
 import { Subject, Subscription } from 'rxjs';
 import { ConceptService } from 'src/app/services/concept/concept.service';
+import { AnnotatorService } from 'src/app/services/annotator/annotator.service';
 
 @Component({
   selector: 'app-core-tab',
@@ -104,7 +105,8 @@ export class CoreTabComponent implements OnInit, OnDestroy {
               private expand: ExpanderService, 
               private rend: Renderer2, 
               private toastr: ToastrService,
-              private conceptService : ConceptService) 
+              private conceptService : ConceptService,
+              private annotatorService : AnnotatorService) 
   { }
 
   ngOnInit(): void {
@@ -658,11 +660,24 @@ export class CoreTabComponent implements OnInit, OnDestroy {
         if (error.status != 200) {
           this.toastr.error(error.message, 'Error', { timeOut: 5000 })
         }else {
+
           this.toastr.success(lexicalId + 'deleted correctly', '', {
             timeOut: 5000,
           });
+
+          this.annotatorService.deleteAnnotationByValue(lexicalId).pipe(
+            takeUntil(this.destroy$)
+          ).toPromise().then(
+            res=>{
+              console.log("annotations deleted")
+            }, err=>{
+              console.error("Error on deleting annotations", err)
+            }
+          )
         }
         this.lexicalService.sendToCoreTab(null)
+        this.lexicalService.sendToAttestationPanel(null);
+
 
       }
     )
