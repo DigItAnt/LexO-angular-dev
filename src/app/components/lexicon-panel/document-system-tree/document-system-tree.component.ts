@@ -20,6 +20,7 @@ import {saveAs as importedSaveAs} from "file-saver";
 import { Subject, Subscription } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
 import { ConceptService } from 'src/app/services/concept/concept.service';
+import { AuthService } from 'src/app/services/auth/auth.service';
 
 
 @Component({
@@ -40,10 +41,11 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
   refresh_after_edit_subscription : Subscription;
   trigger_lex_tree_subscription : Subscription;
 
+  author : string | undefined;
   constructor(private exp: ExpanderService, 
               private lexicalService: LexicalEntriesService, 
               private toastr: ToastrService, 
-              private renderer: Renderer2, 
+              private authService : AuthService,
               private documentService: DocumentSystemService,
               private conceptService : ConceptService) { }
 
@@ -54,6 +56,12 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
       }
     )
 
+    try {
+      this.author = this.authService.getUsername();
+
+    } catch (error) {
+      console.error("Error on getting username: ", error)
+    }
 
     this.trigger_lex_tree_subscription = this.lexicalService.triggerLexicalEntryTree$.subscribe(
       (data:any)=> {
@@ -696,6 +704,8 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
         }
         const formData = new FormData();
         formData.append('file', evt.target.files[0]);
+
+        //TODO: inserire informazioni uploader
 
         this.documentService.uploadFile(formData, element_id, 11).pipe(takeUntil(this.destroy$)).subscribe(
           data => {

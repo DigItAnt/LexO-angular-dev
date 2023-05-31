@@ -235,6 +235,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
   }
 
   updateAnnotation(data){
+    //TODO: rendere campo leiden editabile
     if(data !=null){
       let id_annotation = data?.annotation?.id;
       let newValue = data?.newValue;

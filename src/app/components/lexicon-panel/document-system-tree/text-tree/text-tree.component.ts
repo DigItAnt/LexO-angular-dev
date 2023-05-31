@@ -20,6 +20,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, take, takeUntil } from 'rxjs/operators';
 import { AnnotatorService } from 'src/app/services/annotator/annotator.service';
+import { AuthService } from 'src/app/services/auth/auth.service';
 import { DocumentSystemService } from 'src/app/services/document-system/document-system.service';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
@@ -165,10 +166,19 @@ export class TextTreeComponent implements OnInit, OnDestroy {
   })
 
   initialValues;
-
+  author : string | undefined;
   
   
-  constructor(private lexicalService: LexicalEntriesService, private annotatorService : AnnotatorService, private expander : ExpanderService, private element: ElementRef, private documentService: DocumentSystemService, private renderer: Renderer2, private formBuilder: FormBuilder, private datePipe:DatePipe, private toastr: ToastrService) { }
+  constructor(private lexicalService: LexicalEntriesService, 
+              private annotatorService : AnnotatorService, 
+              private expander : ExpanderService, 
+              private element: ElementRef, 
+              private documentService: DocumentSystemService, 
+              private renderer: Renderer2, 
+              private formBuilder: FormBuilder, 
+              private datePipe:DatePipe, 
+              private toastr: ToastrService,
+              private authService : AuthService) { }
 
   ngOnInit(): void {
     this.loadTree();
@@ -180,6 +190,13 @@ export class TextTreeComponent implements OnInit, OnDestroy {
       date_mode : new FormControl('until'),
       metadata_array : new FormArray([])
     })
+
+    try {
+      this.author = this.authService.getUsername();
+
+    } catch (error) {
+      console.error("Error on getting username: ", error)
+    }
 
     this.onChanges();
     
@@ -790,7 +807,8 @@ export class TextTreeComponent implements OnInit, OnDestroy {
         this.documentService.uploadFile(formData, element_id, 11).pipe(takeUntil(this.destroy$)).subscribe(
           data=>{
             console.log(data)
-           
+            let node = data.node;
+
             this.treeText.treeModel.getNodeBy(x => {
               if(x.data['element-id'] === element_id){
                 x.expand()
@@ -809,6 +827,27 @@ export class TextTreeComponent implements OnInit, OnDestroy {
                 
               }
             })    
+
+            if(this.author){
+              node['metadata']['uploader'] = this.author;
+              let node_metadata = node['metadata']
+
+              let parameters = {
+                requestUUID : '11',
+                metadata : node_metadata,
+                "element-id" : element_id,
+                "user-id" : 0
+              }
+
+              /* this.documentService.updateMetadata(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+                data=>{
+                  console.log(data)
+                },error=>{
+                  console.log(error)
+                }
+              ) */
+              
+            }
             
             
             
