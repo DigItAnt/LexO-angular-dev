@@ -235,7 +235,6 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
   }
 
   updateAnnotation(data){
-    //TODO: rendere campo leiden editabile
     if(data !=null){
       let id_annotation = data?.annotation?.id;
       let newValue = data?.newValue;
@@ -339,7 +338,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
           }
         )
       }else{
-        console.log("non fai partire ricerca")
+        //console.log("non fai partire ricerca")
       }
       console.log(item_collapse)
     }, 500);

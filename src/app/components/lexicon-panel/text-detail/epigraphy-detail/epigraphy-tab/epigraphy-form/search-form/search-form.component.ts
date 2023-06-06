@@ -328,7 +328,6 @@ export class SearchFormComponent implements OnInit, OnDestroy {
 
   async onChangeForm(data) {
 
-    //TODO: aggiungere leiden
 
     let parameters = {}
     let idPopover = this.bind.selectedPopover.tokenId;
@@ -674,7 +673,6 @@ export class SearchFormComponent implements OnInit, OnDestroy {
 
   async wizardFactory() {
 
-    //TODO: attaccargli token alla fine
 
     //nuova lexical entry
     if (this.stepThreeForm.touched) {

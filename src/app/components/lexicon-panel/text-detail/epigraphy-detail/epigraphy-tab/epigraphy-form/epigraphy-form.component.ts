@@ -636,7 +636,6 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
                             }
                           )
     
-                          //TODO: check leiden
                           if (leidenToken != '') {
                             annotation.attributes['leiden'] = leidenToken;
                           } else {

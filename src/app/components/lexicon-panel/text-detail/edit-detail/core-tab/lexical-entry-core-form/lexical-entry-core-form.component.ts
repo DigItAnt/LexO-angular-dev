@@ -500,7 +500,6 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
 
 
-    //TODO: inserire un wizard per la creazione di multiword al volo
 
     ngOnChanges(changes: SimpleChanges) {
         setTimeout(() => {
