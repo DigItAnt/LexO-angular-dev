@@ -63,6 +63,7 @@ export class EpigraphyTabComponent implements OnInit, OnDestroy {
 
         if(object!=null){
           this.object = object
+          this.name = this.object.fileId;
 
           this.epigraphyData = this.object;
           if(this.object != null){
