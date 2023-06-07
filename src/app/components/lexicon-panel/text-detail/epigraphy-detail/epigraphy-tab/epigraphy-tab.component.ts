@@ -25,7 +25,7 @@ import { ExpanderService } from 'src/app/services/expander/expander.service';
   animations: [
     trigger('slideInOut', [
       state('in', style({
-        height: 'calc(100vh - 15rem)',
+        height: 'calc(100vh - 17rem)',
         
       })),
       state('out', style({
@@ -108,9 +108,9 @@ export class EpigraphyTabComponent implements OnInit, OnDestroy {
             
             if(!isEditExpanded){
               
-              this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(100vh - 15rem)')
+              this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(100vh - 17rem)')
               this.exp_trig = 'in';
-              this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(100vh - 15rem)');
+              this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(100vh - 17rem)');
             }else{
               
               this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 10rem)');
