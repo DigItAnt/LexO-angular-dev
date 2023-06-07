@@ -1,4 +1,59 @@
 ﻿
+<app-modal #addNewFileModal class="new_file_modal">
+    <ng-container class="app-modal-header">Add new file:</ng-container>
+    <ng-container class="app-modal-body">
+      <div class="card">
+        <div class="card-body">
+          <div class="form-group row ml-2 mt-3 mr-2">
+            <label for="inputLabel" class="col-lg-6 col-form-label" style="font-size: 12px;">Insert new filename:</label>
+            <input type="text" class="form-control" placeholder="" [(ngModel)]="tempNewFilename">
+          </div>
+          <div class="form-group row mx-2">
+            <label for="inputLabel" class="col-lg-6 col-form-label" style="font-size: 12px;">Select a path:</label>
+            <div class="col-md-12 mt-3 rounded border border-secondary text-tree-view" style="height: 20rem; max-height: 40rem;">
+                <p *ngIf="!newFile_nodes">Loading data...</p>
+                <p *ngIf="newFile_nodes && newFile_nodes.length == 0">No data</p>
+                <tree-root #treeText_newFile [nodes]="newFile_nodes" [options]="newFile_options" [focused]="true" (activate)="selectTempNode($event)">
+                  <ng-template #treeNodeTemplate let-node let-index="index">
+              
+                    <div *ngIf="node.data.type == 'directory'">
+                      <i class="far fa-folder" *ngIf="node.data.type == 'directory' && !node.isExpanded"></i>
+                      <i class="far fa-folder-open" *ngIf="node.data.type == 'directory' && node.isExpanded"></i>
+                      <span *ngIf="node.data.type == 'directory'">
+                        <span >
+                          {{ node.data.name}}
+                        </span>
+                        
+                        
+                      </span>
+                    </div>
+              
+                  </ng-template>
+                </tree-root>
+                
+              </div>
+          </div>
+          <!-- {{tempNewFilename}}
+          {{tempNewFilePathId}}
+          {{!tempNewFilename || tempNewFilename == '' || !tempNewFilePathId}} -->
+          <div class="form-group row ml-2 mt-3 mr-2 justify-content-md-center">
+            <div class="input-group justify-content-md-center" style="align-items: center; text-align: center;">
+              <div class="input-group-append ml-2">
+                <button class="btn btn-success" type="button" (click)="createNewFile(tempNewFilename, tempNewFilePathId); addNewFileModal.hide()" [disabled]="!tempNewFilename || tempNewFilename == '' || tempNewFilePathId == undefined "><i
+                    class="fas fa-check"></i></button>
+              </div>
+              <div class="input-group-append ml-2">
+                <button class="btn btn-danger" type="button" (click)="addNewFileModal.hide()"><i
+                    class="fas fa-times"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+  
+    </ng-container>
+  </app-modal>
 
 <div id="tree-accordion" #accordion>
 
@@ -21,7 +76,7 @@
                         <input #addFile type="file" onclick="this.value = null" accept=".xml" hidden (change)="addNewFile($event)" multiple>
                         <a class="dropdown-item" (click)="addNewFolder()" style="cursor: pointer;">Add new folder</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" (click)="createNewFile()" style="cursor: pointer;">Create empty file</a>
+                        <a class="dropdown-item" (click)="addNewFileModal.show();" style="cursor: pointer;">Create empty file</a> <!-- createNewFile() -->
                     </div>
                 </div>
                
@@ -29,7 +84,7 @@
         </div>
         <div id="epigraphyCollapse" class="collapse" aria-labelledby="epigraphyHeading" data-parent="#tree-accordion">
             <div class="card-body">
-                <app-text-tree #textTree></app-text-tree>
+                <app-text-tree #textTree (loadModalTreeData)="loadModalTree($event)"></app-text-tree>
             </div>
         </div>
     </div>

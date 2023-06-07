@@ -34,3 +34,9 @@ $font-size-btn: 12px;
     overflow-y: auto !important;
     padding-right: 10px;
 }
+
+.new_file_modal > .ui-modal{
+    min-width: 10rem;
+    width: 20rem;
+    max-width: 20rem;
+}

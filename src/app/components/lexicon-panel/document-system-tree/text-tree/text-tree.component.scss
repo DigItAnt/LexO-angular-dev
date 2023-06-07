@@ -13,7 +13,7 @@ $font-size: 12px;
 
 
 
-.tree-view {
+.text-tree-view {
     padding-top: 15px;
     height: calc(100vh - 20rem);
     max-height: calc(100vh - 20rem);
@@ -53,9 +53,6 @@ $font-size: 12px;
     padding: 5px 18px;
 }
 
-#filterLexicalEntry {
-    //border-right: none;
-}
 
 #filterLexicalEntry:hover,
 #filterLexicalEntry:focus,

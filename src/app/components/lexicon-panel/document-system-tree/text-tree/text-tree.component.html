@@ -1,4 +1,5 @@
-﻿<form [formGroup]="textFilterForm">
+﻿
+<form [formGroup]="textFilterForm">
   <div class="input-group col-md-12 mt-2 p-0">
     <input formControlName="search_text" id="filterLexicalEntry" #filter  (keyup)="treeText.treeModel.filterNodes(filter.value)" name="search_text" type="text" class="form-control"
       placeholder="Search" />
@@ -25,7 +26,7 @@
 </form>
 
 
-<div class="col-md-12 mt-3 rounded border border-secondary tree-view">
+<div class="col-md-12 mt-3 rounded border border-secondary text-tree-view">
   <p *ngIf="show">Nessun risultato</p>
   <tree-root #treeText [nodes]="nodes" [options]="options" [focused]="true" (activate)="onEvent($event)"
     (moveNode)="onMoveNode($event)">
@@ -52,7 +53,13 @@
         <i class="far fa-folder-open" *ngIf="node.data.type == 'directory' && node.isExpanded"></i>
         <i class="far fa-file-alt" *ngIf="node.data.type == 'file'"></i>
         <span [contextMenu]="basicMenu" [contextMenuSubject]="node.data">
-          {{ node.data.name }}
+          <span *ngIf="node.data.metadata">
+            {{ node.data.metadata.itAnt_ID}}
+          </span>
+          <span *ngIf="!node.data.metadata || !node.data.metadata.itAnt_ID">
+            {{ node.data.name}}
+          </span>
+          
         </span>
       </div>
 
@@ -65,7 +72,7 @@
       Add File
     </ng-template>
     <ng-template contextMenuItem divider="true" [visible]="isFolder"></ng-template>
-    <ng-template contextMenuItem let-item [visible]="isFolder " (execute)="createNewFile($event.item)">
+    <ng-template contextMenuItem let-item [visible]="isFolder " (execute)="addNewFileModal.show(); loadTempData($event.item)"> <!-- createNewFile($event.item) -->
       Create new empty File
     </ng-template>
     <ng-template contextMenuItem divider="true" [visible]="isFolder"></ng-template>
@@ -106,7 +113,7 @@
       <span>Rename File</span> <!-- (click)="renameFileModel.show();" -->
     </ng-template>
     <ng-template contextMenuItem let-item [visible]="isFile"
-      (execute)="removeTextModal.show('ciao'); storeTempDeleteFile($event.item)">
+      (execute)="removeTextModal.show(); storeTempDeleteFile($event.item)">
       Delete File
     </ng-template>
     <ng-template contextMenuItem divider="isFile" [visible]="isFile"></ng-template>
@@ -127,6 +134,34 @@
     </ng-template> -->
   </context-menu>
 </div>
+
+<app-modal #addNewFileModal class="new_file_modal">
+  <ng-container class="app-modal-header">Add new file:</ng-container>
+  <ng-container class="app-modal-body">
+    <div class="card">
+      <div class="card-body">
+        <div class="form-group row ml-2 mt-3 mr-2">
+          <label for="inputLabel" class="col-lg-6 col-form-label" style="font-size: 12px;">Insert new filename:</label>
+          <input type="text" class="form-control" placeholder="" [(ngModel)]="tempNewFilename">
+        </div>
+        <div class="form-group row ml-2 mt-3 mr-2 justify-content-md-center">
+          <div class="input-group justify-content-md-center" style="align-items: center; text-align: center;">
+            <div class="input-group-append ml-2">
+              <button class="btn btn-success" type="button" (click)="createNewFile(tempNewFilename, tempNewFilePathId); addNewFileModal.hide()" [disabled]="!tempNewFilename || tempNewFilename == ''"><i
+                  class="fas fa-check"></i></button>
+            </div>
+            <div class="input-group-append ml-2">
+              <button class="btn btn-danger" type="button" (click)="addNewFileModal.hide()"><i
+                  class="fas fa-times"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+
+  </ng-container>
+</app-modal>
 
 <app-modal #removeTextModal class="languages_modal">
   <ng-container class="app-modal-header">Language Manager</ng-container>

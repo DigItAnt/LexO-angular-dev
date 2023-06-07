@@ -11,7 +11,7 @@ You should have received a copy of the GNU General Public License along with Epi
 */
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, Output, Renderer2, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, FormArray, FormBuilder, ValidatorFn, AbstractControl } from '@angular/forms';
 import { TreeNode, TreeModel, TREE_ACTIONS, KEYS, IActionMapping, ITreeOptions } from '@circlon/angular-tree-component';
 import { ModalComponent } from 'ng-modal-lib';
@@ -74,7 +74,13 @@ const actionMapping: IActionMapping = {
   providers: [DatePipe],
 })
 
+
+
+
 export class TextTreeComponent implements OnInit, OnDestroy {
+
+  @Output() loadModalTreeData = new EventEmitter<any>();
+  
   @ViewChild('metadata_tags') metadata_tags_element: any;
   @ViewChild('treeText') treeText: any;
   @ViewChild(ContextMenuComponent) public basicMenu: ContextMenuComponent;
@@ -144,6 +150,11 @@ export class TextTreeComponent implements OnInit, OnDestroy {
       name: `copy of ${node.data.name}`
     })
   };
+
+  newFile_nodes : any;
+  newFile_options : any;
+  tempNewFilename : any;
+  tempNewFilePathId : any;
 
   
 /*   @ViewChild('renameFolderInput') renameFolder_input:ElementRef; 
@@ -216,12 +227,25 @@ export class TextTreeComponent implements OnInit, OnDestroy {
     })
   }
   
+  selectTempNode(evt){
+    console.log(evt);
+    let elementId; 
+
+    if(evt.node.data['element-id']){
+      elementId = evt.node.data['element-id'];
+    }else{
+      elementId = 0
+    }
+
+    this.tempNewFilePathId = elementId;
+  }
+  
   onEvent = ($event: any) => {
     console.log($event);
 
     if ($event.eventName == 'activate' && $event.node.data.type != 'directory' && this.selectedNodeId != $event.node.data['element-id']) {
       this.selectedNodeId = $event.node.data['element-id'];
-      this.selectedEpidocId = $event.node.data.metadata['itAnt_ID'];
+      this.selectedEpidocId = $event.node.data.metadata.itAnt_ID;
       //@ts-ignore
       $("#epigraphyTabModal").modal("show");
       $('.modal-backdrop').appendTo('.epigraphy-tab-body');
@@ -239,7 +263,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
         }
       }
       
-
+      
       this.documentService.getContent(this.selectedNodeId).pipe(takeUntil(this.destroy$)).subscribe(
         data=>{
 
@@ -258,12 +282,13 @@ export class TextTreeComponent implements OnInit, OnDestroy {
               let element_id = this.selectedNodeId;
               let tokens = data.tokens;
 
-
+              //TODO: inserire uploader quando sarà disponibile
               this.documentService.sendToEpigraphyTab({
                 tokens : tokens,
                 element_id : element_id,
                 epidoc_id : this.selectedEpidocId,
-                xmlDoc : xmlDom
+                xmlDoc : xmlDom,
+                fileId : this.selectedEpidocId
               })
 
     
@@ -297,6 +322,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
           );
 
           this.documentService.sendLeidenToEpigraphyTab(null);
+          this.annotatorService.getIdText(this.selectedEpidocId);
           this.documentService.testConvert(object).pipe(takeUntil(this.destroy$)).subscribe(
             data=>{
               //console.log("TEST", data);
@@ -439,13 +465,15 @@ export class TextTreeComponent implements OnInit, OnDestroy {
   }
 
   loadTree(){
-    this.documentService.getDocumentSystem().subscribe(
+    this.documentService.getDocumentSystem().pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         console.log(data);
 
         if(data['documentSystem'].length != 0){
           //console.log("CIAO")
           this.nodes = data['documentSystem'];
+          this.treeText.treeModel.update();
+          this.loadModalTreeData.emit(this.nodes);
           setTimeout(() => {
             this.treeText.treeModel.getNodeBy(
               item => {
@@ -695,43 +723,59 @@ export class TextTreeComponent implements OnInit, OnDestroy {
     )
   }
 
-  createNewFile(evt){
-    if(evt != undefined){
-      console.log(evt)
-      let element_id = evt['element-id'];
-      let parameters = {
+  loadTempData(event){
+    this.tempNewFilePathId = event['element-id'];
+  }
+
+  createNewFile(name : string, pathId?: number){
+    
+    let parameters = {};
+    
+    if(pathId){
+      parameters = {
         requestUUID : "string",
         "user-id" : 0,
-        "element-id" : element_id,
-        filename : "new_file"+Math.floor(Math.random() * (99999 - 10) + 10)
+        "element-id" : pathId,
+        filename : name
       }
-
-      this.documentService.createFile(parameters).pipe(takeUntil(this.destroy$)).subscribe(
-        data =>{
-          console.log(data)
-          this.treeText.treeModel.getNodeBy(x => {
-            if(x.data['element-id'] === element_id){
-              x.expand()
-              
-              this.toastr.info('New file added', '', {
-                timeOut: 5000,
-              });
-              console.log(x)
-              x.data.children.push(data.node)
-              setTimeout(() => {
-                this.counter = this.nodes.length;
-                this.updateTreeView();
-                this.treeText.treeModel.update();
-                this.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
-              }, 100);
-              
-            }
-          })
-        },error=> {
-          console.log(error)
-        }
-      )
+    }else{
+      parameters = {
+        requestUUID : "string",
+        "user-id" : 0,
+        "element-id" : this.tempNewFilePathId,
+        filename : name
+      }
     }
+
+    this.tempNewFilename = undefined;
+    
+
+    this.documentService.createFile(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+      data =>{
+        console.log(data)
+        this.treeText.treeModel.getNodeBy(x => {
+          if(x.data['element-id'] === pathId){
+            x.expand()
+            
+            this.toastr.info('New file added', '', {
+              timeOut: 5000,
+            });
+            console.log(x)
+            x.data.children.push(data.node)
+            setTimeout(() => {
+              this.counter = this.nodes.length;
+              this.updateTreeView();
+              this.treeText.treeModel.update();
+              this.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
+            }, 100);
+            
+          }
+        })
+      },error=> {
+        console.log(error)
+      }
+    )
+    
   }
   
 
@@ -839,13 +883,13 @@ export class TextTreeComponent implements OnInit, OnDestroy {
                 "user-id" : 0
               }
 
-              /* this.documentService.updateMetadata(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+              this.documentService.updateMetadata(parameters).pipe(takeUntil(this.destroy$)).subscribe(
                 data=>{
                   console.log(data)
                 },error=>{
                   console.log(error)
                 }
-              ) */
+              )
               
             }
             

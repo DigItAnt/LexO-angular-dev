@@ -14,13 +14,50 @@ import { Component, ElementRef, OnDestroy, OnInit, Renderer2, ViewChild } from '
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 import { ToastrService } from 'ngx-toastr';
 import { DocumentSystemService } from 'src/app/services/document-system/document-system.service';
-import { TreeNode } from '@circlon/angular-tree-component';
+import { IActionMapping, ITreeOptions, KEYS, TreeNode, TREE_ACTIONS } from '@circlon/angular-tree-component';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
 import {saveAs as importedSaveAs} from "file-saver";
 import { Subject, Subscription } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
 import { ConceptService } from 'src/app/services/concept/concept.service';
 import { AuthService } from 'src/app/services/auth/auth.service';
+import { v4 } from 'uuid';
+
+const actionMapping: IActionMapping = {
+  mouse: {
+    /* dblClick: (tree, node, $event) => {
+      if (node.hasChildren) {
+        TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
+      }
+    }, */
+    click: (tree, node, $event) => {
+      TREE_ACTIONS.TOGGLE_ACTIVE(tree, node, $event);
+      
+      if(node.data.rename_mode){
+        $event.preventDefault();
+      }/* else{
+        TREE_ACTIONS.TOGGLE_ACTIVE(tree, node, $event);
+      } */
+    },
+    expanderClick: (tree, node, $event) => {
+      if(node.data.rename_mode){
+        $event.preventDefault();
+      }else{
+        //console.log(node);
+        TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
+      }
+    }
+    /* contextMenu: (tree, node, $event) => {
+      //$event.preventDefault();
+      //alert(`context menu for ${node.data.name}`);
+      TREE_ACTIONS.TOGGLE_ACTIVE(tree, node, $event);
+    } */
+  },
+  keys: {
+    [KEYS.ENTER]: (tree, node, $event) => alert(`This is ${node.data.name}`)
+  }
+};
+
 
 
 @Component({
@@ -40,6 +77,28 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
   destroy$ : Subject<boolean> = new Subject();
   refresh_after_edit_subscription : Subscription;
   trigger_lex_tree_subscription : Subscription;
+
+  newFile_nodes : any | undefined;
+  newFile_options : any;
+  tempNewFilename : string | undefined;
+  tempNewFilePathId : number | undefined;
+
+  options: ITreeOptions = {
+    actionMapping,
+    allowDrag: (node) => node.isLeaf,
+    allowDrop: (element, { parent, index }) => {
+      // return true / false based on element, to.parent, to.index. e.g.
+      //console.log(element, parent, index, parent.data.type == 'folder')
+      return parent.data.type == 'directory';
+    },
+    getNodeClone: (node) => ({
+      ...node.data,
+      id: v4(),
+      name: `copy of ${node.data.name}`
+    })
+  };
+
+  
 
   author : string | undefined;
   constructor(private exp: ExpanderService, 
@@ -662,26 +721,77 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
     )
   }
 
-  createNewFile(){
+  loadModalTree(event){
+
+    
+    
+    if(event){
+      this.newFile_options = this.options;
+      this.newFile_nodes = [];
+      this.newFile_nodes.push({name: "root", type: 'directory', children: []})
+      this.newFile_nodes[0].children = event.filter(el => el.type == 'directory')
+      //this.newFile_nodes = event.nodes.filter( el => el.type == 'directory');
+
+      console.log()
+    }
+    
+  }
+
+  selectTempNode(evt){
+    console.log(evt);
+    let elementId; 
+
+    if(evt.node.data['element-id']){
+      elementId = evt.node.data['element-id'];
+    }else{
+      elementId = 0
+    }
+
+    this.tempNewFilePathId = elementId;
+  }
+
+  createNewFile(name : string, pathId?: number){
     let element_id = 0;
     let parameters = {
       requestUUID : "string",
       "user-id" : 0,
-      "element-id" : element_id,
-      filename : "new_file"+Math.floor(Math.random() * (99999 - 10) + 10)
+      "element-id" : pathId,
+      filename : name
     }
 
     this.documentService.createFile(parameters).pipe(takeUntil(this.destroy$)).subscribe(
       data =>{
         console.log(data)
-        this.textTree.treeText.treeModel.nodes.push(data.node);
-        this.textTree.counter = this.textTree.treeText.treeModel.nodes.length
-        this.textTree.treeText.treeModel.update();
+        
         this.toastr.info('New file added', '', {
           timeOut: 5000,
         });
+
+        this.textTree.treeText.treeModel.getNodeBy(x => {
+          if(x.data['element-id'] === pathId){
+            x.expand()
+            
+            this.toastr.info('New file added', '', {
+              timeOut: 5000,
+            });
+            console.log(x)
+            x.data.children.push(data.node)
+            setTimeout(() => {
+              this.textTree.counter = this.textTree.nodes.length;
+              this.textTree.updateTreeView();
+              this.textTree.treeText.treeModel.update();
+              this.textTree.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
+            }, 100);
+            
+          }
+        })
         this.textTree.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
+
+        this.tempNewFilePathId = undefined;
+        this.tempNewFilename = undefined;
       },error=> {
+        this.tempNewFilePathId = undefined;
+        this.tempNewFilename = undefined;
         console.log(error)
       }
     )
@@ -705,7 +815,6 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
         const formData = new FormData();
         formData.append('file', evt.target.files[0]);
 
-        //TODO: inserire informazioni uploader
 
         this.documentService.uploadFile(formData, element_id, 11).pipe(takeUntil(this.destroy$)).subscribe(
           data => {
@@ -908,6 +1017,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
       }
     )
   }
+
 
   ngOnDestroy(): void {
       this.refresh_after_edit_subscription.unsubscribe();
