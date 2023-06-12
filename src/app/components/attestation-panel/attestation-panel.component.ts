@@ -159,18 +159,14 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
           
         }
         this.formData = changes.attestationData.currentValue;
-        console.log(this.formData)
+        
         if(this.formData.length == 0){
           this.lexicalService.triggerAttestationPanel(false);
           this.typeDesc = '';
           this.staticOtherDef = [];
           this.labelData = [];
         }else{
-         /*  this.formData.forEach(element => {
-            this.arrayPanelFormsData[element.id] = {};
-            this.arrayPanelFormsData[element.id].data = undefined;
-            this.arrayPanelFormsData[element.id].isOpen = false;
-          }); */
+          
         }
         
       }, 10);
@@ -312,14 +308,14 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
         this.lexicalService.getFormData(formId, 'core').pipe(takeUntil(this.destroy$)).subscribe(
           data=>{
             console.log(data);
-            this.lexicalService.triggerLexicalEntryTree({request: true, data: data})
+            //this.lexicalService.triggerLexicalEntryTree({request: true, data: data})
             
             //this.lexicalService.sendToCoreTab(data)
-            this.lexicalService.sendToEtymologyTab(null);
-            this.lexicalService.sendToRightTab(data);
+            /* this.lexicalService.sendToEtymologyTab(null);
+            this.lexicalService.sendToRightTab(data); */
             //this.lexicalService.updateCoreCard({lastUpdate : data['lastUpdate'], creationDate : data['creationDate']});
             
-            if(this.expander.isEpigraphyTabOpen() && !this.expander.isEditTabOpen()){
+            /* if(this.expander.isEpigraphyTabOpen() && !this.expander.isEditTabOpen()){
               if(this.expander.isEpigraphyTabExpanded() && !this.expander.isEditTabExpanded()){
                 this.expander.openCollapseEdit(true);
                 this.expander.expandCollapseEpigraphy(false)
@@ -331,7 +327,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
               if(!element.classList.contains('show')){
                 element.classList.add('show')
               }
-            })
+            }) */
           },
           error=>{
             console.log(error)

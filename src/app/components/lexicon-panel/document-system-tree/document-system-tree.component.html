@@ -39,7 +39,7 @@
           <div class="form-group row ml-2 mt-3 mr-2 justify-content-md-center">
             <div class="input-group justify-content-md-center" style="align-items: center; text-align: center;">
               <div class="input-group-append ml-2">
-                <button class="btn btn-success" type="button" (click)="createNewFile(tempNewFilename, tempNewFilePathId); addNewFileModal.hide()" [disabled]="!tempNewFilename || tempNewFilename == '' || tempNewFilePathId == undefined "><i
+                <button class="btn btn-success" type="button" (click)="addNewEmptyFile(tempNewFilename, tempNewFilePathId); addNewFileModal.hide()" [disabled]="!tempNewFilename || tempNewFilename == '' || tempNewFilePathId == undefined "><i
                     class="fas fa-check"></i></button>
               </div>
               <div class="input-group-append ml-2">

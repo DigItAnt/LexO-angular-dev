@@ -69,6 +69,10 @@ export class AnnotatorService {
     return this.http.get(this.baseUrl + 'public/token?requestUUID=test123&nodeid='+id);
   }
 
+  addToken(node_id : number, tokenBody : any) : Observable<any> {
+    return this.http.post(this.baseUrl + 'token?requestUUID=test123&nodeid='+node_id, tokenBody);
+  }
+
   getText(id: number) : Observable<any> {
     return this.http.get(this.baseUrl + 'public/gettext?requestUUID=test123&nodeid='+id);
   }

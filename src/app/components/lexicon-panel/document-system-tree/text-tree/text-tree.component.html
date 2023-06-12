@@ -124,14 +124,7 @@
       Update Document (metadata only)
     </ng-template>
 
-    <!-- <ng-template contextMenuItem [visible]="enableMetadata" divider="true"></ng-template> -->
-    <!-- METADATA -->
-    <!-- <ng-template contextMenuItem let-item [visible]="enableMetadata"  (execute)="populateMetadata($event.item)">
-      <span (click)="editMetadata.show();">Edit Metadata</span>
-    </ng-template> -->
-    <!-- <ng-template contextMenuItem let-item  [visible]="enableMetadata" (execute)="copyFile($event.item)">
-      <span (click)="removeMetadataModal.show();"> Delete Metadata</span>
-    </ng-template> -->
+    
   </context-menu>
 </div>
 
@@ -147,7 +140,7 @@
         <div class="form-group row ml-2 mt-3 mr-2 justify-content-md-center">
           <div class="input-group justify-content-md-center" style="align-items: center; text-align: center;">
             <div class="input-group-append ml-2">
-              <button class="btn btn-success" type="button" (click)="createNewFile(tempNewFilename, tempNewFilePathId); addNewFileModal.hide()" [disabled]="!tempNewFilename || tempNewFilename == ''"><i
+              <button class="btn btn-success" type="button" (click)="createNewEmptyFile(tempNewFilename, tempNewFilePathId); addNewFileModal.hide()" [disabled]="!tempNewFilename || tempNewFilename == ''"><i
                   class="fas fa-check"></i></button>
             </div>
             <div class="input-group-append ml-2">

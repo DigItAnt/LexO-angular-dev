@@ -750,7 +750,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
     this.tempNewFilePathId = elementId;
   }
 
-  createNewFile(name : string, pathId?: number){
+  addNewEmptyFile(name : string, pathId?: number){
     let element_id = 0;
     let parameters = {
       requestUUID : "string",
@@ -766,6 +766,8 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
         this.toastr.info('New file added', '', {
           timeOut: 5000,
         });
+
+        //TODO: inserire uploader qui
 
         this.textTree.treeText.treeModel.getNodeBy(x => {
           if(x.data['element-id'] === pathId){
@@ -833,7 +835,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
               this.textTree.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
 
             }, 500);
-
+          //TODO: inserire uploader
 
           }, error => {
             console.log(error);
@@ -857,6 +859,8 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
 
           const formData = new FormData();
           formData.append('file', element);
+
+          //TODO: inserire uploader
 
           this.documentService.uploadFile(formData, element_id, 11).pipe(takeUntil(this.destroy$)).subscribe(
             data => {
@@ -922,6 +926,8 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
           this.textTree.updateTreeView();
           this.textTree.treeText.treeModel.update();
         }
+
+         //TODO: inserire uploader
 
       }, error => {
         console.log(error);

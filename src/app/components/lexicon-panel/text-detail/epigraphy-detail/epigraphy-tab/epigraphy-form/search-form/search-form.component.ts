@@ -442,6 +442,34 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       parameters["spans"] = selectionSpan
       parameters["id"] = tokenData.node;
     } else if (this.bind.isEmptyFile) {
+
+      //TODO: inserire token farlocco, legare l'attestazione al token creato
+      const min = 1000000; // 1 miliardo (10 cifre)
+      const max = 9999999; // 9,999,999,999 (10 cifre)
+
+      let fakeToken = {
+        "text": data.label,
+        "xmlid": data.label+"_"+element_id,
+        "position": 0,
+        "begin": 0,
+        "end": 0,
+        "node": 0,
+        "source": "string",
+        "imported": false,
+        "id": Math.floor(Math.random() * (max - min + 1)) + min
+      }
+
+      this.annotatorService.addToken(element_id, fakeToken).pipe(takeUntil(this.destroy$)).subscribe(
+        data=>{
+          console.log(data);
+          //TODO: fix this
+
+
+        },error=>{
+          console.log(error)
+        } 
+      )
+
       parameters["value"] = formValue;
       parameters["layer"] = "attestation";
       parameters["attributes"] = {
@@ -452,7 +480,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         timestamp: new Date().getTime().toString(),
         bibliography: [],
         validity: "",
-        leiden : leidenToken,
+        leiden : "",
         externalRef: "",
         node_id: undefined,
         label: data.label,
@@ -461,7 +489,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       parameters["spans"] = [
         {
           start: 0,
-          end: 0
+          end: 1
         }
       ];
       parameters["id"] = element_id;

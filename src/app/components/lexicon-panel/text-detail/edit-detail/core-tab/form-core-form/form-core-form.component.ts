@@ -236,6 +236,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
         }, 1);
 
         let formId = this.object.form;
+
         this.documentService.searchAttestations(formId).pipe(takeUntil(this.destroy$)).subscribe(
           data=>{
             console.log(data);
@@ -316,6 +317,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
           });
 
           console.log(filter_anno);
+          this.annotatorService.getIdText(null)
           this.lexicalService.triggerAttestationPanel(true);
           this.lexicalService.sendToAttestationPanel(filter_anno);
         }

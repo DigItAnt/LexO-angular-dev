@@ -727,7 +727,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
     this.tempNewFilePathId = event['element-id'];
   }
 
-  createNewFile(name : string, pathId?: number){
+  createNewEmptyFile(name : string, pathId?: number){
     
     let parameters = {};
     

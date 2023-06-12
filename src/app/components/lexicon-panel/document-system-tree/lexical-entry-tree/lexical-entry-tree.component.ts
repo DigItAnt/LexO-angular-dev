@@ -995,11 +995,11 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
     this.offset += 500;
     this.modalShow = true;
 
-    //@ts-ignore
+    /* //@ts-ignore
     $("#lazyLoadingModal").modal("show");
     $('.modal-backdrop').appendTo('.tree-view');
     $('body').removeClass("modal-open")
-    $('body').css("padding-right", "");
+    $('body').css("padding-right", ""); */
 
     let parameters = this.filterForm.value;
     parameters['offset'] = this.offset;
