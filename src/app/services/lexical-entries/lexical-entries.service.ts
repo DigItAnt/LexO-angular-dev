@@ -44,6 +44,8 @@ export class LexicalEntriesService {
   private _triggerLexicalEntryTree : BehaviorSubject<object> = new BehaviorSubject(null);
   private _triggerSameAs : BehaviorSubject<object> = new BehaviorSubject(null);
 
+  private _changeFormLabel : BehaviorSubject<object> = new BehaviorSubject(null);
+
   morphologyData;
 
   private baseUrl = "/LexO-backend-itant_demo/service/"
@@ -72,6 +74,8 @@ export class LexicalEntriesService {
   refreshLinkCounter$ = this._refreshLinkCounter.asObservable();
   triggerLexicalEntryTree$ = this._triggerLexicalEntryTree.asObservable();
   triggerSameAs$ = this._triggerSameAs.asObservable();
+  
+  changeFormLabelReq$ = this._changeFormLabel.asObservable();
 
   constructor(private http: HttpClient, private auth: AuthService) { }
 
@@ -90,6 +94,10 @@ export class LexicalEntriesService {
   sendToAttestationPanel(object: object) {
     this._attestationPanelData.next(object)
   } 
+
+  changeFormLabel(formId : string, newLabel : string){
+    this._changeFormLabel.next({formId, newLabel});
+  }
 
   changeDecompLabel(string:string){
     this._changeDecompLabel.next(string);
