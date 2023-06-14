@@ -769,25 +769,37 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
 
         //TODO: inserire uploader qui
 
-        this.textTree.treeText.treeModel.getNodeBy(x => {
-          if(x.data['element-id'] === pathId){
-            x.expand()
-            
-            this.toastr.info('New file added', '', {
-              timeOut: 5000,
-            });
-            console.log(x)
-            x.data.children.push(data.node)
-            setTimeout(() => {
-              this.textTree.counter = this.textTree.nodes.length;
-              this.textTree.updateTreeView();
-              this.textTree.treeText.treeModel.update();
-              this.textTree.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
-            }, 100);
-            
-          }
-        })
-        this.textTree.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
+        if(pathId == 0){
+          this.textTree.treeText.treeModel.virtualRoot.data.children.push(data.node);
+          setTimeout(() => {
+            this.textTree.counter = this.textTree.nodes.length;
+            this.textTree.updateTreeView();
+            this.textTree.treeText.treeModel.update();
+            this.textTree.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
+          }, 100);
+        }else{
+          this.textTree.treeText.treeModel.getNodeBy(x => {
+            if(x.data['element-id'] === pathId){
+              x.expand()
+              
+              this.toastr.info('New file added', '', {
+                timeOut: 5000,
+              });
+              console.log(x)
+              x.data.children.push(data.node)
+              setTimeout(() => {
+                this.textTree.counter = this.textTree.nodes.length;
+                this.textTree.updateTreeView();
+                this.textTree.treeText.treeModel.update();
+                this.textTree.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
+              }, 100);
+              
+            }
+          })
+        }
+
+        
+        //this.textTree.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
 
         this.tempNewFilePathId = undefined;
         this.tempNewFilename = undefined;

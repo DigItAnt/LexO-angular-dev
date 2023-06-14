@@ -139,6 +139,34 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
         this.searchBibliography(this.queryTitle, this.queryMode);
       }
     )
+
+    this.lexicalService.changeFormLabelReq$.pipe(takeUntil(this.destroy$)).subscribe(
+      (data : any)=>{
+        if(data){
+          let formId = data.formId;
+          console.log(this.formData)
+          this.formData.forEach(attestation=>{
+            if(attestation.value == formId){
+              attestation.attributes.label = data.newLabel;
+
+              this.annotatorService.updateAnnotation(attestation).pipe(takeUntil(this.destroy$)).subscribe(
+                data=> {
+                  console.log(data);
+                  this.toastr.success('Attestation updated correctly', 'Info', {
+                    timeOut : 5000
+                  })
+                },error => {
+                  console.log(error);
+                  this.toastr.error('Error on updating attestation', 'Error', {
+                    timeOut : 5000
+                  })
+                }
+              )
+            }
+          })
+        }
+      }
+    )
   }
   
 
@@ -159,6 +187,20 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
           
         }
         this.formData = changes.attestationData.currentValue;
+
+        if(this.formData.length > 0){
+          this.formData.forEach(
+            attestation=> {
+              if(attestation.attributes){
+                if(!Array.isArray(attestation.attributes.bibliography)){
+                  let tmp = [];
+                  tmp.push(attestation.attributes.bibliography);
+                  attestation.attributes.bibliography = tmp;
+                }
+              }
+            }
+          )
+        }
         
         if(this.formData.length == 0){
           this.lexicalService.triggerAttestationPanel(false);
@@ -221,6 +263,8 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
 
     
   }
+
+
 
   triggerUpdateAttestation(evt, newValue, propKey, annotation){
     this.update_anno_subject.next({event : evt, newValue : newValue, propKey: propKey, annotation : annotation})

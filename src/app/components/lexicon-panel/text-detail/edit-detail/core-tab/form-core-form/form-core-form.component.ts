@@ -675,11 +675,12 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
           this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
           this.lexicalService.spinnerAction('off');
 
-          if (typeof (error.error) != 'object') {
+          if (error.status != 200) {
             this.toastr.error(error.error, 'Error', {
               timeOut: 5000,
             });
           } else {
+            this.lexicalService.changeFormLabel(formId, newValue)
             this.toastr.success('Label changed', '', {
               timeOut: 5000,
             });
@@ -693,6 +694,9 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
         data['new_label'] = newValue;
         data['request'] = 3;
         this.lexicalService.refreshAfterEdit(data);
+
+
+        
       }
 
     } else {

@@ -2,22 +2,20 @@
     <ng-select #select_form name="entity" [addTag]="addNewForm" [clearable]="false" (focus)="true" bindValue="label"
         bindLabel="label" placeholder="Search form" appendTo=".token_modal" (keyup)="triggerSearch($event)"
         [items]="searchResults" (change)="handleForm(select_form, search_form_container)" [loading]="loader">
-        <!--  -->
-        <!-- && cog.get('type').value != 'external' -->
-        <!-- "
-     -->
-        <!-- (focus)="deleteData()" -->
-        <!-- -->
+       
         <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
-            <!--     <div>
-    <span>{{item.label}} </span><span style="color: blue;">@{{item.language}}</span>
-</div> -->
+            
             <div class="card-body p-0">
                 <h6 class="card-title m-0" [ngOptionHighlight]="search">{{item.label}}</h6>
-                <!-- <p class="card-subtitle mb-2 text-muted">{{item.type}}</p> -->
                 <small *ngFor="let sub of item.morphology">
-                    <span *ngIf="sub.trait == 'case' || sub.trait == 'gender' || sub.trait == 'number' || sub.trait == 'partOfSpeech'">
-                        {{sub.trait}} : {{sub.value.split('#')[1]}} <br>
+                    <span *ngIf="sub.trait == 'http://www.lexinfo.net/ontology/3.0/lexinfo#case' || 
+                                 sub.trait == 'http://www.lexinfo.net/ontology/3.0/lexinfo#gender' || 
+                                 sub.trait == 'http://www.lexinfo.net/ontology/3.0/lexinfo#number' || 
+                                 sub.trait == 'partOfSpeech' || 
+                                 sub.trait == 'http://www.lexinfo.net/ontology/3.0/lexinfo#tense' ||
+                                 sub.trait == 'http://www.lexinfo.net/ontology/3.0/lexinfo#person' ||
+                                 sub.trait == 'http://www.lexinfo.net/ontology/3.0/lexinfo#voice'">
+                        {{sub.trait.split('#')[sub.trait.split('#').length -1 ]}} : {{sub.value.split('#')[1]}} <br>
                     </span>
                 </small>
                 <small class="card-text">
@@ -25,10 +23,7 @@
                     <!-- LexicalEntry: {{item.lexicalEntryInstanceName}} -->
 
                 </small>
-                <!--  <div *ngIf="item.name === 'Pavilnys'">
-        <a href="#" class="card-link">Card link</a>
-        <a href="#" class="card-link">Another link</a>
-    </div> -->
+              
             </div>
 
         </ng-template>
@@ -275,7 +270,7 @@
             <div class="row" *ngIf="stepThreeForm.touched">
                 <div class="col-4">
                     <p [ngClass]="{'text-muted': statusForm.get('attachingType').value == 'pause'}">Attaching type</p>
-                </div>
+                </div>mobile?utm_source=android_app&installation_id=b934f06d-415a-458f-9936-03038e505a20
                 <div class="col-8">
                     <div class="d-flex align-items-center" *ngIf="statusForm.get('attachingType').value == 'pause'">
                         <!-- <strong>Loading...</strong> -->
