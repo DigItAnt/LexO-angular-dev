@@ -364,15 +364,22 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       }
     }
     
-
+    let lexEntryLabel = '';
+    try {
+      let lexEntryData = await this.lexicalService.getLexEntryData(data.lexicalEntry).toPromise();
+      console.log(lexEntryData)
+      if(lexEntryData) lexEntryLabel = lexEntryData.label
+    } catch (error) {
+      console.log(error);
+    }
 
 
     if (this.creator == undefined) {
       this.creator = '';
     }
 
-    console.log(selectionSpan)
-    console.log(textSelection)
+    //console.log(selectionSpan)
+    //console.log(textSelection)
     if (textSelection != '' && textSelection != undefined) {
       //console.log(111)
       parameters["value"] = formValue;
@@ -389,7 +396,8 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         leiden : leidenToken != '' ? leidenToken : null,
         node_id: tokenData.id,
         label: data.label,
-        lexicalEntry: data.lexicalEntry
+        lexicalEntry: data.lexicalEntry,
+        lexicalEntryLabel : lexEntryLabel
       };
       parameters["spans"] = [
         {
@@ -413,7 +421,8 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         externalRef: "",
         node_id: tokenData.id,
         label: data.label,
-        lexicalEntry: data.lexicalEntry
+        lexicalEntry: data.lexicalEntry,
+        lexicalEntryLabel : lexEntryLabel
       };
       parameters["spans"] = [
         {
@@ -437,7 +446,8 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         leiden : leidenToken,
         node_id: tokenData.id,
         label: data.label,
-        lexicalEntry: data.lexicalEntry
+        lexicalEntry: data.lexicalEntry,
+        lexicalEntryLabel : lexEntryLabel
       };
       parameters["spans"] = selectionSpan
       parameters["id"] = tokenData.node;
@@ -459,7 +469,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         "id": Math.floor(Math.random() * (max - min + 1)) + min
       }
 
-      this.annotatorService.addToken(element_id, fakeToken).pipe(takeUntil(this.destroy$)).subscribe(
+      /* this.annotatorService.addToken(element_id, fakeToken).pipe(takeUntil(this.destroy$)).subscribe(
         data=>{
           console.log(data);
           //TODO: fix this
@@ -468,7 +478,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         },error=>{
           console.log(error)
         } 
-      )
+      ) */
 
       parameters["value"] = formValue;
       parameters["layer"] = "attestation";
@@ -484,7 +494,8 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         externalRef: "",
         node_id: undefined,
         label: data.label,
-        lexicalEntry: data.lexicalEntry
+        lexicalEntry: data.lexicalEntry,
+        lexicalEntryLabel : lexEntryLabel
       };
       parameters["spans"] = [
         {
