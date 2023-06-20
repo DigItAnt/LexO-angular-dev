@@ -464,7 +464,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         "begin": 0,
         "end": 0,
         "node": 0,
-        "source": "string",
+        "source": "fake",
         "imported": false,
         "id": Math.floor(Math.random() * (max - min + 1)) + min
       }

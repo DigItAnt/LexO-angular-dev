@@ -254,6 +254,8 @@ export class TextTreeComponent implements OnInit, OnDestroy {
       $('body').removeClass("modal-open")
       $('body').css("padding-right", "");
 
+      this.lexicalService.sendToAttestationPanel(null);
+      this.lexicalService.triggerAttestationPanel(false);
 
       if(this.selectedEpidocId == undefined){
         if($event.node.data.name != undefined || $event.node.data.name != ''){
@@ -322,7 +324,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
           );
 
           this.documentService.sendLeidenToEpigraphyTab(null);
-          this.annotatorService.getIdText(this.selectedEpidocId);
+          //this.annotatorService.getIdText(this.selectedEpidocId);
           this.documentService.testConvert(object).pipe(takeUntil(this.destroy$)).subscribe(
             data=>{
               //console.log("TEST", data);
@@ -421,32 +423,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
         },error=>{
           console.log(error)
         }
-      )
-
-      
-      
-      
-      
-
-      /* this.annotatorService.getText(this.selectedNodeId).subscribe(
-        data=>{
-          console.log(data);
-          if(data != undefined){
-            this.documentService.sendTextToEpigraphyTab(data.text);
-          }
-        },
-        error=>{
-          if(error.status == 200){
-            if(error.error.text != ""){
-              this.documentService.sendTextToEpigraphyTab(error.error.text);
-            }  
-          }
-          console.log(error)
-        }
-      ) */
-
-      
-    
+      )  
     }
   }
 
@@ -966,9 +943,10 @@ export class TextTreeComponent implements OnInit, OnDestroy {
     this.treeText.treeModel.getNodeBy(x => {
       if(x.data['element-id'] === element_id){
         //console.log(x)
-        if(x.parent.data['element-id'] == undefined){
+        element_id = x.data['element-id'];
+        /* if(x.parent.data['element-id'] == undefined){
           element_id = 0;
-        } 
+        } */ 
       }
     })    
 

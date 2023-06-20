@@ -174,18 +174,18 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
     
     console.log(changes)
     if(changes.attestationData.currentValue != null){
-      setTimeout(() => {
-
-        if(changes.attestationData.currentValue != this.formData){
-          this.formData = [];
-          //this.arrayPanelFormsData = {}
-          this.selectedItem = null;
-          this.selectedAnnotation = null;
-          this.typeDesc = '';
-          this.staticOtherDef = [];
-          this.labelData = [];
+      
+        
+        
+        this.formData = [];
+        //this.arrayPanelFormsData = {}
+        this.selectedItem = null;
+        this.selectedAnnotation = null;
+        this.typeDesc = '';
+        this.staticOtherDef = [];
+        this.labelData = [];
           
-        }
+        
         this.formData = changes.attestationData.currentValue;
 
         if(this.formData.length > 0){
@@ -211,7 +211,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
           
         }
         
-      }, 10);
+      
       
     }else{
       this.formData = [];

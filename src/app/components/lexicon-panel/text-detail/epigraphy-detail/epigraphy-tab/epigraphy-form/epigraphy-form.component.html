@@ -15,7 +15,7 @@
         <div class="form-group row ml-2 mt-3 mr-2 empty" *ngIf="isEmptyFile">
             <h6 class="mr-2">Add attestation</h6>
         
-            <button #button_modal="ngbPopover" type="button" class="btn btn-outline-secondary token mb-2"  container="body"  popoverTitle="Pop title" 
+            <button #button_modal="ngbPopover" type="button" class="btn btn-outline-secondary token mb-2"  container="body"  popoverTitle="Add attestation" 
             [autoClose]="'outside'" [ngbPopover]="tokenPopover" [placement]="'bottom'"  popoverClass="token_modal" (click)="triggerEmptySearch()">
             <i class="fa fa-plus"></i>
             </button>

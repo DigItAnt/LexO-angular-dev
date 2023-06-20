@@ -313,71 +313,71 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
 
 
-    /* @HostListener('window:keydown', ['$event'])
-    enableMultiword(event: KeyboardEvent) {
-    
-      if (event.altKey && event.ctrlKey) {
-        this.multiWordMode = true;
-        if (this.object != undefined) {
-          this.object.forEach(element => {
+  /* @HostListener('window:keydown', ['$event'])
+  enableMultiword(event: KeyboardEvent) {
+  
+    if (event.altKey && event.ctrlKey) {
+      this.multiWordMode = true;
+      if (this.object != undefined) {
+        this.object.forEach(element => {
+          element.editing = false;
+          this.selectedPopover.htmlNodeName = '';
+          this.selectedPopover.tokenId = ''
+        });
+      }
+
+    } else if (event.code == 'Escape') {
+
+      let htmlNode = document.getElementById(this.selectedPopover.htmlNodeName)
+      let tokenId = this.selectedPopover.tokenId;
+
+      if (this.object != undefined) {
+        this.object.forEach(element => {
+          if (element.id != tokenId) {
+
             element.editing = false;
+
             this.selectedPopover.htmlNodeName = '';
             this.selectedPopover.tokenId = ''
-          });
-        }
-
-      } else if (event.code == 'Escape') {
-
-        let htmlNode = document.getElementById(this.selectedPopover.htmlNodeName)
-        let tokenId = this.selectedPopover.tokenId;
-
-        if (this.object != undefined) {
-          this.object.forEach(element => {
-            if (element.id != tokenId) {
-
-              element.editing = false;
-
-              this.selectedPopover.htmlNodeName = '';
-              this.selectedPopover.tokenId = ''
-            }
-          });
-
-          let parentMarkElement = document.getElementsByClassName('token-' + tokenId)[0];
-          if (parentMarkElement != null) {
-            let i = 0;
-            Array.from(parentMarkElement.children).forEach(
-              element => {
-                console.log(element)
-                if (element.classList.contains('mark')) {
-
-                  let textMarkElement = element.textContent;
-                  const text = this.renderer.createText(textMarkElement)
-                  
-                  this.renderer.insertBefore(parentMarkElement, text, element)
-                  this.renderer.removeChild(parentMarkElement, element);
-                  
-                  i++;
-                  return;
-                }
-                i++;
-              }
-            );
-
           }
+        });
+
+        let parentMarkElement = document.getElementsByClassName('token-' + tokenId)[0];
+        if (parentMarkElement != null) {
+          let i = 0;
+          Array.from(parentMarkElement.children).forEach(
+            element => {
+              console.log(element)
+              if (element.classList.contains('mark')) {
+
+                let textMarkElement = element.textContent;
+                const text = this.renderer.createText(textMarkElement)
+                
+                this.renderer.insertBefore(parentMarkElement, text, element)
+                this.renderer.removeChild(parentMarkElement, element);
+                
+                i++;
+                return;
+              }
+              i++;
+            }
+          );
+
         }
-
-
-
-
       }
+
+
+
+
     }
+  }
 
-    @HostListener('window:keyup', ['$event'])
-    disableMultiword(event: KeyboardEvent) {
-      if (!event.altKey && !event.ctrlKey) {
-        this.multiWordMode = false;
-      }
-    } */
+  @HostListener('window:keyup', ['$event'])
+  disableMultiword(event: KeyboardEvent) {
+    if (!event.altKey && !event.ctrlKey) {
+      this.multiWordMode = false;
+    }
+  } */
 
   constructor(private router: Router, private annotatorService: AnnotatorService, private expander: ExpanderService, private renderer: Renderer2, private documentService: DocumentSystemService, private formBuilder: FormBuilder, private toastr: ToastrService, private lexicalService: LexicalEntriesService, private config: NgbPopoverConfig) {
     /* this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe((val) => {
@@ -505,31 +505,36 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
 
   ngOnChanges(changes: SimpleChanges) {
-    setTimeout(() => {
-      if (changes.epiData.currentValue != null) {
-        if (this.object != changes.epiData.currentValue) {
-          this.tokenArray = this.epigraphyForm.get('tokens') as FormArray;
-          this.tokenArray.clear();
-          this.spanSelection = null;
-          this.annotationArray = [];
-          this.epidoc_annotation_array = [];
-        }
-
-        this.object = changes.epiData.currentValue['tokens'];
-        this.getAnnotations(changes);
-
-      } else {
-        this.object = null;
+    
+    if (changes.epiData.currentValue != null) {
+      if (this.object != changes.epiData.currentValue) {
+        this.tokenArray = this.epigraphyForm.get('tokens') as FormArray;
+        this.tokenArray.clear();
+        this.spanSelection = null;
+        this.annotationArray = [];
+        this.epidoc_annotation_array = [];
       }
 
+      this.object = changes.epiData.currentValue['tokens'];
+      this.getAnnotations(changes);
+
+    } else {
+      this.object = null;
+    }
 
 
-    }, 10)
+
+    
 
   }
 
-  async getAnnotations(changes) {
+  getAnnotations(changes) {
 
+    //TODO: fix this
+    // quando si clicca velocemente restituisce anche le altre attestazioni
+    //o creare forkJoin o utilizzare element-id come informazione di appoggio per filtrare
+    //dall'attestation panel 
+    this.annotationArray = [];
     let element_id = changes.epiData.currentValue['element_id']
     this.fileId = changes.epiData.currentValue['epidoc_id']
     let xmlDoc = changes.epiData.currentValue['xmlDoc']
@@ -545,138 +550,136 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
     //console.log(this.object)
 
-    try {
-      let get_anno_req = await this.annotatorService.getAnnotation(element_id).toPromise();
-      console.log(get_anno_req);
 
-      if (get_anno_req.annotations != undefined) {
-        get_anno_req.annotations.forEach(element => {
-          //console.log(element)
-          if (element.layer == 'attestation') {
-            if (element.attributes.bibliography == undefined) {
-              element.attributes['bibliography'] = [];
-            }
-
-            if (!Array.isArray(element.attributes.bibliography)) {
-              let tmp_arr = [];
-              tmp_arr.push(element.attributes['bibliography']);
-              element.attributes['bibliography'] = tmp_arr;
-            }
-
-
-            if (Array.isArray(element.attributes['bibliography'])) {
-              Array.from(element.attributes['bibliography']).forEach(element => {
-
-                if (element['note'] == undefined) {
-                  element['note'] = "";
-                }
-
-                if (element['textualRef'] == undefined) {
-                  element['textualRef'] = "";
-                }
-              });
-            }
-
-            if (this.isEmptyFile) {
-              element['empty_file'] = this.isEmptyFile;
-              if (element.attributes.leiden == undefined) {
-                element.attributes.leiden = '';
+    this.annotatorService.getAnnotation(element_id).pipe(takeUntil(this.destroy$), debounceTime(2000)).subscribe(
+      get_anno_req => {
+        console.log(get_anno_req);
+        if (get_anno_req.annotations != undefined) {
+          get_anno_req.annotations.forEach(element => {
+            //console.log(element)
+            if (element.layer == 'attestation') {
+              if (element.attributes.bibliography == undefined) {
+                element.attributes['bibliography'] = [];
               }
-            } else {
-              element['empty_file'] = this.isEmptyFile;
+    
+              if (!Array.isArray(element.attributes.bibliography)) {
+                let tmp_arr = [];
+                tmp_arr.push(element.attributes['bibliography']);
+                element.attributes['bibliography'] = tmp_arr;
+              }
+    
+    
+              if (Array.isArray(element.attributes['bibliography'])) {
+                Array.from(element.attributes['bibliography']).forEach(element => {
+    
+                  if (element['note'] == undefined) {
+                    element['note'] = "";
+                  }
+    
+                  if (element['textualRef'] == undefined) {
+                    element['textualRef'] = "";
+                  }
+                });
+              }
+    
+              if (this.isEmptyFile) {
+                element['empty_file'] = this.isEmptyFile;
+                if (element.attributes.leiden == undefined) {
+                  element.attributes.leiden = '';
+                }
+              } else {
+                element['empty_file'] = this.isEmptyFile;
+              }
+              this.annotationArray.push(element);
+            } else if (element.layer == 'epidoc') {
+              this.epidoc_annotation_array.push(element);
             }
-            this.annotationArray.push(element);
-          } else if (element.layer == 'epidoc') {
-            this.epidoc_annotation_array.push(element);
-          }
-        });
-
-        if (this.annotationArray.length > 0) {
-          if (this.object != null) {
-            for (const element of this.object) {
-              let startElement = element.begin;
-              let endElement = element.end;
-
-              
-              for (const annotation of this.annotationArray) {
-
-                
+          });
+    
+          if (this.annotationArray.length > 0) {
+            if (this.object != null) {
+              for (const element of this.object) {
+                let startElement = element.begin;
+                let endElement = element.end;
+    
+    
+                for (const annotation of this.annotationArray) {
+    
+    
                   if (annotation.spans.length == 1) {
                     let startAnnotation = annotation.spans[0].start;
                     let endAnnotation = annotation.spans[0].end;
-  
+    
                     if (startAnnotation >= startElement && endAnnotation <= endElement) {
                       let positionElement = element.position;
                       let elementHTML = document.getElementsByClassName('token-' + (positionElement - 1))[0]
                       var that = this;
-  
-                      let xmlNode = xmlDoc.querySelectorAll('[*|id=\'' + element.xmlid + '\']')[0].outerHTML;
-                      let object = {
-                        xmlString: xmlNode
-                      }
+    
+                      if (Array.from(xmlDoc.querySelectorAll('[*|id=\'' + element.xmlid + '\']')).length > 0) {
+                        let xmlNode = xmlDoc.querySelectorAll('[*|id=\'' + element.xmlid + '\']')[0].outerHTML;
+                        let object = {
+                          xmlString: xmlNode
+                        }
+    
+                        if (elementHTML != undefined) {
+                          that.renderer.addClass(elementHTML, 'annotation');
+                        }
+    
+                        if (annotation.attributes.leiden == undefined) {
 
-                      if (elementHTML != undefined) {
-                        that.renderer.addClass(elementHTML, 'annotation');
-                      }
-                      
-                      if(annotation.attributes.leiden == undefined){
-                        try {
-                          let convert_to_leiden = await this.documentService.testConvertItAnt(object).toPromise();
-                          console.log(convert_to_leiden);
-                          let raw = convert_to_leiden['xml'];
-                          let bodyResponse = new DOMParser().parseFromString(raw, "text/html").body;
-                          let leidenToken = '';
-                          bodyResponse.childNodes.forEach(
-                            x => {
-                              if (x.nodeName != undefined) {
-                                if (x.nodeName == '#text') {
-                                  leidenToken += x.nodeValue.replace('\n', '');
-                                }
-                              }
-                            }
-                          )
-    
-                          if (leidenToken != '') {
-                            annotation.attributes['leiden'] = leidenToken;
-                          } else {
-                            annotation.attributes['leiden'] = '';
-                          }
                           
-                        } catch (error) {
+                          this.documentService.testConvertItAnt(object).pipe(takeUntil(this.destroy$), debounceTime(2000)).subscribe(
+                            convert_to_leiden =>{
+                              console.log(convert_to_leiden);
+                              let raw = convert_to_leiden['xml'];
+                              let bodyResponse = new DOMParser().parseFromString(raw, "text/html").body;
+                              let leidenToken = '';
+                              bodyResponse.childNodes.forEach(
+                                x => {
+                                  if (x.nodeName != undefined) {
+                                    if (x.nodeName == '#text') {
+                                      leidenToken += x.nodeValue.replace('\n', '');
+                                    }
+                                  }
+                                }
+                              )
+      
+                              if (leidenToken != '') {
+                                annotation.attributes['leiden'] = leidenToken;
+                              } else {
+                                annotation.attributes['leiden'] = '';
+                              }
+                            },
+                            error=>{}
+                          );
+                          
     
+                          
                         }
                       }
-                      
-  
-  
-  
-  
                     }
                   }
-                
-                
+                }
               }
+    
+              this.lexicalService.triggerAttestationPanel(true);
+              this.lexicalService.sendToAttestationPanel(this.annotationArray);
             }
-
-            this.lexicalService.triggerAttestationPanel(true);
-            this.lexicalService.sendToAttestationPanel(this.annotationArray);
+          } else {
+            this.annotationArray = [];
+            this.lexicalService.triggerAttestationPanel(false);
+            this.lexicalService.sendToAttestationPanel(null);
           }
         } else {
           this.annotationArray = [];
-          this.lexicalService.triggerAttestationPanel(false);
+          this.epidoc_annotation_array = [];
+          this.lexicalService.triggerAttestationPanel(null);
           this.lexicalService.sendToAttestationPanel(null);
         }
-      } else {
-        this.annotationArray = [];
-        this.epidoc_annotation_array = [];
-        this.lexicalService.triggerAttestationPanel(null);
-        this.lexicalService.sendToAttestationPanel(null);
+      }, error => {
+        console.log(error)
       }
-    } catch (error) {
-      if (error.status != 200) {
-        this.toastr.error("Something went wrong", "Error", { timeOut: 5000 })
-      }
-    }
+    );
   }
 
 

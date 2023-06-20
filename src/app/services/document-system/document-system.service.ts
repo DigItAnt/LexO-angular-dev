@@ -12,7 +12,7 @@ You should have received a copy of the GNU General Public License along with Epi
 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { timeout } from 'rxjs/operators';
 
 @Injectable({
@@ -158,5 +158,9 @@ export class DocumentSystemService {
 
   updateFileMetadata(parameters, element_id, request_uuid): Observable<any> {
     return this.http.post(this.baseUrl_document + "crud/updateFileMetadata?requestUUID="+request_uuid+"&element-id="+element_id+"", parameters)
+  }
+
+  createText() : Observable<any>{
+    return of();
   }
 }
