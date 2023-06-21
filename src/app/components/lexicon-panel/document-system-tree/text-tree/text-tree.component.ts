@@ -324,7 +324,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
           );
 
           this.documentService.sendLeidenToEpigraphyTab(null);
-          //this.annotatorService.getIdText(this.selectedEpidocId);
+          this.annotatorService.getIdText(this.selectedEpidocId);
           this.documentService.testConvert(object).pipe(takeUntil(this.destroy$)).subscribe(
             data=>{
               //console.log("TEST", data);

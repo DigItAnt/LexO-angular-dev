@@ -16,8 +16,8 @@ import { NavigationEnd, Router } from '@angular/router';
 import { NgbPopover, NgbPopoverConfig } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent } from '@ng-select/ng-select';
 import { ToastrService } from 'ngx-toastr';
-import { Subject, Subscription } from 'rxjs';
-import { debounceTime, filter, takeUntil } from 'rxjs/operators';
+import { forkJoin, of, Subject, Subscription } from 'rxjs';
+import { debounceTime, filter, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { AnnotatorService } from 'src/app/services/annotator/annotator.service';
 import { DocumentSystemService } from 'src/app/services/document-system/document-system.service';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
@@ -83,6 +83,8 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
   isEmptyFile = false;
 
   destroy$: Subject<boolean> = new Subject();
+
+  annotationSubject$ : Subject<any> = new Subject();
 
   @HostListener('document:mouseup', ['$event'])
   onMouseUp(event): void {
@@ -500,9 +502,168 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
         }
       }
     )
+    
+   
+
+    this.annotationSubject$.pipe(
+      takeUntil(this.destroy$),
+      debounceTime(2000),
+      tap(changes => {
+        this.tempXml = changes.epiData.currentValue['xmlDoc']
+      }),
+      switchMap(changes => this.annotatorService.getAnnotation(changes.epiData.currentValue['element_id'])),
+      map(annotations => this.mapAnnotations(annotations)),
+      switchMap(annotations => this.attachLeiden()),
+      map(xmlList => this.mapLeidenNodes(xmlList))
+    ).subscribe(
+      data=>{
+        console.log(data)
+      }
+    )
 
   }
 
+  mapLeidenNodes(xmlList){
+    console.log(xmlList);
+    let raw = xmlList['xml'];
+    let bodyResponse = new DOMParser().parseFromString(raw, "text/html").body;
+    let leidenToken = '';
+    bodyResponse.childNodes.forEach(
+      x => {
+        if (x.nodeName != undefined) {
+          if (x.nodeName == '#text') {
+            leidenToken += x.nodeValue.replace('\n', '');
+          }
+        }
+      }
+    )
+
+    /* if (leidenToken != '') {
+      annotation.attributes['leiden'] = leidenToken;
+    } else {
+      annotation.attributes['leiden'] = '';
+    } */
+  }
+
+  attachLeiden(){
+
+    let httpReq = [];
+    if (this.annotationArray.length > 0) {
+      if (this.object != null) {
+        for (const element of this.object) {
+          let startElement = element.begin;
+          let endElement = element.end;
+
+
+          for (const annotation of this.annotationArray) {
+
+
+            if (annotation.spans.length == 1) {
+              let startAnnotation = annotation.spans[0].start;
+              let endAnnotation = annotation.spans[0].end;
+
+              if (startAnnotation >= startElement && endAnnotation <= endElement) {
+                let positionElement = element.position;
+                let elementHTML = document.getElementsByClassName('token-' + (positionElement - 1))[0]
+                var that = this;
+
+                if (Array.from(this.tempXml.querySelectorAll('[*|id=\'' + element.xmlid + '\']')).length > 0) {
+                  let xmlNode = this.tempXml.querySelectorAll('[*|id=\'' + element.xmlid + '\']')[0].outerHTML;
+                  let object = {
+                    xmlString: xmlNode
+                  }
+
+                  if (elementHTML != undefined) {
+                    that.renderer.addClass(elementHTML, 'annotation');
+                  }
+
+                  if (annotation.attributes.leiden == undefined) {
+
+                    
+                    httpReq.push(this.documentService.testConvertItAnt(object));
+                    
+
+                    
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        if(httpReq.length > 0){
+          return forkJoin(httpReq);
+        }else{
+          return of([])
+        }
+        // this.lexicalService.triggerAttestationPanel(true);
+        // this.lexicalService.sendToAttestationPanel(this.annotationArray);
+      }else{
+        return of([])
+      }
+    } else {
+      return of([]);
+      // this.annotationArray = [];
+      // this.lexicalService.triggerAttestationPanel(false);
+      // this.lexicalService.sendToAttestationPanel(null);
+    }
+
+  }
+
+  mapAnnotations(annotations){
+    if(annotations.annotations != undefined){
+      annotations.annotations.forEach(element => {
+        //console.log(element)
+        if (element.layer == 'attestation') {
+          if (element.attributes.bibliography == undefined) {
+            element.attributes['bibliography'] = [];
+          }
+
+          if (!Array.isArray(element.attributes.bibliography)) {
+            let tmp_arr = [];
+            tmp_arr.push(element.attributes['bibliography']);
+            element.attributes['bibliography'] = tmp_arr;
+          }
+
+
+          if (Array.isArray(element.attributes['bibliography'])) {
+            Array.from(element.attributes['bibliography']).forEach(element => {
+
+              if (element['note'] == undefined) {
+                element['note'] = "";
+              }
+
+              if (element['textualRef'] == undefined) {
+                element['textualRef'] = "";
+              }
+            });
+          }
+
+          if (this.isEmptyFile) {
+            element['empty_file'] = this.isEmptyFile;
+            if (element.attributes.leiden == undefined) {
+              element.attributes.leiden = '';
+            }
+          } else {
+            element['empty_file'] = this.isEmptyFile;
+          }
+          this.annotationArray.push(element);
+        } else if (element.layer == 'epidoc') {
+          this.epidoc_annotation_array.push(element);
+        }
+      });
+
+      this.lexicalService.triggerAttestationPanel(true);
+      this.lexicalService.sendToAttestationPanel(this.annotationArray);
+    }else{
+      this.annotationArray = [];
+      this.epidoc_annotation_array = [];
+      this.lexicalService.triggerAttestationPanel(null);
+      this.lexicalService.sendToAttestationPanel(null);
+    }
+  }
+
+  tempXml;
 
   ngOnChanges(changes: SimpleChanges) {
     
@@ -516,16 +677,12 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
       }
 
       this.object = changes.epiData.currentValue['tokens'];
-      this.getAnnotations(changes);
+      //this.getAnnotations(changes);
+      this.annotationSubject$.next(changes);
 
     } else {
       this.object = null;
     }
-
-
-
-    
-
   }
 
   getAnnotations(changes) {
