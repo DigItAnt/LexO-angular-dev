@@ -677,6 +677,13 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
       }
 
       this.object = changes.epiData.currentValue['tokens'];
+      if (this.object.length == 0) {
+        this.isEmptyFile = true;
+        console.log("FILE VUOTO")
+      } else {
+        this.isEmptyFile = false;
+        console.log("FILE NON VUOTO")
+      }
       //this.getAnnotations(changes);
       this.annotationSubject$.next(changes);
 
@@ -685,7 +692,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  getAnnotations(changes) {
+  /* getAnnotations(changes) {
 
     //TODO: fix this
     // quando si clicca velocemente restituisce anche le altre attestazioni
@@ -837,7 +844,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
         console.log(error)
       }
     );
-  }
+  } */
 
 
   createToken(token?) {
