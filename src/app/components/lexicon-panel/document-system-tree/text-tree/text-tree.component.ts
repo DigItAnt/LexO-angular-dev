@@ -17,8 +17,8 @@ import { TreeNode, TreeModel, TREE_ACTIONS, KEYS, IActionMapping, ITreeOptions }
 import { ModalComponent } from 'ng-modal-lib';
 import { ContextMenuComponent } from 'ngx-contextmenu';
 import { ToastrService } from 'ngx-toastr';
-import { Subject } from 'rxjs';
-import { debounceTime, take, takeUntil } from 'rxjs/operators';
+import { forkJoin, of, Subject } from 'rxjs';
+import { catchError, debounceTime, take, takeUntil } from 'rxjs/operators';
 import { AnnotatorService } from 'src/app/services/annotator/annotator.service';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { DocumentSystemService } from 'src/app/services/document-system/document-system.service';
@@ -284,7 +284,6 @@ export class TextTreeComponent implements OnInit, OnDestroy {
               let element_id = this.selectedNodeId;
               let tokens = data.tokens;
 
-              //TODO: inserire uploader quando sarà disponibile
               this.documentService.sendToEpigraphyTab({
                 tokens : tokens,
                 element_id : element_id,
@@ -883,55 +882,56 @@ export class TextTreeComponent implements OnInit, OnDestroy {
         )
       }else{
         let files_array = evt.target.files;
-        Array.from(files_array).forEach((element : any) => {
+        const uploadObservables = [];
 
-          file_name = element.name;
-          parameters = {
-            "requestUUID": "string",
-            "user-id": 0,
-            "element-id": element_id,
-            "file-name": file_name
-          }
-
+        Array.from(files_array).forEach((element: any) => {
           const formData = new FormData();
           formData.append('file', element);
 
-          this.documentService.uploadFile(formData, element_id, 11).pipe(takeUntil(this.destroy$)).subscribe(
-            data => {
-              console.log(data)
+          const uploadObservable = this.documentService.uploadFile(formData, element_id, 12).pipe(catchError(error => of(null)));
+          uploadObservables.push(uploadObservable);
+        });
+
+        forkJoin(uploadObservables).pipe(takeUntil(this.destroy$)).subscribe(responses => {
+          responses.forEach((data : any, index) => {
+            console.log(data);
+            
+            if(data){
+              const element = files_array[index];
+
               this.treeText.treeModel.getNodeBy(x => {
-                if(x.data['element-id'] === element_id){
-                  x.expand()
-                  
+                if (x.data['element-id'] === element_id) {
+                  x.expand();
                   this.toastr.info('New file added', '', {
                     timeOut: 5000,
                   });
-                  console.log(x)
-                  x.data.children.push(data.node)
+                  x.data.children.push(data.node);
+  
                   setTimeout(() => {
                     this.counter = this.nodes.length;
                     this.updateTreeView();
                     this.treeText.treeModel.update();
                     this.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
                   }, 100);
-                  
                 }
-              })
-
-
-
-            }, error => {
-              console.log(error);
-              this.toastr.error('Error when adding new file', '', {
+              });
+            }else{
+              this.toastr.error('Error on uploading ' + files_array[index].name, '', {
                 timeOut: 5000,
               });
             }
-          )
+            
+          });
+        }, error => {
+          console.log(error);
+          this.toastr.error('Error when adding new files', '', {
+            timeOut: 5000,
+          });
         });
       }
     }
         
-    console.log(parameters)
+    //console.log(parameters)
     const expandedNodes = this.treeText.treeModel.expandedNodes;
     
   }

@@ -970,8 +970,6 @@ export class CoreTabComponent implements OnInit, OnDestroy {
 
   addBibliographyItem(item?) {
 
-    //TODO: check doppioni
-
     
     //@ts-ignore
     $("#biblioModal").modal("show");

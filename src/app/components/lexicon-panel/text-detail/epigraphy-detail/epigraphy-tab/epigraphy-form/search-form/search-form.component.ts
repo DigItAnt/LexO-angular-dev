@@ -453,32 +453,48 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       parameters["id"] = tokenData.node;
     } else if (this.bind.isEmptyFile) {
 
-      //TODO: inserire token farlocco, legare l'attestazione al token creato
-      const min = 1000000; // 1 miliardo (10 cifre)
-      const max = 9999999; // 9,999,999,999 (10 cifre)
 
-      let fakeToken = {
-        "text": data.label,
-        "xmlid": data.label+"_"+element_id,
-        "position": 0,
-        "begin": 0,
-        "end": 0,
-        "node": 0,
-        "source": "fake",
-        "imported": false,
-        "id": Math.floor(Math.random() * (max - min + 1)) + min
+      //preparo unstruc
+
+      let body = {
+        fake : " ",
+        "element-id" : element_id
       }
+      let createUnstructured;
+      try {
+        createUnstructured = await this.annotatorService.addUnstructured(element_id, body).toPromise()
+      } catch (error) {
+        console.log(error)
+      }
+      
 
-      /* this.annotatorService.addToken(element_id, fakeToken).pipe(takeUntil(this.destroy$)).subscribe(
-        data=>{
-          console.log(data);
-          //TODO: fix this
+      if(createUnstructured){
+        const min = 1000000; // 1 miliardo (10 cifre)
+        const max = 9999999; // 9,999,999,999 (10 cifre)
 
+        let fakeToken = {
+          "text": data.label,
+          "xmlid": null,
+          "position": 0,
+          "begin": 0,
+          "end": 0,
+          "node": 0,
+          "source": "fake",
+          "imported": false,
+          "id": Math.floor(Math.random() * (max - min + 1)) + min
+        }
 
-        },error=>{
-          console.log(error)
-        } 
-      ) */
+        let addAnnoReq;
+
+        try{
+          addAnnoReq = await this.annotatorService.addToken(element_id, fakeToken).toPromise();
+        }catch(e){
+          console.log(e)
+        }
+
+      }else{
+        console.log("Non è stato possibile creare il token")
+      }
 
       parameters["value"] = formValue;
       parameters["layer"] = "attestation";

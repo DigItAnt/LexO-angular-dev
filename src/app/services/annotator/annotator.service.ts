@@ -97,4 +97,8 @@ export class AnnotatorService {
     return this.http.put(this.baseUrl + 'annotation?requestUUID=test123', annotation);
   }
 
+
+  addUnstructured(id: number, body : object) : Observable<any> {
+    return this.http.post(this.baseUrl + 'unstructured?requestUUID=test123&nodeid='+id, body);
+  }
 }

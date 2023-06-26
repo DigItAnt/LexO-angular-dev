@@ -767,6 +767,8 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
           timeOut: 5000,
         });
 
+
+
         //TODO: inserire uploader qui
 
         if(pathId == 0){
@@ -849,11 +851,19 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
             }, 500);
           //TODO: inserire uploader
 
+          let updateMetadataBody = {
+            requestUUID : "11",
+            
+          }
+
           }, error => {
             console.log(error);
-            this.toastr.error('Error when adding new file', '', {
-              timeOut: 5000,
-            });
+            if(error.status != 200){
+              this.toastr.error('Error when adding new file', '', {
+                timeOut: 5000,
+              });
+            }
+            
           }
         )
       } else {

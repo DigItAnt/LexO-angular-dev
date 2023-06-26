@@ -694,7 +694,6 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
   /* getAnnotations(changes) {
 
-    //TODO: fix this
     // quando si clicca velocemente restituisce anche le altre attestazioni
     //o creare forkJoin o utilizzare element-id come informazione di appoggio per filtrare
     //dall'attestation panel 
