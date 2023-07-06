@@ -142,7 +142,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
     allowDrop: (element, { parent, index }) => {
       // return true / false based on element, to.parent, to.index. e.g.
       //console.log(element, parent, index, parent.data.type == 'folder')
-      return parent.data.type == 'directory';
+      return parent.hasChildren;
     },
     getNodeClone: (node) => ({
       ...node.data,
@@ -432,9 +432,9 @@ export class TextTreeComponent implements OnInit, OnDestroy {
     console.log($event);
     let node_type = $event.node.type;
     let target_type = $event.to.parent.type;
-    if(node_type === 'directory' && target_type === 'directory'){
+    if(node_type === 'directory' && (target_type === 'directory' || $event.to.parent.virtual)){
       this.moveFolder($event)
-    }else if(node_type === 'file' && target_type === 'directory'){
+    }else if(node_type === 'file' && (target_type === 'directory' || $event.to.parent.virtual)){
       this.moveFile($event)
     }
     
@@ -447,6 +447,11 @@ export class TextTreeComponent implements OnInit, OnDestroy {
 
         if(data['documentSystem'].length != 0){
           //console.log("CIAO")
+          data['documentSystem'] = data['documentSystem'].sort((a, b) => {
+            const aKey = Object.keys(a.metadata).length === 0 ? a.name : a.metadata.itAnt_ID;
+            const bKey = Object.keys(b.metadata).length === 0 ? b.name : b.metadata.itAnt_ID;
+            return aKey.localeCompare(bKey);
+          });
           this.nodes = data['documentSystem'];
           this.treeText.treeModel.update();
           this.loadModalTreeData.emit(this.nodes);
@@ -748,6 +753,11 @@ export class TextTreeComponent implements OnInit, OnDestroy {
           }
         })
       },error=> {
+        if(error.status != 200){
+          this.toastr.error(error.statusText, 'Error', {
+            timeOut: 5000,
+          });
+        }
         console.log(error)
       }
     )
@@ -1234,6 +1244,9 @@ export class TextTreeComponent implements OnInit, OnDestroy {
       //console.log(evt);
       let element_id = evt.node['element-id'];
       let target_id = evt.to.parent['element-id'];
+      if(target_id == undefined){
+        target_id = 1;
+      }
       let parameters = {
         "requestUUID": "string",
         "user-id": 0,
@@ -1260,6 +1273,9 @@ export class TextTreeComponent implements OnInit, OnDestroy {
       console.log(evt);
       let element_id = evt.node['element-id'];
       let target_id = evt.to.parent['element-id'];
+      if(target_id == undefined){
+        target_id = 1;
+      }
       let parameters = {
         "requestUUID": "string",
         "user-id": 0,
@@ -1276,7 +1292,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
           });
           
         },error=>{
-          //console.log(error)
+          console.log(error)
         }
       )
     }

@@ -751,7 +751,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
   }
 
   addNewEmptyFile(name : string, pathId?: number){
-    let element_id = 0;
+    let element_id = 1;
     let parameters = {
       requestUUID : "string",
       "user-id" : 0,
@@ -768,8 +768,26 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
         });
 
 
+        if(this.author){
+          data.node['metadata']['uploader'] = this.author;
+          let node_metadata = data.node['metadata']
 
-        //TODO: inserire uploader qui
+          let parameters = {
+            requestUUID : '11',
+            metadata : node_metadata,
+            "element-id" : element_id,
+            "user-id" : 0
+          }
+
+          this.documentService.updateMetadata(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+            data=>{
+              console.log(data)
+            },error=>{
+              console.log(error)
+            }
+          )
+          
+        }
 
         if(pathId == 0){
           this.textTree.treeText.treeModel.virtualRoot.data.children.push(data.node);
@@ -815,7 +833,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
 
 
   addNewFile(evt?) {
-    let element_id = 0;
+    let element_id = 1;
     console.log(evt.target.files)
     let parameters, file_name;
 
@@ -849,7 +867,27 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
               this.textTree.treeText.treeModel.getNodeById(data.node.id).setActiveAndVisible();
 
             }, 500);
-          //TODO: inserire uploader
+
+            if(this.author){
+              data.node['metadata']['uploader'] = this.author;
+              let node_metadata = data.node['metadata']
+
+              let parameters = {
+                requestUUID : '11',
+                metadata : node_metadata,
+                "element-id" : element_id,
+                "user-id" : 0
+              }
+
+              this.documentService.updateMetadata(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+                data=>{
+                  console.log(data)
+                },error=>{
+                  console.log(error)
+                }
+              )
+              
+            }
 
           let updateMetadataBody = {
             requestUUID : "11",
@@ -882,7 +920,6 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
           const formData = new FormData();
           formData.append('file', element);
 
-          //TODO: inserire uploader
 
           this.documentService.uploadFile(formData, element_id, 11).pipe(takeUntil(this.destroy$)).subscribe(
             data => {
@@ -891,6 +928,27 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
               this.toastr.info('New file added', '', {
                 timeOut: 5000,
               });
+              
+              if(this.author){
+                data.node['metadata']['uploader'] = this.author;
+                let node_metadata = data.node['metadata']
+  
+                let parameters = {
+                  requestUUID : '11',
+                  metadata : node_metadata,
+                  "element-id" : element_id,
+                  "user-id" : 0
+                }
+  
+                this.documentService.updateMetadata(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+                  data=>{
+                    console.log(data)
+                  },error=>{
+                    console.log(error)
+                  }
+                )
+                
+              }
               setTimeout(() => {
 
                 this.textTree.treeText.treeModel.nodes.push(data.node);
@@ -930,16 +988,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
     this.documentService.addFolder(parameters).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         console.log(data)
-        let id_new_node = 243;
-        /* let new_node = {
-          "children" : [],
-          "element-id" : id_new_node,
-          "id" : Math.floor(Math.random() * (99999 - 10) + 10),
-          "metadata" : {},
-          "path" : "",
-          "name" : "new-folder_"+ Math.floor(Math.random() * (99999 - 10) + 10),
-          "type" : "directory"
-        } */
+        
         if (data.node != undefined) {
           this.toastr.info('New folder added', '', {
             timeOut: 5000,
@@ -949,7 +998,27 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
           this.textTree.treeText.treeModel.update();
         }
 
-         //TODO: inserire uploader
+        /* if(this.author){
+          data.node['metadata']['uploader'] = this.author;
+          let node_metadata = data.node['metadata']
+
+          let parameters = {
+            requestUUID : '11',
+            metadata : node_metadata,
+            "element-id" : element_id,
+            "user-id" : 0
+          }
+
+          this.documentService.updateMetadata(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+            data=>{
+              console.log(data)
+            },error=>{
+              console.log(error)
+            }
+          )
+          
+        }   */
+      
 
       }, error => {
         console.log(error);

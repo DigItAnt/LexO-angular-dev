@@ -16,16 +16,16 @@
                 <tree-root #treeText_newFile [nodes]="newFile_nodes" [options]="newFile_options" [focused]="true" (activate)="selectTempNode($event)">
                   <ng-template #treeNodeTemplate let-node let-index="index">
               
-                    <div *ngIf="node.data.type == 'directory'">
-                      <i class="far fa-folder" *ngIf="node.data.type == 'directory' && !node.isExpanded"></i>
-                      <i class="far fa-folder-open" *ngIf="node.data.type == 'directory' && node.isExpanded"></i>
-                      <span *ngIf="node.data.type == 'directory'">
+                    <div [class.hidden]="node.data.type !== 'directory'">
+                        <i class="far fa-folder" *ngIf="node.data.type == 'directory' && !node.isExpanded"></i>
+                        <i class="far fa-folder-open" *ngIf="node.data.type == 'directory' && node.isExpanded"></i>
+                      
                         <span >
-                          {{ node.data.name}}
+                            {{ node.data.name}}
                         </span>
                         
                         
-                      </span>
+                      
                     </div>
               
                   </ng-template>

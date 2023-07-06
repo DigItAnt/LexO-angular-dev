@@ -21,6 +21,10 @@ body {
     box-shadow: none;
 }
 
+.node-wrapper:has(.hidden){
+    display: none !important;
+}
+
 .tree-children {
     overflow: visible;
 }

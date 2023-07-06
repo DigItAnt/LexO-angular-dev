@@ -10,7 +10,7 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, Input, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent } from '@ng-select/ng-select';
@@ -62,6 +62,8 @@ export class SearchFormComponent implements OnInit, OnDestroy {
   @ViewChild('addFormModal') addFormModal: any;
   @ViewChild('select_form') select_form: NgSelectComponent;
   @ViewChild('search_lexicalEntry') search_lexicalEntry: NgSelectComponent;
+  @ViewChild('leidenFake') leidenFake: ElementRef; 
+  
   loader = false;
   modalStep = 0;
 
@@ -363,6 +365,8 @@ export class SearchFormComponent implements OnInit, OnDestroy {
   
       }
     }
+
+    //TODO: layer annotazione POS
     
     let lexEntryLabel = '';
     try {
@@ -454,7 +458,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
     } else if (this.bind.isEmptyFile) {
 
 
-      //preparo unstruc
+      //TODO: check unstructured
 
       let body = {
         fake : " ",
