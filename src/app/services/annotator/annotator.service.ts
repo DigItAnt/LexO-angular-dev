@@ -27,12 +27,17 @@ export class AnnotatorService {
   private _deleteAnnoRequest: BehaviorSubject<any> = new BehaviorSubject(null);
   private _getIdText: BehaviorSubject<any> = new BehaviorSubject(null);
 
+  private _addToken : BehaviorSubject<any> = new BehaviorSubject(null);
+
   private arrayPanelFormsData = {};
 
 
   triggerSearch$ = this._triggerSearch.asObservable();
   deleteAnnoReq$ = this._deleteAnnoRequest.asObservable();
   getIdText$ = this._getIdText.asObservable();
+  addToken$ = this._addToken.asObservable();
+
+
 
   triggerSearch(string : string) {
     this._triggerSearch.next(string)
@@ -40,6 +45,10 @@ export class AnnotatorService {
 
   deleteAnnotationRequest(id : number, node_id : number){
     this._deleteAnnoRequest.next({id, node_id})
+  }
+
+  addTokenToEpigraphyForm(token : any){
+    this._addToken.next(token)
   }
 
   getIdText(object: any){

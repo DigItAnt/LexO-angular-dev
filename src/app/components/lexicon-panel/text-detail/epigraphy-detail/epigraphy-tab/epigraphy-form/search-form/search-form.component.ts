@@ -62,7 +62,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
   @ViewChild('addFormModal') addFormModal: any;
   @ViewChild('select_form') select_form: NgSelectComponent;
   @ViewChild('search_lexicalEntry') search_lexicalEntry: NgSelectComponent;
-  @ViewChild('leidenFake') leidenFake: ElementRef; 
+  @ViewChild('leidenFake') leidenFake: any; 
   
   loader = false;
   modalStep = 0;
@@ -458,10 +458,13 @@ export class SearchFormComponent implements OnInit, OnDestroy {
     } else if (this.bind.isEmptyFile) {
 
 
-      //TODO: check unstructured
+      //TODO: reload per fare vedere il nuovo token (?)
+      let leidenFake = this.leidenFake.nativeElement.value;
 
       let body = {
-        fake : " ",
+        unstructured : {
+          fake: " "
+        },
         "element-id" : element_id
       }
       let createUnstructured;
@@ -477,7 +480,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         const max = 9999999; // 9,999,999,999 (10 cifre)
 
         let fakeToken = {
-          "text": data.label,
+          "text": leidenFake,
           "xmlid": null,
           "position": 0,
           "begin": 0,
@@ -492,6 +495,10 @@ export class SearchFormComponent implements OnInit, OnDestroy {
 
         try{
           addAnnoReq = await this.annotatorService.addToken(element_id, fakeToken).toPromise();
+
+          if(addAnnoReq){
+            this.annotatorService.addTokenToEpigraphyForm(fakeToken);
+          }
         }catch(e){
           console.log(e)
         }
@@ -513,7 +520,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         leiden : "",
         externalRef: "",
         node_id: undefined,
-        label: data.label,
+        label: leidenFake,
         lexicalEntry: data.lexicalEntry,
         lexicalEntryLabel : lexEntryLabel
       };

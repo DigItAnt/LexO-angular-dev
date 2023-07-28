@@ -81,6 +81,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
   fileId;
 
   isEmptyFile = false;
+  fakeToken = false;
 
   destroy$: Subject<boolean> = new Subject();
 
@@ -399,8 +400,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
-    /* this.config.autoClose = false */
-
+    //TODO: metodo per aggiungere e rimuovere token da attestation panel o search form
 
     this.epigraphyForm = this.formBuilder.group({
       tokens: this.formBuilder.array([this.createToken()])
@@ -503,7 +503,15 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
       }
     )
     
-   
+      
+    this.annotatorService.addToken$.pipe(takeUntil(this.destroy$)).subscribe(
+      data=>{
+        if(data != null){
+          this.object.push(data);
+
+        }
+      }
+    )
 
     this.annotationSubject$.pipe(
       takeUntil(this.destroy$),
@@ -681,7 +689,8 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
         this.isEmptyFile = true;
         console.log("FILE VUOTO")
       } else {
-        this.isEmptyFile = false;
+        this.isEmptyFile = this.object.some(object => object.source === 'fake');
+        this.fakeToken = this.object.some(object => object.source === 'fake');
         console.log("FILE NON VUOTO")
       }
       //this.getAnnotations(changes);
@@ -691,159 +700,6 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
       this.object = null;
     }
   }
-
-  /* getAnnotations(changes) {
-
-    // quando si clicca velocemente restituisce anche le altre attestazioni
-    //o creare forkJoin o utilizzare element-id come informazione di appoggio per filtrare
-    //dall'attestation panel 
-    this.annotationArray = [];
-    let element_id = changes.epiData.currentValue['element_id']
-    this.fileId = changes.epiData.currentValue['epidoc_id']
-    let xmlDoc = changes.epiData.currentValue['xmlDoc']
-    console.log(this.object)
-
-    if (this.object.length == 0) {
-      this.isEmptyFile = true;
-      console.log("FILE VUOTO")
-    } else {
-      this.isEmptyFile = false;
-      console.log("FILE NON VUOTO")
-    }
-
-    //console.log(this.object)
-
-
-    this.annotatorService.getAnnotation(element_id).pipe(takeUntil(this.destroy$), debounceTime(2000)).subscribe(
-      get_anno_req => {
-        console.log(get_anno_req);
-        if (get_anno_req.annotations != undefined) {
-          get_anno_req.annotations.forEach(element => {
-            //console.log(element)
-            if (element.layer == 'attestation') {
-              if (element.attributes.bibliography == undefined) {
-                element.attributes['bibliography'] = [];
-              }
-    
-              if (!Array.isArray(element.attributes.bibliography)) {
-                let tmp_arr = [];
-                tmp_arr.push(element.attributes['bibliography']);
-                element.attributes['bibliography'] = tmp_arr;
-              }
-    
-    
-              if (Array.isArray(element.attributes['bibliography'])) {
-                Array.from(element.attributes['bibliography']).forEach(element => {
-    
-                  if (element['note'] == undefined) {
-                    element['note'] = "";
-                  }
-    
-                  if (element['textualRef'] == undefined) {
-                    element['textualRef'] = "";
-                  }
-                });
-              }
-    
-              if (this.isEmptyFile) {
-                element['empty_file'] = this.isEmptyFile;
-                if (element.attributes.leiden == undefined) {
-                  element.attributes.leiden = '';
-                }
-              } else {
-                element['empty_file'] = this.isEmptyFile;
-              }
-              this.annotationArray.push(element);
-            } else if (element.layer == 'epidoc') {
-              this.epidoc_annotation_array.push(element);
-            }
-          });
-    
-          if (this.annotationArray.length > 0) {
-            if (this.object != null) {
-              for (const element of this.object) {
-                let startElement = element.begin;
-                let endElement = element.end;
-    
-    
-                for (const annotation of this.annotationArray) {
-    
-    
-                  if (annotation.spans.length == 1) {
-                    let startAnnotation = annotation.spans[0].start;
-                    let endAnnotation = annotation.spans[0].end;
-    
-                    if (startAnnotation >= startElement && endAnnotation <= endElement) {
-                      let positionElement = element.position;
-                      let elementHTML = document.getElementsByClassName('token-' + (positionElement - 1))[0]
-                      var that = this;
-    
-                      if (Array.from(xmlDoc.querySelectorAll('[*|id=\'' + element.xmlid + '\']')).length > 0) {
-                        let xmlNode = xmlDoc.querySelectorAll('[*|id=\'' + element.xmlid + '\']')[0].outerHTML;
-                        let object = {
-                          xmlString: xmlNode
-                        }
-    
-                        if (elementHTML != undefined) {
-                          that.renderer.addClass(elementHTML, 'annotation');
-                        }
-    
-                        if (annotation.attributes.leiden == undefined) {
-
-                          
-                          this.documentService.testConvertItAnt(object).pipe(takeUntil(this.destroy$), debounceTime(2000)).subscribe(
-                            convert_to_leiden =>{
-                              console.log(convert_to_leiden);
-                              let raw = convert_to_leiden['xml'];
-                              let bodyResponse = new DOMParser().parseFromString(raw, "text/html").body;
-                              let leidenToken = '';
-                              bodyResponse.childNodes.forEach(
-                                x => {
-                                  if (x.nodeName != undefined) {
-                                    if (x.nodeName == '#text') {
-                                      leidenToken += x.nodeValue.replace('\n', '');
-                                    }
-                                  }
-                                }
-                              )
-      
-                              if (leidenToken != '') {
-                                annotation.attributes['leiden'] = leidenToken;
-                              } else {
-                                annotation.attributes['leiden'] = '';
-                              }
-                            },
-                            error=>{}
-                          );
-                          
-    
-                          
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-    
-              this.lexicalService.triggerAttestationPanel(true);
-              this.lexicalService.sendToAttestationPanel(this.annotationArray);
-            }
-          } else {
-            this.annotationArray = [];
-            this.lexicalService.triggerAttestationPanel(false);
-            this.lexicalService.sendToAttestationPanel(null);
-          }
-        } else {
-          this.annotationArray = [];
-          this.epidoc_annotation_array = [];
-          this.lexicalService.triggerAttestationPanel(null);
-          this.lexicalService.sendToAttestationPanel(null);
-        }
-      }, error => {
-        console.log(error)
-      }
-    );
-  } */
 
 
   createToken(token?) {
