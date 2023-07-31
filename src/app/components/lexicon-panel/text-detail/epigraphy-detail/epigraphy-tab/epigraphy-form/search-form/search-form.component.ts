@@ -458,7 +458,6 @@ export class SearchFormComponent implements OnInit, OnDestroy {
     } else if (this.bind.isEmptyFile) {
 
 
-      //TODO: reload per fare vedere il nuovo token (?)
       let leidenFake = this.leidenFake.nativeElement.value;
 
       let body = {
@@ -517,10 +516,10 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         timestamp: new Date().getTime().toString(),
         bibliography: [],
         validity: "",
-        leiden : "",
+        leiden : leidenFake,
         externalRef: "",
         node_id: undefined,
-        label: leidenFake,
+        label: data.label,
         lexicalEntry: data.lexicalEntry,
         lexicalEntryLabel : lexEntryLabel
       };
