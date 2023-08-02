@@ -82,6 +82,10 @@ export class AnnotatorService {
     return this.http.post(this.baseUrl + 'token?requestUUID=test123&nodeid='+node_id, tokenBody);
   }
 
+  deleteToken(tokenid : number) : Observable<any> {
+    return this.http.delete(this.baseUrl + 'token?requestUUID=test123&tokenid='+tokenid);
+  }
+
   getText(id: number) : Observable<any> {
     return this.http.get(this.baseUrl + 'public/gettext?requestUUID=test123&nodeid='+id);
   }

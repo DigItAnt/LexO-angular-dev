@@ -176,3 +176,16 @@ div[class*="multiword-span-"] + div[class*="multiword-span-"]{
     font-size: 14px;
     font-weight: 300;
 }
+
+.removeTokenIcon {
+    display: inline-flex;
+    cursor: pointer;
+    top: 0px;
+    justify-content: center;
+    color: white;
+    background: red;
+    border-radius: 2rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    align-items: center;
+}

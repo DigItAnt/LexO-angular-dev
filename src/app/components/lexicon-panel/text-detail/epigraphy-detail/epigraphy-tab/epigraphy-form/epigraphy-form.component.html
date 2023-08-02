@@ -43,19 +43,22 @@
         
         </div>
         
-        <div class="form-group row ml-2 mt-3 mr-2 panel" *ngIf="fakeToken">
-            <div *ngFor="let token of object; let i = index" class="panel-body">
-                <!-- {{multiWordMode && (token.text == '' || token.text == '.' || token.text == ':')}} -->
+        <div class="form-group ml-2 mt-3 mr-2 panel" *ngIf="fakeToken">
+            <div *ngFor="let token of object; let i = index" class="panel-body d-flex position-relative">
                 <span 
                     style="display: block"
                     class="token token-{{i}} p-2" 
-                    (mouseenter)="enterCell($event, i)" 
-                    (mouseleave)="leavingCell($event, i)"
+                    (mouseenter)="enterCell($event, i); trashIcons[i] = true" 
+                    (mouseleave)="leavingCell($event, i); trashIcons[i] = false"
                     [ngClass]="{'unselectable': !token.selected, 'selected' : token.selected, 'editing' : token.editing}">
                     {{token.text}}
+
+                    <i class="fas fa-trash position-absolute removeTokenIcon" 
+                        style="display: none; cursor: pointer; top: 0;" 
+                        [style.display]="trashIcons[i] ? 'inline-flex' : 'none'" 
+                        (click)="deleteToken(i)"></i> 
                 </span>
-    
-    
+
             </div>
         </div>
         

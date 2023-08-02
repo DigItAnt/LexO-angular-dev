@@ -86,6 +86,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
   destroy$: Subject<boolean> = new Subject();
 
   annotationSubject$ : Subject<any> = new Subject();
+  trashIcons: boolean[] = [];
 
   @HostListener('document:mouseup', ['$event'])
   onMouseUp(event): void {
@@ -1107,6 +1108,22 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
     }
 
 
+  }
+
+  deleteToken(index: number) {
+    // Chiamata al tuo servizio per eliminare il token
+    this.annotatorService.deleteToken(this.object[index].id).pipe(takeUntil(this.destroy$)).subscribe(
+      data=>{
+        this.object.splice(index, 1);
+        this.toastr.success('Token deleted', 'Success', {timeOut: 5000})
+      },
+      error=>{
+        if(error.status != 200){
+          this.toastr.error('Error on deleting token', 'Error', {timeOut: 5000})
+
+        }        
+      }
+    );
   }
 
 
