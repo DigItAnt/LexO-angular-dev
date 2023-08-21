@@ -459,52 +459,60 @@ export class SearchFormComponent implements OnInit, OnDestroy {
 
 
       let leidenFake = this.leidenFake.nativeElement.value;
-
-      let body = {
-        unstructured : {
-          fake: " "
-        },
-        "element-id" : element_id
+      let checkUnstructured;
+      try {
+        checkUnstructured = await this.annotatorService.getText(element_id).toPromise();
+      } catch (error) {
+        
       }
       let createUnstructured;
-      try {
-        createUnstructured = await this.annotatorService.addUnstructured(element_id, body).toPromise()
-      } catch (error) {
-        console.log(error)
-      }
-      
 
-      if(createUnstructured){
-        const min = 1000000; // 1 miliardo (10 cifre)
-        const max = 9999999; // 9,999,999,999 (10 cifre)
 
-        let fakeToken = {
-          "text": leidenFake,
-          "xmlid": null,
-          "position": 0,
-          "begin": 0,
-          "end": 0,
-          "node": 0,
-          "source": "fake",
-          "imported": false,
-          "id": Math.floor(Math.random() * (max - min + 1)) + min
-        }
-
-        let addAnnoReq;
-
-        try{
-          addAnnoReq = await this.annotatorService.addToken(element_id, fakeToken).toPromise();
-
-          if(addAnnoReq){
-            this.annotatorService.addTokenToEpigraphyForm(fakeToken);
-          }
-        }catch(e){
-          console.log(e)
-        }
+      if(checkUnstructured){
 
       }else{
-        console.log("Non è stato possibile creare il token")
+        let body = {
+          unstructured : {
+            fake: " "
+          },
+          "element-id" : element_id
+        }
+        
+        try {
+          createUnstructured = await this.annotatorService.addUnstructured(element_id, body).toPromise()
+        } catch (error) {
+          console.log(error)
+        }
       }
+      
+      const min = 1000000; // 1 miliardo (10 cifre)
+      const max = 9999999; // 9,999,999,999 (10 cifre)
+
+      let fakeToken = {
+        "text": leidenFake,
+        "xmlid": null,
+        "position": 0,
+        "begin": 0,
+        "end": 0,
+        "node": 0,
+        "source": "fake",
+        "imported": false,
+        "id": Math.floor(Math.random() * (max - min + 1)) + min
+      }
+
+      let addAnnoReq;
+
+      try{
+        addAnnoReq = await this.annotatorService.addToken(element_id, fakeToken).toPromise();
+
+        if(addAnnoReq){
+          this.annotatorService.addTokenToEpigraphyForm(fakeToken);
+        }
+      }catch(e){
+        console.log(e)
+      }
+
+      
 
       parameters["value"] = formValue;
       parameters["layer"] = "attestation";
