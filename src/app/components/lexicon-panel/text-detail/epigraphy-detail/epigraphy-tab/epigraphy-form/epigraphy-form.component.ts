@@ -461,8 +461,8 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
       data=>{
         if(data){
           console.log(data)
-          this.object = this.object.filter(element => element.token_id == data);
-
+          //this.object = this.object.filter(element => element.id == data);
+          this.removeToken(data);
         }
       }
     )
@@ -751,6 +751,18 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
 
 
+  }
+
+  removeToken(token_id){
+    console.log(token_id)
+
+    const index = this.object.findIndex(obj => obj.id === token_id);
+  
+    if (index > -1) {
+      this.object.splice(index, 1);
+    }
+
+    
   }
 
   leavingCell(evt, i) {

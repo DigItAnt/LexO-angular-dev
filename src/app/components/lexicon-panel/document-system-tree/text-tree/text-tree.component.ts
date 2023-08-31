@@ -1097,6 +1097,15 @@ export class TextTreeComponent implements OnInit, OnDestroy {
             
     this.documentService.downloadFile(parameters).pipe(takeUntil(this.destroy$)).subscribe(
       data=>{
+        const blob = new Blob([data], { type: 'application/xml' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = evt.name;  // Cambia con il nome del file che preferisci
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
         console.log(data);
         this.toastr.info('File '+ evt['name'] +' downloaded', '', {
           timeOut: 5000,
