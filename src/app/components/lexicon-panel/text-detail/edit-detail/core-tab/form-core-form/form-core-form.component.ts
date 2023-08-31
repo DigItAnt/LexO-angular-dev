@@ -237,6 +237,24 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
 
         let formId = this.object.form;
 
+        /* this.annotatorService.getAnnotationByValue(formId).pipe(takeUntil(this.destroy$)).subscribe(
+          data=>{
+            console.log(data);
+            if(data!= undefined && data.annotations.length != 0){
+              
+              this.lexicalService.triggerAttestationPanel(true);
+              this.lexicalService.sendToAttestationPanel(data.annotations)
+              this.annotatorService.getIdText(undefined);
+             
+            }else{
+              this.lexicalService.triggerAttestationPanel(false);
+              this.lexicalService.sendToAttestationPanel(null);
+            }
+          },error=>{
+            console.log(error)
+          }
+        ); */
+
         this.documentService.searchAttestations(formId).pipe(takeUntil(this.destroy$)).subscribe(
           data=>{
             console.log(data);
@@ -305,7 +323,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
                     if(anno.attributes.bibliography == undefined) anno.attributes['bibliography'] = [];
                     tokensId.forEach(element => {
                       let elem = JSON.parse(element);
-                      if(elem.tokenId == anno.attributes.node_id) anno.attributes['fileId'] = elem.nodePath;
+                      /* if(elem.tokenId == anno.attributes.node_id)  */anno.attributes['fileId'] = elem.nodePath;
                       //console.log(element, anno)
                     });
                     filter_anno.push(anno)

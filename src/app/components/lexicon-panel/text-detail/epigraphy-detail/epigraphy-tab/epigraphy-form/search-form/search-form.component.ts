@@ -468,7 +468,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       let createUnstructured;
 
 
-      if(checkUnstructured){
+      if(checkUnstructured.text){
 
       }else{
         let body = {
@@ -527,6 +527,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         leiden : leidenFake,
         externalRef: "",
         node_id: undefined,
+        token_id : addAnnoReq.token.id,
         label: data.label,
         lexicalEntry: data.lexicalEntry,
         lexicalEntryLabel : lexEntryLabel

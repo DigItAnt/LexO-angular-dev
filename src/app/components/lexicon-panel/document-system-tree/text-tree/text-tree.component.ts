@@ -447,6 +447,12 @@ export class TextTreeComponent implements OnInit, OnDestroy {
 
         if(data['documentSystem'].length != 0){
           //console.log("CIAO")
+
+          //TODO: da rimuovere
+          const arrayWithArrays = data['documentSystem'].filter(item => Array.isArray(item.metadata.itAnt_ID));
+          console.log(arrayWithArrays)
+          data['documentSystem'] = data['documentSystem'].filter(item => !Array.isArray(item.metadata.itAnt_ID));
+
           data['documentSystem'] = data['documentSystem'].sort((a, b) => {
             const aKey = Object.keys(a.metadata).length === 0 ? a.name : a.metadata.itAnt_ID;
             const bKey = Object.keys(b.metadata).length === 0 ? b.name : b.metadata.itAnt_ID;

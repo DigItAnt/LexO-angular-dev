@@ -751,7 +751,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
   }
 
   addNewEmptyFile(name : string, pathId?: number){
-    let element_id = 1;
+    let element_id = 0;
     let parameters = {
       requestUUID : "string",
       "user-id" : 0,

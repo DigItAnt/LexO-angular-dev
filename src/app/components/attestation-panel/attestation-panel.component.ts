@@ -13,8 +13,8 @@ You should have received a copy of the GNU General Public License along with Epi
 import { Component, ComponentFactoryResolver, ElementRef, Input, OnChanges, OnDestroy, OnInit, QueryList, SimpleChanges, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
 import { ModalComponent } from 'ng-modal-lib';
 import { ToastrService } from 'ngx-toastr';
-import { Subject, Subscription } from 'rxjs';
-import { debounceTime, take, takeUntil } from 'rxjs/operators';
+import { forkJoin, of, Subject, Subscription } from 'rxjs';
+import { catchError, debounceTime, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { AnnotatorService } from 'src/app/services/annotator/annotator.service';
 import { BibliographyService } from 'src/app/services/bibliography-service/bibliography.service';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
@@ -144,7 +144,9 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
       (data : any)=>{
         if(data){
           let formId = data.formId;
-          console.log(this.formData)
+          let newLabel = data.newLabel;
+          console.log(this.formData);
+
           this.formData.forEach(attestation=>{
             if(attestation.value == formId){
               attestation.attributes.label = data.newLabel;
@@ -164,6 +166,57 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
               )
             }
           })
+
+          /* this.lexicalService.changeFormLabelReq$
+          .pipe(
+            takeUntil(this.destroy$),
+            switchMap((data : any) => {
+              const formId = data.formId;
+              const newLabel = data.newLabel
+              return this.annotatorService.getAnnotationByValue(formId).pipe(
+                tap((annotations) => {
+                  // Inserisci il codice per passare la variabile che vuoi tra gli switchMap
+                  annotations.newLabel = newLabel;
+                })
+              );
+            }),
+            catchError((error) => {
+              console.error('Errore nel recupero delle annotazioni:', error);
+              return of([]);
+            }),
+            switchMap((annotations) => {
+              // Modifica la label di ogni annotazione come necessario
+              annotations.annotations.forEach((annotation) => {
+                annotation.attributes.label = annotations.newLabel; // Sostituisci con la tua logica per modificare la label
+              });
+
+              // Aggiorna ogni annotazione
+              const updateObservables = annotations.annotations.map((annotation) =>
+                this.annotatorService.updateAnnotation(annotation).pipe(
+                  catchError((error) => {
+                    console.error('Errore nell\'aggiornamento dell\'annotazione:', error);
+                    return of(null);
+                  })
+                )
+              );
+
+              return forkJoin(updateObservables);
+            })
+          )
+          .subscribe(
+            (responses) => {
+              console.log('Annotazioni aggiornate con successo:', responses);
+
+              this.formData.forEach(attestation=>{
+                if(attestation.value == formId){
+                  attestation.attributes.label = data.newLabel;
+                }
+              }) 
+            },
+            (error) => {
+              console.error('Errore nell\'aggiornamento delle annotazioni:', error);
+            }
+          ); */
         }
       }
     )
@@ -194,7 +247,9 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
               if(attestation.attributes){
                 if(!Array.isArray(attestation.attributes.bibliography)){
                   let tmp = [];
-                  tmp.push(attestation.attributes.bibliography);
+                  if(attestation.attributes.bibliography != undefined){
+                    tmp.push(attestation.attributes.bibliography);
+                  }
                   attestation.attributes.bibliography = tmp;
                 }
               }
@@ -223,7 +278,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
     }
   }
 
-  cancelAttestation(index, id, node_id){
+  cancelAttestation(index, id, node_id, token_id?){
     this.formData.splice(index,1);
     this.annotatorService.deleteAnnotationRequest(id, node_id);
     
@@ -233,6 +288,20 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
         this.toastr.success('Attestation deleted correctly', 'Info', {
           timeOut : 5000
         })
+
+        if(token_id){
+          this.annotatorService.deleteToken(token_id).pipe(takeUntil(this.destroy$)).subscribe(
+            data=>{
+              console.log(data);
+              if(data){
+                this.annotatorService.deleteTokenRequest(token_id)
+              }
+            },error=>{
+              console.log(error)
+            }
+          )
+        }
+
         this.annotatorService.closePanelForm(id);
         if(this.arrayComponents.length > 0){
           this.arrayComponents.forEach(instanceComponent => {
@@ -253,12 +322,6 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
     );
     if(this.formData.length == 0){
       this.lexicalService.triggerAttestationPanel(false);
-      //this.lexicalService.sendToCoreTab(null);
-      /* this.expander.openCollapseEdit(false);
-      this.expander.expandCollapseEdit(false);
-
-      this.expander.openCollapseEpigraphy(true);
-      this.expander.expandCollapseEpigraphy(true); */
     }
 
     

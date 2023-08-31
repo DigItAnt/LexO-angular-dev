@@ -401,7 +401,6 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
-    //TODO: metodo per aggiungere e rimuovere token da attestation panel o search form
 
     this.epigraphyForm = this.formBuilder.group({
       tokens: this.formBuilder.array([this.createToken()])
@@ -458,6 +457,16 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
       }
     )
 
+    this.annotatorService.deleteTokenReq$.pipe(takeUntil(this.destroy$)).subscribe(
+      data=>{
+        if(data){
+          console.log(data)
+          this.object = this.object.filter(element => element.token_id == data);
+
+        }
+      }
+    )
+
     this.delete_annotation_subscription = this.annotatorService.deleteAnnoReq$.subscribe(
       data => {
 
@@ -509,7 +518,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
       data=>{
         if(data != null){
           this.object.push(data);
-
+          this.fakeToken = true;
         }
       }
     )

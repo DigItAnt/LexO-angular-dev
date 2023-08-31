@@ -19,7 +19,7 @@
                                 class="badge badge-primary">{{fileId == undefined ? item?.attributes.fileId : fileId}} - {{item?.attributes.label != undefined ? item?.attributes.label : ''}}</b></span></a>
                    
                     <a  (click)="loadFormData(item?.id, item?.value, fileId == null ? item?.attributes.fileId : fileId); " class="pointer"><span container="body" placement="top" ngbTooltip="Open in new panel" class="external-icon"><i class="fa fa-external-link-alt"></i></span></a>
-                    <a (click)="cancelAttestation(i, item?.id, item?.attributes.node_id)" class="pointer"><span class="trash-icon"><i class="fa fa-trash"></i></span></a>
+                    <a (click)="cancelAttestation(i, item?.id, item?.attributes.node_id, item?.attributes.token_id)" class="pointer"><span class="trash-icon"><i class="fa fa-trash"></i></span></a>
                     
 
                     <div [id]="'attestation_collapse-'+i" class="collapse" >
@@ -33,7 +33,7 @@
                             
                             
                             <div class="form-group row ml-2 mr-2 mb-0" *ngFor="let subprop of item?.attributes | keyvalue">
-                                <label for="inputLabel" class="col-lg-4 pl-0 pr-0 col-form-label" *ngIf="subprop?.key != 'bibliography' && subprop?.key != 'validity' && subprop?.key != 'node_id' && subprop?.key != 'lexicalEntry' && subprop?.key != 'lexicalEntryLabel' && subprop?.key != 'fileId' && subprop?.key != 'form_id' && subprop?.key != 'creator' && subprop?.key != 'timestamp' && subprop?.key != 'label' && subprop?.key != 'confidence'">{{subprop?.key}}:</label>
+                                <label for="inputLabel" class="col-lg-4 pl-0 pr-0 col-form-label" *ngIf="subprop?.key != 'bibliography' && subprop?.key != 'validity' && subprop?.key != 'node_id' && subprop?.key != 'lexicalEntry' && subprop?.key != 'lexicalEntryLabel' && subprop?.key != 'fileId' && subprop?.key != 'token_id' && subprop?.key != 'form_id' && subprop?.key != 'creator' && subprop?.key != 'timestamp' && subprop?.key != 'label' && subprop?.key != 'confidence'">{{subprop?.key}}:</label>
                                 <label for="inputLabel" class="col-lg-4 pl-0 pr-0 col-form-label" *ngIf="subprop?.key == 'label'">form:</label>
                                 <label for="inputLabel" class="col-lg-4 pl-0 pr-0 col-form-label" *ngIf="subprop?.key == 'confidence'">uncertain:</label>
                                 <label for="inputLabel" class="col-lg-4 pl-0 pr-0 col-form-label" *ngIf="subprop?.key == 'lexicalEntry'">lexical entry:</label> 
@@ -56,7 +56,8 @@
                                                   subprop?.key != 'leiden' &&
                                                   subprop?.key != 'lexicalEntryLabel' &&
                                                   subprop?.key != 'lexicalEntry' &&
-                                                  subprop?.key != 'fileId'" 
+                                                  subprop?.key != 'fileId' && 
+                                                  subprop?.key != 'token_id'" 
                                                   (keyup)="triggerUpdateAttestation($event, sub_property.value, subprop?.key, item)" id="attributes" name="attributes" type="text" class="form-control" placeholder="No info" [value]="subprop?.value">
                                     <input #confidence (change)="triggerUpdateAttestation($event, confidence.value, subprop?.key, item)" type="checkbox" *ngIf="subprop?.key == 'confidence'" [checked]="subprop?.value == 0" >
                                     <input #leiden (keyup)="triggerUpdateAttestation($event, leiden.value, subprop?.key, item)" type="text" *ngIf="subprop?.key == 'leiden'" class="form-control" placeholder="No info" [value]="subprop?.value">

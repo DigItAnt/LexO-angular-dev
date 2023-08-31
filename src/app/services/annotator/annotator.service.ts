@@ -25,6 +25,7 @@ export class AnnotatorService {
   
   private _triggerSearch: BehaviorSubject<any> = new BehaviorSubject(null);
   private _deleteAnnoRequest: BehaviorSubject<any> = new BehaviorSubject(null);
+  private _deleteTokenRequest: BehaviorSubject<any> = new BehaviorSubject(null);
   private _getIdText: BehaviorSubject<any> = new BehaviorSubject(null);
 
   private _addToken : BehaviorSubject<any> = new BehaviorSubject(null);
@@ -34,6 +35,7 @@ export class AnnotatorService {
 
   triggerSearch$ = this._triggerSearch.asObservable();
   deleteAnnoReq$ = this._deleteAnnoRequest.asObservable();
+  deleteTokenReq$ = this._deleteTokenRequest.asObservable();
   getIdText$ = this._getIdText.asObservable();
   addToken$ = this._addToken.asObservable();
 
@@ -45,6 +47,10 @@ export class AnnotatorService {
 
   deleteAnnotationRequest(id : number, node_id : number){
     this._deleteAnnoRequest.next({id, node_id})
+  }
+
+  deleteTokenRequest(tokenId : number){
+    this._deleteTokenRequest.next(tokenId)
   }
 
   addTokenToEpigraphyForm(token : any){
@@ -96,6 +102,10 @@ export class AnnotatorService {
 
   getAnnotation(id : number) : Observable<any>{
     return this.http.get(this.baseUrl + 'public/annotation?requestUUID=test123&nodeid='+id);
+  }
+
+  getAnnotationByValue(formId : number) : Observable<any>{
+    return this.http.get(this.baseUrl + 'annotationbyvalue?requestUUID=test123&value='+encodeURIComponent(formId));
   }
 
   deleteAnnotation(id: number) : Observable<any> {
