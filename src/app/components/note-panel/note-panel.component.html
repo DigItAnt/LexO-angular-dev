@@ -10,7 +10,13 @@
     </div>
     <div id="noteCollapse" class="collapse" aria-labelledby="noteHeading">
         <div class="card-body">
-           <angular-editor *ngIf="noteData != null" [placeholder]="'Enter text here...'" [(ngModel)]="noteData" [config]="editorConfig" (keyup)="onChanges($event)" readonly></angular-editor>
+           <angular-editor *ngIf="noteData != null" 
+                            [placeholder]="'Enter text here...'" 
+                            [(ngModel)]="noteData" 
+                            [config]="editorConfig" 
+                            (keyup)="onChanges($event)" 
+                            (paste)="onCopyPaste($event)"
+                            readonly></angular-editor>
         </div>
     </div>
 </div>

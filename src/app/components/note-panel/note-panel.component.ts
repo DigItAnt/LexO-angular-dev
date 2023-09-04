@@ -118,7 +118,7 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
 
     this.subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
       newNote => {
-        if (this.noteData != null) {
+        if (this.noteData != null && newNote != this.object.note) {
           this.lexicalService.spinnerAction('on');
           console.log(this.object)
           //console.log(this.object)
@@ -178,15 +178,23 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
               },
               error => {
                 //console.log(error);
-                const data = this.object;
-                data['request'] = 0;
-                data['new_note'] = newNote;
-                this.lexicalService.refreshAfterEdit(data);
-                this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
-                this.lexicalService.spinnerAction('off');
-                this.toastr.success('Note updated', '', {
-                  timeOut: 5000,
-                });
+                
+                if(error.status != 200){
+                  this.lexicalService.spinnerAction('off');
+                  this.toastr.error(error.error, '', {
+                    timeOut: 5000,
+                  });
+                }else if(error.status == 200){
+                  const data = this.object;
+                  data['request'] = 0;
+                  data['new_note'] = newNote;
+                  this.lexicalService.refreshAfterEdit(data);
+                  this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
+                  this.lexicalService.spinnerAction('off');
+                  this.toastr.success('Note updated', '', {
+                    timeOut: 5000,
+                  });
+                }
               }
             )
           } else if (this.object.sense != undefined) {
@@ -323,10 +331,18 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onChanges(evt) {
-    if (evt.key != "Control" && evt.key != 'Alt' && evt.key != 'Shift') {
+    //TODO: check control key
+    if (evt.key != "Control" || evt.key != 'Shift' || !evt.ctrlKey) {
       this.subject.next(this.noteData);
     }
 
+  }
+
+  onCopyPaste(evt) {
+    // Esegui qualsiasi operazione quando viene effettuata una copia o un incolla
+    // Se vuoi che il subject venga aggiornato anche durante le operazioni di copia e incolla, aggiungi qui:
+    // this.subject.next(this.noteData);
+    this.subject.next(this.noteData);
   }
 
   ngOnDestroy(): void {
