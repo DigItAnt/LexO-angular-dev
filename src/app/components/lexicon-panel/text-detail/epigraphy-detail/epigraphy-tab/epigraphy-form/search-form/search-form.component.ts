@@ -362,7 +362,9 @@ export class SearchFormComponent implements OnInit, OnDestroy {
           }
         )
         } catch (error) {
-  
+          this.toastr.error('Error on converting leiden text', 'Error', {
+            timeOut : 5000
+          })
       }
     }
 
@@ -890,7 +892,9 @@ export class SearchFormComponent implements OnInit, OnDestroy {
                                       }
                                     )
                                   } catch (error) {
-
+                                    this.toastr.error('Error on converting leiden text', 'Error', {
+                                      timeOut : 5000
+                                    })
                                   }
 
 
@@ -1075,7 +1079,9 @@ export class SearchFormComponent implements OnInit, OnDestroy {
                     }
                   )
                 } catch (error) {
-
+                  this.toastr.error('Error on converting leiden text', 'Error', {
+                    timeOut : 5000
+                  })
                 }
 
 

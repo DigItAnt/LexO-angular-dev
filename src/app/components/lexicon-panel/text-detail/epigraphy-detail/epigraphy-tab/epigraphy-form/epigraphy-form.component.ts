@@ -17,7 +17,7 @@ import { NgbPopover, NgbPopoverConfig } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent } from '@ng-select/ng-select';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin, of, Subject, Subscription } from 'rxjs';
-import { debounceTime, filter, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { catchError, debounceTime, filter, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { AnnotatorService } from 'src/app/services/annotator/annotator.service';
 import { DocumentSystemService } from 'src/app/services/document-system/document-system.service';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
@@ -610,7 +610,14 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
         }
 
         if(httpReq.length > 0){
-          return forkJoin(httpReq);
+          return forkJoin(httpReq).pipe(
+            catchError(err=> {
+              this.toastr.error('Error on converting leiden text', 'Error', {
+                timeOut : 5000
+              })
+              return of(0)
+            })
+          );
         }else{
           return of([])
         }
@@ -785,6 +792,8 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
 
 
   }
+
+
 
   triggerBind(popover, evt, i) {
     if (!this.multiWordMode) {
