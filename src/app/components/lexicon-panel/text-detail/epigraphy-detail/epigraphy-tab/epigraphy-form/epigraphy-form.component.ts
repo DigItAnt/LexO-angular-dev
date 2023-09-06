@@ -1109,7 +1109,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
         })
         //this.annotatorService.triggerSearch(text);
       }
-    }, 10);
+    }, 100);
 
   }
 

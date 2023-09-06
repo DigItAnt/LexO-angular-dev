@@ -138,15 +138,12 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
                 this.toastr.success('Note updated', '', {
                   timeOut: 5000,
                 });
+
+                this.object.note = newNote;
               },
               error => {
                 //console.log(error);
-                const data = this.object;
-                data['request'] = 0;
-                data['new_note'] = newNote;
-                this.lexicalService.refreshAfterEdit(data);
-                this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
-                this.lexicalService.spinnerAction('off');
+                
                 if(error.status != 200){
                   this.toastr.error(error.error, '', {
                     timeOut: 5000,
@@ -155,6 +152,15 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
                   this.toastr.success('Note updated', '', {
                     timeOut: 5000,
                   });
+
+                  const data = this.object;
+                  data['request'] = 0;
+                  data['new_note'] = newNote;
+                  this.lexicalService.refreshAfterEdit(data);
+                  this.lexicalService.updateCoreCard({ lastUpdate: error.error.text })
+                  this.lexicalService.spinnerAction('off');
+
+                  this.object.note = newNote;
                 }
                 
               }
@@ -175,6 +181,8 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
                 this.toastr.success('Note updated', '', {
                   timeOut: 5000,
                 });
+
+                this.object.note = newNote;
               },
               error => {
                 //console.log(error);
@@ -194,6 +202,8 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
                   this.toastr.success('Note updated', '', {
                     timeOut: 5000,
                   });
+
+                  this.object.note = newNote;
                 }
               }
             )
@@ -213,6 +223,8 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
                 this.toastr.success('Note updated', '', {
                   timeOut: 5000,
                 });
+
+                this.object.note = newNote;
               },
               error => {
                 //console.log(error);
@@ -225,6 +237,8 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
                 this.toastr.success('Note updated', '', {
                   timeOut: 5000,
                 });
+
+                this.object.note = newNote;
               }
             )
           } else if (this.object.etymology != undefined) {
@@ -243,6 +257,8 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
                 this.toastr.success('Note updated', '', {
                   timeOut: 5000,
                 });
+
+                this.object.note = newNote;
               },
               error => {
                 //console.log(error);
@@ -257,6 +273,8 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
                     timeOut: 5000,
                   });
                 }
+
+                this.object.note = newNote;
                 
               }
             )
