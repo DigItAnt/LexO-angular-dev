@@ -875,7 +875,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
               let parameters = {
                 requestUUID : '11',
                 metadata : node_metadata,
-                "element-id" : element_id,
+                "element-id" : data.node['element-id'],
                 "user-id" : 0
               }
 
@@ -963,7 +963,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
 
             }, error => {
               console.log(error);
-              this.toastr.error('Error when adding new file', '', {
+              this.toastr.error(error.error.message, '', {
                 timeOut: 5000,
               });
             }

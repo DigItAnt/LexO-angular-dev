@@ -274,7 +274,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
                     }
                   });
                   path = path[path.length-1];
-                  ids.add(JSON.stringify({nodeId: element.nodeId}));
+                  ids.add(JSON.stringify({nodeId: element.nodeId, nodePath : element.nodePath}));
                   tokensId.add(JSON.stringify({tokenId : tokenId, nodePath: path}))
                 });
 
@@ -321,10 +321,10 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
                 if(anno.layer == 'attestation'){
                   if(anno.value == this.object.form){
                     if(anno.attributes.bibliography == undefined) anno.attributes['bibliography'] = [];
-                    tokensId.forEach(element => {
-                      let elem = JSON.parse(element);
-                      /* if(elem.tokenId == anno.attributes.node_id)  */anno.attributes['fileId'] = elem.nodePath;
-                      //console.log(element, anno)
+                    setIds.forEach(elem => {
+                      let el = JSON.parse(elem);
+                      if(el.nodeId == anno.node)  anno.attributes['fileId'] = el.nodePath;
+                      //console.log(el, anno)
                     });
                     filter_anno.push(anno)
                   }

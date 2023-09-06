@@ -775,6 +775,8 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
           this.lexicalService.sendToCoreTab(data)
           this.lexicalService.sendToEtymologyTab(null);
           this.lexicalService.sendToRightTab(data);
+          this.lexicalService.sendToAttestationPanel(null)
+          this.lexicalService.triggerAttestationPanel(false)
           this.lexicalService.updateCoreCard({ lastUpdate: data['lastUpdate'], creationDate: data['creationDate'] })
           //@ts-ignore
           $("#coreTabModal").modal("show");

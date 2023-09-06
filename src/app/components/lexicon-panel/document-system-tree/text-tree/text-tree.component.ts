@@ -1307,6 +1307,11 @@ export class TextTreeComponent implements OnInit, OnDestroy {
           });
           
         },error=>{
+          if(error.status != 200){
+            this.toastr.error(error.error.message, '', {
+              timeOut: 5000,
+            });
+          }
           console.log(error)
         }
       )
