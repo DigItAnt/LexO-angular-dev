@@ -274,7 +274,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
                     }
                   });
                   path = path[path.length-1];
-                  ids.add(JSON.stringify({nodeId: element.nodeId, nodePath : element.nodePath}));
+                  ids.add(JSON.stringify({nodeId: element.nodeId, nodePath : path}));
                   tokensId.add(JSON.stringify({tokenId : tokenId, nodePath: path}))
                 });
 
