@@ -998,7 +998,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
           this.textTree.treeText.treeModel.update();
         }
 
-        /* if(this.author){
+        if(this.author){
           data.node['metadata']['uploader'] = this.author;
           let node_metadata = data.node['metadata']
 
@@ -1017,7 +1017,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
             }
           )
           
-        }   */
+        }  
       
 
       }, error => {
