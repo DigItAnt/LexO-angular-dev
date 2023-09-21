@@ -363,7 +363,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
 
                         let textNode = childNodes[j];
                         
-                        if(textNode.nodeName == '#text' && textNode.nodeValue.trim() != ''){
+                        if((textNode.nodeName == '#text' && textNode.nodeValue.trim() != '') ){
 
                           string += textNode.nodeValue;
 
@@ -373,6 +373,13 @@ export class TextTreeComponent implements OnInit, OnDestroy {
                           }
 
                           //console.log(textNode.nodeValue)
+                        }else if(textNode.nodeName == 'SPAN' && textNode.innerText.trim() != '' && textNode.className != 'linenumber'){
+                          string += textNode.innerText;
+
+                          if(j == childNodes.length-1){
+                            leidenLines.push(string);
+                            break;
+                          }
                         }else if((textNode.nodeName == 'BR' || textNode?.id?.toLowerCase().includes('face'))&& i != j){
                           leidenLines.push(string)
                           
