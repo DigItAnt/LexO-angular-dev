@@ -54,9 +54,10 @@
         <i class="far fa-file-alt" *ngIf="node.data.type == 'file'"></i>
         <span [contextMenu]="basicMenu" [contextMenuSubject]="node.data">
           <span *ngIf="node.data.metadata">
-            {{ node.data.metadata.itAnt_ID}}
+           <!--  {{ node.data.metadata.itAnt_ID}} -->
+           {{ node.data.name}}
           </span>
-          <span *ngIf="!node.data.metadata || !node.data.metadata.itAnt_ID">
+          <span *ngIf="!node.data.metadata">
             {{ node.data.name}}
           </span>
           

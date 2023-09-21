@@ -142,7 +142,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
     allowDrop: (element, { parent, index }) => {
       // return true / false based on element, to.parent, to.index. e.g.
       //console.log(element, parent, index, parent.data.type == 'folder')
-      return parent.hasChildren;
+      return parent.data.type == 'directory' || parent.data.virtual;
     },
     getNodeClone: (node) => ({
       ...node.data,
