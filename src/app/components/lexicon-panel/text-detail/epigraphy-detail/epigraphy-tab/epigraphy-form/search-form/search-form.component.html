@@ -54,7 +54,7 @@
                 
                 <div class="card-body p-0">
                     <div class="d-flex align-items-center">
-                        <h6 class="card-title m-0" [ngOptionHighlight]="search">{{item.label}}</h6><span style="color: blue;">@ {{item.language}}</span>
+                        <h6 class="card-title m-0" [ngOptionHighlight]="search">{{item.label}}</h6>
                     </div>
                     <small *ngFor="let sub of item.morphology">
                         <span *ngIf="sub.trait == 'http://www.lexinfo.net/ontology/3.0/lexinfo#case' || 

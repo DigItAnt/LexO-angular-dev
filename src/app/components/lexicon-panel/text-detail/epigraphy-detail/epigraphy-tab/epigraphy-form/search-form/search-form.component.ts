@@ -340,7 +340,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
     let formValue = data.form;
 
     let leidenToken = '';
-    if(tokenData != undefined){
+    if(tokenData != undefined && tokenData.xmlid != null){
       let xmlNode = this.bind.epiData.xmlDoc.querySelectorAll('[*|id=\'' + tokenData.xmlid + '\']')[0].outerHTML;
       let object = {
         xmlString: xmlNode
