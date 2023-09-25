@@ -762,7 +762,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
 
     let parameters = {
       requestUUID : "string",
-      "user-id" : this.userId,
+      "user-id" : 0,
       "element-id" : pathId,
       filename : name
     }
@@ -784,7 +784,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
             requestUUID : '11',
             metadata : node_metadata,
             "element-id" : element_id,
-            "user-id" : this.userId
+            "user-id" : 0
           }
 
           this.documentService.updateMetadata(parameters).pipe(takeUntil(this.destroy$)).subscribe(
@@ -850,7 +850,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
         file_name = evt.target.files[0].name;
         parameters = {
           "requestUUID": "string",
-          "user-id": this.userId,
+          "user-id": 0,
           "element-id": element_id,
           "file-name": file_name
         }
@@ -884,7 +884,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
                 requestUUID : '11',
                 metadata : node_metadata,
                 "element-id" : data.node['element-id'],
-                "user-id" : this.userId
+                "user-id" : 0
               }
 
               this.documentService.updateMetadata(parameters).pipe(takeUntil(this.destroy$)).subscribe(
@@ -920,7 +920,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
           file_name = element.name;
           parameters = {
             "requestUUID": "string",
-            "user-id": this.userId,
+            "user-id": 0,
             "element-id": element_id,
             "file-name": file_name
           }
@@ -945,7 +945,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
                   requestUUID : '11',
                   metadata : node_metadata,
                   "element-id" : element_id,
-                  "user-id" : this.userId
+                  "user-id" : 0
                 }
   
                 this.documentService.updateMetadata(parameters).pipe(takeUntil(this.destroy$)).subscribe(
@@ -988,7 +988,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
     let element_id = 0;
     let parameters = {
       "requestUUID": "string",
-      "user-id": this.userId,
+      "user-id": 0,
       "element-id": element_id
     }
 
@@ -1014,7 +1014,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
             requestUUID : '11',
             metadata : node_metadata,
             "element-id" : element_id,
-            "user-id" : this.userId
+            "user-id" : 0
           }
 
           this.documentService.updateMetadata(parameters).pipe(takeUntil(this.destroy$)).subscribe(

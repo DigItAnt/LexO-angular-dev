@@ -368,7 +368,6 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       }
     }
 
-    //TODO: layer annotazione POS
     
     let lexEntryLabel = '';
     try {

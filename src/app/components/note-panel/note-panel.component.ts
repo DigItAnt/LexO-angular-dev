@@ -349,7 +349,6 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onChanges(evt) {
-    //TODO: check control key
     if (evt.key != "Control" || evt.key != 'Shift' || !evt.ctrlKey) {
       this.subject.next(this.noteData);
     }
