@@ -91,6 +91,8 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
             return false
           }
         })
+
+        
       }
     )
 
@@ -591,25 +593,42 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
   onChangeTrait(evt, i) {
 
     if (evt.target != undefined) {
-      setTimeout(() => {
-        this.morphoTraits = this.formCore.get('morphoTraits') as FormArray;
-        this.morphoTraits.at(i).patchValue({ trait: evt.target.value, value: "" });
-        //console.log(evt.target.value)
-        if (evt.target.value != '') {
-          var arrayValues = this.morphologyData.filter(x => {
-            return x['propertyId'] == evt.target.value;
-          })['0']['propertyValues'];
-          this.valueTraits[i] = arrayValues;
-          this.memoryTraits[i] = evt.target.value;
-        } else {
-          let arrayValues = [];
-          this.valueTraits[i] = arrayValues
-          this.memoryTraits.splice(i, 1)
+      this.morphoTraits = this.formCore.get('morphoTraits') as FormArray;
+      this.morphoTraits.at(i).patchValue({ trait: evt.target.value, value: "" });
+      const jsonToAdd = [
+        {"valueId": "http://www.lexinfo.net/ontology/3.0/lexinfo#conditional", "valueLabel": "conditional", "valueDescription": "A conditional relation is a logical relation in which the illocutionary act employing one of a pair of propositions is expressed or implied to be true or in force if the other proposition is true."},
+        {"valueId": "http://www.lexinfo.net/ontology/3.0/lexinfo#infinitive", "valueLabel": "infinitive", "valueDescription": "Mood cited as unmarked or base form."},
+        {"valueId": "http://www.lexinfo.net/ontology/3.0/lexinfo#participle", "valueLabel": "participle", "valueDescription": "Term referring to a word derived from a verb and used as an adjective."},
+        {"valueId": "http://www.lexinfo.net/ontology/3.0/lexinfo#gerundive", "valueLabel": "gerundive", "valueDescription": null}
+      ];
+      
+      // Esegui un ciclo attraverso morphologyData
+      this.morphologyData.forEach(item => {
+        // Controlla se propertyId è quello specifico
+        if (item.propertyId === 'http://www.lexinfo.net/ontology/3.0/lexinfo#mood') {
+          // Assicurati che propertyValues sia inizializzato come un array
+          if (!item.propertyValues) item.propertyValues = [];
+          
+          // Aggiungi il JSON a propertyValues
+          item.propertyValues.push(...jsonToAdd);
+        }
+      });
+      //console.log(evt.target.value)
+      if (evt.target.value != '') {
+        
+        var arrayValues = this.morphologyData.filter(x => {
+          return x['propertyId'] == evt.target.value;
+        })['0']['propertyValues'];
+        this.valueTraits[i] = arrayValues;
+        this.memoryTraits[i] = evt.target.value;
+      } else {
+        let arrayValues = [];
+        this.valueTraits[i] = arrayValues
+        this.memoryTraits.splice(i, 1)
         }
 
 
 
-      }, 500);
     } else {
 
 
