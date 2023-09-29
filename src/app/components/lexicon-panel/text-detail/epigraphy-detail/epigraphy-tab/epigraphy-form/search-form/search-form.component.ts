@@ -507,7 +507,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         addAnnoReq = await this.annotatorService.addToken(element_id, fakeToken).toPromise();
 
         if(addAnnoReq){
-          this.annotatorService.addTokenToEpigraphyForm(fakeToken);
+          this.annotatorService.addTokenToEpigraphyForm(addAnnoReq.token);
         }
       }catch(e){
         console.log(e)

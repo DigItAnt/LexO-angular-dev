@@ -386,7 +386,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
                             leidenLines.push(string);
                             break;
                           }
-                        }else if((textNode.nodeName == 'BR' || textNode?.id?.toLowerCase().includes('face'))&& i != j){
+                        }else if((textNode.nodeName == 'BR' || textNode?.id?.toLowerCase().includes('face') ||textNode?.id?.toLowerCase().includes('text'))&& i != j){
                           leidenLines.push(string)
                           
                           i = j-1;
@@ -548,7 +548,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
 
           let parameters = {
             "requestUUID": "string",
-            "user-id" : 0,
+            "user-id" : this.userId,
             "element-id": element?.data['element-id'],
             "target-id": target_element_id
           }
@@ -616,7 +616,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
           let data_node = elements.data;
           let parameters = {
             "requestUUID" : "string",
-            "user-id" : 0,
+            "user-id" : this.userId,
             "element-id" : data_node['element-id'],
           }
 
@@ -733,14 +733,14 @@ export class TextTreeComponent implements OnInit, OnDestroy {
     if(pathId){
       parameters = {
         requestUUID : "string",
-        "user-id" : 0,
+        "user-id" : this.userId,
         "element-id" : pathId,
         filename : name
       }
     }else{
       parameters = {
         requestUUID : "string",
-        "user-id" : 0,
+        "user-id" : this.userId,
         "element-id" : this.tempNewFilePathId,
         filename : name
       }
@@ -788,7 +788,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
       let element_id = evt['element-id'];
       let parameters = {
         "requestUUID" : "string",
-        "user-id" : 0,
+        "user-id" : this.userId,
         "element-id" : element_id
       }
       
@@ -846,7 +846,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
         file_name = evt.target.files[0].name;
         parameters = {
           "requestUUID" : "string",
-          "user-id" : 0,
+          "user-id" : this.userId,
           "element-id" : element_id,
           "file-name" : file_name
         }
@@ -884,7 +884,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
                 requestUUID : '11',
                 metadata : node_metadata,
                 "element-id" : element_id,
-                "user-id" : 0
+                "user-id" : this.userId
               }
 
               this.documentService.updateMetadata(parameters).pipe(takeUntil(this.destroy$)).subscribe(
@@ -1048,7 +1048,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
     let element_id_source = this.selectedFileToCopy['element-id'];
     let parameters = {
       "requestUUID": "string",
-      "user-id" : 0,
+      "user-id" : this.userId,
       "element-id": element_id_source,
       "target-id": element_id_target
     }
@@ -1103,7 +1103,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
     let element_id = evt['element-id'];
     let parameters = {
       "requestUUID": "string",
-      "user-id" : 0,
+      "user-id" : this.userId,
       "element-id": element_id,
     }
             
@@ -1145,7 +1145,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
       let element_id = evt['element-id'];
       let parameters = {
         "requestUUID" : "string",
-        "user-id" : 0,
+        "user-id" : this.userId,
         "element-id" : element_id,
       }
 
@@ -1216,7 +1216,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
       let element_id = evt['element-id'];
       let parameters = {
         "requestUUID" : "string",
-        "user-id" : 0,
+        "user-id" : this.userId,
         "element-id" : element_id
       }
       this.toastr.info('Folder '+ evt['name'] +' deleted', '', {
@@ -1276,7 +1276,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
       }
       let parameters = {
         "requestUUID": "string",
-        "user-id" : 0,
+        "user-id" : this.userId,
         "element-id": element_id,
         "target-id": target_id
       }
@@ -1305,7 +1305,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
       }
       let parameters = {
         "requestUUID": "string",
-        "user-id" : 0,
+        "user-id" : this.userId,
         "element-id": element_id,
         "target-id": target_id
       }
@@ -1376,7 +1376,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
       let element_id = node.data['element-id'];
       let parameters = {
         "requestUUID": "string",
-        "user-id" : 0,
+        "user-id" : this.userId,
         "element-id": element_id,
         "rename-string": new_value
       }
@@ -1505,7 +1505,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
     let parameters = {
       "requestUUID": "string",
       "metadata": {},
-      "user-id" : 0,
+      "user-id" : this.userId,
       "element-id": element_id
     };
     
@@ -1569,7 +1569,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
     let name = this.selectedFileToCopy['name'];
     let parameters = {
       "requestUUID": "string",
-      "user-id" : 0,
+      "user-id" : this.userId,
       "element-id": element_id
     }
     
@@ -1702,7 +1702,7 @@ export class TextTreeComponent implements OnInit, OnDestroy {
       "metadata" : {},
       "search-text": search_text,
       "start-with" : newPar.search_mode == 'start' ? true : false,
-      "user-id" : 0,
+      "user-id" : this.userId,
       "import-date": date_pipe,
       "exact-date": newPar.date_mode == 'exact' ? true : false,
       "from-date":  newPar.date_mode == 'from' ? true : false,
