@@ -81,6 +81,9 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
               private annotatorService : AnnotatorService) { }
 
   ngOnInit() {
+
+    this.disableAddMorpho = false;
+    this.disableAddOther = false;
     this.get_morpho_data_subscription = this.lexicalService.getMorphologyData().subscribe(
       data => {
         this.morphologyData = data;
@@ -595,7 +598,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
     if (evt.target != undefined) {
       this.morphoTraits = this.formCore.get('morphoTraits') as FormArray;
       this.morphoTraits.at(i).patchValue({ trait: evt.target.value, value: "" });
-      const jsonToAdd = [
+      /* const jsonToAdd = [
         {"valueId": "http://www.lexinfo.net/ontology/3.0/lexinfo#conditional", "valueLabel": "conditional", "valueDescription": "A conditional relation is a logical relation in which the illocutionary act employing one of a pair of propositions is expressed or implied to be true or in force if the other proposition is true."},
         {"valueId": "http://www.lexinfo.net/ontology/3.0/lexinfo#infinitive", "valueLabel": "infinitive", "valueDescription": "Mood cited as unmarked or base form."},
         {"valueId": "http://www.lexinfo.net/ontology/3.0/lexinfo#participle", "valueLabel": "participle", "valueDescription": "Term referring to a word derived from a verb and used as an adjective."},
@@ -612,7 +615,7 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
           // Aggiungi il JSON a propertyValues
           item.propertyValues.push(...jsonToAdd);
         }
-      });
+      }); */
       //console.log(evt.target.value)
       if (evt.target.value != '') {
         
