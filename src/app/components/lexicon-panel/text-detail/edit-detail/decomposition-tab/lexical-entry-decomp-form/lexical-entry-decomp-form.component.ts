@@ -84,25 +84,25 @@ export class LexicalEntryDecompFormComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.subterm_subject_subscription = this.subterm_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.subterm_subject_subscription = this.subterm_subject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onSearchFilter(data)
       }
     )
 
-    this.ext_subterm_subject_subscription = this.ext_subterm_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.ext_subterm_subject_subscription = this.ext_subterm_subject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onChangeSubterm(data)
       }
     )
 
-    this.corresponds_subject_subscription = this.corresponds_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.corresponds_subject_subscription = this.corresponds_subject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onSearchFilter(data)
       }
     )
 
-    this.update_component_subject_subscription = this.update_component_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.update_component_subject_subscription = this.update_component_subject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onChanges(data)
       }

@@ -83,19 +83,19 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
     }, 1000);
     this.loadPeople();
 
-    this.subject_def_subscription = this.subject_def.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.subject_def_subscription = this.subject_def.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onChangeDefinition(data)
       }
     )
 
-    this.subject_ex_def_subscription = this.subject_ex_def.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.subject_ex_def_subscription = this.subject_ex_def.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onChangeExistingDefinition(data['evt'], data['i'])
       }
     )
 
-    this.lexical_concept_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.lexical_concept_subject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onSearchFilter(data)
       }
@@ -193,7 +193,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
 
 
   onChanges(): void {
-    this.senseCore.get('usage').valueChanges.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(newDef => {
+    this.senseCore.get('usage').valueChanges.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(newDef => {
       this.lexicalService.spinnerAction('on');
       let senseId = this.object.sense;
       let parameters = {
@@ -254,7 +254,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
 
     });
 
-    this.senseCore.get('topic').valueChanges.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(newTopic => {
+    this.senseCore.get('topic').valueChanges.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(newTopic => {
       if (newTopic.trim() != '') {
         this.lexicalService.spinnerAction('on');
         let senseId = this.object.sense;
@@ -289,7 +289,7 @@ export class SenseCoreFormComponent implements OnInit, OnDestroy {
 
     })
 
-    this.senseCore.get('reference').valueChanges.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(newDef => {
+    this.senseCore.get('reference').valueChanges.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(newDef => {
       this.lexicalService.spinnerAction('on');
       let senseId = this.object.sense;
       let parameters = {

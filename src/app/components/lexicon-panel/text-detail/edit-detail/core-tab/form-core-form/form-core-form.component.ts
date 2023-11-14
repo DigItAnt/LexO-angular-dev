@@ -109,13 +109,13 @@ export class FormCoreFormComponent implements OnInit, OnDestroy {
 
     this.onChanges();
 
-    this.subject_label_subscription = this.subject_label.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.subject_label_subscription = this.subject_label.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onChangeLabel(data)
       }
     )
 
-    this.subject_ex_label_subscription = this.subject_ex_label.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.subject_ex_label_subscription = this.subject_ex_label.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
 
         this.onChangeExistingLabelValue(data['evt'], data['i']);

@@ -72,7 +72,7 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.subject_subscription= this.subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.subject_subscription= this.subject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onChanges(data)
       }
@@ -387,7 +387,7 @@ export class BibliographyPanelComponent implements OnInit, OnDestroy {
       lexId = this.object.etymology;
     }
 
-    this.lexicalService.synchronizeBibliographyItem(lexId, id).pipe(debounceTime(500), takeUntil(this.destroy$)).subscribe(
+    this.lexicalService.synchronizeBibliographyItem(lexId, id).pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         console.log(data);
         this.loadingSynchro[i] = false;

@@ -92,7 +92,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
 
     
 
-    this.subject_cognates_subscription = this.subject_cognates.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.subject_cognates_subscription = this.subject_cognates.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         if (data != null) {
           this.onSearchFilter(data)
@@ -101,7 +101,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.subject_etylink_subscription = this.subject_etylink.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.subject_etylink_subscription = this.subject_etylink.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         if (data != null) {
           this.onSearchFilter(data)
@@ -110,7 +110,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.subject_etylink_input_subscription = this.subject_etylink_input.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.subject_etylink_input_subscription = this.subject_etylink_input.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         console.log(data)
         if (data != null) {
@@ -122,19 +122,19 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.subject_cognates_input_subscription = this.subject_cognates_input.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.subject_cognates_input_subscription = this.subject_cognates_input.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onSearchFilter(data)
       }
     )
 
-    this.subject_etylink_note_subscription = this.etylink_note_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.subject_etylink_note_subscription = this.etylink_note_subject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onChangeEtylinkNote(data)
       }
     )
 
-    this.subject_etylink_label_subscription = this.etylink_label_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.subject_etylink_label_subscription = this.etylink_label_subject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onChangeEtylinkLabel(data)
       }
@@ -251,7 +251,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
     });
 
 
-    this.etyForm.get("label").valueChanges.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.etyForm.get("label").valueChanges.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       updatedLabel => {
         if (updatedLabel.length > 2 && updatedLabel.trim() != '') {
           this.updateLabel(updatedLabel);
@@ -259,7 +259,7 @@ export class EtymologyFormComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.etyForm.get("author").valueChanges.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.etyForm.get("author").valueChanges.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       updateAuthor => {
 
         this.updateAuthor(updateAuthor)

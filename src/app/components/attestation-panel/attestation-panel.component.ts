@@ -98,7 +98,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
       }
     )
 
-    this.update_anno_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.update_anno_subject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         if(data != null){
           this.updateAnnotation(data)
@@ -107,7 +107,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
     )
     
 
-   this.update_biblio_anno_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+   this.update_biblio_anno_subject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         if(data != null){
           this.updateBiblioAnnotation(data)
@@ -132,7 +132,7 @@ export class AttestationPanelComponent implements OnInit,OnChanges, OnDestroy {
       }
     )
 
-    this.searchSubject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.searchSubject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.queryTitle  = data.query;
         data.queryMode ? this.queryMode = 'everything' : this.queryMode = 'titleCreatorYear';

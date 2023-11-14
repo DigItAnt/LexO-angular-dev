@@ -116,7 +116,7 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
     this.editorConfig.editable = false;
 
 
-    this.subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.subject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       newNote => {
         if (this.noteData != null && newNote != this.object.note) {
           this.lexicalService.spinnerAction('on');

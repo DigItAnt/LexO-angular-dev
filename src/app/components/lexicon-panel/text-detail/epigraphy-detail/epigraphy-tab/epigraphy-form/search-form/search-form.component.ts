@@ -111,13 +111,13 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       this.creator = this.auth.getLoggedUser()['preferred_username'];
     }
 
-    this.search_lex_entries_subject.pipe(debounceTime(1000)).subscribe(
+    this.search_lex_entries_subject.pipe(debounceTime(3000)).subscribe(
       data => {
         this.onSearchLexicalEntriesFilter(data)
       }
     )
 
-    this.search_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.search_subject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onSearchFilter(data)
       }

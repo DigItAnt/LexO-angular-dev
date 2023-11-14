@@ -157,7 +157,7 @@ export class ProfilesTableComponent implements OnInit, OnChanges, OnDestroy {
     )
 
 
-    this.search_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.search_subject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.searchUsers(data);
       }

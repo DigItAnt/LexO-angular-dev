@@ -36,7 +36,7 @@ export class ConceptSetCoreFormComponent implements OnInit, OnDestroy {
   }
 
   onChanges() {
-    this.conceptSetForm.get('defaultLabel').valueChanges.pipe(debounceTime(1000), startWith(this.conceptSetForm.get('defaultLabel').value), pairwise(), takeUntil(this.destroy$)).subscribe(([prev, next]: [any, any]) => {
+    this.conceptSetForm.get('defaultLabel').valueChanges.pipe(debounceTime(3000), startWith(this.conceptSetForm.get('defaultLabel').value), pairwise(), takeUntil(this.destroy$)).subscribe(([prev, next]: [any, any]) => {
       if(next != '') {
         let parameters = {
           relation: "http://www.w3.org/2004/02/skos/core#prefLabel",

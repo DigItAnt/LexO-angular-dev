@@ -210,7 +210,7 @@ export class EtymologyTabComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.search_subject_subscription = this.searchSubject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.search_subject_subscription = this.searchSubject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.queryTitle = data.query;
         data.queryMode ? this.queryMode = 'everything' : this.queryMode = 'titleCreatorYear';

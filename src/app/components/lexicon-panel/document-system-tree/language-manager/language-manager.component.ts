@@ -61,7 +61,7 @@ export class LanguageManagerComponent implements OnInit, OnDestroy {
       }
     )
 
-    this.subject_subscription = this.subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.subject_subscription = this.subject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onEditLanguage(data)
       }

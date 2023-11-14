@@ -78,13 +78,13 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
     this.onChanges();
     this.triggerTooltip();
 
-    this.evokedBySubject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.evokedBySubject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onSearchFilter(data)
       }
     );
 
-    this.lexicalizedSenseSubject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+    this.lexicalizedSenseSubject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
       data => {
         this.onSearchFilterLexicalizedSense(data)
       }
@@ -162,7 +162,7 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
 
 
   onChanges(): void {
-    this.lexicalConceptForm.get('defaultLabel').valueChanges.pipe(debounceTime(1000), startWith(this.lexicalConceptForm.get('defaultLabel').value), pairwise(), takeUntil(this.destroy$)).subscribe(([prev, next]: [any, any]) => {
+    this.lexicalConceptForm.get('defaultLabel').valueChanges.pipe(debounceTime(3000), startWith(this.lexicalConceptForm.get('defaultLabel').value), pairwise(), takeUntil(this.destroy$)).subscribe(([prev, next]: [any, any]) => {
       if (next != null) {
         let parameters = {
           relation: "http://www.w3.org/2004/02/skos/core#prefLabel",
@@ -201,7 +201,7 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
       }
     })
 
-    this.lexicalConceptForm.get('definition').valueChanges.pipe(debounceTime(1000), startWith(this.lexicalConceptForm.get('definition').value), pairwise(), takeUntil(this.destroy$)).subscribe(([prev, next]: [any, any]) => {
+    this.lexicalConceptForm.get('definition').valueChanges.pipe(debounceTime(3000), startWith(this.lexicalConceptForm.get('definition').value), pairwise(), takeUntil(this.destroy$)).subscribe(([prev, next]: [any, any]) => {
       if (next != null) {
         let parameters = {
           relation: "http://www.w3.org/2004/02/skos/core#definition",

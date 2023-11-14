@@ -145,31 +145,31 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
 
 
-        this.denotes_subject_subscription = this.denotes_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+        this.denotes_subject_subscription = this.denotes_subject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
             data => {
                 this.onChangeDenotes(data)
             }
         )
 
-        this.evokes_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+        this.evokes_subject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
             data=>{
                 this.onChangeEvokes(data);
             }
         )
 
-        this.ext_subterm_subject_subscription = this.ext_subterm_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+        this.ext_subterm_subject_subscription = this.ext_subterm_subject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
             data => {
                 this.onChangeSubterm(data)
             }
         )
 
-        this.cognates_subject_subscription = this.cognates_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+        this.cognates_subject_subscription = this.cognates_subject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
             data => {
                 this.onChangeCognates(data)
             }
         )
 
-        this.subterm_subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+        this.subterm_subject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
             data => {
                 this.onSearchFilterSubterm(data)
             }
@@ -202,13 +202,13 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
             }
         );
 
-        this.subject_subscription = this.subject.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+        this.subject_subscription = this.subject.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
             data => {
                 this.onSearchFilter(data)
             }
         )
 
-        this.subject_evokes_search.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+        this.subject_evokes_search.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
             data => {
                 this.onSearchLexicalConcept(data)
             }
@@ -1111,7 +1111,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
     onChanges(): void {
 
-        this.coreForm.get("label").valueChanges.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+        this.coreForm.get("label").valueChanges.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
             updatedLabel => {
                 if (updatedLabel.length >= 2 && updatedLabel.trim() != '') {
                     this.emptyLabelFlag = false;
@@ -1158,7 +1158,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
             }
         )
 
-        this.coreForm.get('confidence').valueChanges.pipe(debounceTime(100), startWith(this.coreForm.get('confidence').value), pairwise(), takeUntil(this.destroy$)).subscribe(([prev, next]: [any, any]) => {
+        this.coreForm.get('confidence').valueChanges.pipe(debounceTime(3000), startWith(this.coreForm.get('confidence').value), pairwise(), takeUntil(this.destroy$)).subscribe(([prev, next]: [any, any]) => {
 
             let lexId = this.object.lexicalEntry;
 
@@ -1187,7 +1187,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
 
 
 
-        this.coreForm.get("stemType").valueChanges.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(
+        this.coreForm.get("stemType").valueChanges.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
             updateStem => {
                 if (updateStem != '') {
                     this.lexicalService.spinnerAction('on');
@@ -1232,7 +1232,7 @@ export class LexicalEntryCoreFormComponent implements OnInit, OnDestroy {
             }
         )
 
-        this.coreForm.get("type").valueChanges.pipe(debounceTime(200), takeUntil(this.destroy$)).subscribe(
+        this.coreForm.get("type").valueChanges.pipe(debounceTime(3000), takeUntil(this.destroy$)).subscribe(
             newType => {
                 this.lexicalService.spinnerAction('on');
                 let lexId = this.object.lexicalEntry;
