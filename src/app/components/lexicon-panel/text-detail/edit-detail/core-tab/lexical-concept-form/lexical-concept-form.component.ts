@@ -36,7 +36,7 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
   @Input() lexicalConceptData: any;
 
   lexicalConceptForm = new FormGroup({
-    label: new FormControl(''),
+    defaultLabel: new FormControl(''),
     definition: new FormControl(''),
     isEvokedBy: new FormArray([this.createIsEvokedBy()]),
     lexicalizedSenses: new FormArray([this.createLexicalizedSense()])
@@ -69,8 +69,8 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
   ngOnInit() {
 
     this.lexicalConceptForm = this.formBuilder.group({
-      defaultLabel: '',
-      definition: '',
+      defaultLabel: null,
+      definition: null,
       isEvokedBy: this.formBuilder.array([]),
       lexicalizedSenses: this.formBuilder.array([]),
 
@@ -168,7 +168,7 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
           relation: "http://www.w3.org/2004/02/skos/core#prefLabel",
           source: this.object.lexicalConcept,
           target: next,
-          oldTarget: prev == null ? this.object.defaultLabel : prev,
+          oldTarget: this.object.defaultLabel,
           targetLanguage: this.object.language,
           oldTargetLanguage: this.object.language
         }
@@ -189,6 +189,7 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
               const data = this.object;
               data['request'] = 0;
               data['new_label'] = next;
+              this.object.defaultLabel = next;
               this.lexicalService.refreshAfterEdit(data);
               this.lexicalService.spinnerAction('off');
               this.lexicalService.updateCoreCard({ lastUpdate: error.error.text });
@@ -207,7 +208,7 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
           relation: "http://www.w3.org/2004/02/skos/core#definition",
           source: this.object.lexicalConcept,
           target: next,
-          oldTarget: prev == null ? this.object.definition : prev,
+          oldTarget: this.object.definition,
           targetLanguage: this.object.language,
           oldTargetLanguage: this.object.language
         }
@@ -225,7 +226,7 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
                 timeOut: 5000,
               });
             } else {
-
+              this.object.definition = next;
               this.lexicalService.spinnerAction('off');
               this.lexicalService.updateCoreCard({ lastUpdate: error.error.text });
               this.toastr.success('Definition changed correctly for ' + this.object.lexicalConcept, '', {
