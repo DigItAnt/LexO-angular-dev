@@ -334,7 +334,7 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
                     
                     this.lexicalService.spinnerAction('off');
                     this.lexicalService.updateCoreCard({ lastUpdate: error.error.text });
-                    this.toastr.success('Definition changed correctly for ' + this.object.lexicalConcept, '', {
+                    this.toastr.success('Note changed correctly for ' + this.object.lexicalConcept, '', {
                         timeOut: 5000,
                     });
   

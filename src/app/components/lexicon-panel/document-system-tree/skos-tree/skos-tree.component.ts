@@ -446,7 +446,7 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
           filter_lang.forEach(
             el=> {
               el['hasChildren'] = true;
-              el['children'] = [];
+              el['children'] = undefined;
             }
           )
 
