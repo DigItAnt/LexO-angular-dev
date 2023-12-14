@@ -204,38 +204,71 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
 
     this.lexicalConceptForm.get('definition').valueChanges.pipe(debounceTime(3000), startWith(this.lexicalConceptForm.get('definition').value), pairwise(), takeUntil(this.destroy$)).subscribe(([prev, next]: [any, any]) => {
       if (next != null) {
-        let parameters = {
-          relation: "http://www.w3.org/2004/02/skos/core#definition",
-          source: this.object.lexicalConcept,
-          target: next,
-          oldTarget: this.object.definition,
-          targetLanguage: this.object.language,
-          oldTargetLanguage: this.object.language
-        }
 
+        let parameters;
 
-        this.conceptService.updateNoteProperty(parameters).pipe(takeUntil(this.destroy$)).subscribe(
-          data => {
-            console.log(data)
-          }, error => {
-            console.log(error);
-
-            //this.lexicalService.changeDecompLabel(next)
-            if (error.status != 200) {
-              this.toastr.error(error.error, 'Error', {
-                timeOut: 5000,
-              });
-            } else {
-              this.object.definition = next;
-              this.lexicalService.spinnerAction('off');
-              this.lexicalService.updateCoreCard({ lastUpdate: error.error.text });
-              this.toastr.success('Definition changed correctly for ' + this.object.lexicalConcept, '', {
-                timeOut: 5000,
-              });
-              this.lexicalConceptForm.get('definition').setValue(next, { emitEvent: false });
-            }
+        if(next == ''){
+          parameters = {
+            relation: "http://www.w3.org/2004/02/skos/core#definition",
+            value : this.object.lexicalConcept
           }
-        )
+          
+          this.conceptService.deleteRelation(this.object.lexicalConcept, parameters).pipe(takeUntil(this.destroy$)).subscribe(
+            data=>{
+              console.log(data)
+            },error=>{
+              if (error.status != 200) {
+                this.toastr.error(error.error, 'Error', {
+                  timeOut: 5000,
+                });
+              } else {
+                this.object.definition = next;
+                this.lexicalService.spinnerAction('off');
+                this.lexicalService.updateCoreCard({ lastUpdate: error.error.text });
+                this.toastr.success('Definition changed correctly for ' + this.object.lexicalConcept, '', {
+                  timeOut: 5000,
+                });
+                this.lexicalConceptForm.get('definition').setValue(next, { emitEvent: false });
+              }
+            }
+          )
+        }else{
+          parameters = {
+            relation: "http://www.w3.org/2004/02/skos/core#definition",
+            source: this.object.lexicalConcept,
+            target: next,
+            oldTarget: this.object.definition,
+            targetLanguage: this.object.language,
+            oldTargetLanguage: this.object.language
+          }
+
+          this.conceptService.updateNoteProperty(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+            data => {
+              console.log(data)
+            }, error => {
+              console.log(error);
+  
+              //this.lexicalService.changeDecompLabel(next)
+              if (error.status != 200) {
+                this.toastr.error(error.error, 'Error', {
+                  timeOut: 5000,
+                });
+              } else {
+                this.object.definition = next;
+                this.lexicalService.spinnerAction('off');
+                this.lexicalService.updateCoreCard({ lastUpdate: error.error.text });
+                this.toastr.success('Definition changed correctly for ' + this.object.lexicalConcept, '', {
+                  timeOut: 5000,
+                });
+                this.lexicalConceptForm.get('definition').setValue(next, { emitEvent: false });
+              }
+            }
+          )
+        }
+        
+
+
+        
       }
     })
   }

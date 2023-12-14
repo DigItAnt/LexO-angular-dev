@@ -281,39 +281,70 @@ export class NotePanelComponent implements OnInit, OnChanges, OnDestroy {
           }else if(this.object.lexicalConcept !=undefined){
             let lexicalConceptID = this.object.lexicalConcept;
 
-            let parameters = {
-              relation: "http://www.w3.org/2004/02/skos/core#note",
-              source: this.object.lexicalConcept,
-              target: newNote,
-              oldTarget: this.object.note ,
-              targetLanguage: this.object.language,
-              oldTargetLanguage : this.object.language
-            }
-    
-    
-            this.conceptService.updateNoteProperty(parameters).pipe(takeUntil(this.destroy$)).subscribe(
-              data=> {
-                console.log(data)
-              }, error=> {
-                console.log(error);
-                
-                //this.lexicalService.changeDecompLabel(next)
-                if (error.status != 200) {
+            let parameters = {};
+
+            if(newNote == ''){
+              parameters = {
+                relation: "http://www.w3.org/2004/02/skos/core#note",
+                value : this.object.lexicalConcept
+              }
+
+              this.conceptService.deleteRelation(this.object.lexicalConcept, parameters).pipe(takeUntil(this.destroy$)).subscribe(
+                data=>{
+                  console.log(data)
+                },error=>{
+                  if (error.status != 200) {
                     this.toastr.error(error.error, 'Error', {
+                      timeOut: 5000,
+                    });
+                  } else {
+                    this.object.note = newNote;
+                    this.lexicalService.spinnerAction('off');
+                    this.lexicalService.updateCoreCard({ lastUpdate: error.error.text });
+                    this.toastr.success('Note changed correctly for ' + this.object.lexicalConcept, '', {
+                      timeOut: 5000,
+                    });
+                  }
+                }
+              )
+
+            }else{
+              parameters = {
+                relation: "http://www.w3.org/2004/02/skos/core#note",
+                source: this.object.lexicalConcept,
+                target: newNote,
+                oldTarget: this.object.note ,
+                targetLanguage: this.object.language,
+                oldTargetLanguage : this.object.language
+              }
+      
+      
+              this.conceptService.updateNoteProperty(parameters).pipe(takeUntil(this.destroy$)).subscribe(
+                data=> {
+                  console.log(data)
+                }, error=> {
+                  console.log(error);
+                  
+                  //this.lexicalService.changeDecompLabel(next)
+                  if (error.status != 200) {
+                      this.toastr.error(error.error, 'Error', {
+                          timeOut: 5000,
+                      });
+                  } else {
+                    
+                    this.lexicalService.spinnerAction('off');
+                    this.lexicalService.updateCoreCard({ lastUpdate: error.error.text });
+                    this.toastr.success('Definition changed correctly for ' + this.object.lexicalConcept, '', {
                         timeOut: 5000,
                     });
-                } else {
-                  
-                  this.lexicalService.spinnerAction('off');
-                  this.lexicalService.updateCoreCard({ lastUpdate: error.error.text });
-                  this.toastr.success('Definition changed correctly for ' + this.object.lexicalConcept, '', {
-                      timeOut: 5000,
-                  });
-
-                  this.object.note = newNote;
+  
+                    this.object.note = newNote;
+                  }
                 }
-              }
-            )
+              )
+            }
+
+            
 
           } 
         }
