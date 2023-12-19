@@ -711,7 +711,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
       && $event.node.data.form == undefined
       && $event.node.data.sense == undefined
       && $event.node.data.etymology == undefined
-      && $event.node.data.lexicalEntry != this.selectedNodeId) {
+      /* && $event.node.data.lexicalEntry != this.selectedNodeId */) {
       //this.lexicalService.sendToCoreTab($event.node.data);
       let idLexicalEntry = $event.node.data.lexicalEntry;
       this.lexicalService.getLexEntryData(idLexicalEntry).pipe(takeUntil(this.destroy$)).subscribe(
@@ -762,7 +762,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
       )
     } else if ($event.eventName == 'activate'
       && $event.node.data.form != undefined
-      && $event.node.data.form != this.selectedNodeId) {
+      /* && $event.node.data.form != this.selectedNodeId */) {
 
       let formId = $event.node.data.form;
 
@@ -819,7 +819,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
 
     } else if ($event.eventName == 'activate'
       && $event.node.data.sense != undefined
-      && $event.node.data.sense != this.selectedNodeId) {
+      /* && $event.node.data.sense != this.selectedNodeId */) {
 
       let senseId = $event.node.data.sense;
 
@@ -872,7 +872,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
       )
     } else if ($event.eventName == 'activate'
       && $event.node.data.etymology != undefined
-      && $event.node.data.etymology != this.selectedNodeId) {
+      /* && $event.node.data.etymology != this.selectedNodeId */) {
 
       let etymologyId = $event.node.data.etymology;
 
@@ -925,7 +925,7 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
       )
     } else if ($event.eventName == 'activate'
       && $event.node.data.component != undefined
-      && $event.node.data.componentInstanceName != this.selectedNodeId) {
+      /* && $event.node.data.componentInstanceName != this.selectedNodeId */) {
 
       let compId = $event.node.data.componentInstanceName;
       let parentInstanceLabel = $event.node.parent.parent.data.label;

@@ -198,7 +198,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
           }
         }
       } catch (error) {
-        console.log(error)
+        /* console.log(error) */
       }
 
     }, 10);
@@ -308,7 +308,7 @@ export class EpigraphyFormComponent implements OnInit, OnDestroy {
         }
       }
       catch (e) {
-        console.log(e)
+        /* console.log(e) */
       }
 
     }, 17);
