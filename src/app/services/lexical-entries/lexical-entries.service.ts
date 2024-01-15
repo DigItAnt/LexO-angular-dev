@@ -48,7 +48,7 @@ export class LexicalEntriesService {
 
   morphologyData;
 
-  private baseUrl = "/LexO-backend-itant_demo/service/"
+  private baseUrl = "/LexO-backend-itant_itant/service/"
   private key = "PRINitant19";
   private author = "";
   private bibliographyIRI = 'http://lexica/mylexicon/bibliography#'

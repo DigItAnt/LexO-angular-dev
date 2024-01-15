@@ -18,7 +18,7 @@ export const environment = {
   production: false,
   keycloak: {
     // Url of the Identity Provider
-    issuer: 'https://digitant.ilc.cnr.it/auth_demo/',
+    issuer: 'https://digitant.ilc.cnr.it/auth_itant/',
 
     // Realm
     realm: 'princnr',

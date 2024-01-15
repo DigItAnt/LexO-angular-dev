@@ -156,7 +156,11 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
 
     this.skosFilterForm.valueChanges.pipe(debounceTime(500), takeUntil(this.destroy$)).subscribe(searchParams => {
       console.log(searchParams)
-      this.searchFilter(searchParams)
+      if(searchParams.search_text != ''){
+        this.searchFilter(searchParams)
+      }else{
+        this.loadTree();
+      }
     })
   }
 

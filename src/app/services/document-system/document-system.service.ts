@@ -20,7 +20,7 @@ import { timeout } from 'rxjs/operators';
 })
 export class DocumentSystemService {
 
-  private baseUrl_document = "/cash_demo/api/"
+  private baseUrl_document = "/cash_itant/api/"
 
   private _epigraphyData: BehaviorSubject<object> = new BehaviorSubject(null);
   private _epigraphyTextData: BehaviorSubject<string> = new BehaviorSubject(null);

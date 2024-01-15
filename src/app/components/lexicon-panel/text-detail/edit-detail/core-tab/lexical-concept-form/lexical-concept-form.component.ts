@@ -138,8 +138,18 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
               let type = data[i]['linkType'];
               let label = data[i]['label'];
               let inferred = data[i]['inferred'];
-              this.addLexicalizedSense(entity, type, inferred, label);
-              this.memoryLexicalizedSenses.push(data[i])
+
+              this.lexicalService.getSenseData(entity, 'core').pipe(takeUntil(this.destroy$)).subscribe(
+                res=> {
+                  console.log(res)
+                  let lexicalEntryLabel = res.lexicalEntryLabel;
+                  this.addLexicalizedSense(entity, type, inferred, label, lexicalEntryLabel);
+                  this.memoryLexicalizedSenses.push(data[i])
+                }, error=> {
+                  console.log(error)
+                }
+              )
+              
             }
           }, error => {
             console.log(error)
@@ -208,9 +218,15 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
         let parameters;
 
         if(next == ''){
+          let valueToDelete = '';
+          if(prev == null){
+            valueToDelete = this.object.definition;
+          }else{
+            valueToDelete = prev;
+          }
           parameters = {
             relation: "http://www.w3.org/2004/02/skos/core#definition",
-            value : this.object.lexicalConcept
+            value : valueToDelete
           }
           
           this.conceptService.deleteRelation(this.object.lexicalConcept, parameters).pipe(takeUntil(this.destroy$)).subscribe(
@@ -630,10 +646,10 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  addLexicalizedSense(entity?, type?, inferred?, label?) {
+  addLexicalizedSense(entity?, type?, inferred?, label?, lexicalEntryLabel?) {
     this.lexicalizedSensesArray = this.lexicalConceptForm.get('lexicalizedSenses') as FormArray;
     if (entity != undefined) {
-      this.lexicalizedSensesArray.push(this.createLexicalizedSense(entity, type, inferred, label));
+      this.lexicalizedSensesArray.push(this.createLexicalizedSense(entity, type, inferred, label, lexicalEntryLabel));
     } else {
       this.disableAddIsEvokedBy = true;
       this.lexicalizedSensesArray.push(this.createLexicalizedSense());
@@ -659,7 +675,7 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  createLexicalizedSense(e?, t?, i?, l?): FormGroup {
+  createLexicalizedSense(e?, t?, i?, l?, lElabel?): FormGroup {
 
     if (e != undefined) {
       return this.formBuilder.group({
@@ -667,6 +683,7 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
         inferred: i,
         label: l,
         type: t,
+        lemma : lElabel + " - " + l
       })
     } else {
       return this.formBuilder.group({
@@ -674,6 +691,7 @@ export class LexicalConceptFormComponent implements OnInit, OnDestroy {
         inferred: new FormControl(false),
         label: new FormControl(''),
         type: new FormControl(''),
+        lemma: new FormControl('')
       })
     }
   }

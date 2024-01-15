@@ -73,7 +73,7 @@
                         
                         <div class="input-group col-xl-12" [formGroupName]="i">
                             
-                            <ng-select #select_lexicalizedSense formControlName="label" name="label" [items]="searchResultsSenses" 
+                            <ng-select #select_lexicalizedSense formControlName="lemma" name="label" [items]="searchResultsSenses" 
                                 (keyup)="triggerLexicalizedSense($event, i)" (change)="handleLexicalizedSense(select_lexicalizedSense, i)"
                                 [searchable]="!lexicalizedSense.get('inferred').value"
                                 bindValue="lemma" bindLabel="lemma" placeholder="Search entity" appendTo="body" [clearable]="false"

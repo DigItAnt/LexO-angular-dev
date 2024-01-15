@@ -19,7 +19,7 @@ import { Observable } from 'rxjs';
 })
 export class LilaService {
 
-  private baseUrl_document = "/LexO-backend-itant_demo/service/fedex/search"
+  private baseUrl_document = "/LexO-backend-itant_itant/service/fedex/search"
   private endpoint = 'https://lila-erc.eu/sparql/lila_knowledge_base/sparql'
 
   constructor(private http: HttpClient) { }

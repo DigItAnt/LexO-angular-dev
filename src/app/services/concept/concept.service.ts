@@ -21,7 +21,7 @@ import { AuthService } from '../auth/auth.service';
 })
 export class ConceptService {
 
-  private baseUrl = "/LexO-backend-itant_demo/service/"
+  private baseUrl = "/LexO-backend-itant_itant/service/"
   private key = "PRINitant19";
   private author = "";
   private lexicalIRI = 'http://lexica/mylexicon#';
