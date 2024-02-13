@@ -76,11 +76,15 @@
     <ng-template #treeNodeTemplate let-node let-index="index">
 
       <div [contextMenu]="skosMenu" [contextMenuSubject]="node.data">
-        <span  *ngIf="node.data.conceptSet != undefined">
+        <!-- <span  *ngIf="node.data.conceptSet != undefined">
           <i class="fas fa-cubes fa-lg"></i> <b class="ml-2">{{ node.data.defaultLabel.split('#')[1] == undefined ? node.data.defaultLabel : node.data.defaultLabel.split('#')[1] }} </b>
-        </span>
+        </span> -->
   
-        <span  *ngIf="node.data.lexicalConcept != undefined">
+        <span  *ngIf="node.data.lexicalConcept != undefined && idView">
+          <i class="fas fa-cube fa-lg"></i> <span class="font-italic ml-2">{{ node.data.lexicalConcept }} </span>
+        </span>
+
+        <span  *ngIf="node.data.lexicalConcept != undefined && labelView">
           <i class="fas fa-cube fa-lg"></i> <span class="font-italic ml-2">{{ node.data.defaultLabel.split('#')[1] == undefined ? node.data.defaultLabel : node.data.defaultLabel.split('#')[1] }} </span>
         </span>
       </div>

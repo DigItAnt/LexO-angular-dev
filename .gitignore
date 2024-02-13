@@ -51,3 +51,4 @@ tsconfig.doc.json
 .dockerignore
 Dockerfile.dev
 epilexo.zip 
+package-lock.json

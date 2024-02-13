@@ -69,6 +69,7 @@ const actionMapping: IActionMapping = {
 export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
 
   switcher = false;
+  switcherSkos = false;
   @ViewChild('lexTree') lexTree: any;
   @ViewChild('textTree') textTree: any;
   @ViewChild('conceptTree') conceptTree: any;
@@ -214,6 +215,16 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
 
   updateTreeParent() {
     this.lexTree.updateTreeView();
+  }
+
+  updateTreeParentSkos() {
+    this.skosTree.updateTreeView();
+  }
+
+  switchLabelSkos(){
+    this.skosTree.labelView = !this.skosTree.labelView;
+    this.skosTree.idView = !this.skosTree.idView;
+    this.switcherSkos = !this.switcherSkos;
   }
 
   switchLabel() {

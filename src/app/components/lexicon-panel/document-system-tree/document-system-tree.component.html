@@ -160,6 +160,10 @@
                 </button>
                 
                 <div class="icons-container dropdown">
+                    <button placement="bottom" [ngbTooltip]="switcherSkos ? 'Enable label view' : 'Disable label view'"
+                        [ngStyle]="switcherSkos ? {'background-color': '#007bff', 'color': 'rgb(247 247 247)'} : {'background-color': 'transparent', 'color': '#007bff'}"
+                        class="btn btn-link" title="Switch to label view"
+                        (click)="switchLabelSkos(); updateTreeParentSkos();"><i class="fas fa-tag"></i></button>
                     <button container="body" placement="right" ngbTooltip="Show actions" class="btn btn-link" type="button" id="skosTreeDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-plus"></i></button>
                     <div class="dropdown-menu" aria-labelledby="skosTreeDropdown">
                         <!-- <a class="dropdown-item" style="cursor: pointer;" (click)="addNewConceptSet()">Add new Concept Set</a> -->

@@ -65,7 +65,8 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
   selectedNodeId;
   destroy$: Subject<boolean> = new Subject();
 
-
+  labelView = true;
+  idView = false;
 
   searchIconSpinner = false;
   initialValues
