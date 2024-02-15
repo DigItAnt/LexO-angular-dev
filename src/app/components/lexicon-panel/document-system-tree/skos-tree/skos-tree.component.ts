@@ -245,15 +245,28 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
     if ($event != undefined) {
       //console.log(evt);
       
+      let parameters = {};
+
+      let node_parent = $event.from.parent.lexicalConcept;
 
       let node_source = $event.node.lexicalConcept;
       let node_target = $event.to.parent.lexicalConcept;
 
-      let parameters = {
-        relation : "http://www.w3.org/2004/02/skos/core#narrower",
-        source : node_source,
-        target : node_target
+      if(node_parent && node_parent != ''){
+        parameters = {
+          relation : "http://www.w3.org/2004/02/skos/core#narrower",
+          source : node_source,
+          target : node_target,
+          oldTarget : node_parent,
+        }
+      }else{
+        parameters = {
+          relation : "http://www.w3.org/2004/02/skos/core#narrower",
+          source : node_source,
+          target : node_target
+        }
       }
+      
 
       if(node_target != undefined){
         this.conceptService.updateSemanticRelation(parameters).pipe(takeUntil(this.destroy$)).subscribe(
