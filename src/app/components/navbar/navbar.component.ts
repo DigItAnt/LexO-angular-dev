@@ -20,55 +20,63 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.scss']
+  styleUrls: ['./navbar.component.scss'],
 })
 export class NavbarComponent implements OnInit, OnDestroy {
- 
-  username : string;
+  username: string;
   userRoles;
 
-  kc_subscriber : Subscription;
+  kc_subscriber: Subscription;
 
-  constructor(private route: ActivatedRoute, 
-              private router: Router, 
-              private keycloakService: KeycloakService, 
-              private auth : AuthService,
-              private modalService : NgbModal) { }
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private keycloakService: KeycloakService,
+    private auth: AuthService,
+    private modalService: NgbModal
+  ) {}
 
   ngOnInit(): void {
-    if(this.auth.getLoggedUser() != undefined){
-      if(this.auth.getLoggedUser()['preferred_username'] != undefined){
+    // Controlla se c'è un utente loggato
+    if (this.auth.getLoggedUser() != undefined) {
+      // Controlla se il nome utente preferito dell'utente loggato è definito
+      if (this.auth.getLoggedUser()['preferred_username'] != undefined) {
+        // Imposta il nome utente con il nome utente preferito dell'utente loggato
         this.username = this.auth.getLoggedUser()['preferred_username'];
       }
     }
-    
-    
+
+    // Ottieni i ruoli dell'utente corrente
     this.userRoles = this.auth.getCurrentUserRole();
 
+    // Sottoscrivi agli eventi di Keycloak
     this.kc_subscriber = this.keycloakService.keycloakEvents$.subscribe({
       next: (e) => {
-        // console.log(e)
+        // Se l'evento è il token scaduto, aggiorna il token
         if (e.type == KeycloakEventType.OnTokenExpired) {
           this.keycloakService.updateToken(20);
         }
-      }
+      },
     });
   }
 
-  logout(){
+  // Funzione per il logout
+  logout() {
     this.auth.logout();
   }
 
-
+  // Funzione per verificare se l'utente è un amministratore
   isAdmin = () => {
     let admin = (element) => element == 'ADMIN';
-    console.log(this.userRoles.some(admin))
-  }
+    console.log(this.userRoles.some(admin));
+  };
 
   ngOnDestroy(): void {
-      this.kc_subscriber.unsubscribe();
+    // Disiscrivi dalla sottoscrizione agli eventi di Keycloak durante la distruzione del componente
+    this.kc_subscriber.unsubscribe();
   }
 
+  // Ottieni la data e l'ora correnti
   getDateNow() {
     return new Date();
   }

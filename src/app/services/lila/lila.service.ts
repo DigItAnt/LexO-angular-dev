@@ -15,17 +15,23 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LilaService {
+  // Questa classe gestisce le richieste SPARQL al servizio federato LexO-backend-itant_itant e al punto di accesso sparql lila-erc.eu.
 
-  private baseUrl_document = "/LexO-backend-itant_itant/service/fedex/search"
-  private endpoint = 'https://lila-erc.eu/sparql/lila_knowledge_base/sparql'
+  private baseUrl_document = '/LexO-backend-itant_itant/service/fedex/search'; // URL di base per il servizio federato LexO-backend-itant_itant
+  private endpoint = 'https://lila-erc.eu/sparql/lila_knowledge_base/sparql'; // Punto di accesso SPARQL per la knowledge base LILA
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
+  // Metodo per interrogare le parole affini (cognate) al lemma specificato
   queryCognate(label: string): Observable<any> {
-    return this.http.post(this.baseUrl_document+'?sparqlQuery='+encodeURIComponent(`
+    return this.http.post(
+      this.baseUrl_document +
+        '?sparqlQuery=' +
+        encodeURIComponent(
+          `
     prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     prefix ontolex: <http://www.w3.org/ns/lemon/ontolex#>
     prefix lila: <http://lila-erc.eu/ontologies/lila/>
@@ -35,12 +41,24 @@ export class LilaService {
       ?lemma a lila:Lemma ;
       ontolex:writtenRep ?wr ;
       lila:hasPOS ?pos .
-      FILTER regex(?wr, "^`+label+`", "i") }
-    LIMIT 500`)+'&endpoint='+this.endpoint, null)
+      FILTER regex(?wr, "^` +
+            label +
+            `", "i") } // Filtra le parole affini per l'inizio del lemma specificato
+    LIMIT 500`
+        ) +
+        '&endpoint=' +
+        this.endpoint,
+      null
+    );
   }
 
+  // Metodo per interrogare gli etimoni delle parole con il lemma specificato
   queryEtymon(label: string): Observable<any> {
-    return this.http.post(this.baseUrl_document+'?sparqlQuery='+encodeURIComponent(`
+    return this.http.post(
+      this.baseUrl_document +
+        '?sparqlQuery=' +
+        encodeURIComponent(
+          `
     PREFIX lime: <http://www.w3.org/ns/lemon/lime#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX lemonEty: <http://lari-datasets.ilc.cnr.it/lemonEty#>
@@ -50,7 +68,14 @@ export class LilaService {
       rdfs:label ?label ;
       rdfs:comment ?comment ;
       lime:language ?language .
-    FILTER regex(?label, "^\\\\*`+label+`", "i")}
-    LIMIT 500`)+'&endpoint='+this.endpoint, null)
+    FILTER regex(?label, "^\\\\*` +
+            label +
+            `", "i")} // Filtra gli etimoni per l'inizio del lemma specificato
+    LIMIT 500`
+        ) +
+        '&endpoint=' +
+        this.endpoint,
+      null
+    );
   }
 }

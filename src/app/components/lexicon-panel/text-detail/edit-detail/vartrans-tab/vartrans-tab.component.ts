@@ -10,7 +10,14 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, ElementRef, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  Renderer2,
+  ViewChild,
+} from '@angular/core';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
 import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-entries.service';
 
@@ -19,8 +26,8 @@ import {
   style,
   transition,
   trigger,
-  state
-} from "@angular/animations";
+  state,
+} from '@angular/animations';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -29,101 +36,161 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./vartrans-tab.component.scss'],
   animations: [
     trigger('slideInOut', [
-      state('in', style({
-        height: 'calc(100vh - 17rem)',
-        
-      })),
-      state('out', style({
-        height: 'calc(50vh - 12.5rem)',
-      })),
+      state(
+        'in',
+        style({
+          height: 'calc(100vh - 17rem)',
+        })
+      ),
+      state(
+        'out',
+        style({
+          height: 'calc(50vh - 12.5rem)',
+        })
+      ),
       transition('in => out', animate('400ms ease-in-out')),
-      transition('out => in', animate('400ms ease-in-out'))
-    ])
-  ]
+      transition('out => in', animate('400ms ease-in-out')),
+    ]),
+  ],
 })
 export class VartransTabComponent implements OnInit, OnDestroy {
-
   lock = 0;
   object: any;
   exp_trig = '';
 
-  lexicalEntryData : any;
-  senseData : any;
+  lexicalEntryData: any;
+  senseData: any;
 
   isLexicalEntry = false;
   isSense = false;
 
-  expand_edit_subscription : Subscription; 
-  expand_epi_subscription : Subscription;
+  expand_edit_subscription: Subscription;
+  expand_epi_subscription: Subscription;
   @ViewChild('expander') expander_body: ElementRef;
 
-  constructor(private lexicalService: LexicalEntriesService, private expand: ExpanderService, private rend : Renderer2) { }
+  constructor(
+    private lexicalService: LexicalEntriesService,
+    private expand: ExpanderService,
+    private rend: Renderer2
+  ) {}
 
   ngOnInit(): void {
-   
-    
+    // Sottoscrivi all'observable per l'espansione dell'editor
     this.expand_edit_subscription = this.expand.expEdit$.subscribe(
-      trigger => {
-        if(trigger){
+      (trigger) => {
+        if (trigger) {
+          // Controlla se il tab di modifica è espanso
           let isEditExpanded = this.expand.isEditTabExpanded();
+          // Controlla se il tab epigrafico è espanso
           let isEpigraphyExpanded = this.expand.isEpigraphyTabExpanded();
 
-          if(!isEpigraphyExpanded){
+          // Se il tab epigrafico non è espanso
+          if (!isEpigraphyExpanded) {
             this.exp_trig = 'in';
-            this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(100vh - 17rem)')
-            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(100vh - 17rem)')
-          }else{
-            this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12.5rem)');
-            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)');
+            // Imposta l'altezza massima e minima del corpo espanso
+            this.rend.setStyle(
+              this.expander_body.nativeElement,
+              'height',
+              'calc(100vh - 17rem)'
+            );
+            this.rend.setStyle(
+              this.expander_body.nativeElement,
+              'max-height',
+              'calc(100vh - 17rem)'
+            );
+          } else {
+            // Se il tab epigrafico è espanso
+            // Imposta l'altezza massima e minima del corpo espanso
+            this.rend.setStyle(
+              this.expander_body.nativeElement,
+              'height',
+              'calc(50vh - 12.5rem)'
+            );
+            this.rend.setStyle(
+              this.expander_body.nativeElement,
+              'max-height',
+              'calc(50vh - 12.5rem)'
+            );
             this.exp_trig = 'in';
           }
-          
-        }else if(trigger==null){
+        } else if (trigger == null) {
+          // Se il trigger è nullo, esci
           return;
-        }else{
-          this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12.5rem)');
-          this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)');
+        } else {
+          // Se il trigger è falso
+          // Imposta l'altezza massima e minima del corpo espanso
+          this.rend.setStyle(
+            this.expander_body.nativeElement,
+            'height',
+            'calc(50vh - 12.5rem)'
+          );
+          this.rend.setStyle(
+            this.expander_body.nativeElement,
+            'max-height',
+            'calc(50vh - 12.5rem)'
+          );
           this.exp_trig = 'out';
         }
       }
     );
 
+    // Sottoscrivi all'observable per l'espansione dell'epigrafia
     this.expand_epi_subscription = this.expand.expEpigraphy$.subscribe(
-      trigger => {
+      (trigger) => {
         setTimeout(() => {
-          if(trigger){
+          if (trigger) {
+            // Se il trigger è vero
             this.exp_trig = 'in';
-            this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12.5rem)')
-            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)')
-          }else if(trigger==null){
+            // Imposta l'altezza massima e minima del corpo espanso
+            this.rend.setStyle(
+              this.expander_body.nativeElement,
+              'height',
+              'calc(50vh - 12.5rem)'
+            );
+            this.rend.setStyle(
+              this.expander_body.nativeElement,
+              'max-height',
+              'calc(50vh - 12.5rem)'
+            );
+          } else if (trigger == null) {
+            // Se il trigger è nullo, esci
             return;
-          }else{
-            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)');
+          } else {
+            // Se il trigger è falso
+            // Imposta l'altezza massima del corpo espanso
+            this.rend.setStyle(
+              this.expander_body.nativeElement,
+              'max-height',
+              'calc(50vh - 12.5rem)'
+            );
             this.exp_trig = 'out';
           }
         }, 100);
-        
       }
     );
   }
 
+  // Funzione per cambiare lo stato del blocco
   changeStatus() {
     if (this.lock < 2) {
+      // Se il blocco è inferiore a 2, incrementa
       this.lock++;
     } else if (this.lock > 1) {
+      // Se il blocco è maggiore di 1, decrementa
       this.lock--;
     }
+    // Attiva il tooltip dopo un breve ritardo
     setTimeout(() => {
       //@ts-ignore
       $('.locked-tooltip').tooltip({
-        trigger: 'hover'
+        trigger: 'hover', // Mostra il tooltip al passaggio del mouse
       });
     }, 10);
   }
 
   ngOnDestroy(): void {
+    // Annulla la sottoscrizione agli observable per evitare memory leaks
     this.expand_edit_subscription.unsubscribe();
     this.expand_epi_subscription.unsubscribe();
   }
-
 }

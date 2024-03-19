@@ -6,36 +6,44 @@ import { LexicalEntriesService } from 'src/app/services/lexical-entries/lexical-
 @Component({
   selector: 'app-cognate-panel',
   templateUrl: './cognate-panel.component.html',
-  styleUrls: ['./cognate-panel.component.scss']
+  styleUrls: ['./cognate-panel.component.scss'],
 })
 export class CognatePanelComponent implements OnInit {
-
+  /**
+   * Questa classe rappresenta un componente per la gestione dei pannelli di cognate.
+   */
   public lexicalEntryId: string;
-  public cogInstanceName : any;
-  public label : any;
+  public cogInstanceName: any;
+  public label: any;
   public subscription: Subscription;
-  public lexicalEntryData : any;
-  public id : any;
+  public lexicalEntryData: any;
+  public id: any;
 
-  @ViewChild('cognatePanelModal', {static: false}) cognatePanelModal: ModalComponent;
+  @ViewChild('cognatePanelModal', { static: false })
+  cognatePanelModal: ModalComponent;
 
+  constructor(private lexicalService: LexicalEntriesService) {}
 
-  constructor(private lexicalService: LexicalEntriesService) { }
+  ngOnInit(): void {}
 
-  ngOnInit(): void {
-  }
-
-  triggerCognatePanel(data?){
+  /**
+   * Metodo per attivare il pannello di cognate.
+   * @param data Dati opzionali da passare al pannello di cognate.
+   */
+  triggerCognatePanel(data?) {
     setTimeout(() => {
       this.cognatePanelModal.show();
-      
     }, 100);
-    
   }
 
-  onCloseModal(cogInstanceName, lexInstanceName){
+  /**
+   * Metodo chiamato alla chiusura del pannello modale.
+   * Chiude il pannello e stampa tutte le forme di pannello disponibili.
+   * @param cogInstanceName Nome dell'istanza di cognate.
+   * @param lexInstanceName Nome dell'istanza lessicale.
+   */
+  onCloseModal(cogInstanceName, lexInstanceName) {
     this.lexicalService.closePanelForm(cogInstanceName, lexInstanceName);
-    console.log(this.lexicalService.getAllPanelForms())
+    console.log(this.lexicalService.getAllPanelForms());
   }
-
 }

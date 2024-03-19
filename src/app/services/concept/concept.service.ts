@@ -17,100 +17,204 @@ import { map, shareReplay } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ConceptService {
-
-  private baseUrl = "/LexO-backend-itant_itant/service/"
-  private key = "PRINitant19";
-  private author = "";
+  private baseUrl = '/LexO-backend-itant_itant/service/';
+  private key = 'PRINitant19';
+  private author = '';
   private lexicalIRI = 'http://lexica/mylexicon#';
-  private lexicalPrefix = 'lex'
+  private lexicalPrefix = 'lex';
 
-  private _deleteConceptSetReq: BehaviorSubject<any> = new BehaviorSubject(null);
+  private _deleteConceptSetReq: BehaviorSubject<any> = new BehaviorSubject(
+    null
+  );
   private _addSubElementReq: BehaviorSubject<any> = new BehaviorSubject(null);
 
   deleteSkosReq$ = this._deleteConceptSetReq.asObservable();
   addSubReq$ = this._addSubElementReq.asObservable();
 
-  constructor(private http: HttpClient, private auth: AuthService) { }
+  constructor(private http: HttpClient, private auth: AuthService) {}
 
-  addSubElementRequest(request?: any){
+  // Questo metodo aggiunge una richiesta per un sottoelemento.
+  // Accetta un parametro opzionale `request` e emette il valore attraverso il Subject `_addSubElementReq`.
+  addSubElementRequest(request?: any) {
     this._addSubElementReq.next(request);
   }
 
-  getLexicalIRI(){
+  // Questo metodo restituisce l'IRI lessicale.
+  getLexicalIRI() {
     return this.lexicalIRI;
   }
 
-  deleteRequest(request? : any) {
+  // Questo metodo invia una richiesta di eliminazione.
+  // Accetta un parametro opzionale `request` e emette il valore attraverso il Subject `_deleteConceptSetReq`.
+  deleteRequest(request?: any) {
     this._deleteConceptSetReq.next(request);
   }
 
+  // Questo metodo restituisce un Observable che esegue una richiesta GET per ottenere insiemi di concetti.
   getConceptSets(): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/conceptSets");
+    return this.http.get(this.baseUrl + 'lexicon/data/conceptSets');
   }
 
+  // Questo metodo restituisce un Observable che esegue una richiesta GET per ottenere concetti lessicali radice.
   getRootLexicalConcepts(): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/lexicalConcepts?id=root");
+    return this.http.get(this.baseUrl + 'lexicon/data/lexicalConcepts?id=root');
   }
 
-  getLexicalConcepts(instance : string): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/lexicalConcepts?id="+encodeURIComponent(instance));
+  // Questo metodo restituisce un Observable che esegue una richiesta GET per ottenere i concetti lessicali.
+  // Accetta un parametro `instance` e lo codifica per utilizzarlo nell'URL.
+  getLexicalConcepts(instance: string): Observable<any> {
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/data/lexicalConcepts?id=' +
+        encodeURIComponent(instance)
+    );
   }
 
-  getLexicalConceptData(instance : string) : Observable<any>{
-    return this.http.get(this.baseUrl + "lexicon/data/lexicalConcept?id="+encodeURIComponent(instance));
+  // Questo metodo restituisce un Observable che esegue una richiesta GET per ottenere i dati del concetto lessicale.
+  // Accetta un parametro `instance` e lo codifica per utilizzarlo nell'URL.
+  getLexicalConceptData(instance: string): Observable<any> {
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/data/lexicalConcept?id=' +
+        encodeURIComponent(instance)
+    );
   }
 
+  // Questo metodo restituisce un Observable che esegue una richiesta GET per creare un nuovo insieme di concetti.
   createNewConceptSet(): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.get(this.baseUrl + "lexicon/creation/conceptSet?key="+this.key+"&author="+this.author+"&prefix="+encodeURIComponent(this.lexicalPrefix)+"&baseIRI="+encodeURIComponent(this.lexicalIRI));
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/creation/conceptSet?key=' +
+        this.key +
+        '&author=' +
+        this.author +
+        '&prefix=' +
+        encodeURIComponent(this.lexicalPrefix) +
+        '&baseIRI=' +
+        encodeURIComponent(this.lexicalIRI)
+    );
   }
 
+  // Questo metodo restituisce un Observable che esegue una richiesta GET per creare un nuovo concetto lessicale.
   createNewLexicalConcept(): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.get(this.baseUrl + "lexicon/creation/lexicalConcept?key="+this.key+"&author="+this.author+"&prefix="+encodeURIComponent(this.lexicalPrefix)+"&baseIRI="+encodeURIComponent(this.lexicalIRI));
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/creation/lexicalConcept?key=' +
+        this.key +
+        '&author=' +
+        this.author +
+        '&prefix=' +
+        encodeURIComponent(this.lexicalPrefix) +
+        '&baseIRI=' +
+        encodeURIComponent(this.lexicalIRI)
+    );
   }
 
-
-  linkLexicalConceptTo(parameters) : Observable<any> {
-    return this.http.post(this.baseUrl + "lexicon/creation/lexicalConcept?key="+this.key, parameters);
+  // Questo metodo restituisce un Observable che esegue una richiesta POST per collegare un concetto lessicale.
+  // Accetta un parametro `parameters`.
+  linkLexicalConceptTo(parameters): Observable<any> {
+    return this.http.post(
+      this.baseUrl + 'lexicon/creation/lexicalConcept?key=' + this.key,
+      parameters
+    );
   }
 
-  deleteConceptSet(conceptSetID) : Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/delete/conceptSet?key="+this.key + "&id="+encodeURIComponent(conceptSetID));
+  // Questo metodo restituisce un Observable che esegue una richiesta GET per eliminare un insieme di concetti.
+  // Accetta un parametro `conceptSetID` e lo codifica per utilizzarlo nell'URL.
+  deleteConceptSet(conceptSetID): Observable<any> {
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/delete/conceptSet?key=' +
+        this.key +
+        '&id=' +
+        encodeURIComponent(conceptSetID)
+    );
   }
 
-  deleteLexicalConcept(lexicalConceptID, recursive?) : Observable<any> {
-    if(recursive == undefined){
-      return this.http.get(this.baseUrl + "lexicon/delete/lexicalConcept?key="+this.key + "&id="+encodeURIComponent(lexicalConceptID)+"&recursive=false");
-    }else{
-      return this.http.get(this.baseUrl + "lexicon/delete/lexicalConcept?key="+this.key + "&id="+encodeURIComponent(lexicalConceptID)+"&recursive=true");
+  // Questo metodo restituisce un Observable che esegue una richiesta GET per eliminare un concetto lessicale.
+  // Accetta due parametri, `lexicalConceptID` e `recursive`, quest'ultimo è opzionale.
+  deleteLexicalConcept(lexicalConceptID, recursive?): Observable<any> {
+    if (recursive == undefined) {
+      return this.http.get(
+        this.baseUrl +
+          'lexicon/delete/lexicalConcept?key=' +
+          this.key +
+          '&id=' +
+          encodeURIComponent(lexicalConceptID) +
+          '&recursive=false'
+      );
+    } else {
+      return this.http.get(
+        this.baseUrl +
+          'lexicon/delete/lexicalConcept?key=' +
+          this.key +
+          '&id=' +
+          encodeURIComponent(lexicalConceptID) +
+          '&recursive=true'
+      );
     }
   }
 
-  updateSkosLabel(parameters) : Observable<any> {
-    return this.http.post(this.baseUrl + "skos/updateLexicalLabel?key="+this.key, parameters);
+  // Questo metodo restituisce un Observable che esegue una richiesta POST per aggiornare un'etichetta SKOS.
+  // Accetta un parametro `parameters`.
+  updateSkosLabel(parameters): Observable<any> {
+    return this.http.post(
+      this.baseUrl + 'skos/updateLexicalLabel?key=' + this.key,
+      parameters
+    );
   }
 
-  updateSchemeProperty(parameters) : Observable<any> {
-    return this.http.post(this.baseUrl + "skos/updateSchemeProperty?key="+this.key, parameters);
+  // Questo metodo restituisce un Observable che esegue una richiesta POST per aggiornare una proprietà dello schema SKOS.
+  // Accetta un parametro `parameters`.
+  updateSchemeProperty(parameters): Observable<any> {
+    return this.http.post(
+      this.baseUrl + 'skos/updateSchemeProperty?key=' + this.key,
+      parameters
+    );
   }
 
-  updateSemanticRelation(parameters) : Observable<any> {
-    return this.http.post(this.baseUrl + "skos/updateSemanticRelation?key="+this.key, parameters);
+  // Questo metodo restituisce un Observable che esegue una richiesta POST per aggiornare una relazione semantica SKOS.
+  // Accetta un parametro `parameters`.
+  updateSemanticRelation(parameters): Observable<any> {
+    return this.http.post(
+      this.baseUrl + 'skos/updateSemanticRelation?key=' + this.key,
+      parameters
+    );
   }
 
-  updateNoteProperty(parameters) : Observable<any> {
-    return this.http.post(this.baseUrl + "skos/updateNoteProperty?key="+this.key, parameters);
+  // Questo metodo restituisce un Observable che esegue una richiesta POST per aggiornare una proprietà delle note SKOS.
+  // Accetta un parametro `parameters`.
+  updateNoteProperty(parameters): Observable<any> {
+    return this.http.post(
+      this.baseUrl + 'skos/updateNoteProperty?key=' + this.key,
+      parameters
+    );
   }
 
-  deleteRelation(instance, parameters) : Observable<any> {
-    return this.http.post(this.baseUrl + "lexicon/delete/relation?key="+this.key+"&id="+encodeURIComponent(instance), parameters);
+  // Questo metodo restituisce un Observable che esegue una richiesta POST per eliminare una relazione.
+  // Accetta due parametri, `instance` e `parameters`.
+  deleteRelation(instance, parameters): Observable<any> {
+    return this.http.post(
+      this.baseUrl +
+        'lexicon/delete/relation?key=' +
+        this.key +
+        '&id=' +
+        encodeURIComponent(instance),
+      parameters
+    );
   }
 
+  // Questo metodo restituisce un Observable che esegue una richiesta POST per filtrare i concetti.
+  // Accetta un parametro `parameters`.
   conceptFilter(parameters: any): Observable<any> {
-    return this.http.post(this.baseUrl + "lexicon/data/filteredLexicalConcepts", parameters);
+    return this.http.post(
+      this.baseUrl + 'lexicon/data/filteredLexicalConcepts',
+      parameters
+    );
   }
 }

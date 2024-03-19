@@ -16,6 +16,8 @@ export class FormPanelComponent implements OnInit, OnDestroy {
   public formData : any;
   public id : any;
 
+
+  // Riferimento al componente Modal utilizzato per visualizzare il pannello del form.
   @ViewChild('formPanelModal', {static: false}) formPanelModal: ModalComponent;
   
   constructor(private annotatorService : AnnotatorService) { }
@@ -25,20 +27,24 @@ export class FormPanelComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() : void {
+    // Pulizia risorse; annulla la sottoscrizione per evitare perdite di memoria.
     this.subscription.unsubscribe();
   }
 
-
+  // Funzione per attivare il pannello del form, con opzione per passare dati al pannello.
   triggerFormPanel(data?){
     setTimeout(() => {
+      // Visualizza il modal dopo un ritardo di 100ms.
       this.formPanelModal.show();
-      
     }, 100);
     
   }
 
+  // Funzione chiamata alla chiusura del modal, che notifica il servizio per chiudere il pannello del form.
   onCloseModal(idForm){
+    // Notifica al servizio di annotazione la chiusura del form.
     this.annotatorService.closePanelForm(idForm);
-    console.log(this.annotatorService.getAllPanelForms())
+    // Stampa a console l'elenco dei form panel attualmente aperti (per debug).
+    console.log(this.annotatorService.getAllPanelForms());
   }
 }

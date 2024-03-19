@@ -10,7 +10,14 @@ EpiLexo is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with EpiLexo. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Component, ElementRef, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  Renderer2,
+  ViewChild,
+} from '@angular/core';
 import { LexicalEntriesService } from '../../../../../services/lexical-entries/lexical-entries.service';
 import { ExpanderService } from 'src/app/services/expander/expander.service';
 
@@ -19,12 +26,11 @@ import {
   style,
   transition,
   trigger,
-  state
-} from "@angular/animations";
+  state,
+} from '@angular/animations';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, Subscription } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
-
 
 @Component({
   selector: 'app-decomposition-tab',
@@ -32,20 +38,24 @@ import { take, takeUntil } from 'rxjs/operators';
   styleUrls: ['./decomposition-tab.component.scss'],
   animations: [
     trigger('slideInOut', [
-      state('in', style({
-        height: 'calc(100vh - 17rem)',
-
-      })),
-      state('out', style({
-        height: 'calc(50vh - 12.5rem)',
-      })),
+      state(
+        'in',
+        style({
+          height: 'calc(100vh - 17rem)',
+        })
+      ),
+      state(
+        'out',
+        style({
+          height: 'calc(50vh - 12.5rem)',
+        })
+      ),
       transition('in => out', animate('400ms ease-in-out')),
-      transition('out => in', animate('400ms ease-in-out'))
-    ])
-  ]
+      transition('out => in', animate('400ms ease-in-out')),
+    ]),
+  ],
 })
 export class DecompositionTabComponent implements OnInit, OnDestroy {
-
   lock = 0;
   object: any;
   exp_trig = '';
@@ -65,58 +75,58 @@ export class DecompositionTabComponent implements OnInit, OnDestroy {
 
   @ViewChild('expander') expander_body: ElementRef;
 
-  constructor(private toastr: ToastrService, private lexicalService: LexicalEntriesService, private expand: ExpanderService, private rend: Renderer2) { }
+  constructor(
+    private toastr: ToastrService,
+    private lexicalService: LexicalEntriesService,
+    private expand: ExpanderService,
+    private rend: Renderer2
+  ) {}
 
+  /**
+   * Inizializza il componente e sottoscrive il servizio `lexicalService.decompData$` per ricevere gli aggiornamenti dei dati.
+   * Gestisce la visualizzazione dei dati lexical e delle relative azioni.
+   */
   ngOnInit(): void {
-    /* this.core_data_subscription = this.lexicalService.coreData$.subscribe(
-      object => {
-        this.object = null;
-        if(this.object != object){
-          this.decompData = null;
-        }
-        this.object = object
-        
-        if(this.object != null){
-          if(this.object.lexicalEntry != undefined && this.object.sense == undefined){
-            this.isLexicalEntry = true;
-            this.decompData = object;
-
-            this.creationDate = object['creationDate'];
-            this.lastUpdate = object['lastUpdate']
-          }else if(this.object.form != undefined){
-            this.isLexicalEntry = false;
-            this.decompData = null;
-            this.object = null;
-          }else if(this.object.sense != undefined){
-            this.isLexicalEntry = false;
-            this.decompData = null;
-            this.object = null;
-          }
-        }
-      }
-    ); */
-
+    // Sottoscrizione al servizio per ricevere gli aggiornamenti dei dati lexical
     this.decomp_data_subscription = this.lexicalService.decompData$.subscribe(
-      object => {
+      (object) => {
+        // Resetta gli oggetti locali a null
         this.object = null;
+        // Se l'oggetto ricevuto è diverso da quello attualmente gestito
         if (this.object != object) {
+          // Resetta i dati lexical a null
           this.decompData = null;
         }
-        this.object = object
+        // Assegna l'oggetto ricevuto all'oggetto locale
+        this.object = object;
 
+        // Verifica se l'oggetto ricevuto è valido
         if (this.object != null) {
-          if (this.object.lexicalEntry != undefined && this.object.sense == undefined) {
+          // Se l'oggetto contiene una voce lessicale ma non un sensum
+          if (
+            this.object.lexicalEntry != undefined &&
+            this.object.sense == undefined
+          ) {
+            // Imposta il flag per indicare che si tratta di una voce lessicale
             this.isLexicalEntry = true;
+            // Assegna i dati lexical ricevuti
             this.decompData = object;
 
+            // Assegna le date di creazione e ultimo aggiornamento
             this.creationDate = object['creationDate'];
-            this.lastUpdate = object['lastUpdate']
+            this.lastUpdate = object['lastUpdate'];
           } else if (this.object.form != undefined) {
+            // Se l'oggetto contiene una forma ma non una voce lessicale
+            // Imposta il flag per indicare che non si tratta di una voce lessicale
             this.isLexicalEntry = false;
+            // Resetta i dati lexical e l'oggetto
             this.decompData = null;
             this.object = null;
           } else if (this.object.sense != undefined) {
+            // Se l'oggetto contiene un sensum
+            // Imposta il flag per indicare che non si tratta di una voce lessicale
             this.isLexicalEntry = false;
+            // Resetta i dati lexical e l'oggetto
             this.decompData = null;
             this.object = null;
           }
@@ -124,234 +134,252 @@ export class DecompositionTabComponent implements OnInit, OnDestroy {
       }
     );
 
-
+    // Sottoscrizione al servizio per ricevere gli aggiornamenti dello stato di espansione dell'editor
     this.expand_edit_subscription = this.expand.expEdit$.subscribe(
-      trigger => {
+      (trigger) => {
         setTimeout(() => {
           if (trigger) {
+            // Verifica lo stato di espansione dell'editor e dell'epigrafia
             let isEditExpanded = this.expand.isEditTabExpanded();
             let isEpigraphyExpanded = this.expand.isEpigraphyTabExpanded();
 
             if (!isEpigraphyExpanded) {
+              // Se l'epigrafia non è espansa, espande l'editor
               this.exp_trig = 'in';
-              this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(100vh - 17rem)')
-              this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(100vh - 17rem)')
+              this.rend.setStyle(
+                this.expander_body.nativeElement,
+                'height',
+                'calc(100vh - 17rem)'
+              );
+              this.rend.setStyle(
+                this.expander_body.nativeElement,
+                'max-height',
+                'calc(100vh - 17rem)'
+              );
             } else {
-              this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12.5rem)');
-              this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)');
+              // Altrimenti, riduce l'editor alla metà della pagina
+              this.rend.setStyle(
+                this.expander_body.nativeElement,
+                'height',
+                'calc(50vh - 12.5rem)'
+              );
+              this.rend.setStyle(
+                this.expander_body.nativeElement,
+                'max-height',
+                'calc(50vh - 12.5rem)'
+              );
               this.exp_trig = 'in';
             }
-
           } else if (trigger == null) {
+            // Se il trigger è null, non fa nulla
             return;
           } else {
-            this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12.5rem)');
-            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)');
+            // Altrimenti, riduce l'editor alla metà della pagina
+            this.rend.setStyle(
+              this.expander_body.nativeElement,
+              'height',
+              'calc(50vh - 12.5rem)'
+            );
+            this.rend.setStyle(
+              this.expander_body.nativeElement,
+              'max-height',
+              'calc(50vh - 12.5rem)'
+            );
             this.exp_trig = 'out';
           }
         }, 100);
-
       }
     );
 
+    // Sottoscrizione al servizio per ricevere gli aggiornamenti dello stato di espansione dell'epigrafia
     this.expand_epigraphy_subscription = this.expand.expEpigraphy$.subscribe(
-      trigger => {
+      (trigger) => {
         setTimeout(() => {
           if (trigger) {
+            // Se è richiesta l'espansione dell'epigrafia, la espande
             this.exp_trig = 'in';
-            this.rend.setStyle(this.expander_body.nativeElement, 'height', 'calc(50vh - 12.5rem)')
-            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)')
+            this.rend.setStyle(
+              this.expander_body.nativeElement,
+              'height',
+              'calc(50vh - 12.5rem)'
+            );
+            this.rend.setStyle(
+              this.expander_body.nativeElement,
+              'max-height',
+              'calc(50vh - 12.5rem)'
+            );
           } else if (trigger == null) {
+            // Se il trigger è null, non fa nulla
             return;
           } else {
-            this.rend.setStyle(this.expander_body.nativeElement, 'max-height', 'calc(50vh - 12.5rem)');
+            // Altrimenti, riduce l'epigrafia alla metà della pagina
+            this.rend.setStyle(
+              this.expander_body.nativeElement,
+              'max-height',
+              'calc(50vh - 12.5rem)'
+            );
             this.exp_trig = 'out';
           }
         }, 100);
-
       }
     );
   }
 
-  /* changeStatus() {
-    if (this.lock < 2) {
-      this.lock++;
-    } else if (this.lock > 1) {
-      this.lock--;
-    }
-
-    if(this.lock==2){
-      setTimeout(() => {
-        //@ts-ignore
-        $('.locked-tooltip').tooltip({
-          trigger: 'hover'
-        });
-      }, 10);
-    }else if(this.lock < 2){
-      setTimeout(() => {
-        //@ts-ignore
-        $('.locked-tooltip').tooltip('disable');
-      }, 10);
-    }
-    
-  } */
-
+  /**
+   * Aggiunge una nuova forma lessicale.
+   * Nota: La funzione assegna una richiesta 'form' all'oggetto corrente e comunica con il servizio `lexicalService` per aggiungere la nuova forma.
+   */
   addNewForm() {
+    // Visualizza l'icona di caricamento
     this.searchIconSpinner = true;
-    /* console.log(this.object) */
-    this.object['request'] = 'form'
+    // Imposta la richiesta come 'form' all'oggetto corrente
+    this.object['request'] = 'form';
+    // Verifica se l'oggetto corrente è una voce lessicale
     if (this.isLexicalEntry) {
+      // Se è una voce lessicale, ottiene l'ID lessicale
       let lexicalId = this.object.lexicalEntry;
-      this.lexicalService.createNewForm(lexicalId).pipe(takeUntil(this.destroy$)).subscribe(
-        data => {
-          this.toastr.success('Form added correctly', '', {
-            timeOut: 5000,
-          });
-          console.log(data);
-          if (data['creator'] == this.object.creator) {
-            data['flagAuthor'] = false;
-          } else {
-            data['flagAuthor'] = true;
+      // Chiama il servizio per creare una nuova forma passando l'ID lessicale
+      this.lexicalService
+        .createNewForm(lexicalId)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(
+          (data) => {
+            // Se la forma è stata aggiunta correttamente
+            this.toastr.success('Form added correctly', '', {
+              timeOut: 5000,
+            });
+            // Se il creatore della forma è lo stesso dell'oggetto corrente, imposta il flag dell'autore a false
+            if (data['creator'] == this.object.creator) {
+              data['flagAuthor'] = false;
+            } else {
+              data['flagAuthor'] = true;
+            }
+            // Comunica con il servizio per aggiungere la richiesta di sottostante
+            this.lexicalService.addSubElementRequest({
+              lex: this.object,
+              data: data,
+            });
+            // Nasconde l'icona di caricamento
+            this.searchIconSpinner = false;
+          },
+          (error) => {
+            // Se si verifica un errore durante l'aggiunta della forma
+            console.log(error);
+            this.toastr.error(error.error, 'Error', {
+              timeOut: 5000,
+            });
+            // Nasconde l'icona di caricamento
+            this.searchIconSpinner = false;
           }
-          this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': data });
-          this.searchIconSpinner = false;
-        }, error => {
-          console.log(error)
-          this.toastr.error(error.error, 'Error', {
-            timeOut: 5000,
-          });
-          this.searchIconSpinner = false;
-        }
-      )
+        );
     }
-
   }
 
+  /**
+   * Aggiunge un nuovo sensum.
+   * Nota: La funzione assegna una richiesta 'sense' all'oggetto corrente e comunica con il servizio `lexicalService` per aggiungere il nuovo sensum.
+   */
   addNewSense() {
+    // Visualizza l'icona di caricamento
     this.searchIconSpinner = true;
-    this.object['request'] = 'sense'
+    // Imposta la richiesta come 'sense' all'oggetto corrente
+    this.object['request'] = 'sense';
+    // Verifica se l'oggetto corrente è una voce lessicale
     if (this.isLexicalEntry) {
+      // Se è una voce lessicale, ottiene l'ID lessicale
       let lexicalId = this.object.lexicalEntry;
-      this.lexicalService.createNewSense(lexicalId).pipe(takeUntil(this.destroy$)).subscribe(
-        data => {
+      // Chiama il servizio per creare un nuovo sensum passando l'ID lessicale
+      this.lexicalService
+        .createNewSense(lexicalId)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(
+          (data) => {
+            // Se il sensum è stato aggiunto correttamente
+            if (data['creator'] == this.object.creator) {
+              data['flagAuthor'] = false;
+            } else {
+              data['flagAuthor'] = true;
+            }
+            // Comunica con il servizio per aggiungere la richiesta di sottostante
+            this.lexicalService.addSubElementRequest({
+              lex: this.object,
+              data: data,
+            });
+            // Nasconde l'icona di caricamento
+            this.searchIconSpinner = false;
+            this.toastr.success('Sense added correctly', '', {
+              timeOut: 5000,
+            });
+          },
+          (error) => {
+            // Se si verifica un errore durante l'aggiunta del sensum
+            this.searchIconSpinner = false;
+            this.toastr.error(error.error, 'Error', {
+              timeOut: 5000,
+            });
+          }
+        );
+    }
+  }
+
+  /**
+   * Aggiunge una nuova etimologia.
+   * Nota: La funzione assegna una richiesta 'etymology' all'oggetto corrente e comunica con il servizio `lexicalService` per aggiungere la nuova etimologia.
+   */
+  addNewEtymology() {
+    // Visualizza l'icona di caricamento
+    this.searchIconSpinner = true;
+    // Imposta la richiesta come 'etymology' all'oggetto corrente
+    this.object['request'] = 'etymology';
+    let parentNodeInstanceName = '';
+    // Verifica se l'oggetto corrente ha una voce lessicale come genitore
+    if (
+      this.object.lexicalEntry != undefined &&
+      this.object.senseInstanceName == undefined
+    ) {
+      parentNodeInstanceName = this.object.lexicalEntry;
+    }
+    // Chiama il servizio per creare una nuova etimologia passando il nome dell'istanza genitore
+    this.lexicalService
+      .createNewEtymology(parentNodeInstanceName)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(
+        (data) => {
+          // Se l'etimologia è stata aggiunta correttamente
           if (data['creator'] == this.object.creator) {
             data['flagAuthor'] = false;
           } else {
             data['flagAuthor'] = true;
           }
-          this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': data });
+          // Comunica con il servizio per aggiungere la richiesta di sottostante
+          this.lexicalService.addSubElementRequest({
+            lex: this.object,
+            data: data,
+          });
+          // Nasconde l'icona di caricamento
           this.searchIconSpinner = false;
-          this.toastr.success('Sense added correctly', '', {
+          this.toastr.success('Etymology added correctly', '', {
             timeOut: 5000,
           });
-        }, error => {
+        },
+        (error) => {
+          // Se si verifica un errore durante l'aggiunta dell'etimologia
           this.searchIconSpinner = false;
-          this.toastr.error(error.error, 'Error', {
-            timeOut: 5000,
-          });
-
         }
-      )
-    }/* else if(this.isSense){
-      let parentNodeInstanceName = this.object.parentNodeInstanceName;
-      this.object['lexicalEntry'] = parentNodeInstanceName
-      this.object['request'] = 'sense'
-      //console.log(this.object);
-      this.lexicalService.createNewSense(parentNodeInstanceName).subscribe(
-        data=>{
-          if(data['creator'] == this.object.creator){
-            data['flagAuthor'] = false;
-          }else{
-            data['flagAuthor'] = true;
-          }
-          this.lexicalService.addSubElementRequest({'lex' : this.object, 'data' : data});
-          this.searchIconSpinner = false;
-          this.toastr.success('Sense added correctly', '', {
-            timeOut: 5000,
-          });
-        },error=> {
-          this.searchIconSpinner = false;
-          this.toastr.error(error.error, 'Error', {
-            timeOut: 5000,
-          });
-        }
-      )
-    }else if(this.isForm){
-      let parentNodeInstanceName = this.object.parentNodeInstanceName;
-      this.object['lexicalEntry'] = parentNodeInstanceName
-      this.object['request'] = 'sense'
-      //console.log(this.object);
-      this.lexicalService.createNewSense(parentNodeInstanceName).subscribe(
-        data=>{
-          if(data['creator'] == this.object.creator){
-            data['flagAuthor'] = false;
-          }else{
-            data['flagAuthor'] = true;
-          }
-          this.lexicalService.addSubElementRequest({'lex' : this.object, 'data' : data});
-          this.searchIconSpinner = false;
-          this.toastr.success('Sense added correctly', '', {
-            timeOut: 5000,
-          });
-          //this.lexicalService.refreshLexEntryTree();
-        },error=> {
-          this.searchIconSpinner = false;
-          this.toastr.error(error.error, 'Error', {
-            timeOut: 5000,
-          });
-          //this.lexicalService.refreshLexEntryTree();
-        }
-      )
-    } */
-
+      );
   }
 
-  addNewEtymology() {
-    this.searchIconSpinner = true;
-    this.object['request'] = 'etymology'
-    let parentNodeInstanceName = '';
-    if (this.object.lexicalEntry != undefined
-      && this.object.senseInstanceName == undefined) {
-      console.log(1)
-      parentNodeInstanceName = this.object.lexicalEntry;
-    }/* else if(this.object.formInstanceName != undefined){
-      parentNodeInstanceName = this.object.parentNodeInstanceName;
-      this.object['lexicalEntry'] = parentNodeInstanceName
-      console.log(2)
-    }else if(this.object.senseInstanceName != undefined){
-      parentNodeInstanceName = this.object.parentNodeInstanceName;
-      this.object['lexicalEntry'] = parentNodeInstanceName
-      console.log(3)
-    } */
-
-    console.log(parentNodeInstanceName)
-    this.lexicalService.createNewEtymology(parentNodeInstanceName).pipe(takeUntil(this.destroy$)).subscribe(
-      data => {
-        console.log(data)
-        if (data['creator'] == this.object.creator) {
-          data['flagAuthor'] = false;
-        } else {
-          data['flagAuthor'] = true;
-        }
-        this.lexicalService.addSubElementRequest({ 'lex': this.object, 'data': data });
-        this.searchIconSpinner = false;
-        this.toastr.success('Etymology added correctly', '', {
-          timeOut: 5000,
-        });
-      }, error => {
-        this.searchIconSpinner = false;
-      }
-    )
-
-  }
-
+  /**
+   * Distrugge il componente e annulla le sottoscrizioni ai servizi.
+   */
   ngOnDestroy(): void {
-    //this.core_data_subscription.unsubscribe();
+    // Annulla la sottoscrizione allo stato di espansione dell'editor
     this.expand_edit_subscription.unsubscribe();
+    // Annulla la sottoscrizione allo stato di espansione dell'epigrafia
     this.expand_epigraphy_subscription.unsubscribe();
 
+    // Notifica la distruzione del componente
     this.destroy$.next(true);
     this.destroy$.complete();
   }
-
 }

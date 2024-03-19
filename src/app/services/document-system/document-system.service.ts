@@ -16,18 +16,25 @@ import { BehaviorSubject, Observable, of } from 'rxjs';
 import { timeout } from 'rxjs/operators';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DocumentSystemService {
-
-  private baseUrl_document = "/cash_itant/api/"
+  private baseUrl_document = '/cash_itant/api/';
 
   private _epigraphyData: BehaviorSubject<object> = new BehaviorSubject(null);
-  private _epigraphyTextData: BehaviorSubject<string> = new BehaviorSubject(null);
-  private _epigraphyLeidenData: BehaviorSubject<any> = new BehaviorSubject(null);
-  private _epigraphyTranslationData: BehaviorSubject<any> = new BehaviorSubject(null);
-  private _metadataData : BehaviorSubject<object> = new BehaviorSubject(null);
-  private _triggerMetadataPanel : BehaviorSubject<boolean> = new BehaviorSubject(null);
+  private _epigraphyTextData: BehaviorSubject<string> = new BehaviorSubject(
+    null
+  );
+  private _epigraphyLeidenData: BehaviorSubject<any> = new BehaviorSubject(
+    null
+  );
+  private _epigraphyTranslationData: BehaviorSubject<any> = new BehaviorSubject(
+    null
+  );
+  private _metadataData: BehaviorSubject<object> = new BehaviorSubject(null);
+  private _triggerMetadataPanel: BehaviorSubject<boolean> = new BehaviorSubject(
+    null
+  );
 
   epigraphyData$ = this._epigraphyData.asObservable();
   epigraphyTextData$ = this._epigraphyTextData.asObservable();
@@ -36,131 +43,196 @@ export class DocumentSystemService {
   metadataData$ = this._metadataData.asObservable();
   triggerMetadataPanel$ = this._triggerMetadataPanel.asObservable();
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
+  // Questo metodo invia un oggetto al tab epigrafico.
   sendToEpigraphyTab(object: object) {
-    this._epigraphyData.next(object)
-  } 
+    this._epigraphyData.next(object);
+  }
 
-  sendTextToEpigraphyTab(string : string){
+  // Questo metodo invia una stringa al tab epigrafico.
+  sendTextToEpigraphyTab(string: string) {
     this._epigraphyTextData.next(string);
   }
 
-  sendTranslationToEpigraphyTab(array : any){
+  // Questo metodo invia un array di traduzioni al tab epigrafico.
+  sendTranslationToEpigraphyTab(array: any) {
     this._epigraphyTranslationData.next(array);
   }
 
-  sendLeidenToEpigraphyTab(string : any){
+  // Questo metodo invia una stringa Leiden al tab epigrafico.
+  sendLeidenToEpigraphyTab(string: any) {
     this._epigraphyLeidenData.next(string);
   }
 
-  sendToMetadataPanel(object : object){
+  // Questo metodo invia un oggetto al pannello dei metadati.
+  sendToMetadataPanel(object: object) {
     this._metadataData.next(object);
   }
 
-  triggerMetadataPanel(bool: boolean){
+  // Questo metodo attiva o disattiva il pannello dei metadati.
+  triggerMetadataPanel(bool: boolean) {
     this._triggerMetadataPanel.next(bool);
   }
 
-  //GET /api/getDocumentSystem  ---> return document system
+  // Questo metodo esegue una richiesta GET per ottenere il sistema di documenti.
   getDocumentSystem(): Observable<any> {
-    return this.http.get(this.baseUrl_document + "public/getDocumentSystem?requestUUID=11")
+    return this.http.get(
+      this.baseUrl_document + 'public/getDocumentSystem?requestUUID=11'
+    );
   }
 
-  //POST ​/api​/crud​/addFolder --> add folder to document system
+  // Questo metodo esegue una richiesta POST per aggiungere una cartella al sistema di documenti.
   addFolder(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "crud/addFolder", parameters)
+    return this.http.post(this.baseUrl_document + 'crud/addFolder', parameters);
   }
 
-  //POST ​/api​/crud​/removeFolder --> remove Folder folder from document system
+  // Questo metodo esegue una richiesta POST per rimuovere una cartella dal sistema di documenti.
   removeFolder(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "crud/removeFolder", parameters)
+    return this.http.post(
+      this.baseUrl_document + 'crud/removeFolder',
+      parameters
+    );
   }
 
-  //POST ​/api​/crud​/moveFolder --> move Folder to another folder
+  // Questo metodo esegue una richiesta POST per spostare una cartella in un'altra cartella.
   moveFolder(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "crud/moveFolder", parameters)
+    return this.http.post(
+      this.baseUrl_document + 'crud/moveFolder',
+      parameters
+    );
   }
 
-  //POST ​/api​/crud​/renameFolder --> rename folder
+  // Questo metodo esegue una richiesta POST per rinominare una cartella.
   renameFolder(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "crud/renameFolder", parameters)
+    return this.http.post(
+      this.baseUrl_document + 'crud/renameFolder',
+      parameters
+    );
   }
 
-
-  //POST ​/api​/crud​/uploadFile --> upload text
+  // Questo metodo esegue una richiesta POST per caricare un file di testo.
   uploadFile(parameters, element_id, request_uuid): Observable<any> {
-    return this.http.post(this.baseUrl_document + "crud/uploadFile?requestUUID="+request_uuid+"&element-id="+element_id+"", parameters)
+    return this.http.post(
+      this.baseUrl_document +
+        'crud/uploadFile?requestUUID=' +
+        request_uuid +
+        '&element-id=' +
+        element_id +
+        '',
+      parameters
+    );
   }
 
-  //POST ​/api​/crud​/removeFile --> upload text
+  // Questo metodo esegue una richiesta POST per rimuovere un file.
   removeFile(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "crud/removeFile", parameters)
+    return this.http.post(
+      this.baseUrl_document + 'crud/removeFile',
+      parameters
+    );
   }
 
-  //POST ​/api​/crud​/renameFile --> upload text
+  // Questo metodo esegue una richiesta POST per rinominare un file.
   renameFile(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "crud/renameFile", parameters)
+    return this.http.post(
+      this.baseUrl_document + 'crud/renameFile',
+      parameters
+    );
   }
 
-  //POST ​/api​/crud​/moveFileTo --> move file to another folder
+  // Questo metodo esegue una richiesta POST per spostare un file in un'altra cartella.
   moveFileTo(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "crud/moveFileTo", parameters)
+    return this.http.post(
+      this.baseUrl_document + 'crud/moveFileTo',
+      parameters
+    );
   }
 
-  //POST ​/api​/crud​/copyFileTo --> move file to another folder
+  // Questo metodo esegue una richiesta POST per copiare un file in un'altra cartella.
   copyFileTo(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "crud/copyFileTo", parameters)
+    return this.http.post(
+      this.baseUrl_document + 'crud/copyFileTo',
+      parameters
+    );
   }
 
-  //POST ​/api​/crud​/downloadFile --> move file to another folder
+  // Questo metodo esegue una richiesta POST per scaricare un file.
   downloadFile(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "public/crud/downloadFile", parameters, { responseType: 'blob' })
+    return this.http.post(
+      this.baseUrl_document + 'public/crud/downloadFile',
+      parameters,
+      { responseType: 'blob' }
+    );
   }
 
-  //POST ​/api​/crud​/updateMetadata --> move file to another folder
+  // Questo metodo esegue una richiesta POST per aggiornare i metadati di un file.
   updateMetadata(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "crud/updateMetadata", parameters)
+    return this.http.post(
+      this.baseUrl_document + 'crud/updateMetadata',
+      parameters
+    );
   }
-  
-  //POST ​/api​/crud​/deleteMetadata --> move file to another folder
+
+  // Questo metodo esegue una richiesta POST per eliminare i metadati di un file.
   deleteMetadata(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "crud/deleteMetadata", parameters)
+    return this.http.post(
+      this.baseUrl_document + 'crud/deleteMetadata',
+      parameters
+    );
   }
 
-  //POST ​/api​/public/search --> move file to another folder
+  // Questo metodo esegue una richiesta POST per cercare attestazioni con un determinato ID di forma.
   searchAttestations(formId): Observable<any> {
-    return this.http.post(this.baseUrl_document + "public/search?requestUUID=11&limit=100&offset=0&query="+encodeURIComponent('[attestation="'+formId+'"]'), null)
+    return this.http.post(
+      this.baseUrl_document +
+        'public/search?requestUUID=11&limit=100&offset=0&query=' +
+        encodeURIComponent('[attestation="' + formId + '"]'),
+      null
+    );
   }
 
-  //POST ​/api​/crud​/createFile --> create file
+  // Questo metodo esegue una richiesta POST per creare un file.
   createFile(parameters): Observable<any> {
-    return this.http.post(this.baseUrl_document + "crud/createFile", parameters)
-  }
-
-
-  getContent(nodeId) : Observable<any> {
-    return this.http.get(this.baseUrl_document + "public/getcontent?requestUUID=11&nodeid="+nodeId);
-  }
-
-
-  testConvert(parameters) : Observable<any> {
-    return this.http.post('/leiden_demo/', parameters).pipe(
-      timeout(10000)
+    return this.http.post(
+      this.baseUrl_document + 'crud/createFile',
+      parameters
     );
   }
 
-  testConvertItAnt(parameters) : Observable<any> {
-    return this.http.post('/leiden_itant/', parameters).pipe(
-      timeout(10000)
+  // Questo metodo ottiene il contenuto di un nodo.
+  getContent(nodeId): Observable<any> {
+    return this.http.get(
+      this.baseUrl_document +
+        'public/getcontent?requestUUID=11&nodeid=' +
+        nodeId
     );
   }
 
+  // Questo metodo esegue una richiesta POST per convertire un testo di prova.
+  testConvert(parameters): Observable<any> {
+    return this.http.post('/leiden_demo/', parameters).pipe(timeout(10000));
+  }
+
+  // Questo metodo esegue una richiesta POST per convertire un testo di prova in italiano antico.
+  testConvertItAnt(parameters): Observable<any> {
+    return this.http.post('/leiden_itant/', parameters).pipe(timeout(10000));
+  }
+
+  // Questo metodo esegue una richiesta POST per aggiornare i metadati di un file.
   updateFileMetadata(parameters, element_id, request_uuid): Observable<any> {
-    return this.http.post(this.baseUrl_document + "crud/updateFileMetadata?requestUUID="+request_uuid+"&element-id="+element_id+"", parameters)
+    return this.http.post(
+      this.baseUrl_document +
+        'crud/updateFileMetadata?requestUUID=' +
+        request_uuid +
+        '&element-id=' +
+        element_id +
+        '',
+      parameters
+    );
   }
 
-  createText() : Observable<any>{
+  // Questo metodo ritorna un observable vuoto.
+  createText(): Observable<any> {
     return of();
   }
 }

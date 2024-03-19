@@ -18,43 +18,80 @@ import { shareReplay } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LexicalEntriesService {
-
+  /**
+   * Questa classe gestisce la comunicazione e le operazioni con il backend del lexicon.
+   */
   private arrayPanelFormsData = {};
 
+  // BehaviorSubject per variabili che possono cambiare nel tempo e per le quali si vuole mantenere uno stato attuale.
+  // Ogni BehaviorSubject è associato a un tipo di dato specifico.
   private _coreFormData: BehaviorSubject<object> = new BehaviorSubject(null);
-  private _attestationPanelData: BehaviorSubject<object> = new BehaviorSubject(null);
+  private _attestationPanelData: BehaviorSubject<object> = new BehaviorSubject(
+    null
+  );
   private _etymologyData: BehaviorSubject<object> = new BehaviorSubject(null);
   private _rightPanelData: BehaviorSubject<object> = new BehaviorSubject(null);
-  private _deleteLexicalEntryReq: BehaviorSubject<any> = new BehaviorSubject(null);
+  private _deleteLexicalEntryReq: BehaviorSubject<any> = new BehaviorSubject(
+    null
+  );
   private _addSubElementReq: BehaviorSubject<any> = new BehaviorSubject(null);
-  private _updateCoreCardReq: BehaviorSubject<object> = new BehaviorSubject(null);
+  private _updateCoreCardReq: BehaviorSubject<object> = new BehaviorSubject(
+    null
+  );
   private _spinnerAction: BehaviorSubject<string> = new BehaviorSubject(null);
-  private _refreshLanguageTable: BehaviorSubject<object> = new BehaviorSubject(null);
-  private _refreshAfterEdit : BehaviorSubject<object> = new BehaviorSubject(null);
-  private _refreshFilter : BehaviorSubject<object> = new BehaviorSubject(null);
-  private _updateLangSelect : BehaviorSubject<object> = new BehaviorSubject(null);
-  private _triggerNotePanel : BehaviorSubject<boolean> = new BehaviorSubject(null);
-  private _triggerAttestationPanel : BehaviorSubject<boolean> = new BehaviorSubject(null);
-  private _changeDecompLabel : BehaviorSubject<string> = new BehaviorSubject(null);
-  private _decompData : BehaviorSubject<object> = new BehaviorSubject(null);
-  private _refreshLinkCounter: BehaviorSubject<string> = new BehaviorSubject(null);
-  private _triggerLexicalEntryTree : BehaviorSubject<object> = new BehaviorSubject(null);
-  private _triggerSameAs : BehaviorSubject<object> = new BehaviorSubject(null);
+  private _refreshLanguageTable: BehaviorSubject<object> = new BehaviorSubject(
+    null
+  );
+  private _refreshAfterEdit: BehaviorSubject<object> = new BehaviorSubject(
+    null
+  );
+  private _refreshFilter: BehaviorSubject<object> = new BehaviorSubject(null);
+  private _updateLangSelect: BehaviorSubject<object> = new BehaviorSubject(
+    null
+  );
+  private _triggerNotePanel: BehaviorSubject<boolean> = new BehaviorSubject(
+    null
+  );
+  private _triggerAttestationPanel: BehaviorSubject<boolean> =
+    new BehaviorSubject(null);
+  private _changeDecompLabel: BehaviorSubject<string> = new BehaviorSubject(
+    null
+  );
+  private _decompData: BehaviorSubject<object> = new BehaviorSubject(null);
+  private _refreshLinkCounter: BehaviorSubject<string> = new BehaviorSubject(
+    null
+  );
+  private _triggerLexicalEntryTree: BehaviorSubject<object> =
+    new BehaviorSubject(null);
+  private _triggerSameAs: BehaviorSubject<object> = new BehaviorSubject(null);
 
-  private _changeFormLabel : BehaviorSubject<object> = new BehaviorSubject(null);
+  private _changeFormLabel: BehaviorSubject<object> = new BehaviorSubject(null);
 
+  // Dati di morfologia
   morphologyData;
 
-  private baseUrl = "/LexO-backend-itant_itant/service/"
-  private key = "PRINitant19";
-  private author = "";
-  private bibliographyIRI = 'http://lexica/mylexicon/bibliography#'
-  private lexicalIRI = 'http://lexica/mylexicon#';
-  private lexicalPrefix = 'lex'
+  // URL base del servizio del backend
+  private baseUrl = '/LexO-backend-itant_itant/service/';
 
+  // Chiave per l'autenticazione
+  private key = 'PRINitant19';
+
+  // Autore
+  private author = '';
+
+  // IRI per la bibliografia
+  private bibliographyIRI = 'http://lexica/mylexicon/bibliography#';
+
+  // IRI per il lessico
+  private lexicalIRI = 'http://lexica/mylexicon#';
+
+  // Prefisso lessicale
+  private lexicalPrefix = 'lex';
+
+  // Osservabili per i dati
   coreData$ = this._coreFormData.asObservable();
   decompData$ = this._decompData.asObservable();
   attestationPanelData$ = this._attestationPanelData.asObservable();
@@ -74,401 +111,793 @@ export class LexicalEntriesService {
   refreshLinkCounter$ = this._refreshLinkCounter.asObservable();
   triggerLexicalEntryTree$ = this._triggerLexicalEntryTree.asObservable();
   triggerSameAs$ = this._triggerSameAs.asObservable();
-  
+
   changeFormLabelReq$ = this._changeFormLabel.asObservable();
 
-  constructor(private http: HttpClient, private auth: AuthService) { }
+  constructor(private http: HttpClient, private auth: AuthService) {}
 
-  refreshLinkCounter(value:string){
+  // Metodo per aggiornare il contatore di link
+  refreshLinkCounter(value: string) {
     this._refreshLinkCounter.next(value);
   }
 
+  // Metodo per inviare dati alla scheda core
   sendToCoreTab(object: object) {
-    this._coreFormData.next(object)
-  } 
+    this._coreFormData.next(object);
+  }
 
-  sendToDecompTab(object: object){
+  // Metodo per inviare dati alla scheda decomposizione
+  sendToDecompTab(object: object) {
     this._decompData.next(object);
   }
-  
-  sendToAttestationPanel(object: object) {
-    this._attestationPanelData.next(object)
-  } 
 
-  changeFormLabel(formId : string, newLabel : string){
-    this._changeFormLabel.next({formId, newLabel});
+  // Metodo per inviare dati al pannello di attestazione
+  sendToAttestationPanel(object: object) {
+    this._attestationPanelData.next(object);
   }
 
-  changeDecompLabel(string:string){
+  // Metodo per cambiare l'etichetta del form
+  changeFormLabel(formId: string, newLabel: string) {
+    this._changeFormLabel.next({ formId, newLabel });
+  }
+
+  // Metodo per cambiare l'etichetta della decomposizione
+  changeDecompLabel(string: string) {
     this._changeDecompLabel.next(string);
   }
-  
 
+  // Metodo per inviare dati alla scheda destra
   sendToRightTab(object: object) {
     this._rightPanelData.next(object);
   }
 
+  // Metodo per inviare dati alla scheda etimologia
   sendToEtymologyTab(object: object) {
     this._etymologyData.next(object);
   }
 
-  deleteRequest(request? : any) {
+  // Metodo per richiedere l'eliminazione
+  deleteRequest(request?: any) {
     this._deleteLexicalEntryReq.next(request);
   }
 
-  addSubElementRequest(request?: any){
+  // Metodo per richiedere l'aggiunta di un sottoelemento
+  addSubElementRequest(request?: any) {
     this._addSubElementReq.next(request);
   }
 
+  // Metodo per aggiornare la scheda core
   updateCoreCard(object: object) {
-    this._updateCoreCardReq.next(object)
+    this._updateCoreCardReq.next(object);
   }
 
+  // Metodo per l'azione spinner
   spinnerAction(string: string) {
-    this._spinnerAction.next(string)
+    this._spinnerAction.next(string);
   }
 
-  refreshLangTable(){
+  // Metodo per aggiornare la tabella delle lingue
+  refreshLangTable() {
     this._refreshLanguageTable.next(null);
   }
 
-  refreshAfterEdit(object: object){
+  // Metodo per aggiornare dopo la modifica
+  refreshAfterEdit(object: object) {
     this._refreshAfterEdit.next(object);
   }
 
-  refreshFilter(object: object){
+  // Metodo per aggiornare il filtro
+  refreshFilter(object: object) {
     this._refreshFilter.next(object);
   }
 
-  updateLangSelect(object: object){
+  // Metodo per aggiornare la selezione della lingua
+  updateLangSelect(object: object) {
     this._updateLangSelect.next(object);
   }
 
-  triggerNotePanel(bool: boolean){
+  // Metodo per attivare il pannello delle note
+  triggerNotePanel(bool: boolean) {
     this._triggerNotePanel.next(bool);
   }
 
-  triggerAttestationPanel(bool: boolean){
+  // Metodo per attivare il pannello di attestazione
+  triggerAttestationPanel(bool: boolean) {
     this._triggerAttestationPanel.next(bool);
   }
 
-  triggerLexicalEntryTree(object : object){
+  // Metodo per attivare l'albero delle voci lessicali
+  triggerLexicalEntryTree(object: object) {
     this._triggerLexicalEntryTree.next(object);
   }
 
-  triggerSameAs(object : object){
+  // Metodo per attivare SameAs
+  triggerSameAs(object: object) {
     this._triggerSameAs.next(object);
   }
 
-  //POST: /lexicon/lexicalEntries ---> get lexical entries list
+  /**
+   * Metodo per ottenere la lista di voci lessicali.
+   * @param parameters Parametri della richiesta.
+   * @returns Observable per la lista di voci lessicali.
+   */
   getLexicalEntriesList(parameters: any): Observable<any> {
-    return this.http.post(this.baseUrl + "lexicon/data/lexicalEntries", parameters);
-  }
-
-  //POST: /lexicon/lexicalSenses ---> get lexical entries list
-  getLexicalSensesList(parameters: any): Observable<any> {
-    return this.http.post(this.baseUrl + "lexicon/data/filteredSenses", parameters);
-  }
-
-  //POST: /lexicon/data/forms ---> get form list
-  getFormList(parameters: any): Observable<any> {
-    return this.http.post(this.baseUrl + "lexicon/data/filteredForms", parameters);
-  }
-
-  //GET /lexicon/data/{id}/elements --> get elements of lexical entry
-  getLexEntryElements(instance: string): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/elements?key=lexodemo&id=" + encodeURIComponent(instance));
-  }
-
-  //GET ​/lexicon​/data​/{id}​/lexicalEntry --> get specific aspect (morphology, syntax, ...) associated with a given lexical entry
-  getLexEntryData(instance: string): Observable<any> {
-    return this.http.get(`${this.baseUrl}lexicon/data/lexicalEntry?key=${this.key}&module=core&id=${encodeURIComponent(instance)}`).pipe(
-      shareReplay()
+    return this.http.post(
+      this.baseUrl + 'lexicon/data/lexicalEntries',
+      parameters
     );
   }
 
-  //GET /lexicon/data/{id}/lexicalEntryLinguisticRelation --> This method returns the relations with other lexical entities according to the input type
-  getLexEntryLinguisticRelation(lexId: string, property: string): Observable<any> {
-    return this.http.get(`${this.baseUrl}lexicon/data/linguisticRelation?key=${this.key}&id=${encodeURIComponent(lexId)}&property=${property}`);
+  // Questo metodo invia una richiesta POST per ottenere l'elenco delle voci lessicali
+  getLexicalSensesList(parameters: any): Observable<any> {
+    return this.http.post(
+      this.baseUrl + 'lexicon/data/filteredSenses',
+      parameters
+    );
   }
 
-  //GET /lexicon/data/{id}/lexicalEntryLinguisticRelation --> This method returns the relations with other lexical entities according to the input type
+  // Questo metodo invia una richiesta POST per ottenere l'elenco delle forme
+  getFormList(parameters: any): Observable<any> {
+    return this.http.post(
+      this.baseUrl + 'lexicon/data/filteredForms',
+      parameters
+    );
+  }
+
+  // Questo metodo invia una richiesta GET per ottenere gli elementi della voce lessicale
+  getLexEntryElements(instance: string): Observable<any> {
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/data/elements?key=lexodemo&id=' +
+        encodeURIComponent(instance)
+    );
+  }
+
+  // Questo metodo invia una richiesta GET per ottenere dati specifici (morfologia, sintassi, ...) associati a una data voce lessicale
+  getLexEntryData(instance: string): Observable<any> {
+    return this.http
+      .get(
+        `${this.baseUrl}lexicon/data/lexicalEntry?key=${
+          this.key
+        }&module=core&id=${encodeURIComponent(instance)}`
+      )
+      .pipe(shareReplay());
+  }
+
+  // Questo metodo invia una richiesta GET per ottenere le relazioni linguistiche con altre entità lessicali in base al tipo di input
+  getLexEntryLinguisticRelation(
+    lexId: string,
+    property: string
+  ): Observable<any> {
+    return this.http.get(
+      `${this.baseUrl}lexicon/data/linguisticRelation?key=${
+        this.key
+      }&id=${encodeURIComponent(lexId)}&property=${property}`
+    );
+  }
+
+  // Questo metodo invia una richiesta GET per ottenere le relazioni generiche con altre entità lessicali in base al tipo di input
   getLexEntryGenericRelation(lexId: string, property: string): Observable<any> {
-    return this.http.get(`${this.baseUrl}lexicon/data/genericRelation?key=${this.key}&id=${encodeURIComponent(lexId)}&property=${property}`);
+    return this.http.get(
+      `${this.baseUrl}lexicon/data/genericRelation?key=${
+        this.key
+      }&id=${encodeURIComponent(lexId)}&property=${property}`
+    );
   }
 
-
-  //GET /lexicon/data/{id}/forms --> get forms of lexical entry
+  // Questo metodo invia una richiesta GET per ottenere le forme della voce lessicale
   getLexEntryForms(instance: string): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/forms?key=lexodemo&id="+encodeURIComponent(instance));
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/data/forms?key=lexodemo&id=' +
+        encodeURIComponent(instance)
+    );
   }
 
-
-  //GET /lexicon/data/{id}/form --> get data about a single form 
+  // Questo metodo invia una richiesta GET per ottenere i dati su una singola forma
   getFormData(formId: string, aspect: string): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/form?key=" + this.key + "&module=" + aspect + "&id=" + encodeURIComponent(formId))
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/data/form?key=' +
+        this.key +
+        '&module=' +
+        aspect +
+        '&id=' +
+        encodeURIComponent(formId)
+    );
   }
 
+  // Questo metodo invia una richiesta GET per ottenere le rappresentazioni Ontolex
   getOntolexRepresentations(): Observable<any> {
-    return this.http.get(this.baseUrl + "ontolex/data/representation")
+    return this.http.get(this.baseUrl + 'ontolex/data/representation');
   }
 
+  // Questo metodo invia una richiesta GET per ottenere le rappresentazioni Lexinfo
   getLexinfoRepresentations(): Observable<any> {
-    return this.http.get(this.baseUrl + "lexinfo/data/representation")
+    return this.http.get(this.baseUrl + 'lexinfo/data/representation');
   }
 
-
-  //GET /lexicon/data/{id}/lexicalSense --> get data about a single form 
+  // Questo metodo invia una richiesta GET per ottenere i dati su un singolo senso
   getSenseData(senseId: string, aspect: string): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/lexicalSense?key=" + this.key + "&module=" + aspect + "&id=" + encodeURIComponent(senseId))
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/data/lexicalSense?key=' +
+        this.key +
+        '&module=' +
+        aspect +
+        '&id=' +
+        encodeURIComponent(senseId)
+    );
   }
 
-  //GET /lexicon/data/{id}/senses --> get list of senses of a lexical entry
+  // Questo metodo invia una richiesta GET per ottenere l'elenco dei sensi di una voce lessicale
   getSensesList(instance: any): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/senses?key=lexodemo&id="+encodeURIComponent(instance));
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/data/senses?key=lexodemo&id=' +
+        encodeURIComponent(instance)
+    );
   }
 
-  //GET /lexicon/data/languages --> Lexicon languages list
+  // Questo metodo invia una richiesta GET per ottenere l'elenco delle lingue del lessico
   getLexiconLanguages(): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/languages");
+    return this.http.get(this.baseUrl + 'lexicon/data/languages');
   }
 
-  //GET /lexicon/statistics/languages --> get languages list for lexical entries menu filter search
+  // Questo metodo invia una richiesta GET per ottenere l'elenco delle lingue per il filtro del menu delle voci lessicali
   getLanguages(): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/statistics/languages?key=" + this.key + "");
+    return this.http.get(
+      this.baseUrl + 'lexicon/statistics/languages?key=' + this.key + ''
+    );
   }
 
-  //GET /lexicon/types --> get types list
+  // Questo metodo invia una richiesta GET per ottenere l'elenco dei tipi
   getTypes(): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/statistics/types?key=" + this.key + "");
+    return this.http.get(
+      this.baseUrl + 'lexicon/statistics/types?key=' + this.key + ''
+    );
   }
 
-  //GET /lexicon/authors --> get authors list
+  // Questo metodo invia una richiesta GET per ottenere l'elenco degli autori
   getAuthors(): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/statistics/authors?key=" + this.key + "");
+    return this.http.get(
+      this.baseUrl + 'lexicon/statistics/authors?key=' + this.key + ''
+    );
   }
 
-  //GET /lexicon/pos --> get pos list
+  // Questo metodo invia una richiesta GET per ottenere l'elenco delle parti del discorso
   getPos(): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/statistics/pos?key=" + this.key + "");
+    return this.http.get(
+      this.baseUrl + 'lexicon/statistics/pos?key=' + this.key + ''
+    );
   }
 
-  //GET /lexicon/states --> get states list
+  // Questo metodo invia una richiesta GET per ottenere l'elenco degli stati
   getStatus(): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/statistics/status?key=" + this.key + "");
+    return this.http.get(
+      this.baseUrl + 'lexicon/statistics/status?key=' + this.key + ''
+    );
   }
 
-   //GET /lexicon/namespaces --> get namespaces list
-   getNamespaces(): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/statistics/namespaces?key=" + this.key + "");
+  // Questo metodo invia una richiesta GET per ottenere l'elenco dei namespace
+  getNamespaces(): Observable<any> {
+    return this.http.get(
+      this.baseUrl + 'lexicon/statistics/namespaces?key=' + this.key + ''
+    );
   }
 
-
-  //GET /lexicon/creation/lexicalEntry --> create new lexical entry
+  // Questo metodo invia una richiesta GET per creare una nuova voce lessicale
   newLexicalEntry(): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.get(this.baseUrl + "lexicon/creation/lexicalEntry?key=" + this.key + "&author=" + this.author + "&prefix=" + this.lexicalPrefix + "&baseIRI=" + encodeURIComponent(this.lexicalIRI));
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/creation/lexicalEntry?key=' +
+        this.key +
+        '&author=' +
+        this.author +
+        '&prefix=' +
+        this.lexicalPrefix +
+        '&baseIRI=' +
+        encodeURIComponent(this.lexicalIRI)
+    );
   }
 
-
-  //GET /lexicon/delete/{id}/lexicalEntry --> delete lexical entry
+  // Questo metodo invia una richiesta GET per eliminare una voce lessicale
   deleteLexicalEntry(lexId): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/delete/lexicalEntry?key=" + this.key + "&id=" + encodeURIComponent(lexId));
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/delete/lexicalEntry?key=' +
+        this.key +
+        '&id=' +
+        encodeURIComponent(lexId)
+    );
   }
 
-  //GET /lexicon/delete/{id}/form --> delete lexical entry
+  // Questo metodo invia una richiesta GET per eliminare una forma lessicale
   deleteForm(lexId): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/delete/form?key=" + this.key + "&id=" + encodeURIComponent(lexId));
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/delete/form?key=' +
+        this.key +
+        '&id=' +
+        encodeURIComponent(lexId)
+    );
   }
 
-  //GET /lexicon/delete/{id}/lexicalSense --> delete lexical entry
+  // Funzione per eliminare un'entrata lessicale
   deleteSense(lexId): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/delete/lexicalSense?key=" + this.key + "&id=" + encodeURIComponent(lexId));
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/delete/lexicalSense?key=' +
+        this.key +
+        '&id=' +
+        encodeURIComponent(lexId)
+    );
   }
 
-  //GET  /lexicon​/delete​/{id}​/language  --> Lexicon language deletion
+  // Funzione per eliminare una lingua dal lessico
   deleteLanguage(langId): Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/delete/language?key=" + this.key + "&id=" + encodeURIComponent(langId));
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/delete/language?key=' +
+        this.key +
+        '&id=' +
+        encodeURIComponent(langId)
+    );
   }
 
-  //POST  /lexicon​/delete​/{id}​/linguisticRelation  --> delete linguistic relation
+  // Funzione per eliminare una relazione linguistica
   deleteLinguisticRelation(lexId, parameters): Observable<any> {
-    return this.http.post(this.baseUrl + "lexicon/delete/relation?key=" + this.key + "&id=" + encodeURIComponent(lexId), parameters);
+    return this.http.post(
+      this.baseUrl +
+        'lexicon/delete/relation?key=' +
+        this.key +
+        '&id=' +
+        encodeURIComponent(lexId),
+      parameters
+    );
   }
 
-  //POST ​/lexicon​/update​/{id}​/lexicalEntry --> lexical entry update
+  // Funzione per aggiornare un'entrata lessicale
   updateLexicalEntry(lexId, parameters): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/update/lexicalEntry?key=" + this.key + "&author=" + this.author + "&id=" + encodeURIComponent(lexId), parameters);
+    return this.http.post(
+      this.baseUrl +
+        'lexicon/update/lexicalEntry?key=' +
+        this.key +
+        '&author=' +
+        this.author +
+        '&id=' +
+        encodeURIComponent(lexId),
+      parameters
+    );
   }
 
-
-  //POST ​/lexicon​/update​/{id}​/linguisticRelation --> linguistic Relation update for Core
+  // Funzione per aggiornare una relazione linguistica per il Core
   updateLinguisticRelation(lexId, parameters): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/update/linguisticRelation?key=" + this.key + "&user=" + this.author + "&id=" + encodeURIComponent(lexId), parameters);
+    return this.http.post(
+      this.baseUrl +
+        'lexicon/update/linguisticRelation?key=' +
+        this.key +
+        '&user=' +
+        this.author +
+        '&id=' +
+        encodeURIComponent(lexId),
+      parameters
+    );
   }
 
-  //POST ​/lexicon​/update​/{id}​/genericRelation --> Generic relation update
-  updateGenericRelation(lexId, parameters) : Observable<any> {
+  // Funzione per aggiornare una relazione generica
+  updateGenericRelation(lexId, parameters): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/update/genericRelation?key=" + this.key + "&user=" + this.author + "&id=" + encodeURIComponent(lexId), parameters);
+    return this.http.post(
+      this.baseUrl +
+        'lexicon/update/genericRelation?key=' +
+        this.key +
+        '&user=' +
+        this.author +
+        '&id=' +
+        encodeURIComponent(lexId),
+      parameters
+    );
   }
 
-  //POST /lexicon/update/{id}/form --> update form values
+  // Funzione per aggiornare i valori del modulo
   updateForm(formId, parameters): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/update/form?key=" + this.key + "&id=" + encodeURIComponent(formId), parameters);
+    return this.http.post(
+      this.baseUrl +
+        'lexicon/update/form?key=' +
+        this.key +
+        '&id=' +
+        encodeURIComponent(formId),
+      parameters
+    );
   }
 
-  //POST /lexicon/update/{id}/lexicalSense --> update form values
+  // Funzione per aggiornare i valori del senso lessicale
   updateSense(senseId, parameters): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/update/lexicalSense?key=" + this.key + "&id=" + encodeURIComponent(senseId), parameters);
+    return this.http.post(
+      this.baseUrl +
+        'lexicon/update/lexicalSense?key=' +
+        this.key +
+        '&id=' +
+        encodeURIComponent(senseId),
+      parameters
+    );
   }
 
-  //GET  /lexinfo/data/morphology --> get data about morphology
-  getMorphologyData() : Observable<object[]> {
-    return this.http.get<object[]>(this.baseUrl + "lexinfo/data/morphology");
+  // Funzione per ottenere i dati sulla morfologia
+  getMorphologyData(): Observable<object[]> {
+    return this.http.get<object[]>(this.baseUrl + 'lexinfo/data/morphology');
   }
 
-  ///GET /ontolex/data/formType --> get data about form types
+  // Funzione per ottenere i tipi di modulo
   getFormTypes(): Observable<any> {
-    return this.http.get(this.baseUrl + "ontolex/data/formType");
+    return this.http.get(this.baseUrl + 'ontolex/data/formType');
   }
 
-  ///GET /ontolex/data/lexicalEntryType --> get data about lexicalEntry types
+  // Funzione per ottenere i tipi di entrata lessicale
   getLexEntryTypes(): Observable<object[]> {
-    return this.http.get<object[]>(this.baseUrl + "ontolex/data/lexicalEntryType");
+    return this.http.get<object[]>(
+      this.baseUrl + 'ontolex/data/lexicalEntryType'
+    );
   }
 
-
-  //GET /lexicon/creation/form --> create new form
+  // Funzione per creare un nuovo modulo
   createNewForm(lexId): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.get(this.baseUrl + "lexicon/creation/form?lexicalEntryID="+ encodeURIComponent(lexId)  +"&key=" + this.key + "&author=" + this.author + "&prefix=" + this.lexicalPrefix + "&baseIRI=" + encodeURIComponent(this.lexicalIRI));
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/creation/form?lexicalEntryID=' +
+        encodeURIComponent(lexId) +
+        '&key=' +
+        this.key +
+        '&author=' +
+        this.author +
+        '&prefix=' +
+        this.lexicalPrefix +
+        '&baseIRI=' +
+        encodeURIComponent(this.lexicalIRI)
+    );
   }
 
-  //GET /lexicon/creation/lexicalSense --> create new sense
+  // Funzione per creare un nuovo senso
   createNewSense(lexId): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.get(this.baseUrl + "lexicon/creation/lexicalSense?lexicalEntryID="+ encodeURIComponent(lexId)  +"&key=" + this.key + "&author=" + this.author + "&prefix=" + this.lexicalPrefix + "&baseIRI=" + encodeURIComponent(this.lexicalIRI));
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/creation/lexicalSense?lexicalEntryID=' +
+        encodeURIComponent(lexId) +
+        '&key=' +
+        this.key +
+        '&author=' +
+        this.author +
+        '&prefix=' +
+        this.lexicalPrefix +
+        '&baseIRI=' +
+        encodeURIComponent(this.lexicalIRI)
+    );
   }
 
-  //GET /lexicon/creation/language --> create new language
+  // Funzione per creare una nuova lingua
   createNewLanguage(langId): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.get(this.baseUrl + "lexicon/creation/language?key=" + this.key + "&lang="+ langId +"&author=" + this.author + "&prefix=" + this.lexicalPrefix + "&baseIRI=" +encodeURIComponent(this.lexicalIRI));
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/creation/language?key=' +
+        this.key +
+        '&lang=' +
+        langId +
+        '&author=' +
+        this.author +
+        '&prefix=' +
+        this.lexicalPrefix +
+        '&baseIRI=' +
+        encodeURIComponent(this.lexicalIRI)
+    );
   }
 
-  //POST /lexicon/update/{id}/language --> update language
+  // Funzione per aggiornare una lingua
   updateLanguage(langId, parameters): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/update/language?key=" + this.key + "&id=" + encodeURIComponent(langId), parameters);
+    return this.http.post(
+      this.baseUrl +
+        'lexicon/update/language?key=' +
+        this.key +
+        '&id=' +
+        encodeURIComponent(langId),
+      parameters
+    );
   }
-  
 
-  //BIBLIOGRAPHY
-  getBibliographyData(instance: string) : Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/bibliography?key=lexodemo&id="+encodeURIComponent(instance));
+  // Funzione per ottenere i dati bibliografici
+  getBibliographyData(instance: string): Observable<any> {
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/data/bibliography?key=lexodemo&id=' +
+        encodeURIComponent(instance)
+    );
   }
 
-  addBibliographyData(instance : string, parameters){
+  // Funzione per aggiungere dati bibliografici
+  addBibliographyData(instance: string, parameters) {
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/creation/bibliography?id=" + encodeURIComponent(instance) + "&key="+ this.key +"&author="+this.author+"&prefix=lexbib&baseIRI=" + encodeURIComponent(this.bibliographyIRI), parameters);
+    return this.http.post(
+      this.baseUrl +
+        'lexicon/creation/bibliography?id=' +
+        encodeURIComponent(instance) +
+        '&key=' +
+        this.key +
+        '&author=' +
+        this.author +
+        '&prefix=lexbib&baseIRI=' +
+        encodeURIComponent(this.bibliographyIRI),
+      parameters
+    );
   }
 
+  // Funzione per rimuovere un elemento bibliografico
   removeBibliographyItem(instance: string) {
-    return this.http.get(this.baseUrl + "lexicon/delete/bibliography?key=PRINitant19&id="+encodeURIComponent(instance));
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/delete/bibliography?key=PRINitant19&id=' +
+        encodeURIComponent(instance)
+    );
   }
 
-  synchronizeBibliographyItem(lexId : string, itemKey : string) : Observable<any> {
+  // Funzione per sincronizzare un elemento bibliografico
+  synchronizeBibliographyItem(lexId: string, itemKey: string): Observable<any> {
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/update/synchronizeBibliography?id="+encodeURIComponent(lexId)+"&key=PRINitant19&author="+this.author+"&itemKey="+itemKey,{})
+    return this.http.post(
+      this.baseUrl +
+        'lexicon/update/synchronizeBibliography?id=' +
+        encodeURIComponent(lexId) +
+        '&key=PRINitant19&author=' +
+        this.author +
+        '&itemKey=' +
+        itemKey,
+      {}
+    );
   }
 
+  // Questa classe gestisce le chiamate API relative all'etimologia e alla decomposizione delle entità lessicali.
 
-  //ETYMOLOGY
-  createNewEtymology(instance: string) : Observable<any>{
+  // Funzione per creare una nuova etimologia.
+  // Parametro: instance - identificativo dell'entità lessicale
+  // Restituisce un Observable che rappresenta la richiesta HTTP.
+  createNewEtymology(instance: string): Observable<any> {
+    // Otteniamo l'autore dell'azione dalla sessione corrente.
     this.author = this.auth.getUsername();
-    return this.http.get(this.baseUrl + "lexicon/creation/etymology?lexicalEntryID="+ encodeURIComponent(instance) +"&key="+this.key+"&author="+this.author+"&prefix=" + this.lexicalPrefix + "&baseIRI=" + encodeURIComponent(this.lexicalIRI));
+    // Effettuiamo una richiesta GET all'endpoint appropriato per creare una nuova etimologia.
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/creation/etymology?lexicalEntryID=' +
+        encodeURIComponent(instance) +
+        '&key=' +
+        this.key +
+        '&author=' +
+        this.author +
+        '&prefix=' +
+        this.lexicalPrefix +
+        '&baseIRI=' +
+        encodeURIComponent(this.lexicalIRI)
+    );
   }
 
-  getEtymologies(instance: string) : Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/etymologies?key="+this.key+"&id="+encodeURIComponent(instance));
+  // Funzione per ottenere tutte le etimologie di un'entità lessicale.
+  // Parametro: instance - identificativo dell'entità lessicale
+  // Restituisce un Observable che rappresenta la richiesta HTTP.
+  getEtymologies(instance: string): Observable<any> {
+    // Effettuiamo una richiesta GET per ottenere le etimologie dell'entità lessicale specificata.
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/data/etymologies?key=' +
+        this.key +
+        '&id=' +
+        encodeURIComponent(instance)
+    );
   }
 
-  getEtymologyData(instance: string)  : Observable<any> {
-    return this.http.get(this.baseUrl + "lexicon/data/etymology?key="+this.key+ "&id=" + encodeURIComponent(instance));
+  // Funzione per ottenere i dati relativi a un'etimologia specifica.
+  // Parametro: instance - identificativo dell'etimologia
+  // Restituisce un Observable che rappresenta la richiesta HTTP.
+  getEtymologyData(instance: string): Observable<any> {
+    // Effettuiamo una richiesta GET per ottenere i dati dell'etimologia specificata.
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/data/etymology?key=' +
+        this.key +
+        '&id=' +
+        encodeURIComponent(instance)
+    );
   }
 
+  // Funzione per aggiornare un'etimologia esistente.
+  // Parametri: etymId - identificativo dell'etimologia, parameters - parametri da aggiornare
+  // Restituisce un Observable che rappresenta la richiesta HTTP.
   updateEtymology(etymId, parameters): Observable<any> {
+    // Otteniamo l'autore dell'azione dalla sessione corrente.
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/update/etymology?key=" + this.key + "&id=" + encodeURIComponent(etymId), parameters);
+    // Effettuiamo una richiesta POST all'endpoint appropriato per aggiornare l'etimologia.
+    return this.http.post(
+      this.baseUrl +
+        'lexicon/update/etymology?key=' +
+        this.key +
+        '&id=' +
+        encodeURIComponent(etymId),
+      parameters
+    );
   }
 
-  createNewEtylink(lexInstance: string, etymInstance : string) : Observable<any>{
+  // Funzione per creare un nuovo collegamento etimologico tra due entità lessicali.
+  // Parametri: lexInstance - identificativo dell'entità lessicale, etymInstance - identificativo dell'etimologia
+  // Restituisce un Observable che rappresenta la richiesta HTTP.
+  createNewEtylink(lexInstance: string, etymInstance: string): Observable<any> {
+    // Otteniamo l'autore dell'azione dalla sessione corrente.
     this.author = this.auth.getUsername();
-    return this.http.get(this.baseUrl + "lexicon/creation/etymologicalLink?lexicalEntryID="+encodeURIComponent(lexInstance)+"&etymologyID="+encodeURIComponent(etymInstance)+"&key="+this.key+"&author="+this.author+"&prefix=" + this.lexicalPrefix + "&baseIRI=" + encodeURIComponent(this.lexicalIRI));
+    // Effettuiamo una richiesta GET all'endpoint appropriato per creare un nuovo collegamento etimologico.
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/creation/etymologicalLink?lexicalEntryID=' +
+        encodeURIComponent(lexInstance) +
+        '&etymologyID=' +
+        encodeURIComponent(etymInstance) +
+        '&key=' +
+        this.key +
+        '&author=' +
+        this.author +
+        '&prefix=' +
+        this.lexicalPrefix +
+        '&baseIRI=' +
+        encodeURIComponent(this.lexicalIRI)
+    );
   }
 
-  deleteEtymology(etymInstance : string) : Observable<any>{
+  // Funzione per eliminare un'etimologia.
+  // Parametro: etymInstance - identificativo dell'etimologia da eliminare
+  // Restituisce un Observable che rappresenta la richiesta HTTP.
+  deleteEtymology(etymInstance: string): Observable<any> {
+    // Otteniamo l'autore dell'azione dalla sessione corrente.
     this.author = this.auth.getUsername();
-    return this.http.get(this.baseUrl + "lexicon/delete/etymology?key="+this.key+"&author="+this.author+"&id=" + encodeURIComponent(etymInstance));
+    // Effettuiamo una richiesta GET per eliminare l'etimologia specificata.
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/delete/etymology?key=' +
+        this.key +
+        '&author=' +
+        this.author +
+        '&id=' +
+        encodeURIComponent(etymInstance)
+    );
   }
 
+  // Funzione per aggiornare un collegamento etimologico esistente.
+  // Parametri: etymId - identificativo del collegamento etimologico, parameters - parametri da aggiornare
+  // Restituisce un Observable che rappresenta la richiesta HTTP.
   updateEtylink(etymId, parameters): Observable<any> {
+    // Otteniamo l'autore dell'azione dalla sessione corrente.
     this.author = this.auth.getUsername();
-    return this.http.post(this.baseUrl + "lexicon/update/etymologicalLink?key=" + this.key + "&id=" + encodeURIComponent(etymId), parameters);
+    // Effettuiamo una richiesta POST all'endpoint appropriato per aggiornare il collegamento etimologico.
+    return this.http.post(
+      this.baseUrl +
+        'lexicon/update/etymologicalLink?key=' +
+        this.key +
+        '&id=' +
+        encodeURIComponent(etymId),
+      parameters
+    );
   }
 
-  deleteEtylink(etyLinkInstance: string) : Observable<any>{
+  // Funzione per eliminare un collegamento etimologico.
+  // Parametro: etyLinkInstance - identificativo del collegamento etimologico da eliminare
+  // Restituisce un Observable che rappresenta la richiesta HTTP.
+  deleteEtylink(etyLinkInstance: string): Observable<any> {
+    // Otteniamo l'autore dell'azione dalla sessione corrente.
     this.author = this.auth.getUsername();
-    return this.http.get(this.baseUrl + "lexicon/delete/etymologicalLink?key="+this.key+"&author="+this.author+"&id=" + encodeURIComponent(etyLinkInstance));
+    // Effettuiamo una richiesta GET per eliminare il collegamento etimologico specificato.
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/delete/etymologicalLink?key=' +
+        this.key +
+        '&author=' +
+        this.author +
+        '&id=' +
+        encodeURIComponent(etyLinkInstance)
+    );
   }
 
-  //DECOMP
-  getSubTerms(lexicalEntityID: string) : Observable<any>{
-    return this.http.get(this.baseUrl + "lexicon/data/subTerms?key="+this.key+"&id="+encodeURIComponent(lexicalEntityID));
+  // Funzione per ottenere i sotto-componenti di un'entità lessicale.
+  // Parametro: lexicalEntityID - identificativo dell'entità lessicale
+  // Restituisce un Observable che rappresenta la richiesta HTTP.
+  getSubTerms(lexicalEntityID: string): Observable<any> {
+    // Effettuiamo una richiesta GET per ottenere i sotto-componenti dell'entità lessicale specificata.
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/data/subTerms?key=' +
+        this.key +
+        '&id=' +
+        encodeURIComponent(lexicalEntityID)
+    );
   }
 
-  getConstituents(lexicalEntityID: string) : Observable<any>{
-    return this.http.get(this.baseUrl + "lexicon/data/"+lexicalEntityID+"/constituents?key="+this.key);
+  // Questo metodo ottiene i costituenti per un'entità lessicale identificata da un ID.
+  // Restituisce un Observable contenente la richiesta HTTP per ottenere i costituenti.
+  getConstituents(lexicalEntityID: string): Observable<any> {
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/data/' +
+        lexicalEntityID +
+        '/constituents?key=' +
+        this.key
+    );
   }
 
-  createComponent(lexicalEntityID : string) : Observable<any>{
+  // Questo metodo crea un componente per un'entità lessicale identificata da un ID.
+  // Restituisce un Observable contenente la richiesta HTTP per creare il componente.
+  createComponent(lexicalEntityID: string): Observable<any> {
+    // Ottiene il nome dell'autore attualmente autenticato.
     this.author = this.auth.getUsername();
-    return this.http.get(this.baseUrl + "lexicon/creation/component?id="+lexicalEntityID+"&key="+this.key+"&author="+this.author+"");
+    return this.http.get(
+      this.baseUrl +
+        'lexicon/creation/component?id=' +
+        lexicalEntityID +
+        '&key=' +
+        this.key +
+        '&author=' +
+        this.author +
+        ''
+    );
   }
 
-  deleteComponent(compId : string) : Observable<any>{
-    return this.http.get(this.baseUrl + "lexicon/delete/"+compId+"/component?key="+this.key);
+  // Questo metodo elimina un componente identificato da un ID.
+  // Restituisce un Observable contenente la richiesta HTTP per eliminare il componente.
+  deleteComponent(compId: string): Observable<any> {
+    return this.http.get(
+      this.baseUrl + 'lexicon/delete/' + compId + '/component?key=' + this.key
+    );
   }
 
-  getCorrespondsTo(compId: string) : Observable<any>{
-    return this.http.get(this.baseUrl + "lexicon/data/"+compId+"/correspondsTo?key="+this.key);
+  // Questo metodo ottiene il corrispondente per un componente identificato da un ID.
+  // Restituisce un Observable contenente la richiesta HTTP per ottenere il corrispondente.
+  getCorrespondsTo(compId: string): Observable<any> {
+    return this.http.get(
+      this.baseUrl + 'lexicon/data/' + compId + '/correspondsTo?key=' + this.key
+    );
   }
 
-  exportLexicon(body : object) : Observable<any> {
-    return this.http.post(this.baseUrl + "export/lexicon", body, { responseType: 'text'});
-  } 
-
-  getPanelCognate(cogInstanceName, lexInstanceName) : object{
-    return this.arrayPanelFormsData[cogInstanceName+'-'+lexInstanceName];
+  // Questo metodo esporta il lessico.
+  // Restituisce un Observable contenente la richiesta HTTP per esportare il lessico.
+  exportLexicon(body: object): Observable<any> {
+    return this.http.post(this.baseUrl + 'export/lexicon', body, {
+      responseType: 'text',
+    });
   }
 
-  newPanelForm(cogInstanceName, lexInstanceName) : void {
-    this.arrayPanelFormsData[cogInstanceName+'-'+lexInstanceName] = {};
-    this.arrayPanelFormsData[cogInstanceName+'-'+lexInstanceName].data = undefined;
-    this.arrayPanelFormsData[cogInstanceName+'-'+lexInstanceName].isOpen = undefined;
-
+  // Questo metodo restituisce i dati del pannello cognato per un'istanza di cognato e un'istanza lessicale specificate.
+  getPanelCognate(cogInstanceName, lexInstanceName): object {
+    return this.arrayPanelFormsData[cogInstanceName + '-' + lexInstanceName];
   }
 
-  closePanelForm(cogInstanceName, lexInstanceName) : void {
-    this.arrayPanelFormsData[cogInstanceName+'-'+lexInstanceName] = undefined;
+  // Questo metodo crea un nuovo modulo pannello per un'istanza di cognato e un'istanza lessicale specificate.
+  newPanelForm(cogInstanceName, lexInstanceName): void {
+    this.arrayPanelFormsData[cogInstanceName + '-' + lexInstanceName] = {};
+    this.arrayPanelFormsData[cogInstanceName + '-' + lexInstanceName].data =
+      undefined;
+    this.arrayPanelFormsData[cogInstanceName + '-' + lexInstanceName].isOpen =
+      undefined;
   }
 
-  getAllPanelForms() : object {
+  // Questo metodo chiude il modulo pannello per un'istanza di cognato e un'istanza lessicale specificate.
+  closePanelForm(cogInstanceName, lexInstanceName): void {
+    this.arrayPanelFormsData[cogInstanceName + '-' + lexInstanceName] =
+      undefined;
+  }
+
+  // Questo metodo restituisce tutti i moduli pannello.
+  getAllPanelForms(): object {
     return this.arrayPanelFormsData;
   }
 }

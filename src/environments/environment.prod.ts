@@ -15,7 +15,6 @@ export const environment = {
   keycloak: {
     // Url of the Identity Provider
     issuer: 'http://localhost:8089/auth/',
-    //issuer: 'https://lari2.ilc.cnr.it/auth/',
 
     // Realm
     realm: 'princnr',

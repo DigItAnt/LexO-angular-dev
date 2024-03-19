@@ -23,12 +23,8 @@ import { SearchPageComponent } from './views/search-page/search-page.component';
 
 const routes: Routes = [
   {path: '', redirectTo: 'lexicon', pathMatch: 'full'},
-  /* {path: 'home', component: HomePageComponent}, */
-  /* {path: 'login', component: LoginPageComponent}, */
   {path: 'lexicon', component: LexiconPageComponent, canActivate: [AuthGuard], data: {roles: ['USER']}},
   {path: 'user', component: ProfilePageComponent, canActivate: [AuthGuard], data: {roles: ['ADMIN']}},
-  /* {path: 'search', component: SearchPageComponent}, */
-  /* {path: '**', component: PageNotFoundComponent} */
   {path: '**', component: LexiconPageComponent}
 ];
 
