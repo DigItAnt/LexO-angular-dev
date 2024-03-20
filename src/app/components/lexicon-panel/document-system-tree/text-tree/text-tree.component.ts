@@ -430,7 +430,13 @@ export class TextTreeComponent implements OnInit, OnDestroy {
                           let string = '';
                           for (var j = i; j < childNodes.length; j++) {
                             let textNode = childNodes[j];
-
+                            if(textNode.nodeName == '#text' && textNode.nodeValue == ' '){
+                              string += textNode.nodeValue;
+                              if (j == childNodes.length - 1) {
+                                leidenLines.push(string);
+                                break;
+                              }
+                            }
                             if (
                               textNode.nodeName == '#text' &&
                               textNode.nodeValue.trim() != ''
