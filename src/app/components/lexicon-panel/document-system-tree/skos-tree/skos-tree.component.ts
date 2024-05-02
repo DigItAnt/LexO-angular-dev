@@ -379,7 +379,7 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
     // Se esistono concetti radice e non sono stati già caricati, prepara i nodi dell'albero
     if (rootConceptSets.length > 0 && conceptSets.length == 0) {
       rootConceptSets.map((element) => {
-        (element['hasChildren'] = true), (element['children'] = undefined);
+        (element['hasChildren'] = true),  (element['children_count'] = element.children), (element['children'] = undefined);
       });
 
       this.skos_nodes = rootConceptSets;

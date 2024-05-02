@@ -81,11 +81,11 @@
         </span> -->
   
         <span  *ngIf="node.data.lexicalConcept != undefined && idView">
-          <i class="fas fa-cube fa-lg"></i> <span class="font-italic ml-2">{{ node.data.lexicalConcept }} </span>
+          <i class="fas fa-cube fa-lg"></i> <span class="font-italic ml-2">{{ node.data.lexicalConcept }} </span> <span>({{node.data.children_count}})</span>
         </span>
 
         <span  *ngIf="node.data.lexicalConcept != undefined && labelView">
-          <i class="fas fa-cube fa-lg"></i> <span class="font-italic ml-2">{{ node.data.defaultLabel.split('#')[1] == undefined ? node.data.defaultLabel : node.data.defaultLabel.split('#')[1] }} </span>
+          <i class="fas fa-cube fa-lg"></i> <span class="font-italic ml-2">{{ node.data.defaultLabel.split('#')[1] == undefined ? node.data.defaultLabel : node.data.defaultLabel.split('#')[1] }} </span> <span>({{node.data.children_count}})</span>
         </span>
       </div>
      
