@@ -194,8 +194,7 @@ export class SkosTreeComponent implements OnInit, OnDestroy {
 
     // Se l'evento è di tipo "activate" e il nodo ha un insieme di concetti associato, esegue una serie di operazioni.
     if (
-      $event.eventName == 'activate' &&
-      $event.node.data.conceptSet != undefined
+      $event.eventName == 'activate'
     ) {
       // Ottiene l'istanza del concetto lessicale dal nodo dell'evento.
       let instance = $event.node.data.lexicalConcept;
