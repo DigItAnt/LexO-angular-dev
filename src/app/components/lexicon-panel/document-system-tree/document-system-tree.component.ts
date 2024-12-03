@@ -35,6 +35,7 @@ import { take, takeUntil } from 'rxjs/operators';
 import { ConceptService } from 'src/app/services/concept/concept.service';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { v4 } from 'uuid';
+import { RdfService } from 'src/app/services/rdf/rdf.service';
 
 const actionMapping: IActionMapping = {
   mouse: {
@@ -102,7 +103,8 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
     private toastr: ToastrService,
     private authService: AuthService,
     private documentService: DocumentSystemService,
-    private conceptService: ConceptService
+    private conceptService: ConceptService,
+    private rdfService: RdfService
   ) {}
 
   /**
@@ -1140,7 +1142,7 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
   /**
    * Esporta il lessico in un file di formato Turtle.
    */
-  exportLexicon() {
+  /* exportLexicon() {
     let parameters = {
       fileName: 'export',
       format: 'turtle',
@@ -1164,6 +1166,72 @@ export class DocumentSystemTreeComponent implements OnInit, OnDestroy {
           console.log(error);
         }
       );
+  } */
+
+  rdfData: string = '';
+  processedData: string = '';
+  async downloadLexicon() {
+    try {
+      // Chiamiamo la funzione che recupera e processa i dati
+      await this.fetchAndProcessRDFData();
+    } catch (error) {
+      console.error("Errore nell'elaborazione dei dati:", error);
+    }
+  }
+
+  // Funzione che utilizza il servizio per recuperare e processare i dati
+  async fetchAndProcessRDFData() {
+    try {
+      // Recupera i dati RDF
+      this.rdfData = await this.rdfService.getRDFResource().toPromise();
+
+      // Processa i dati RDF
+      this.processedData = await this.rdfService.exportLexicalData(this.rdfData);
+
+      console.log('Dati elaborati:', this.processedData);
+
+      // Dopo l'elaborazione, possiamo offrire il download del file
+      this.downloadProcessedData();
+    } catch (error) {
+      console.error("Errore nell'elaborazione dei dati:", error);
+    }
+  }
+
+
+  async onExportSemFieldsClick() {
+  
+    try {
+      const data = await this.rdfService.getRDFResource().toPromise();
+      const processedData = await this.rdfService.exportSemanticFields(data);
+      this.downloadSemanticData(processedData);
+    } catch (error) {
+      /* this.errorMessage = 'Si è verificato un errore durante l\'elaborazione dei dati.';
+      console.error('Errore:', error); */
+      console.error(error)
+    } finally {
+      //this.isLoading = false;
+    }
+  }
+
+  downloadSemanticData(data: string) {
+    const blob = new Blob([data], { type: 'text/turtle' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ItAnt_semantic_fields.ttl';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
+
+  // Funzione per scaricare i dati elaborati
+  downloadProcessedData() {
+    const blob = new Blob([this.processedData], { type: 'text/turtle' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'itAnt_lexicon.ttl';
+    a.click();
+    window.URL.revokeObjectURL(url);
   }
 
   /**
