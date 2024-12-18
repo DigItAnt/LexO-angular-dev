@@ -1229,6 +1229,37 @@ export class LexicalEntryTreeComponent implements OnInit, OnDestroy {
           for (const element of newNodes) {
             // Carica dati aggiuntivi a seconda del tipo di elemento (forma, senso, etimologia, subtermine)
             // e li aggiunge come figli dell'elemento corrente
+            if (element.label == 'form') {
+              let form_data = await this.lexicalService.getLexEntryForms(instance).toPromise();
+              element.isExpanded = true;
+              element.children = [];
+
+              form_data.forEach(form => {
+                element.children.push(form);
+              });
+            } else if (element.label == 'sense') {
+              let sense_data = await this.lexicalService.getSensesList(instance).toPromise();
+              element.isExpanded = true;
+              element.children = [];
+              sense_data.forEach(sense => {
+                element.children.push(sense);
+              });
+            } else if (element.label == 'etymology') {
+              let etymology_data = await this.lexicalService.getEtymologies(instance).toPromise();
+              element.isExpanded = true;
+              element.children = [];
+              etymology_data.forEach(etym => {
+                element.children.push(etym);
+              });
+            } else if (element.label == 'subterm') {
+              let subterm_data = await this.lexicalService.getSubTerms(instance).toPromise();
+              element.isExpanded = true;
+              element.children = [];
+              subterm_data.forEach(subterm => {
+                subterm.hasChildren = false;
+                element.children.push(subterm);
+              });
+            }
           }
           return newNodes;
         } else {
